@@ -18,6 +18,7 @@ using namespace std;
 #include "recordingprofile.h"
 #include "recordinginfo.h"
 #include "cardutil.h"
+#include "mythsorthelper.h"
 
 // TODO convert all dates to UTC
 
@@ -540,6 +541,112 @@ bool UpgradeTVDatabaseSchema(const bool upgradeAllowed,
     if (locked)
         DBUtil::UnlockSchema(query);
     return false;
+}
+
+
+/**
+ *  \brief Called by doUpgradeTVDatabaseSchema() to populate a single
+ *         sort column.
+ *
+ *   This function populates the information in a single sort column.
+ *   The sort column has the same name as the original column prefixed
+ *   with the word "sort".  I.E. The sort data for the column "title"
+ *   is put into column "sorttitle".  This function attempts to be
+ *   efficient by asking the database to only return distinct entries.
+ *   The "ORDER" clause should eventually be dropped.
+ *
+ *  \param table The name of the table to update.
+ *
+ *  \param column The name of a column whose sort data should be
+ *                populated.
+ *
+ *  \param num The current number of the call to this function, in a
+ *  situation where it is called repeatedly.  Printed in logging
+ *  messages.
+ *
+ *  \param total The total number of calls to this function, in a
+ *  situation where it is called repeatedly.  Printed in logging
+ *  messages.
+ *
+ *  \return true on success, false on failure
+ */
+static bool populateSortColumn(const char *table, const char *column, int num = 0, int total = 0)
+{
+    MSqlQuery select(MSqlQuery::InitCon());
+    MSqlQuery update(MSqlQuery::InitCon());
+    std::shared_ptr<MythSortHelper>sh = getMythSortHelper();
+
+    QString thequery = QString("SELECT DISTINCT(%1) AS %1 FROM %2 ORDER BY %1")
+                               .arg(column).arg(table);
+    QString theupdate = QString("UPDATE %1 SET sort%2=:SORT WHERE %2=:ORIG")
+                                .arg(table).arg(column);
+
+    if (num > 0)
+        LOG(VB_GENERAL, LOG_INFO, QString("Populating %1 table [%2/%3].")
+            .arg(table).arg(num).arg(total));
+
+    if (!select.exec(thequery))
+    {
+        MythDB::DBError(QString("Unable to retrieve %1 %2 information.")
+                        .arg(table).arg(column), select);
+        return false;
+    }
+    while (select.next())
+    {
+        update.prepare(theupdate);
+        QString string = select.value(0).toString();
+        QString sortString = (strcmp(column,"filename") == 0)
+            ? sh->doPathname(string) : sh->doTitle(string);
+        update.bindValue(":ORIG", string);
+        update.bindValue(":SORT", sortString);
+        if (!update.exec())
+        {
+            MythDB::DBError(QString("Unable to update %1 %2 information.")
+                            .arg(table).arg(column), update);
+            return false;
+        }
+    }
+    return true;
+}
+
+/**
+ *  \brief Called by doUpgradeTVDatabaseSchema() to populate a pair of
+ *         sort columns.
+ *
+ *   This function populates the information in a pair of sort
+ *   columns.  Each column has the same name as its original column
+ *   prefixed with the word "sort".  I.E. The sort data for the column
+ *   "title" is put into column "sorttitle".  This function attempts
+ *   to be efficient by asking the database to only return distinct
+ *   entries.  The "ORDER" clause should eventually be dropped.
+ *
+ *  \param table The name of the table to update.
+ *
+ *  \param column1 The name of the first column whose sort data should be
+ *                populated.
+ *
+ *  \param column2 The name of the second column whose sort data should be
+ *                populated.
+ *
+ *  \param num The current number of the call to this function, in a
+ *  situation where it is called repeatedly.  Printed in logging
+ *  messages.
+ *
+ *  \param total The total number of calls to this function, in a
+ *  situation where it is called repeatedly.  Printed in logging
+ *  messages.
+ *
+ *  \return true on success, false on failure
+ */
+static bool populateSortColumns(const char *table, const char *column1,
+                                const char *column2, int num = 0, int total = 0)
+{
+    if (num > 0)
+        LOG(VB_GENERAL, LOG_INFO, QString("Populating %1 table [%2/%3].")
+            .arg(table).arg(num).arg(total));
+    bool result = populateSortColumn(table, column1);
+    result &= populateSortColumn(table, column2);
+    return result;
 }
 
 /** \fn doUpgradeTVDatabaseSchema(void)
@@ -3427,6 +3534,62 @@ nullptr
             return false;
     }
 
+    if (dbver == "1350")
+    {
+        const char *updates[] = {
+            "ALTER TABLE internetcontent "
+            "    ADD COLUMN sortname varchar(255) NOT NULL AFTER name",
+            "ALTER TABLE internetcontentarticles "
+            "    ADD COLUMN sorttitle varchar(255) NOT NULL AFTER title,"
+            "    ADD COLUMN sortsubtitle varchar(255) NOT NULL AFTER subtitle",
+            "ALTER TABLE oldrecorded "
+            "    ADD COLUMN sorttitle varchar(128) NOT NULL AFTER title,"
+            "    ADD COLUMN sortsubtitle varchar(128) NOT NULL AFTER subtitle,"
+            "    ADD KEY sorttitle (sorttitle),"
+            "    ADD KEY sortsubtitle (sortsubtitle)",
+            "ALTER TABLE program "
+            "    ADD COLUMN sorttitle varchar(128) NOT NULL AFTER title,"
+            "    ADD COLUMN sortsubtitle varchar(128) NOT NULL AFTER subtitle,"
+            "    ADD KEY sorttitle (sorttitle),"
+            "    ADD KEY sortsubtitle (sortsubtitle)",
+            "ALTER TABLE record "
+            "    ADD COLUMN sorttitle varchar(128) NOT NULL AFTER title,"
+            "    ADD COLUMN sortsubtitle varchar(128) NOT NULL AFTER subtitle,"
+            "    ADD KEY sorttitle (sorttitle)",
+            "ALTER TABLE recorded "
+            "    ADD COLUMN sorttitle varchar(128) NOT NULL AFTER title,"
+            "    ADD COLUMN sortsubtitle varchar(128) NOT NULL AFTER subtitle,"
+            "    ADD KEY sorttitle (sorttitle)",
+            "ALTER TABLE recordedprogram "
+            "    ADD COLUMN sorttitle varchar(128) NOT NULL AFTER title,"
+            "    ADD COLUMN sortsubtitle varchar(128) NOT NULL AFTER subtitle,"
+            "    ADD KEY sorttitle (sorttitle)",
+            "ALTER TABLE videometadata "
+            "    ADD COLUMN sorttitle varchar(128) NOT NULL AFTER title,"
+            "    ADD COLUMN sortsubtitle varchar(128) NOT NULL AFTER subtitle,"
+            "    ADD COLUMN sortfilename text NOT NULL AFTER filename,"
+            "    ADD KEY sorttitle (sorttitle)",
+            nullptr
+        };
+
+        if (!performActualUpdate(updates, "1351", dbver))
+            return false;
+        LOG(VB_GENERAL, LOG_INFO,
+            "Populating sort columns. This will take time proportional to "
+            "the size of the database.");
+        if (!populateSortColumn("internetcontent", "name", 1, 9)
+            or !populateSortColumns("internetcontentarticles", "title", "subtitle", 2, 9)
+            or !populateSortColumns("oldrecorded", "title", "subtitle", 3, 9)
+            or !populateSortColumns("program", "title", "subtitle", 4, 9)
+            or !populateSortColumns("record", "title", "subtitle", 5, 9)
+            or !populateSortColumns("recorded", "title", "subtitle", 6, 9)
+            or !populateSortColumns("recordedprogram", "title", "subtitle", 7, 9)
+            or !populateSortColumn("videometadata", "filename", 8, 9)
+            or !populateSortColumns("videometadata", "title", "subtitle", 9, 9))
+            return false;
+        LOG(VB_GENERAL, LOG_INFO, "Populating sort columns finished.");
+    }
+
     return true;
 }
 
@@ -3807,6 +3970,7 @@ bool InitializeMythSchema(void)
 ") ENGINE=MyISAM DEFAULT CHARSET=utf8;",
 "CREATE TABLE internetcontent ("
 "  `name` varchar(255) NOT NULL,"
+"  sortname varchar(255) NOT NULL,"
 "  thumbnail varchar(255) DEFAULT NULL,"
 "  `type` smallint(3) NOT NULL,"
 "  author varchar(128) NOT NULL,"
@@ -3825,7 +3989,9 @@ bool InitializeMythSchema(void)
 "  path text NOT NULL,"
 "  paththumb text NOT NULL,"
 "  title varchar(255) NOT NULL,"
+"  sorttitle varchar(255) NOT NULL,"
 "  subtitle varchar(255) NOT NULL,"
+"  sortsubtitle varchar(255) NOT NULL,"
 "  season smallint(5) NOT NULL DEFAULT '0',"
 "  episode smallint(5) NOT NULL DEFAULT '0',"
 "  description text NOT NULL,"
@@ -3979,7 +4145,9 @@ bool InitializeMythSchema(void)
 "  starttime datetime NOT NULL DEFAULT '0000-00-00 00:00:00',"
 "  endtime datetime NOT NULL DEFAULT '0000-00-00 00:00:00',"
 "  title varchar(128) NOT NULL DEFAULT '',"
+"  sorttitle varchar(128) NOT NULL DEFAULT '',"
 "  subtitle varchar(128) NOT NULL DEFAULT '',"
+"  sortsubtitle varchar(128) NOT NULL DEFAULT '',"
 "  description varchar(16000) NOT NULL DEFAULT '',"
 "  season smallint(5) NOT NULL,"
 "  episode smallint(5) NOT NULL,"
@@ -3999,6 +4167,7 @@ bool InitializeMythSchema(void)
 "  PRIMARY KEY (station,starttime,title),"
 "  KEY endtime (endtime),"
 "  KEY title (title),"
+"  KEY sorttitle (sorttitle),"
 "  KEY seriesid (seriesid),"
 "  KEY programid (programid),"
 "  KEY recordid (recordid),"
@@ -4007,6 +4176,7 @@ bool InitializeMythSchema(void)
 "  KEY future (future),"
 "  KEY chanid (chanid,starttime),"
 "  KEY subtitle (subtitle),"
+"  KEY sortsubtitle (sortsubtitle),"
 "  KEY description (description(255))"
 ") ENGINE=MyISAM DEFAULT CHARSET=utf8;",
 "CREATE TABLE people ("
@@ -4051,7 +4221,9 @@ bool InitializeMythSchema(void)
 "  starttime datetime NOT NULL DEFAULT '0000-00-00 00:00:00',"
 "  endtime datetime NOT NULL DEFAULT '0000-00-00 00:00:00',"
 "  title varchar(128) NOT NULL DEFAULT '',"
+"  sorttitle varchar(128) NOT NULL DEFAULT '',"
 "  subtitle varchar(128) NOT NULL DEFAULT '',"
+"  sortsubtitle varchar(128) NOT NULL DEFAULT '',"
 "  description varchar(16000) NOT NULL DEFAULT '',"
 "  category varchar(64) NOT NULL DEFAULT '',"
 "  category_type varchar(64) NOT NULL DEFAULT '',"
@@ -4082,6 +4254,7 @@ bool InitializeMythSchema(void)
 "  PRIMARY KEY (chanid,starttime,manualid),"
 "  KEY endtime (endtime),"
 "  KEY title (title),"
+"  KEY sorttitle (sorttitle),"
 "  KEY title_pronounce (title_pronounce),"
 "  KEY seriesid (seriesid),"
 "  KEY id_start_end (chanid,starttime,endtime),"
@@ -4090,6 +4263,7 @@ bool InitializeMythSchema(void)
 "  KEY programid (programid,starttime),"
 "  KEY starttime (starttime),"
 "  KEY subtitle (subtitle),"
+"  KEY sortsubtitle (sortsubtitle),"
 "  KEY description (description(255))"
 ") ENGINE=MyISAM DEFAULT CHARSET=utf8;",
 "CREATE TABLE programgenres ("
@@ -4122,7 +4296,9 @@ bool InitializeMythSchema(void)
 "  endtime time NOT NULL DEFAULT '00:00:00',"
 "  enddate date NOT NULL DEFAULT '0000-00-00',"
 "  title varchar(128) NOT NULL DEFAULT '',"
+"  sorttitle varchar(128) NOT NULL DEFAULT '',"
 "  subtitle varchar(128) NOT NULL DEFAULT '',"
+"  sortsubtitle varchar(128) NOT NULL DEFAULT '',"
 "  description varchar(16000) NOT NULL DEFAULT '',"
 "  season smallint(5) NOT NULL,"
 "  episode smallint(5) NOT NULL,"
@@ -4166,6 +4342,7 @@ bool InitializeMythSchema(void)
 "  PRIMARY KEY (recordid),"
 "  KEY chanid (chanid,starttime),"
 "  KEY title (title),"
+"  KEY sorttitle (sorttitle),"
 "  KEY seriesid (seriesid),"
 "  KEY programid (programid),"
 "  KEY maxepisodes (maxepisodes),"
@@ -4177,7 +4354,9 @@ bool InitializeMythSchema(void)
 "  starttime datetime NOT NULL DEFAULT '0000-00-00 00:00:00',"
 "  endtime datetime NOT NULL DEFAULT '0000-00-00 00:00:00',"
 "  title varchar(128) NOT NULL DEFAULT '',"
+"  sorttitle varchar(128) NOT NULL DEFAULT '',"
 "  subtitle varchar(128) NOT NULL DEFAULT '',"
+"  sortsubtitle varchar(128) NOT NULL DEFAULT '',"
 "  description varchar(16000) NOT NULL DEFAULT '',"
 "  season smallint(5) NOT NULL,"
 "  episode smallint(5) NOT NULL,"
@@ -4219,6 +4398,7 @@ bool InitializeMythSchema(void)
 "  KEY seriesid (seriesid),"
 "  KEY programid (programid),"
 "  KEY title (title),"
+"  KEY sorttitle (sorttitle),"
 "  KEY recordid (recordid),"
 "  KEY deletepending (deletepending,lastmodified),"
 "  KEY recgroup (recgroup,endtime)"
@@ -4274,7 +4454,9 @@ bool InitializeMythSchema(void)
 "  starttime datetime NOT NULL DEFAULT '0000-00-00 00:00:00',"
 "  endtime datetime NOT NULL DEFAULT '0000-00-00 00:00:00',"
 "  title varchar(128) NOT NULL DEFAULT '',"
+"  sorttitle varchar(128) NOT NULL DEFAULT '',"
 "  subtitle varchar(128) NOT NULL DEFAULT '',"
+"  sortsubtitle varchar(128) NOT NULL DEFAULT '',"
 "  description varchar(16000) NOT NULL DEFAULT '',"
 "  category varchar(64) NOT NULL DEFAULT '',"
 "  category_type varchar(64) NOT NULL DEFAULT '',"
@@ -4305,6 +4487,7 @@ bool InitializeMythSchema(void)
 "  PRIMARY KEY (chanid,starttime,manualid),"
 "  KEY endtime (endtime),"
 "  KEY title (title),"
+"  KEY sorttitle (sorttitle),"
 "  KEY title_pronounce (title_pronounce),"
 "  KEY seriesid (seriesid),"
 "  KEY programid (programid),"
@@ -4417,6 +4600,7 @@ bool InitializeMythSchema(void)
 "  itemproperties varchar(255) NOT NULL DEFAULT '',"
 "  filepath varchar(512) NOT NULL DEFAULT '',"
 "  title varchar(255) NOT NULL DEFAULT '',"
+"  sorttitle varchar(255) NOT NULL DEFAULT '',"
 "  filename varchar(512) NOT NULL DEFAULT '',"
 "  coverart varchar(512) NOT NULL DEFAULT '',"
 "  PRIMARY KEY (intid),"
@@ -4468,7 +4652,9 @@ bool InitializeMythSchema(void)
 "CREATE TABLE videometadata ("
 "  intid int(10) unsigned NOT NULL AUTO_INCREMENT,"
 "  title varchar(128) NOT NULL,"
+"  sorttitle varchar(128) NOT NULL,"
 "  subtitle text NOT NULL,"
+"  sortsubtitle text NOT NULL,"
 "  tagline varchar(255) DEFAULT NULL,"
 "  director varchar(128) NOT NULL,"
 "  studio varchar(128) DEFAULT NULL,"
@@ -4486,6 +4672,7 @@ bool InitializeMythSchema(void)
 "  episode smallint(5) unsigned NOT NULL DEFAULT '0',"
 "  showlevel int(10) unsigned NOT NULL,"
 "  filename text NOT NULL,"
+"  sortFilename text NOT NULL,"
 "  `hash` varchar(128) NOT NULL,"
 "  coverfile text NOT NULL,"
 "  childid int(11) NOT NULL DEFAULT '-1',"
@@ -4503,7 +4690,8 @@ bool InitializeMythSchema(void)
 "  contenttype set('MOVIE','TELEVISION','ADULT','MUSICVIDEO','HOMEVIDEO') NOT NULL DEFAULT '',"
 "  PRIMARY KEY (intid),"
 "  KEY director (director),"
-"  KEY title (title)"
+"  KEY title (title),"
+"  KEY titlesort (titlesort)"
 ") ENGINE=MyISAM DEFAULT CHARSET=utf8;",
 "CREATE TABLE videometadatacast ("
 "  idvideo int(10) unsigned NOT NULL,"

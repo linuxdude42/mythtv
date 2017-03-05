@@ -24,7 +24,7 @@
    in mythversion.h need to be bumped, and also follow the instructions in
    myth_version.h about other changes needed when the network protocol changes.
 */
-#define NUMPROGRAMLINES 52
+#define NUMPROGRAMLINES 54
 
 class ProgramInfo;
 typedef AutoDeleteDeque<ProgramInfo*> ProgramList;

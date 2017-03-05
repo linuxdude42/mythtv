@@ -18,6 +18,7 @@
 #include "jobqueue.h"
 #include "mythdb.h"
 #include "mythlogging.h"
+#include "mythsorthelper.h"
 
 #define LOC      QString("RecordingInfo(%1): ").arg(GetBasename())
 
@@ -764,14 +765,19 @@ void RecordingInfo::ApplyRecordRecTitleChange(const QString &newTitle,
         const QString &newSubtitle, const QString &newDescription)
 {
     MSqlQuery query(MSqlQuery::InitCon());
-    QString sql = "UPDATE recorded SET title = :TITLE, subtitle = :SUBTITLE ";
+    QString sql = "UPDATE recorded SET "
+        "    title = :TITLE, sorttitle = :SORTTITLE, "
+        "    subtitle = :SUBTITLE, sortsubtitle = :SORTSUBTITLE ";
     if (!newDescription.isNull())
         sql += ", description = :DESCRIPTION ";
     sql += " WHERE chanid = :CHANID AND starttime = :START ;";
 
+    std::shared_ptr<MythSortHelper>sh = getMythSortHelper();
     query.prepare(sql);
     query.bindValue(":TITLE", newTitle);
+    query.bindValue(":SORTTITLE", sh->doTitle(newTitle));
     query.bindValue(":SUBTITLE", null_to_empty(newSubtitle));
+    query.bindValue(":SORTSUBTITLE", sh->doTitle(null_to_empty(newSubtitle)));
     if (!newDescription.isNull())
         query.bindValue(":DESCRIPTION", newDescription);
     query.bindValue(":CHANID", chanid);
@@ -1086,8 +1092,9 @@ bool RecordingInfo::InsertProgram(RecordingInfo *pg,
 
     query.prepare(
         "INSERT INTO recorded "
-        "   (chanid,    starttime,   endtime,         title,            "
-        "    subtitle,  description, season,          episode,          "
+        "   (chanid,    starttime,   endtime,                           "
+        "    title,     sorttitle,   subtitle,        sortsubtitle,     "
+        "               description, season,          episode,          "
         "    hostname,  category,    recgroup,        autoexpire,       "
         "    recordid,  seriesid,    programid,       inetref,          "
         "    stars,     previouslyshown,              originalairdate,  "
@@ -1095,8 +1102,9 @@ bool RecordingInfo::InsertProgram(RecordingInfo *pg,
         "    basename,  progstart,   progend,         profile,          "
         "    duplicate, storagegroup, inputname,      recgroupid) "
         "VALUES"
-        "  (:CHANID,   :STARTS,     :ENDS,           :TITLE,            "
-        "   :SUBTITLE, :DESC,       :SEASON,         :EPISODE,          "
+        "  (:CHANID,   :STARTS,     :ENDS,                              "
+        "   :TITLE,    :SORTTITLE,  :SUBTITLE,       :SORTSUBTITLE,     "
+        "              :DESC,       :SEASON,         :EPISODE,          "
         "   :HOSTNAME, :CATEGORY,   :RECGROUP,       :AUTOEXP,          "
         "   :RECORDID, :SERIESID,   :PROGRAMID,      :INETREF,          "
         "   :STARS,    :REPEAT,                      :ORIGAIRDATE,      "
@@ -1122,7 +1130,9 @@ bool RecordingInfo::InsertProgram(RecordingInfo *pg,
     query.bindValue(":STARTS",      pg->recstartts);
     query.bindValue(":ENDS",        pg->recendts);
     query.bindValue(":TITLE",       pg->title);
+    query.bindValue(":SORTTITLE",   pg->sortTitle);
     query.bindValue(":SUBTITLE",    null_to_empty(pg->subtitle));
+    query.bindValue(":SORTSUBTITLE", null_to_empty(pg->sortSubtitle));
     query.bindValue(":DESC",        null_to_empty(pg->description));
     query.bindValue(":SEASON",      pg->season);
     query.bindValue(":EPISODE",     pg->episode);
@@ -1305,16 +1315,19 @@ void RecordingInfo::AddHistory(bool resched, bool forcedup, bool future)
     result.prepare("REPLACE INTO oldrecorded (chanid,starttime,"
                    "endtime,title,subtitle,description,season,episode,"
                    "category,seriesid,programid,inetref,findid,recordid,"
-                   "station,rectype,recstatus,duplicate,reactivate,future) "
+                   "station,rectype,recstatus,duplicate,reactivate,future,"
+                   "sorttitle,sortsubtitle) "
                    "VALUES(:CHANID,:START,:END,:TITLE,:SUBTITLE,:DESC,:SEASON,"
                    ":EPISODE,:CATEGORY,:SERIESID,:PROGRAMID,:INETREF,"
                    ":FINDID,:RECORDID,:STATION,:RECTYPE,:RECSTATUS,:DUPLICATE,"
-                   ":REACTIVATE,:FUTURE);");
+                   ":REACTIVATE,:FUTURE,:SORTTITLE,:SORTSUBTITLE);");
     result.bindValue(":CHANID", chanid);
     result.bindValue(":START", startts);
     result.bindValue(":END", endts);
     result.bindValue(":TITLE", title);
+    result.bindValue(":SORTTITLE", sortTitle);
     result.bindValue(":SUBTITLE", null_to_empty(subtitle));
+    result.bindValue(":SORTSUBTITLE", null_to_empty(sortSubtitle));
     result.bindValue(":DESC", null_to_empty(description));
     result.bindValue(":SEASON", season);
     result.bindValue(":EPISODE", episode);

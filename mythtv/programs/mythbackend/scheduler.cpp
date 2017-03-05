@@ -3705,7 +3705,7 @@ void Scheduler::UpdateManuals(uint recordid)
     MSqlQuery query(dbConn);
 
     query.prepare(QString("SELECT type,title,station,startdate,starttime, "
-                  " enddate,endtime "
+                  " enddate,endtime,sorttitle "
                   "FROM %1 WHERE recordid = :RECORDID").arg(recordTable));
     query.bindValue(":RECORDID", recordid);
     if (!query.exec() || query.size() != 1)
@@ -3719,6 +3719,7 @@ void Scheduler::UpdateManuals(uint recordid)
 
     RecordingType rectype = RecordingType(query.value(0).toInt());
     QString title = query.value(1).toString();
+    QString sortTitle = query.value(7).toString();
     QString station = query.value(2).toString() ;
     QDateTime startdt = QDateTime(query.value(3).toDate(),
                                   query.value(4).toTime(), Qt::UTC);
@@ -3788,13 +3789,14 @@ void Scheduler::UpdateManuals(uint recordid)
                 continue;
 
             query.prepare("REPLACE INTO program (chanid, starttime, endtime,"
-                          " title, subtitle, manualid, generic) "
+                          " title, sorttitle, subtitle, manualid, generic) "
                           "VALUES (:CHANID, :STARTTIME, :ENDTIME, :TITLE,"
-                          " :SUBTITLE, :RECORDID, 1)");
+                          " :SORTTITLE, :SUBTITLE, :RECORDID, 1)");
             query.bindValue(":CHANID", chanidlist[i]);
             query.bindValue(":STARTTIME", startdt);
             query.bindValue(":ENDTIME", startdt.addSecs(duration));
             query.bindValue(":TITLE", title);
+            query.bindValue(":SORTTITLE", sortTitle);
             query.bindValue(":SUBTITLE", startdt.toLocalTime());
             query.bindValue(":RECORDID", recordid);
             if (!query.exec())
@@ -4478,8 +4480,10 @@ void Scheduler::AddNewRecords(void)
         "    capturecard.hostname, recordmatch.oldrecstatus, NULL, "//43-45
         "    oldrecstatus.future, capturecard.schedorder, " //46-47
         "    p.syndicatedepisodenumber, p.partnumber, p.parttotal, " //48-50
-        "    c.mplexid, capturecard.displayname, ") +      //51-52
-        pwrpri + QString(                                  //53
+        "    c.mplexid, capturecard.displayname, "         //51-52
+        "    p.sorttitle, p.sortsubtitle, ") +             //53-54
+        pwrpri +                                           //55
+        QString(
         "FROM recordmatch "
         "INNER JOIN RECTABLE ON (recordmatch.recordid = RECTABLE.recordid) "
         "INNER JOIN program AS p "
@@ -4624,7 +4628,7 @@ void Scheduler::AddNewRecords(void)
             p->SetRecordingStatus(p->oldrecstatus);
         }
 
-        p->SetRecordingPriority2(result.value(53).toInt());
+        p->SetRecordingPriority2(result.value(55).toInt());
 
         // Check to see if the program is currently recording and if
         // the end time was changed.  Ideally, checking for a new end
@@ -4758,7 +4762,8 @@ void Scheduler::AddNotListed(void) {
         "       RECTABLE.dupin,       RECTABLE.dupmethod,   " // 22,23
         "       RECTABLE.findid,                            " // 24
         "       RECTABLE.startoffset, RECTABLE.endoffset,   " // 25,26
-        "       channel.commmethod                          " // 27
+        "       channel.commmethod,   RECTABLE.sorttitle,   " // 27,28
+        "       RECTABLE.sortsubtitle                       " // 29
         "FROM RECTABLE "
         "INNER JOIN channel ON (channel.chanid = RECTABLE.chanid) "
         "LEFT JOIN recordmatch on RECTABLE.recordid = recordmatch.recordid "
@@ -4817,9 +4822,9 @@ void Scheduler::AddNotListed(void) {
 
         RecordingInfo *p = new RecordingInfo(
             result.value(0).toString(), // Title
-            QString(), // Title Sort
+            result.value(28).toString(), // Title Sort
             (sor) ? result.value(1).toString() : QString(), // Subtitle
-            QString(), // Subtitle Sort
+            (sor) ? result.value(29).toString() : QString(), // Subtitle Sort
             (sor) ? result.value(2).toString() : QString(), // Description
             result.value(3).toUInt(), // Season
             result.value(4).toUInt(), // Episode
@@ -4916,7 +4921,8 @@ void Scheduler::GetAllScheduled(RecList &proglist, SchedSortColumn sortBy,
         "       record.recordid,    record.type,        " // 20,21
         "       record.dupin,       record.dupmethod,   " // 22,23
         "       record.findid,                          " // 24
-        "       channel.commmethod                      " // 25
+        "       channel.commmethod,                     " // 25
+        "       record.sorttitle,   record.sortsubtitle " // 26,27
         "FROM record "
         "LEFT JOIN channel ON channel.callsign = record.station "
         "GROUP BY recordid "
@@ -4948,8 +4954,8 @@ void Scheduler::GetAllScheduled(RecList &proglist, SchedSortColumn sortBy,
             endts = startts;
 
         proglist.push_back(new RecordingInfo(
-            result.value(0).toString(),  QString(),
-            result.value(1).toString(),  QString(),
+            result.value(0).toString(),  result.value(26).toString(),
+            result.value(1).toString(),  result.value(27).toString(),
             result.value(2).toString(),  result.value(3).toUInt(),
             result.value(4).toUInt(),    result.value(5).toString(),
 

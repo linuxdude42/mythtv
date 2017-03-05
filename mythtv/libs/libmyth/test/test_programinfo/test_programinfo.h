@@ -100,21 +100,21 @@ class TestProgramInfo : public QObject
     QString draculalist = "Dracula||Its a movie.|0|0|0|||4294967295|||||0|"
         "946684800|946690200|4294967295||0|0|0|0|0|4294967295|0|0|0|946684800|"
         "946690200|0|Default|||tt0051554|11868|4294967295|0||Default|0|0|"
-        "Default|0|0|0|1958|0|0|1|0||4294967295";
+        "Default|0|0|0|1958|0|0|1|0||4294967295|dracula|";
     QString flash34list = "The Flash (2014)|The New Rogues|Barry continues to "
         "train Jesse ...|3|4|23|syndicatedepisode|Drama|1514|514|WNUVDT|"
         "WNUBDT (WNUV-DT)|/recordings/1514_20161025235800.ts|6056109800|"
         "1477439880|1477443720|0|localhost|0|0|0|0|0|0|0|15|8|1477439880|"
         "1477443720|0|Default||EP01922936|EP019229360055|ttvdb.py_279121|"
         "1477444354|0|2016-10-25|Default|0|0|Default|0|0|0|2016|0|0|4|715|"
-        "Prime A-1|4294967295";
+        "Prime A-1|4294967295|flash (2014)|new rogues";
     QString supergirl23list = "Supergirl|Welcome to Earth|An attack is made "
         "on the President as hot-button...|2|3|23|syndicatedepisode|Drama|"
         "1514|514|WNUVDT|WNUBDT (WNUV-DT)|/recordings/1514_20161024235800.ts|"
         "6056109670|1477353480|1477357320|0|localhost|0|0|0|0|0|0|0|15|8|"
         "1477353480|1477357320|0|Default||EP02185451|EP021854510025|"
         "ttvdb.py_295759|1477444354|0|2016-10-24|Default|0|0|Default|0|0|0|"
-        "2016|0|0|4|711|Prime A-0|4294967295";
+        "2016|0|0|4|711|Prime A-0|4294967295|supergirl|welcome to earth";
     ProgramInfo dracula;
     ProgramInfo flash34;
     ProgramInfo supergirl23;
@@ -290,7 +290,7 @@ class TestProgramInfo : public QObject
         QString dracula2 = "Dracula||Its a movie.|0|0|0|||4294967295|||||0|"
             "946684800|946690200|4294967295||0|0|0|0|0|4294967295|0|0|0|"
             "946684800|946690200|0|Default|||tt0051554|11868|4294967295|0||"
-            "Default|0|0|Default|0|0|0|1958|0|0|1|0||4294967295";
+            "Default|0|0|Default|0|0|0|1958|0|0|1|0||4294967295|dracula|";
         programB.ToStringList(program_list);
         QVERIFY (program_list.join('|') == dracula2);
         program_list.clear();
@@ -306,5 +306,10 @@ class TestProgramInfo : public QObject
         QCOMPARE (flash34.GetSortTitle(), QString("flash (2014)"));
         QCOMPARE (flash34.GetSortSubtitle(), QString("new rogues"));
         QVERIFY (flash34.GetSortTitle() < supergirl23.GetSortTitle());
+        QString foo = "%TITLE%|%SORTTITLE%|%SUBTITLE%|%SORTSUBTITLE%";
+        // Fake out GetPlaybackURL() so it doesn't attempt a database query
+        flash34.SetProgramInfoType(kProgramInfoTypeVideoBD);
+        flash34.SubstituteMatches(foo);
+        QCOMPARE(foo, QString("The Flash (2014)|flash (2014)|The New Rogues|new rogues"));
     }
 };

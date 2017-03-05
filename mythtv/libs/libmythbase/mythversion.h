@@ -45,8 +45,8 @@
  *       http://www.mythtv.org/wiki/Category:Myth_Protocol_Commands
  *       http://www.mythtv.org/wiki/Category:Myth_Protocol
  */
-#define MYTH_PROTO_VERSION "91"
-#define MYTH_PROTO_TOKEN "BuzzOff"
+#define MYTH_PROTO_VERSION "92"
+#define MYTH_PROTO_TOKEN "LightSpeed"
 /*
  *  Protocol cleanups needed:
  *
@@ -75,7 +75,7 @@
  *      mythtv/bindings/php/MythBackend.php
  */
 
-#define MYTH_DATABASE_VERSION "1350"
+#define MYTH_DATABASE_VERSION "1351"
 
 
  MBASE_PUBLIC  const char *GetMythSourceVersion();

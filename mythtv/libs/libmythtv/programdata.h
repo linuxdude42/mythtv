@@ -18,6 +18,7 @@ using namespace std;
 #include "listingsources.h"
 #include "programinfo.h"
 #include "eithelper.h" /* for FixupValue */
+#include "mythsorthelper.h"
 
 class MSqlQuery;
 
@@ -73,7 +74,9 @@ class MTV_PUBLIC DBEvent
   public:
     explicit DBEvent(uint _listingsource) :
         title(),
+        sortTitle(),
         subtitle(),
+        sortSubtitle(),
         description(),
         category(),
         /*starttime, endtime,*/
@@ -96,7 +99,8 @@ class MTV_PUBLIC DBEvent
         episode(0),
         totalepisodes(0) {}
 
-    DBEvent(const QString   &_title,     const QString   &_subtitle,
+    DBEvent(const QString   &_title,     const QString   &_sortTitle,
+            const QString   &_subtitle,  const QString   &_sortSubtitle,
             const QString   &_desc,
             const QString   &_category,  ProgramInfo::CategoryType _category_type,
             const QDateTime &_start,     const QDateTime &_end,
@@ -108,7 +112,8 @@ class MTV_PUBLIC DBEvent
             uint32_t         _listingsource,
             uint _season,                uint _episode,
             uint _totalepisodes ) :
-        title(_title),           subtitle(_subtitle),
+        title(_title),           sortTitle(_sortTitle),
+        subtitle(_subtitle),     sortSubtitle(_sortSubtitle),
         description(_desc),
         category(_category),
         starttime(_start),       endtime(_end),
@@ -129,6 +134,11 @@ class MTV_PUBLIC DBEvent
         episode(_episode),
         totalepisodes(_totalepisodes)
     {
+        std::shared_ptr<MythSortHelper>sh = getMythSortHelper();
+        if (sortTitle.isEmpty())
+            sortTitle = sh->doTitle(_title);
+        if (sortSubtitle.isEmpty())
+            sortSubtitle = sh->doTitle(_sortTitle);
     }
 
     virtual ~DBEvent() { delete credits; }
@@ -159,7 +169,9 @@ class MTV_PUBLIC DBEvent
 
   public:
     QString       title;
+    QString       sortTitle;
     QString       subtitle;
+    QString       sortSubtitle;
     QString       description;
     QString       category;
     QDateTime     starttime;
@@ -191,7 +203,8 @@ class MTV_PUBLIC DBEventEIT : public DBEvent
 {
   public:
     DBEventEIT(uint             _chanid,
-               const QString   &_title,     const QString   &_subtitle,
+               const QString   &_title,     const QString   &_sortTitle,
+               const QString   &_subtitle,  const QString   &_sortSubtitle,
                const QString   &_desc,
                const QString   &_category,  ProgramInfo::CategoryType _category_type,
                const QDateTime &_start,     const QDateTime &_end,
@@ -203,7 +216,8 @@ class MTV_PUBLIC DBEventEIT : public DBEvent
                const QString   &_seriesId,  const QString   &_programId,
                uint _season,                uint _episode,
                uint _totalepisodes ) :
-        DBEvent(_title, _subtitle, _desc, _category, _category_type,
+        DBEvent(_title, _sortTitle, _subtitle, _sortSubtitle,
+                _desc, _category, _category_type,
                 _start, _end, _subtitleType, _audioProps, _videoProps,
                 _stars, _seriesId, _programId, kListingSourceEIT,
                 _season, _episode, _totalepisodes),
@@ -218,7 +232,8 @@ class MTV_PUBLIC DBEventEIT : public DBEvent
                unsigned char    _subtitleType,
                unsigned char    _audioProps,
                unsigned char    _videoProps) :
-        DBEvent(_title, QString(), _desc, QString(), ProgramInfo::kCategoryNone,
+        DBEvent(_title, QString(), QString(), QString(),
+                _desc, QString(), ProgramInfo::kCategoryNone,
                 _start, _end, _subtitleType, _audioProps, _videoProps,
                 0.0, QString(), QString(), kListingSourceEIT, 0, 0, 0), // Season, Episode and Total Episodes are not set with this constructor!
         chanid(_chanid), fixup(_fixup)

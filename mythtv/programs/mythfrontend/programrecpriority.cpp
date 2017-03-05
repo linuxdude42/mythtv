@@ -1201,8 +1201,9 @@ void ProgramRecPriority::FillList(void)
     // it all at once than once per program)
 
     MSqlQuery result(MSqlQuery::InitCon());
-    result.prepare("SELECT recordid, title, chanid, starttime, startdate, "
-                   "type, inactive, last_record, avg_delay, profile "
+    result.prepare("SELECT recordid, title, chanid, starttime, startdate, " // 0-4
+                   "type, inactive, last_record, avg_delay, profile, " // 5-9
+                   "subtitle, sorttitle, sortsubtitle " // 10-12
                    "FROM record;");
 
     if (!result.exec())
@@ -1215,6 +1216,9 @@ void ProgramRecPriority::FillList(void)
         do {
             uint recordid = result.value(0).toUInt();
             QString title = result.value(1).toString();
+            QString sortTitle = result.value(11).toString();
+            QString subtitle = result.value(10).toString();
+            QString sortSubtitle = result.value(12).toString();
             QString chanid = result.value(2).toString();
             QString tempTime = result.value(3).toString();
             QString tempDate = result.value(4).toString();

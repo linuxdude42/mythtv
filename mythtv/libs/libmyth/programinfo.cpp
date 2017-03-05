@@ -70,7 +70,7 @@ const QString ProgramInfo::kFromRecordedQuery =
     "       p.syndicatedepisodenumber, p.partnumber, p.parttotal,  "//48-50
     "       p.season,           p.episode,      p.totalepisodes,   "//51-53
     "       p.category_type,    r.recordedid,   r.inputname,       "//54-56
-    "       r.bookmarkupdate                                       "//57-57
+    "       r.bookmarkupdate,   r.sorttitle,    r.sortsubtitle     "//57-59
     "FROM recorded AS r "
     "LEFT JOIN channel AS c "
     "ON (r.chanid    = c.chanid) "
@@ -1582,6 +1582,9 @@ void ProgramInfo::ToStringList(QStringList &list) const
     INT_TO_LIST(recordedid);          // 49
     STR_TO_LIST(inputname);           // 50
     DATETIME_TO_LIST(bookmarkupdate); // 51
+
+    STR_TO_LIST(sortTitle);        // 52
+    STR_TO_LIST(sortSubtitle);     // 53
 /* do not forget to update the NUMPROGRAMLINES defines! */
 }
 
@@ -1704,6 +1707,9 @@ bool ProgramInfo::FromStringList(QStringList::const_iterator &it,
     INT_FROM_LIST(recordedid);          // 49
     STR_FROM_LIST(inputname);           // 50
     DATETIME_FROM_LIST(bookmarkupdate); // 51
+
+    STR_FROM_LIST(sortTitle);           // 52
+    STR_FROM_LIST(sortSubtitle);        // 53
 
     if (!origChanid || !origRecstartts.isValid() ||
         (origChanid != chanid) || (origRecstartts != recstartts))
@@ -2193,7 +2199,9 @@ bool ProgramInfo::LoadProgramFromRecorded(
     }
 
     title        = query.value(0).toString();
+    sortTitle    = query.value(58).toString();
     subtitle     = query.value(1).toString();
+    sortSubtitle = query.value(59).toString();
     description  = query.value(2).toString();
     season       = query.value(3).toUInt();
     if (season == 0)
@@ -5465,7 +5473,9 @@ void ProgramInfo::SubstituteMatches(QString &str)
 
     str.replace(QString("%FILE%"), GetBasename());
     str.replace(QString("%TITLE%"), title);
+    str.replace(QString("%SORTTITLE%"), sortTitle);
     str.replace(QString("%SUBTITLE%"), subtitle);
+    str.replace(QString("%SORTSUBTITLE%"), sortSubtitle);
     str.replace(QString("%SEASON%"), QString::number(season));
     str.replace(QString("%EPISODE%"), QString::number(episode));
     str.replace(QString("%TOTALEPISODES%"), QString::number(totalepisodes));
@@ -5621,7 +5631,8 @@ static bool FromProgramQuery(const QString &sql, const MSqlBindings &bindings,
         "oldrecstatus.findid,     program.videoprop+0,     program.audioprop+0,     " // 22-24
         "program.subtitletypes+0, program.syndicatedepisodenumber,                  " // 25-26
         "program.partnumber,      program.parttotal,                                " // 27-28
-        "program.season,          program.episode,         program.totalepisodes ");  // 29-31
+        "program.season,          program.episode,         program.totalepisodes,   " // 29-31
+        "program.sorttitle,       program.sortsubtitle ");                            // 32-33
 
     QString querystr = QString(
         "SELECT %1 "
@@ -5799,9 +5810,9 @@ bool LoadFromProgram( ProgramList &destination,
         destination.push_back(
             new ProgramInfo(
                 query.value(3).toString(), // title
-                QString(),                 // sortTitle
+                query.value(32).toString(),// sortTitle
                 query.value(4).toString(), // subtitle
-                QString(),                 // sortSubtitle
+                query.value(33).toString(),// sortSubtitle
                 query.value(5).toString(), // description
                 query.value(26).toString(), // syndicatedepisodenumber
                 query.value(6).toString(), // category
@@ -5902,7 +5913,8 @@ bool LoadFromOldRecorded(ProgramList &destination, const QString &sql,
         "oldrecorded.chanid, starttime, endtime, "
         "title, subtitle, description, season, episode, category, seriesid, "
         "programid, inetref, channel.channum, channel.callsign, "
-        "channel.name, findid, rectype, recstatus, recordid, duplicate ";
+        "channel.name, findid, rectype, recstatus, recordid, duplicate, "
+        "sorttitle, sortsubtitle ";
 
     QString querystr =
         "SELECT %1 "
@@ -6001,9 +6013,9 @@ bool LoadFromOldRecorded(ProgramList &destination, const QString &sql,
 
         destination.push_back(new ProgramInfo(
             query.value(3).toString(),
-            QString(),
+            query.value(20).toString(),
             query.value(4).toString(),
-            QString(),
+            query.value(21).toString(),
             query.value(5).toString(),
             query.value(6).toUInt(),
             query.value(7).toUInt(),
@@ -6217,9 +6229,9 @@ bool LoadFromRecorded(
             new ProgramInfo(
                 query.value(55).toUInt(),
                 query.value(0).toString(),
-                QString(),
+                query.value(58).toString(),
                 query.value(1).toString(),
-                QString(),
+                query.value(59).toString(),
                 query.value(2).toString(),
                 season,
                 episode,

@@ -131,12 +131,13 @@ void VideoMetadataListManager::loadAllFromDatabase(metadata_list &items,
     MSqlQuery query(MSqlQuery::InitCon());
     query.setForwardOnly(true);
     QString BaseMetadataQuery(
-        "SELECT title, director, studio, plot, rating, year, releasedate,"
-        "userrating, length, playcount, filename, hash, showlevel, "
-        "coverfile, inetref, collectionref, homepage, childid, browse, watched, "
-        "playcommand, category, intid, trailer, screenshot, banner, fanart, "
-        "subtitle, tagline, season, episode, host, insertdate, processed, "
-        "contenttype FROM videometadata ");
+        "SELECT title, director, studio, plot, rating, year, releasedate," // 0-6
+        "userrating, length, playcount, filename, hash, showlevel, "       // 7-12
+        "coverfile, inetref, collectionref, homepage, childid, browse, watched, " // 13-19
+        "playcommand, category, intid, trailer, screenshot, banner, fanart, " // 20-26
+        "subtitle, tagline, season, episode, host, insertdate, processed, " // 27-33
+        "contenttype, sorttitle, sortsubtitle, sortfilename " // 34-37
+        "FROM videometadata ");
 
     if (!sql.isEmpty())
         BaseMetadataQuery.append(sql);
@@ -254,6 +255,9 @@ meta_dir_node::meta_dir_node(const QString &path, const QString &name,
   : meta_node(parent, is_path_root), m_path(path), m_name(name),
     m_host(host), m_prefix(prefix), m_data(data)
 {
+    std::shared_ptr<MythSortHelper>sh = getMythSortHelper();
+    m_sortPath = sh->doPathname(m_path);
+
     if (!name.length())
         m_name = path;
     ensureSortFields();

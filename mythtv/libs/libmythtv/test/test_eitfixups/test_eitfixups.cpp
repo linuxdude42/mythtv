@@ -419,7 +419,9 @@ DBEventEIT *TestEITFixups::SimpleDBEventEIT (FixupValue fixup, QString title, QS
 {
     DBEventEIT *event = new DBEventEIT (1, // channel id
                                        title, // title
+                                       QString(), //sortTitle
                                        subtitle, // subtitle
+                                       QString(), //sortSubtitle
                                        description, // description
                                        "", // category
                                        ProgramInfo::kCategoryNone, // category_type

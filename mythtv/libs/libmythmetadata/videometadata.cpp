@@ -592,6 +592,10 @@ void VideoMetadataImp::fromDBRow(MSqlQuery &query)
 
     m_contenttype = ContentTypeFromString(query.value(34).toString());
 
+    m_sortTitle = query.value(35).toString();
+    m_sortSubtitle = query.value(36).toString();
+    m_sortFilename = query.value(37).toString();
+
     ensureSortFields();
 
     VideoCategory::GetCategory().get(m_categoryID, m_category);
@@ -665,23 +669,27 @@ void VideoMetadataImp::saveToDatabase()
 
         m_watched = false;
 
-        query.prepare("INSERT INTO videometadata (title,subtitle,tagline,director,studio,plot,"
-                      "rating,year,userrating,length,season,episode,filename,hash,"
+        query.prepare("INSERT INTO videometadata (title,sorttitle,subtitle,sortsubtitle,"
+                      "tagline,director,studio,plot,rating,year,userrating,length,"
+                      "season,episode,filename,sortfilename,hash,"
                       "showlevel,coverfile,inetref,homepage,browse,watched,trailer,"
-                      "screenshot,banner,fanart,host,processed,contenttype) VALUES (:TITLE, :SUBTITLE, "
+                      "screenshot,banner,fanart,host,processed,contenttype) "
+                      "VALUES (:TITLE, :TITLESORT, :SUBTITLE, :SUBTITLESORT, "
                       ":TAGLINE, :DIRECTOR, :STUDIO, :PLOT, :RATING, :YEAR, :USERRATING, "
-                      ":LENGTH, :SEASON, :EPISODE, :FILENAME, :HASH, :SHOWLEVEL, "
+                      ":LENGTH, :SEASON, :EPISODE, :FILENAME, :SORTFILENAME, :HASH, :SHOWLEVEL, "
                       ":COVERFILE, :INETREF, :HOMEPAGE, :BROWSE, :WATCHED, "
                       ":TRAILER, :SCREENSHOT, :BANNER, :FANART, :HOST, :PROCESSED, :CONTENTTYPE)");
     }
     else
     {
-        query.prepare("UPDATE videometadata SET title = :TITLE, subtitle = :SUBTITLE, "
+        query.prepare("UPDATE videometadata SET title = :TITLE, sorttitle = :SORTTITLE, "
+                      "subtitle = :SUBTITLE, sortsubtitle = :SORTSUBTITLE, "
                       "tagline = :TAGLINE, director = :DIRECTOR, studio = :STUDIO, "
                       "plot = :PLOT, rating= :RATING, year = :YEAR, "
                       "releasedate = :RELEASEDATE, userrating = :USERRATING, "
                       "length = :LENGTH, playcount = :PLAYCOUNT, season = :SEASON, "
-                      "episode = :EPISODE, filename = :FILENAME, hash = :HASH, trailer = :TRAILER, "
+                      "episode = :EPISODE, filename = :FILENAME, sortfilename = :SORTFILENAME, "
+                      "hash = :HASH, trailer = :TRAILER, "
                       "showlevel = :SHOWLEVEL, coverfile = :COVERFILE, "
                       "screenshot = :SCREENSHOT, banner = :BANNER, fanart = :FANART, "
                       "inetref = :INETREF, collectionref = :COLLECTION, homepage = :HOMEPAGE, "
@@ -696,7 +704,9 @@ void VideoMetadataImp::saveToDatabase()
     }
 
     query.bindValue(":TITLE", m_title.isNull() ? "" : m_title);
+    query.bindValue(":SORTTITLE", m_sortTitle.isNull() ? "" : m_sortTitle);
     query.bindValue(":SUBTITLE", m_subtitle.isNull() ? "" : m_subtitle);
+    query.bindValue(":SORTSUBTITLE", m_sortSubtitle.isNull() ? "" : m_sortSubtitle);
     query.bindValue(":TAGLINE", m_tagline);
     query.bindValue(":DIRECTOR", m_director.isNull() ? "" : m_director);
     query.bindValue(":STUDIO", m_studio);
@@ -710,6 +720,7 @@ void VideoMetadataImp::saveToDatabase()
     query.bindValue(":SEASON", m_season);
     query.bindValue(":EPISODE", m_episode);
     query.bindValue(":FILENAME", m_filename);
+    query.bindValue(":SORTFILENAME", m_sortFilename);
     query.bindValue(":HASH", m_hash);
     query.bindValue(":TRAILER", m_trailer.isNull() ? "" : m_trailer);
     query.bindValue(":SHOWLEVEL", m_showlevel);
@@ -1007,6 +1018,7 @@ int VideoMetadata::UpdateHashedDBRecord(const QString &hash,
                                    const QString &host)
 {
     MSqlQuery query(MSqlQuery::InitCon());
+    std::shared_ptr<MythSortHelper>sh = getMythSortHelper();
 
     query.prepare("SELECT intid,filename FROM videometadata WHERE "
                   "hash = :HASH");
@@ -1025,8 +1037,10 @@ int VideoMetadata::UpdateHashedDBRecord(const QString &hash,
     QString oldfilename = query.value(1).toString();
 
     query.prepare("UPDATE videometadata SET filename = :FILENAME, "
+                  "sortfilename = :SORTFILENAME, "
                   "host = :HOST WHERE intid = :INTID");
     query.bindValue(":FILENAME", file_name);
+    query.bindValue(":SORTFILENAME", sh->doPathname(file_name));
     query.bindValue(":HOST", host);
     query.bindValue(":INTID", intid);
 

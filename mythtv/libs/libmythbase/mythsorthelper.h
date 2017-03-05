@@ -5,7 +5,7 @@
 #define MYTHSORTHELPER_H_
 
 #include <QCoreApplication>
- #include <QRegularExpression>
+#include <QRegularExpression>
 #include <memory>
 #include "mythbaseexp.h"
 

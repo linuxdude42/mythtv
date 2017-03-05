@@ -5,6 +5,7 @@
 #include "mythdb.h"
 #include "mythcontext.h"
 #include "mythdate.h"
+#include "mythsorthelper.h"
 
 #include "netutils.h"
 
@@ -246,14 +247,16 @@ bool insertGrabberInDB(const QString &name, const QString &thumbnail,
 {
     QFileInfo fi(thumbnail);
     QString thumbbase = fi.fileName();
+    std::shared_ptr<MythSortHelper>sh = getMythSortHelper();
 
     MSqlQuery query(MSqlQuery::InitCon());
-    query.prepare("INSERT INTO internetcontent (name,thumbnail,type,author,"
+    query.prepare("INSERT INTO internetcontent (name,sortname,thumbnail,type,author,"
                   "description,commandline,version,search,tree,podcast,"
                   "host) "
-            "VALUES( :NAME, :THUMBNAIL, :TYPE, :AUTHOR, :DESCRIPTION, :COMMAND, "
+            "VALUES( :NAME, :SORTNAME, :THUMBNAIL, :TYPE, :AUTHOR, :DESCRIPTION, :COMMAND, "
             ":VERSION, :SEARCH, :TREE, :PODCAST, :HOST);");
     query.bindValue(":NAME", name);
+    query.bindValue(":SORTNAME", sh->doTitle(name));
     query.bindValue(":THUMBNAIL", thumbbase);
     query.bindValue(":TYPE", type);
     query.bindValue(":AUTHOR", author);
@@ -404,17 +407,19 @@ bool insertTreeArticleInDB(const QString &feedtitle, const QString &path,
                   " title, subtitle, description, url, type, thumbnail, mediaURL, author, "
                   "date, time, rating, filesize, player, playerargs, download, "
                   "downloadargs, width, height, language, podcast, downloadable, "
-                  "customhtml, countries, season, episode) "
+                  "customhtml, countries, season, episode, sorttitle, sortsubtitle) "
             "VALUES( :FEEDTITLE, :PATH, :PATHTHUMB, :TITLE, :SUBTITLE, :DESCRIPTION, "
             ":URL, :TYPE, :THUMBNAIL, :MEDIAURL, :AUTHOR, :DATE, :TIME, :RATING, "
             ":FILESIZE, :PLAYER, :PLAYERARGS, :DOWNLOAD, :DOWNLOADARGS, :WIDTH, :HEIGHT, "
             ":LANGUAGE, :PODCAST, :DOWNLOADABLE, :CUSTOMHTML, :COUNTRIES, :SEASON, "
-            ":EPISODE);");
+            ":EPISODE, :SORTTITLE, :SORTSUBTITLE);");
     query.bindValue(":FEEDTITLE", feedtitle);
     query.bindValue(":PATH", path);
     query.bindValue(":PATHTHUMB", paththumb);
     query.bindValue(":TITLE", item->GetTitle());
+    query.bindValue(":SORTTITLE", item->GetSortTitle());
     query.bindValue(":SUBTITLE", item->GetSubtitle().isNull() ? "" : item->GetSubtitle());
+    query.bindValue(":SORTSUBTITLE", item->GetSortSubtitle().isNull() ? "" : item->GetSortSubtitle());
     query.bindValue(":DESCRIPTION", item->GetDescription());
     query.bindValue(":URL", item->GetURL());
     query.bindValue(":TYPE", type);
@@ -468,7 +473,8 @@ QMultiMap<QPair<QString,QString>, ResultItem*> getTreeArticles(const QString &fe
                   "rating, filesize, player, playerargs, download, "
                   "downloadargs, width, height, language, "
                   "downloadable, customhtml, countries, season, episode, "
-                  "path, paththumb FROM internetcontentarticles "
+                  "path, paththumb, sorttitle, sortsubtitle "
+                  "FROM internetcontentarticles "
                   "WHERE feedtitle = :FEEDTITLE AND podcast = 0 "
                   "AND type = :TYPE ORDER BY title DESC;");
     query.bindValue(":FEEDTITLE", feedtitle);
@@ -482,7 +488,9 @@ QMultiMap<QPair<QString,QString>, ResultItem*> getTreeArticles(const QString &fe
     while (query.next())
     {
         QString     title = query.value(0).toString();
+        QString     sortTitle = query.value(26).toString();
         QString     subtitle = query.value(1).toString();
+        QString     sortSubtitle = query.value(27).toString();
         QString     desc = query.value(2).toString();
         QString     URL = query.value(3).toString();
         QString     type = query.value(4).toString();
@@ -510,8 +518,8 @@ QMultiMap<QPair<QString,QString>, ResultItem*> getTreeArticles(const QString &fe
         QString     paththumb = query.value(25).toString();
 
         QPair<QString,QString> pair(path,paththumb);
-        ret.insert(pair, new ResultItem(title, QString(),
-                   subtitle, QString(), desc, URL,
+        ret.insert(pair, new ResultItem(title, sortTitle,
+                   subtitle, sortSubtitle, desc, URL,
                    thumbnail, mediaURL, author, date, time, rating, filesize,
                    player, playerargs, download, downloadargs,
                    width, height, language, downloadable, countries,
@@ -541,7 +549,8 @@ RSSSite* findByURL(const QString& url, ArticleType type)
     RSSSite *tmp = nullptr;
     MSqlQuery query(MSqlQuery::InitCon());
     query.prepare("SELECT name,thumbnail,author,description,"
-                  "commandline,download,updated FROM internetcontent "
+                  "commandline,download,updated,sortname "
+                  "FROM internetcontent "
                   "WHERE commandline = :URL AND type = :TYPE "
                   "AND podcast = 1;");
     query.bindValue(":URL", url);
@@ -557,6 +566,7 @@ RSSSite* findByURL(const QString& url, ArticleType type)
     else
     {
         QString title = query.value(0).toString();
+        QString sorttitle = query.value(7).toString();
         QString image  = query.value(1).toString();
         QString author = query.value(2).toString();
         QString description = query.value(3).toString();
@@ -564,7 +574,7 @@ RSSSite* findByURL(const QString& url, ArticleType type)
         bool download = query.value(5).toInt();
         QDateTime updated; query.value(6).toDate();
 
-        tmp = new RSSSite(title, QString(), image, type, description,
+        tmp = new RSSSite(title, sorttitle, image, type, description,
                           outurl, author, download, updated);
     }
 
@@ -578,7 +588,7 @@ RSSSite::rssList findAllDBRSSByType(ArticleType type)
     MSqlQuery query(MSqlQuery::InitCon());
     query.prepare(
         "SELECT name, thumbnail, description, commandline, author, "
-        "download, updated FROM internetcontent WHERE podcast = 1 "
+        "download, updated, sortname FROM internetcontent WHERE podcast = 1 "
         "AND type = :TYPE ORDER BY name");
 
     query.bindValue(":TYPE", type);
@@ -591,13 +601,14 @@ RSSSite::rssList findAllDBRSSByType(ArticleType type)
     while (query.next())
     {
         QString title = query.value(0).toString();
+        QString sorttitle = query.value(7).toString();
         QString image  = query.value(1).toString();
         QString description = query.value(2).toString();
         QString url = query.value(3).toString();
         QString author = query.value(4).toString();
         bool download = query.value(5).toInt();
         QDateTime updated; query.value(6).toDate();
-        tmp.append(new RSSSite(title, QString(), image, type, description, url,
+        tmp.append(new RSSSite(title, sorttitle, image, type, description, url,
                        author, download, updated));
     }
 
@@ -611,7 +622,7 @@ RSSSite::rssList findAllDBRSS()
     MSqlQuery query(MSqlQuery::InitCon());
     query.prepare(
         "SELECT name, thumbnail, type, description, commandline, author, "
-        "download, updated FROM internetcontent WHERE podcast = 1 "
+        "download, updated, sortname FROM internetcontent WHERE podcast = 1 "
         "ORDER BY name");
 
     if (!query.exec())
@@ -622,6 +633,7 @@ RSSSite::rssList findAllDBRSS()
     while (query.next())
     {
         QString title = query.value(0).toString();
+        QString sorttitle = query.value(8).toString();
         QString image  = query.value(1).toString();
         ArticleType type  = (ArticleType)query.value(2).toInt();
         QString description = query.value(3).toString();
@@ -629,7 +641,7 @@ RSSSite::rssList findAllDBRSS()
         QString author = query.value(5).toString();
         bool download = query.value(6).toInt();
         QDateTime updated; query.value(7).toDate();
-        tmp.append(new RSSSite(title, QString(),
+        tmp.append(new RSSSite(title, sorttitle,
                                image, type, description, url,
                                author, download, updated));
     }
@@ -657,12 +669,12 @@ bool insertInDB(const QString &name, const QString &sortname,
         return false;
 
     MSqlQuery query(MSqlQuery::InitCon());
-    query.prepare("INSERT INTO internetcontent (name,thumbnail,description,"
+    query.prepare("INSERT INTO internetcontent (name,sortname,thumbnail,description,"
                   "commandline,author,download,updated,podcast, type) "
-            "VALUES( :NAME, :THUMBNAIL, :DESCRIPTION, :URL, :AUTHOR, :DOWNLOAD, "
+            "VALUES( :NAME, :SORTNAME, :THUMBNAIL, :DESCRIPTION, :URL, :AUTHOR, :DOWNLOAD, "
             ":UPDATED, :PODCAST, :TYPE);");
     query.bindValue(":NAME", name);
-    Q_UNUSED(sortname); // query.bindValue(":SORTNAME", sortname);
+    query.bindValue(":SORTNAME", sortname);
     query.bindValue(":THUMBNAIL", thumbnail);
     query.bindValue(":DESCRIPTION", description);
     query.bindValue(":URL", url);
@@ -746,13 +758,15 @@ bool insertRSSArticleInDB(const QString &feedtitle, ResultItem *item,
                   "description, url, type, thumbnail, mediaURL, author, date, time, "
                   "rating, filesize, player, playerargs, download, "
                   "downloadargs, width, height, language, downloadable, countries, "
-                  "podcast) "
+                  "podcast, sorttitle) "
             "VALUES( :FEEDTITLE, :TITLE, :DESCRIPTION, :URL, :TYPE, :THUMBNAIL, "
             ":MEDIAURL, :AUTHOR, :DATE, :TIME, :RATING, :FILESIZE, :PLAYER, "
             ":PLAYERARGS, :DOWNLOAD, :DOWNLOADARGS, :WIDTH, :HEIGHT, "
-            ":LANGUAGE, :DOWNLOADABLE, :COUNTRIES, :PODCAST);");
+            ":LANGUAGE, :DOWNLOADABLE, :COUNTRIES, :PODCAST, "
+            ":SORTTITLE);");
     query.bindValue(":FEEDTITLE", feedtitle);
     query.bindValue(":TITLE", item->GetTitle());
+    query.bindValue(":SORTTITLE", item->GetSortTitle());
     //RSS articles don't have subtitles
     query.bindValue(":DESCRIPTION", item->GetDescription());
     query.bindValue(":URL", item->GetURL());
@@ -801,7 +815,8 @@ ResultItem::resultList getRSSArticles(const QString &feedtitle,
                   "thumbnail, mediaURL, author, date, time, "
                   "rating, filesize, player, playerargs, download, "
                   "downloadargs, width, height, language, "
-                  "downloadable, countries, season, episode "
+                  "downloadable, countries, season, episode, "
+                  "sorttitle "
                   "FROM internetcontentarticles "
                   "WHERE feedtitle = :FEEDTITLE AND podcast = 1 "
                   "AND type = :TYPE ORDER BY date DESC;");
@@ -815,6 +830,7 @@ ResultItem::resultList getRSSArticles(const QString &feedtitle,
     while (query.next())
     {
         QString     title = query.value(0).toString();
+        QString     sortTitle = query.value(21).toString();
         //RSS articles don't have subtitles
         QString     desc = query.value(1).toString();
         QString     URL = query.value(2).toString();
@@ -837,7 +853,7 @@ ResultItem::resultList getRSSArticles(const QString &feedtitle,
         uint        season = query.value(19).toUInt();
         uint        episode = query.value(20).toUInt();
 
-        ret.append(new ResultItem(title, QString(), QString(),
+        ret.append(new ResultItem(title, sortTitle, QString(),
                    QString(), desc, URL, thumbnail,
                    mediaURL, author, date, time, rating, filesize,
                    player, playerargs, download, downloadargs,

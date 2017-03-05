@@ -14,6 +14,7 @@ using namespace std;
 #include "mythdb.h"
 #include "mythlogging.h"
 #include "dvbdescriptors.h"
+#include "mythsorthelper.h"
 
 #define LOC      QString("ProgramData: ")
 
@@ -362,7 +363,7 @@ uint DBEvent::GetOverlappingPrograms(
         "       previouslyshown,listingsource, "
         "       stars+0, "
         "       season,         episode,       totalepisodes, "
-        "       inetref "
+        "       inetref,        sorttitle,     sortsubtitle "
         "FROM program "
         "WHERE chanid   = :CHANID AND "
         "      manualid = 0       AND "
@@ -390,7 +391,9 @@ uint DBEvent::GetOverlappingPrograms(
 
         DBEvent prog(
             query.value(0).toString(),
+            query.value(24).toString(),
             query.value(1).toString(),
+            query.value(25).toString(),
             query.value(2).toString(),
             query.value(3).toString(),
             category_type,
@@ -616,7 +619,9 @@ uint DBEvent::UpdateDB(
     MSqlQuery &query, uint chanid, const DBEvent &match)  const
 {
     QString  ltitle     = title;
+    QString  lsortTitle = sortTitle;
     QString  lsubtitle  = subtitle;
+    QString  lsortSubtitle  = sortSubtitle;
     QString  ldesc      = description;
     QString  lcategory  = category;
     uint16_t lairdate   = airdate;
@@ -626,10 +631,16 @@ uint DBEvent::UpdateDB(
     QDate loriginalairdate = originalairdate;
 
     if (match.title.length() >= ltitle.length())
+    {
         ltitle = match.title;
+        lsortTitle = match.sortTitle;
+    }
 
     if (match.subtitle.length() >= lsubtitle.length())
+    {
         lsubtitle = match.subtitle;
+        lsortSubtitle = match.sortSubtitle;
+    }
 
     if (match.description.length() >= ldesc.length())
         ldesc = match.description;
@@ -693,7 +704,8 @@ uint DBEvent::UpdateDB(
 
     query.prepare(
         "UPDATE program "
-        "SET title          = :TITLE,     subtitle      = :SUBTITLE, "
+        "SET title          = :TITLE,     sorttitle     = :SORTTITLE, "
+        "    subtitle       = :SUBTITLE,  sortsubtitle  = :SORTSUBTITLE, "
         "    description    = :DESC, "
         "    category       = :CATEGORY,  category_type = :CATTYPE, "
         "    starttime      = :STARTTIME, endtime       = :ENDTIME, "
@@ -715,7 +727,9 @@ uint DBEvent::UpdateDB(
     query.bindValue(":CHANID",      chanid);
     query.bindValue(":OLDSTART",    match.starttime);
     query.bindValue(":TITLE",       denullify(ltitle));
+    query.bindValue(":SORTTITLE",   denullify(lsortTitle));
     query.bindValue(":SUBTITLE",    denullify(lsubtitle));
+    query.bindValue(":SORTSUBTITLE", denullify(lsortSubtitle));
     query.bindValue(":DESC",        denullify(ldesc));
     query.bindValue(":CATEGORY",    denullify(lcategory));
     query.bindValue(":CATTYPE",     lcattype);
@@ -995,7 +1009,8 @@ uint DBEvent::InsertDB(MSqlQuery &query, uint chanid) const
 {
     query.prepare(
         "REPLACE INTO program ("
-        "  chanid,         title,          subtitle,        description, "
+        "  chanid,         title,          sorttitle, "
+        "  subtitle,       sortsubtitle,   description, "
         "  category,       category_type, "
         "  starttime,      endtime, "
         "  closecaptioned, stereo,         hdtv,            subtitled, "
@@ -1007,7 +1022,8 @@ uint DBEvent::InsertDB(MSqlQuery &query, uint chanid) const
         "  season,         episode,        totalepisodes, "
         "  inetref ) "
         "VALUES ("
-        " :CHANID,        :TITLE,         :SUBTITLE,       :DESCRIPTION, "
+        " :CHANID,        :TITLE,         :SORTTITLE, "
+        " :SUBTITLE,      :SORTSUBTITLE,  :DESCRIPTION, "
         " :CATEGORY,      :CATTYPE, "
         " :STARTTIME,     :ENDTIME, "
         " :CC,            :STEREO,        :HDTV,           :HASSUBTITLES, "
@@ -1023,7 +1039,9 @@ uint DBEvent::InsertDB(MSqlQuery &query, uint chanid) const
     QString empty("");
     query.bindValue(":CHANID",      chanid);
     query.bindValue(":TITLE",       denullify(title));
+    query.bindValue(":SORTTITLE",   denullify(sortTitle));
     query.bindValue(":SUBTITLE",    denullify(subtitle));
+    query.bindValue(":SORTSUBTITLE", denullify(sortSubtitle));
     query.bindValue(":DESCRIPTION", denullify(description));
     query.bindValue(":CATEGORY",    denullify(category));
     query.bindValue(":CATTYPE",     cattype);
@@ -1154,7 +1172,8 @@ uint ProgInfo::InsertDB(MSqlQuery &query, uint chanid) const
 
     query.prepare(
         "REPLACE INTO program ("
-        "  chanid,         title,          subtitle,        description, "
+        "  chanid,         title,          sorttitle, "
+        "  subtitle,       sortsubtitle,   description, "
         "  category,       category_type,  "
         "  starttime,      endtime, "
         "  closecaptioned, stereo,         hdtv,            subtitled, "
@@ -1168,7 +1187,8 @@ uint ProgInfo::InsertDB(MSqlQuery &query, uint chanid) const
         "  inetref ) "
 
         "VALUES("
-        " :CHANID,        :TITLE,         :SUBTITLE,       :DESCRIPTION, "
+        " :CHANID,        :TITLE,         :SORTTITLE, "
+        " :SUBTITLE,      :SORTSUBTITLE,  :DESCRIPTION, "
         " :CATEGORY,      :CATTYPE,       "
         " :STARTTIME,     :ENDTIME, "
         " :CC,            :STEREO,        :HDTV,           :HASSUBTITLES, "
@@ -1183,9 +1203,23 @@ uint ProgInfo::InsertDB(MSqlQuery &query, uint chanid) const
 
     QString cattype = myth_category_type_to_string(categoryType);
 
+    // Someday mythfilldatabase might pass in sort strings. Until
+    // then, generate the sort strings here as needed.
+    std::shared_ptr<MythSortHelper>sh = getMythSortHelper();
+    QString ltitle = denullify(title);
+    QString lsortTitle = denullify(sortTitle);
+    QString lsubtitle = denullify(subtitle);
+    QString lsortSubtitle = denullify(sortSubtitle);
+    if (lsortTitle.isEmpty())
+        lsortTitle = sh->doTitle(ltitle);
+    if (lsortSubtitle.isEmpty())
+        lsortSubtitle = sh->doTitle(lsubtitle);
+
     query.bindValue(":CHANID",      chanid);
-    query.bindValue(":TITLE",       denullify(title));
-    query.bindValue(":SUBTITLE",    denullify(subtitle));
+    query.bindValue(":TITLE",       ltitle);
+    query.bindValue(":SORTTITLE",   lsortTitle);
+    query.bindValue(":SUBTITLE",    lsubtitle);
+    query.bindValue(":SORTSUBTITLE", lsortSubtitle);
     query.bindValue(":DESCRIPTION", denullify(description));
     query.bindValue(":CATEGORY",    denullify(category));
     query.bindValue(":CATTYPE",     cattype);

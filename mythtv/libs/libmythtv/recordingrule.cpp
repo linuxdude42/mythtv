@@ -112,7 +112,8 @@ bool RecordingRule::Load(bool asTemplate)
     "autometadata, parentid, title, subtitle, description, season, episode, "
     "category, starttime, startdate, endtime, enddate, seriesid, programid, "
     "inetref, chanid, station, findday, findtime, findid, "
-    "next_record, last_record, last_delete, avg_delay, filter, recgroupid "
+    "next_record, last_record, last_delete, avg_delay, filter, recgroupid, "
+    "sorttitle, sortsubtitle " //49-50
     "FROM record WHERE recordid = :RECORDID ;");
 
     query.bindValue(":RECORDID", m_recordID);
@@ -169,7 +170,9 @@ bool RecordingRule::Load(bool asTemplate)
     if (!asTemplate)
     {
         m_title = query.value(25).toString();
+        m_sortTitle = query.value(49).toString();
         m_subtitle = query.value(26).toString();
+        m_sortSubtitle = query.value(50).toString();
         m_description = query.value(27).toString();
         m_season = query.value(28).toUInt();
         m_episode = query.value(29).toUInt();
@@ -447,8 +450,10 @@ bool RecordingRule::Save(bool sendSig)
                     "autouserjob3 = :AUTOUSERJOB3, "
                     "autouserjob4 = :AUTOUSERJOB4, "
                     "autometadata = :AUTOMETADATA, "
-                    "parentid = :PARENTID, title = :TITLE, "
-                    "subtitle = :SUBTITLE, season = :SEASON, episode = :EPISODE, "
+                    "parentid = :PARENTID, "
+                    "title = :TITLE, sorttitle = :SORTTITLE, "
+                    "subtitle = :SUBTITLE, sortsubtitle = :SORTSUBTITLE, "
+                    "season = :SEASON, episode = :EPISODE, "
                     "description = :DESCRIPTION, category = :CATEGORY, "
                     "starttime = :STARTTIME, startdate = :STARTDATE, "
                     "endtime = :ENDTIME, enddate = :ENDDATE, seriesid = :SERIESID, "
@@ -496,7 +501,9 @@ bool RecordingRule::Save(bool sendSig)
     query.bindValue(":AUTOMETADATA", m_autoMetadataLookup);
     query.bindValue(":PARENTID", m_parentRecID);
     query.bindValue(":TITLE", m_title);
+    query.bindValue(":SORTTITLE", m_sortTitle);
     query.bindValue(":SUBTITLE", null_to_empty(m_subtitle));
+    query.bindValue(":SORTSUBTITLE", null_to_empty(m_sortSubtitle));
     query.bindValue(":DESCRIPTION", null_to_empty(m_description));
     query.bindValue(":SEASON", m_season);
     query.bindValue(":EPISODE", m_episode);

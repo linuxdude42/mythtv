@@ -28,6 +28,7 @@
 #include "mythdownloadmanager.h"
 #include "mythtvexp.h"
 #include "mythdate.h"
+#include "mythsorthelper.h"
 
 #define LOC QString("DataDirect: ")
 
@@ -214,6 +215,7 @@ bool DDStructureParser::endElement(const QString &pnamespaceuri,
     (void)pnamespaceuri;
     (void)plocalname;
 
+    std::shared_ptr<MythSortHelper>sh = getMythSortHelper();
     MSqlQuery query(MSqlQuery::DDCon());
 
     if (pqname == "station")
@@ -338,13 +340,15 @@ bool DDStructureParser::endElement(const QString &pnamespaceuri,
 
         query.prepare(
             "INSERT INTO dd_program "
-            "     ( programid,    title,       subtitle,       "
+            "     ( programid,    title,       sorttitle,      "
+            "       subtitle,     sortsubtitle,                "
             "       description,  showtype,    category_type,  "
             "       mpaarating,   starrating,  stars,          "
             "       runtime,      year,        seriesid,       "
             "       colorcode,    syndicatedepisodenumber, originalairdate) "
             "VALUES "
-            "     (:PROGRAMID,   :TITLE,      :SUBTITLE,       "
+            "     (:PROGRAMID,   :TITLE,      :SORTTITLE,      "
+            "      :SUBTITLE,    :SORTSUBTITLE,                "
             "      :DESCRIPTION, :SHOWTYPE,   :CATTYPE,        "
             "      :MPAARATING,  :STARRATING, :STARS,          "
             "      :RUNTIME,     :YEAR,       :SERIESID,       "
@@ -352,7 +356,9 @@ bool DDStructureParser::endElement(const QString &pnamespaceuri,
 
         query.bindValue(":PROGRAMID",   curr_program.programid);
         query.bindValue(":TITLE",       curr_program.title);
+        query.bindValue(":SORTTITLE",   sh->doTitle(curr_program.title));
         query.bindValue(":SUBTITLE",    curr_program.subtitle);
+        query.bindValue(":SORTSUBTITLE",sh->doTitle(curr_program.subtitle));
         query.bindValue(":DESCRIPTION", curr_program.description);
         query.bindValue(":SHOWTYPE",    curr_program.showtype);
         query.bindValue(":CATTYPE",     cat_type);
@@ -635,7 +641,8 @@ void DataDirectProcessor::UpdateProgramViewTable(uint sourceid)
     QString qstr =
         "INSERT INTO dd_v_program "
         "     ( chanid,                  starttime,       endtime,         "
-        "       title,                   subtitle,        description,     "
+        "       title,                   sorttitle,                        "
+        "       subtitle,                sortsubtitle,    description,     "
         "       airdate,                 stars,           previouslyshown, "
         "       stereo,                  dolby,           subtitled,       "
         "       hdtv,                    closecaptioned,  partnumber,      "
@@ -644,7 +651,8 @@ void DataDirectProcessor::UpdateProgramViewTable(uint sourceid)
         "       syndicatedepisodenumber, tvrating,        mpaarating,      "
         "       programid )      "
         "SELECT chanid,                  scheduletime,    endtime,         "
-        "       title,                   subtitle,        description,     "
+        "       title,                   sorttitle,                        "
+        "       subtitle,                sortsubtitle,    description,     "
         "       year,                    stars,           isrepeat,        "
         "       stereo,                  dolby,           subtitled,       "
         "       hdtv,                    closecaptioned,  partnumber,      "
@@ -840,8 +848,9 @@ void DataDirectProcessor::DataDirectProgramUpdate(void)
 #endif
     query.prepare(
         "INSERT IGNORE INTO program "
-        "  ( chanid,        starttime,   endtime,         title,           "
-        "    subtitle,      description, showtype,        category,        "
+        "  ( chanid,        starttime,   endtime,                          "
+        "    title,         sorttitle,   subtitle,        sortsubtitle,    "
+        "                   description, showtype,        category,        "
         "    category_type, airdate,     stars,           previouslyshown, "
         "    stereo,        subtitled,   subtitletypes,   videoprop,       "
         "    audioprop,     hdtv,        closecaptioned,  partnumber,      "
@@ -852,8 +861,8 @@ void DataDirectProcessor::DataDirectProgramUpdate(void)
         "    dd_v_program.chanid,                                          "
         "    DATE_ADD(starttime, INTERVAL channel.tmoffset MINUTE),        "
         "    DATE_ADD(endtime, INTERVAL channel.tmoffset MINUTE),          "
-        "                                                 title,           "
-        "    subtitle,      description, showtype,        dd_genre.class,  "
+        "    title,         sorttitle,   subtitle,        sortsubtitle,    "
+        "                   description, showtype,        dd_genre.class,  "
         "    category_type, airdate,     stars,           previouslyshown, "
         "    stereo,        subtitled,                                     "
         "    (subtitled << 1 ) | closecaptioned, hdtv,                     "
@@ -1306,7 +1315,8 @@ void DataDirectProcessor::CreateTempTables()
 
     dd_tables["dd_program"] =
         "( programid char(40) NOT NULL,  seriesid char(12),     "
-        "  title varchar(120),           subtitle varchar(150), "
+        "  title varchar(120),           sorttitle varchar(120), "
+        "  subtitle varchar(150),        sortsubtitle varchar(150), "
         "  description text,             mpaarating char(5),    "
         "  starrating char(5),           runtime time,          "
         "  year char(4),                 showtype char(30),     "
@@ -1318,7 +1328,8 @@ void DataDirectProcessor::CreateTempTables()
     dd_tables["dd_v_program"] =
         "( chanid int unsigned NOT NULL, starttime datetime NOT NULL, "
         "  endtime datetime,             title varchar(128),          "
-        "  subtitle varchar(128),        description text,            "
+        "  sorttitle varchar(128),       subtitle varchar(128),       "
+        "  sortsubtitle varchar(128),    description text,            "
         "  category varchar(64),         category_type varchar(64),   "
         "  airdate year,                 stars float unsigned,        "
         "  previouslyshown tinyint,      isrepeat bool,               "

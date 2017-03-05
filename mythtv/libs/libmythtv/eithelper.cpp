@@ -684,8 +684,8 @@ void EITHelper::AddEIT(const DVBEventInformationTable *eit)
         QDateTime endtime   = starttime.addSecs(eit->DurationInSeconds(i));
 
         DBEventEIT *event = new DBEventEIT(
-            chanid,
-            title,     subtitle,      description,
+            chanid,    title,         QString(),
+            subtitle,  QString(),  description,
             category,  category_type,
             starttime, endtime,       fix,
             subtitle_type,
@@ -799,8 +799,8 @@ void EITHelper::AddEIT(const PremiereContentInformationTable *cit)
             QDateTime endtime   = starttime.addSecs(cit->DurationInSeconds());
 
             DBEventEIT *event = new DBEventEIT(
-                chanid,
-                title,     subtitle,      description,
+                chanid,    title,         QString(),
+                subtitle,  QString(),  description,
                 category,  category_type,
                 starttime, endtime,       fix,
                 subtitle_type,
