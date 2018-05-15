@@ -407,7 +407,7 @@ def main():
         uuid = smolt.read_uuid()
         main_request_new_public_uuid(uuiddb, uuid, profile, opts)
     elif not opts.send_profile:
-        main_scan_only(profile, opts)
+        main_scan_only(profile, opts, gate)
     elif opts.printOnly and not opts.autoSend:
         main_print_only(profile)
     else:
