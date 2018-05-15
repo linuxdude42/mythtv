@@ -108,7 +108,7 @@ def main():
         profile_url = urljoin(opts.smoonURL + '/', '/client/show?%s' % delHostString)
     else:
         profile_url = get_profile_link(opts.smoonURL, pub_uuid)
-    print _('Profile removed, please verify at'), profile_url
+    print(_('Profile removed, please verify at'), profile_url)
 
 
 if __name__ == '__main__':

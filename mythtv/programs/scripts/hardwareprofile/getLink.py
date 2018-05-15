@@ -77,7 +77,7 @@ def main():
     try:
         try:
             pub_uuid_obj = json.loads(pub_uuid_str)
-            print _('To view your profile visit: %s') % smolt.get_profile_link(opts.smoonURL, pub_uuid_obj["pub_uuid"])
+            print((_('To view your profile visit: %s') % smolt.get_profile_link(opts.smoonURL, pub_uuid_obj["pub_uuid"])))
         except ValueError, e:
             error(_('Something went wrong fetching the public UUID'))
     finally:

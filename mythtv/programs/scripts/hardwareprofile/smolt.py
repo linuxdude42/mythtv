@@ -31,6 +31,7 @@
 # Find out what we're not getting
 #
 
+from __future__ import print_function
 from i18n import _
 
 #import dbus
@@ -384,14 +385,14 @@ def serverMessage(page):
             if 'Critical' in line:
                 raise ServerError, line.split('ServerMessage: ')[1]
             else:
-                print _('Server Message: "%s"') % line.split('ServerMessage: ')[1]
+                print(_('Server Message: "%s"') % line.split('ServerMessage: ')[1])
 
 def error(message):
-    print >> sys.stderr, message
+    print(message, file=sys.stderr)
 
 def debug(message):
     if DEBUG:
-        print message
+        print(message)
 
 def reset_resolver():
     '''Attempt to reset the system hostname resolver.
@@ -402,7 +403,7 @@ def reset_resolver():
             resolv = ctypes.CDLL("libresolv.so.2")
             r = resolv.__res_init()
         except (OSError, AttributeError):
-            print "Warning: could not find __res_init in libresolv.so.2"
+            print("Warning: could not find __res_init in libresolv.so.2")
             r = -1
         return r
     except ImportError:

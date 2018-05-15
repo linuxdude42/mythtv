@@ -48,8 +48,8 @@ class MakeOpts:
         return self._makeopts
 
     def dump(self):
-        print 'MAKEOPTS: ' + str(self.get())
-        print
+        print('MAKEOPTS: ' + str(self.get()))
+        print()
 
 
 if __name__ == '__main__':

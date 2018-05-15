@@ -123,7 +123,7 @@ class DeviceMap:
                 curvendor.devices[curdevice.num] = curdevice
                 continue
             else:
-                print line
+                print(line)
                 continue
         fo.close()
         # This introduces a bug, will fix later.

@@ -55,4 +55,4 @@ if __name__ == '__main__':
         'OS':read_os(),
     }
     for k, v in dict.items():
-        print '%s: "%s"' % (k, v)
+        print('%s: "%s"' % (k, v))

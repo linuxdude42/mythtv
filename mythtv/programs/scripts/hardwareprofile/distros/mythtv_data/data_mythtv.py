@@ -541,8 +541,8 @@ class _Mythtv_data:
     def _dump(self):
         lines = []
         self.dump_rst(lines)
-        print '\n'.join(lines)
-        print
+        print('\n'.join(lines))
+        print()
 
 
 def create_mythtv_data(gate):
