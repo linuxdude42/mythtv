@@ -5,8 +5,8 @@
 #
 # Copyright (C) 2008 James Meyer <james.meyer@operamail.com>
 # Copyright (C) 2008 Yaakov M. Nemoy <loupgaroublond@gmail.com>
-# Copyright (C) 2009 Carlos Gonçalves <mail@cgoncalves.info>
-# Copyright (C) 2009 François Cami <fcami@fedoraproject.org>
+# Copyright (C) 2009 Carlos GonÃ§alves <mail@cgoncalves.info>
+# Copyright (C) 2009 FranÃ§ois Cami <fcami@fedoraproject.org>
 # Copyright (C) 2010 Mike McGrath <mmcgrath@redhat.com>
 # Copyright (C) 2012 Raymond Wagner <rwagner@mythtv.org>
 #
