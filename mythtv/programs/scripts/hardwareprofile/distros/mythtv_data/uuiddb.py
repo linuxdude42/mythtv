@@ -76,11 +76,11 @@ class _UuidDb:
                 pudict = json.loads(req.open().read())
                 self.set_pub_uuid(self.hw_uuid, Request(), pudict['pub_uuid'])
                 return pudict['pub_uuid']
-            except Exception, e:
+            except Exception as e:
                 error(_('Error determining public UUID: %s') % e)
                 sys.stderr.write(_("Unable to determine Public UUID!  This could be a network error or you've\n"))
                 sys.stderr.write(_("not submitted your profile yet.\n"))
-                raise PubUUIDError, 'Could not determine Public UUID!\n'
+                raise PubUUIDError('Could not determine Public UUID!\n')
 
     def set_pub_uuid(self, hw_uuid, host, pub_uuid):
         for i in (hw_uuid, host, pub_uuid):
@@ -114,7 +114,7 @@ class _UuidDb:
             try:
                 # make sure directory exists, create if not
                 file(self.hw_uuid_file).write(self.hw_uuid)
-            except Exception, e:
+            except Exception as e:
                 raise UUIDError('Unable to save UUID to %s. Please run once as root.' % self.hw_uuid_file)
 
         return self.hw_uuid

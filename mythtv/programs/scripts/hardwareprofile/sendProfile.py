@@ -297,7 +297,7 @@ def read_profile(gate, uuid):
 
     try:
         profile = smolt.create_profile(gate, uuid)
-    except smolt.UUIDError, e:
+    except smolt.UUIDError as e:
         sys.stderr.write(_('%s\n' % e))
         sys.exit(9)
     return profile
@@ -343,7 +343,7 @@ def main_request_new_public_uuid(uuiddb, uuid, profile, opts):
         pub_uuid = profile.regenerate_pub_uuid(uuiddb, uuid, user_agent=opts.user_agent,
                             smoonURL=opts.smoonURL,
                             timeout=opts.timeout)
-    except ServerError, e:
+    except ServerError as e:
         error(_('Error contacting server: %s') % str(e))
         sys.exit(1)
 

@@ -95,7 +95,7 @@ def main():
         o=grabber.urlopen(urljoin(opts.smoonURL + '/', '/client/delete'), data=delHostString, http_headers=(
                         ('Content-length', '%i' % len(delHostString)),
                         ('Content-type', 'application/x-www-form-urlencoded')))
-    except urlgrabber.grabber.URLGrabError, e:
+    except urlgrabber.grabber.URLGrabError as e:
         sys.stderr.write(_('Error contacting Server:'))
         sys.stderr.write(str(e))
         sys.stderr.write('\n')

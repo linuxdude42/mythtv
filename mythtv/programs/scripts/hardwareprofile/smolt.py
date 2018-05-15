@@ -64,7 +64,7 @@ import urllib2
 
 try:
     import subprocess
-except ImportError, e:
+except ImportError as e:
     pass
 
 
@@ -383,7 +383,7 @@ def serverMessage(page):
             return line.strip()[6:]
         if 'ServerMessage:' in line:
             if 'Critical' in line:
-                raise ServerError, line.split('ServerMessage: ')[1]
+                raise ServerError(line.split('ServerMessage: ')[1])
             else:
                 print(_('Server Message: "%s"') % line.split('ServerMessage: ')[1])
 
@@ -617,7 +617,7 @@ class _HardwareProfile:
 
         try:
             uuiddb.set_pub_uuid(uuid, smoonURLparsed[1], pub_uuid)
-        except Exception, e:
+        except Exception as e:
             sys.stderr.write(_('\tYour pub_uuid could not be written.\n\n'))
         return
 
@@ -626,7 +626,7 @@ class _HardwareProfile:
         admin_token_file += ("-"+smoonURLparsed[1])
         try:
             file(admin_token_file, 'w').write(admin)
-        except Exception, e:
+        except Exception as e:
             sys.stderr.write(_('\tYour admin token  could not be cached: %s\n' % e))
         return
 
@@ -667,7 +667,7 @@ class _HardwareProfile:
         #first find out the server desired protocol
         try:
             token = grabber.urlopen(urljoin(smoonURL + "/", '/tokens/token_json?uuid=%s' % self.host.UUID, False))
-        except urlgrabber.grabber.URLGrabError, e:
+        except urlgrabber.grabber.URLGrabError as e:
             error(_('Error contacting Server: %s') % e)
             return (1, None, None)
         tok_str = token.read()
@@ -681,7 +681,7 @@ class _HardwareProfile:
                     return (1, None, None)
                 tok = tok_obj['token']
 
-            except ValueError, e:
+            except ValueError as e:
                 error(_('Something went wrong fetching a token'))
         finally:
             token.close()
@@ -738,13 +738,13 @@ class _HardwareProfile:
                         'smolt_protocol':smoltProtocol}
             o = opener.open(request_url, params)
 
-        except Exception, e:
+        except Exception as e:
             error(_('Error contacting Server: %s') % e)
             return (1, None, None)
         else:
             try:
                 server_response = serverMessage(o.read())
-            except ServerError, e:
+            except ServerError as e:
                 error(_('Error contacting server: %s') % e)
                 return (1, None, None)
 
@@ -757,7 +757,7 @@ class _HardwareProfile:
 
             try:
                 admin_token = grabber.urlopen(urljoin(smoonURL + "/", '/tokens/admin_token_json?uuid=%s' % self.host.UUID, False))
-            except urlgrabber.grabber.URLGrabError, e:
+            except urlgrabber.grabber.URLGrabError as e:
                 error(_('An error has occured while contacting the server: %s' % e))
                 sys.exit(1)
             admin_str = admin_token.read()
@@ -777,20 +777,20 @@ class _HardwareProfile:
         grabber = urlgrabber.grabber.URLGrabber(user_agent=user_agent, timeout=timeout)
         try:
             new_uuid = grabber.urlopen(urljoin(smoonURL + "/", '/client/regenerate_pub_uuid?uuid=%s' % self.host.UUID))
-        except urlgrabber.grabber.URLGrabError, e:
-            raise ServerError, str(e)
+        except urlgrabber.grabber.URLGrabError as e:
+            raise ServerError(str(e))
 
         response = new_uuid.read()  # Either JSON or an error page in (X)HTML
         try:
             response_dict = json.loads(response)
-        except Exception, e:
+        except Exception as e:
             serverMessage(response)
-            raise ServerError, _('Reply from server could not be interpreted')
+            raise ServerError(_('Reply from server could not be interpreted'))
         else:
             try:
                 pub_uuid = response_dict['pub_uuid']
             except KeyError:
-                raise ServerError, _('Reply from server could not be interpreted')
+                raise ServerError(_('Reply from server could not be interpreted'))
             self.write_pub_uuid(uuiddb, smoonURL, pub_uuid, uuid)
             return pub_uuid
 
@@ -1252,7 +1252,7 @@ def create_profile_nocatch(gate, uuid):
 def create_profile(gate, uuid):
     try:
         return create_profile_nocatch(gate, uuid)
-    except SystemBusError, e:
+    except SystemBusError as e:
         error(_('Error:') + ' ' + e.msg)
         if e.hint is not None:
             error('\t' + _('Hint:') + ' ' + e.hint)
@@ -1270,11 +1270,11 @@ def read_uuid():
             UUID = file('/proc/sys/kernel/random/uuid').read().strip()
             try:
                 file(hw_uuid_file, 'w').write(UUID)
-            except Exception, e:
-                raise UUIDError, 'Unable to save UUID to %s.  Please run once as root.' % hw_uuid_file
+            except Exception as e:
+                raise UUIDError('Unable to save UUID to %s.  Please run once as root.' % hw_uuid_file)
         except IOError:
             sys.stderr.write(_('Unable to determine UUID of system!\n'))
-            raise UUIDError, 'Could not determine UUID of system!\n'
+            raise UUIDError('Could not determine UUID of system!\n')
     return UUID
 
 def read_pub_uuid(uuiddb, uuid, user_agent=user_agent, smoonURL=smoonURL, timeout=timeout, silent=False):
@@ -1290,9 +1290,9 @@ def read_pub_uuid(uuiddb, uuid, user_agent=user_agent, smoonURL=smoonURL, timeou
 		o.close()
 		uuiddb.set_pub_uuid(uuid, smoonURLparsed[1], pudict["pub_uuid"])
 		return pudict["pub_uuid"]
-	except Exception, e:
+	except Exception as e:
 		if not silent:
 			error(_('Error determining public UUID: %s') % e)
 			sys.stderr.write(_("Unable to determine Public UUID!  This could be a network error or you've\n"))
 			sys.stderr.write(_("not submitted your profile yet.\n"))
-		raise PubUUIDError, 'Could not determine Public UUID!\n'
+		raise PubUUIDError('Could not determine Public UUID!\n')

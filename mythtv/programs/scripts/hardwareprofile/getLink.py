@@ -70,7 +70,7 @@ def main():
     try:
         #fli is a file like item
         pub_uuid_fli = grabber.urlopen(urljoin(opts.smoonURL + "/", '/client/pub_uuid?uuid=%s' % profile.host.UUID, False))
-    except urlgrabber.grabber.URLGrabError, e:
+    except urlgrabber.grabber.URLGrabError as e:
         error(_('Error contacting Server: %s') % e)
         return 1
     pub_uuid_str = pub_uuid_fli.read()
@@ -78,7 +78,7 @@ def main():
         try:
             pub_uuid_obj = json.loads(pub_uuid_str)
             print((_('To view your profile visit: %s') % smolt.get_profile_link(opts.smoonURL, pub_uuid_obj["pub_uuid"])))
-        except ValueError, e:
+        except ValueError as e:
             error(_('Something went wrong fetching the public UUID'))
     finally:
         pub_uuid_fli.close()
