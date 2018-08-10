@@ -31,36 +31,37 @@
 # Find out what we're not getting
 #
 
+
 from __future__ import print_function
-from i18n import _
+from .i18n import _
 
 #import dbus
 import platform
-import software
-import commands
+from . import software
+import subprocess
 import urlgrabber.grabber
 import sys
 import os
-from urlparse import urljoin
-from urlparse import urlparse
-from urllib import urlencode
-import urllib
+from urllib.parse import urljoin
+from urllib.parse import urlparse
+from urllib.parse import urlencode
+import urllib.request, urllib.parse, urllib.error
 import json
 from json import JSONEncoder
 import datetime
 import logging
 
-import config
-from smolt_config import get_config_attr
-from fs_util import get_fslist
-from devicelist import cat
+from . import config
+from .smolt_config import get_config_attr
+from .fs_util import get_fslist
+from .devicelist import cat
 
-from devicelist import get_device_list
+from .devicelist import get_device_list
 import logging
 from logging.handlers import RotatingFileHandler
 import codecs
-import MultipartPostHandler
-import urllib2
+from . import MultipartPostHandler
+import urllib.request, urllib.error, urllib.parse
 
 try:
     import subprocess
@@ -191,13 +192,13 @@ FORMFACTOR_LIST = [ "Unknown",
     ]
 
 def to_ascii(o, current_encoding='utf-8'):
-    if not isinstance(o, basestring):
+    if not isinstance(o, str):
         return o
 
-    if isinstance(o, unicode):
+    if isinstance(o, str):
         s = o
     else:
-        s = unicode(o, current_encoding)
+        s = str(o, current_encoding)
     return s
 
 
@@ -226,7 +227,7 @@ class Host:
                 self.language = os.environ['LANG']
             except KeyError:
                 try:
-                    status, lang = commands.getstatusoutput("grep LANG /etc/sysconfig/i18n")
+                    status, lang = subprocess.getstatusoutput("grep LANG /etc/sysconfig/i18n")
                     if status == 0:
                         self.language = lang.split('"')[1]
                     else:
@@ -520,7 +521,7 @@ class _HardwareProfile:
     def get_distro_specific_data(self, gate):
         dist_dict = {}
         try:
-            import distros.all
+            from .distros import all
         except:
             return dist_dict
             
@@ -637,7 +638,7 @@ class _HardwareProfile:
         send_host_obj['smolt_protocol'] = prefered_protocol
 
         dist_data_dict = {}
-        for k, v in self.distro_specific.items():
+        for k, v in list(self.distro_specific.items()):
             dist_data_dict[k] = v['data']
         send_host_obj['distro_specific'] = dist_data_dict
 
@@ -648,7 +649,7 @@ class _HardwareProfile:
         if not self.distro_specific:
             lines.append(_('No distribution-specific data yet'))
         else:
-            for k, v in self.distro_specific.items():
+            for k, v in list(self.distro_specific.items()):
                 lines.append(v['html'])
         return '\n'.join(lines)
 
@@ -702,9 +703,9 @@ class _HardwareProfile:
         logdir = os.path.expanduser('~/.smolt/')
         try:
             if not os.path.exists(logdir):
-                os.mkdir(logdir, 0700)
+                os.mkdir(logdir, 0o700)
 
-            for k, v in log_matrix.items():
+            for k, v in list(log_matrix.items()):
                 filename = os.path.expanduser(os.path.join(
                         logdir, 'submission%s' % k))
                 r = RotatingFileHandler(filename, \
@@ -731,7 +732,7 @@ class _HardwareProfile:
         request_url = urljoin(smoonURL + "/", entry_point, False)
         logging.debug('Sending request to %s' % request_url)
         try:
-            opener = urllib2.build_opener(MultipartPostHandler.MultipartPostHandler)
+            opener = urllib.request.build_opener(MultipartPostHandler.MultipartPostHandler)
             params = {  'uuid':self.host.UUID,
                         'host':serialized_host_obj_machine,
                         'token':tok,
@@ -802,7 +803,7 @@ class _HardwareProfile:
             _('Language'):self.host.language,
         }
         lines = []
-        for k, v in d.items():
+        for k, v in list(d.items()):
             lines.append('%s: %s' % (k, v))
         lines.append('...')
         return '\n'.join(lines)
@@ -829,7 +830,7 @@ class _HardwareProfile:
         return '\n'.join(lines)
 
     def get_distro_info_excerpt(self):
-        for k, v in self.distro_specific.items():
+        for k, v in list(self.distro_specific.items()):
             return v['rst_excerpt']
         return "No data, yet"
 
@@ -851,7 +852,7 @@ class _HardwareProfile:
                 printBuffer.append('%s: %s' % (label, data))
             except UnicodeDecodeError:
                 try:
-                    printBuffer.append('%s: %s' % (unicode(label, 'utf-8'), data))
+                    printBuffer.append('%s: %s' % (str(label, 'utf-8'), data))
                 except UnicodeDecodeError:
                     printBuffer.append('%r: %r' % (label, data))
 
@@ -873,7 +874,7 @@ class _HardwareProfile:
             for fs in self.fss:
                 printBuffer.append(str(fs))
 
-            for k, v in self.distro_specific.items():
+            for k, v in list(self.distro_specific.items()):
                 printBuffer.append('')
                 printBuffer.append('')
                 printBuffer.append(v['rst'])
@@ -927,7 +928,7 @@ class _HardwareProfile:
 def read_cpuinfo():
     def get_entry(a, entry):
         e = entry.lower()
-        if not a.has_key(e):
+        if e not in a:
             return ""
         return a[e]
 
@@ -1196,7 +1197,7 @@ def read_memory_2_4():
     memlist = curline.split()
     memdict = {}
     memdict['class'] = "MEMORY"
-    megs = int(long(memlist[1])/(1024*1024))
+    megs = int(int(memlist[1])/(1024*1024))
     if megs < 32:
         megs = megs + (4 - (megs % 4))
     else:
@@ -1205,7 +1206,7 @@ def read_memory_2_4():
     curline = lines[2]
     memlist = curline.split()
     # otherwise, it breaks on > ~4gigs of swap
-    megs = int(long(memlist[1])/(1024*1024))
+    megs = int(int(memlist[1])/(1024*1024))
     memdict['swap'] = str(megs)
     return memdict
 
@@ -1229,13 +1230,13 @@ def read_memory_2_6():
 
     total_str = dict['MemTotal']
     blips = total_str.split(" ")
-    total_k = long(blips[0])
-    megs = long(total_k/(1024))
+    total_k = int(blips[0])
+    megs = int(total_k/(1024))
 
     swap_str = dict['SwapTotal']
     blips = swap_str.split(' ')
-    swap_k = long(blips[0])
-    swap_megs = long(swap_k/(1024))
+    swap_k = int(blips[0])
+    swap_megs = int(swap_k/(1024))
 
     memdict['ram'] = str(megs)
     memdict['swap'] = str(swap_megs)

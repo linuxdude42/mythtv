@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import os,re
-import commands
-import os_detect
+import subprocess
+from . import os_detect
 
 SMOON_URL = "http://smolt.mythtv.org/"
 SECURE = 0
@@ -10,7 +10,7 @@ SECURE = 0
 from MythTV import MythDB
 confdir = os.path.join(MythDB().dbconfig.confdir, 'HardwareProfile')
 try:
-    os.mkdir(confdir, 0700)
+    os.mkdir(confdir, 0o700)
 except OSError:
     pass
 
@@ -27,7 +27,7 @@ ADMIN_TOKEN = os.path.join(confdir, 'smolt_token')
 
 FS_T_FILTER=False
 FS_M_FILTER=True
-FS_MOUNTS=commands.getoutput('rpm -ql filesystem').split('\n')
+FS_MOUNTS=subprocess.getoutput('rpm -ql filesystem').split('\n')
 
 
 #This will attempt to find the distro.

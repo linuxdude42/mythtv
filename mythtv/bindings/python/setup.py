@@ -11,7 +11,7 @@ import glob
 
 SCRIPTS = ['scripts/mythpython', 'scripts/mythwikiscripts']
 
-for scheme in INSTALL_SCHEMES.values():
+for scheme in list(INSTALL_SCHEMES.values()):
     scheme['data'] = scheme['purelib']
 
 class uninstall(Command):
@@ -27,19 +27,19 @@ class uninstall(Command):
             for path,dirs,files in os.walk(mythtv_path, topdown=False):
                 for fname in files:
                     fname = os.path.join(path,fname)
-                    print 'unlinking '+fname
+                    print('unlinking '+fname)
                     os.unlink(fname)
-                print 'removing folder '+path
+                print('removing folder '+path)
                 os.rmdir(path)
             for fname in os.listdir(install_path):
                 if fname.endswith('.egg-info') and fname.startswith('MythTV'):
                     fname = os.path.join(install_path, fname)
-                    print 'unlinking '+fname
+                    print('unlinking '+fname)
                     os.unlink(fname)
             for fname in SCRIPTS:
                 fname = os.path.join(project_base, fname.split('/')[-1])
                 if os.access(fname, os.F_OK):
-                    print 'unlinking '+fname
+                    print('unlinking '+fname)
                     os.unlink(fname)
 
 class build(pybuild):

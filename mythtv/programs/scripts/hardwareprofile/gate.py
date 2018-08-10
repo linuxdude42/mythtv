@@ -17,7 +17,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
 
-import ConfigParser
+import configparser
 import os
 import logging
 
@@ -37,7 +37,7 @@ class _Gate(_GateBase):
                 '/etc/smolt/client.cfg',
                 os.path.expanduser('~/.smolt/client.cfg'),
             ]
-        self.config = ConfigParser.ConfigParser()
+        self.config = configparser.ConfigParser()
         self.config.read(config_files)
 
     def grants(*args):
@@ -55,8 +55,8 @@ class _Gate(_GateBase):
         try:
             return self.config.getboolean(distro, data_set)
         except (ValueError,
-                ConfigParser.NoOptionError,
-                ConfigParser.NoSectionError):
+                configparser.NoOptionError,
+                configparser.NoSectionError):
             # TODO warn about error?
             # Allow if in doubt - backwards compat
             return True

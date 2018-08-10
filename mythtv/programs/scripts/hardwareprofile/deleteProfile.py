@@ -22,16 +22,16 @@
 import sys
 import urlgrabber.grabber
 from optparse import OptionParser
-from urlparse import urljoin
+from urllib.parse import urljoin
 
 
 def main():
     sys.path.append('/usr/share/smolt/client')
 
-    from i18n import _
-    import smolt
-    from smolt import error, debug, get_profile_link, PubUUIDError
-    from uuiddb import create_default_uuiddb
+    from .i18n import _
+    from . import smolt
+    from .smolt import error, debug, get_profile_link, PubUUIDError
+    from .uuiddb import create_default_uuiddb
 
     def serverMessage(page):
         for line in page.split("\n"):
@@ -108,7 +108,7 @@ def main():
         profile_url = urljoin(opts.smoonURL + '/', '/client/show?%s' % delHostString)
     else:
         profile_url = get_profile_link(opts.smoonURL, pub_uuid)
-    print(_('Profile removed, please verify at'), profile_url)
+    print((_('Profile removed, please verify at'), profile_url))
 
 
 if __name__ == '__main__':

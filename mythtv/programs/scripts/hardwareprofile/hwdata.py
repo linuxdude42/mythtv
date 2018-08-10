@@ -19,7 +19,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
 
-from smolt_config import get_config_attr
+from .smolt_config import get_config_attr
 
 class myVendor(object):
     def __init__(self):
@@ -99,7 +99,7 @@ class DeviceMap:
                     continue
                 subvend.name = ""
 
-                if not curdevice.subvendors.has_key(subvend.num):
+                if subvend.num not in curdevice.subvendors:
                     curdevice.subvendors[subvend.num] = subvend
                     subvend.devices[thisdev.num] = thisdev
                 else:

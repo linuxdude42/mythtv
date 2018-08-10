@@ -25,8 +25,8 @@ import statvfs
 from i18n import _
 from datetime import timedelta
 
-from orddict import OrdDict
-from uuiddb import UuidDb
+from .orddict import OrdDict
+from .uuiddb import UuidDb
 
 import MythTV
 from user import home
@@ -432,7 +432,7 @@ class _Mythtv_data:
                 else:
                     virtual[1] += isvirt
 
-        data = {'tuners':dict([(k,len(v)) for k,v in cardtypes.items()])}
+        data = {'tuners':dict([(k,len(v)) for k,v in list(cardtypes.items())])}
         if virtual[0]:
             data['vtpertuner'] = sum(virtual)/float(virtual[0])
         return data
@@ -474,7 +474,7 @@ class _Mythtv_data:
             if level in range(len(levels)):
                 counts[levels[level]] = count
                 total += count
-        for k,v in counts.items():
+        for k,v in list(counts.items()):
             counts[k] = v/total
         return {'logurgency':counts}
 
@@ -541,7 +541,7 @@ class _Mythtv_data:
     def _dump(self):
         lines = []
         self.dump_rst(lines)
-        print('\n'.join(lines))
+        print(('\n'.join(lines)))
         print()
 
 

@@ -129,10 +129,10 @@ def get_file_device_path(fname):
 
     # find a best match
     fdir = os.path.dirname(fname)
-    match = mtab_dict.has_key(fdir)
+    match = fdir in mtab_dict
     while not match:
         fdir = os.path.realpath(os.path.join(fdir, os.path.pardir))
-        match = mtab_dict.has_key(fdir)
+        match = fdir in mtab_dict
 
     # construct file path relative to device
     if fdir != os.path.sep:

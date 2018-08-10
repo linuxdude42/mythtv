@@ -35,8 +35,8 @@ def ensure_code_reachability():
 
 def command_line():
     ensure_code_reachability()
-    from i18n import _
-    import smolt
+    from .i18n import _
+    from . import smolt
 
     from optparse import OptionParser
     parser = OptionParser(version = smolt.clientVersion)
@@ -136,8 +136,8 @@ def command_line():
 
 def make_display_excerpts(profile):
     ensure_code_reachability()
-    from i18n import _
-    from smolt import to_ascii
+    from .i18n import _
+    from .smolt import to_ascii
 
     def inner_indent(text):
         return ('\n' + 5 * ' ').join(text.split('\n'))
@@ -162,7 +162,7 @@ def make_display_excerpts(profile):
 
 
 def dump_excerpts(excerpts):
-    print("""\
+    print(("""\
 =====================================================
 %(label_intro)s
 
@@ -183,7 +183,7 @@ def dump_excerpts(excerpts):
 %(label_question_view)s
 %(label_question_send)s
 %(label_question_quit)s
-""" % excerpts)
+""" % excerpts))
 
 
 def present_and_require_confirmation(profile):
@@ -191,8 +191,8 @@ def present_and_require_confirmation(profile):
     from tempfile import NamedTemporaryFile
 
     ensure_code_reachability()
-    from i18n import _
-    from smolt import error
+    from .i18n import _
+    from .smolt import error
 
     excerpts = make_display_excerpts(profile)
 
@@ -201,7 +201,7 @@ def present_and_require_confirmation(profile):
         dump_excerpts(excerpts)
 
         try:
-            choice = raw_input(_('Your choice (s)end (v)iew (q)uit: ')).strip()
+            choice = input(_('Your choice (s)end (v)iew (q)uit: ')).strip()
         except KeyboardInterrupt:
             error(_('Exiting...'))
             sys.exit(4)
@@ -218,7 +218,7 @@ def present_and_require_confirmation(profile):
                 except UnicodeEncodeError:
                     pass
             f.flush()
-            os.chmod(f.name, 0400)
+            os.chmod(f.name, 0o400)
             try:
                 pager_command = os.environ['PAGER']
             except KeyError:
@@ -251,8 +251,8 @@ def do_send_profile(uuiddb, uuid, profile, opts, proxies):
 
 def send_profile(uuiddb, uuid, profile, opts, proxies):
     ensure_code_reachability()
-    from i18n import _
-    from smolt import error
+    from .i18n import _
+    from .smolt import error
 
     if opts.retry:
         while 1:
@@ -264,7 +264,7 @@ def send_profile(uuiddb, uuid, profile, opts, proxies):
     else:
         (error_code, pub_uuid, admin) = do_send_profile(uuiddb, uuid, profile, opts, proxies)
         if error_code:
-            print(_('Could not send - Exiting'))
+            print((_('Could not send - Exiting')))
             sys.exit(1)
 
     return (error_code, pub_uuid, admin)
@@ -272,14 +272,14 @@ def send_profile(uuiddb, uuid, profile, opts, proxies):
 
 def mention_profile_web_view(opts, pub_uuid, admin):
     ensure_code_reachability()
-    import smolt
-    from i18n import _
+    from . import smolt
+    from .i18n import _
 
     pubUrl = smolt.get_profile_link(opts.smoonURL, pub_uuid)
     print()
-    print(_('To share your profile: \n\t%s (public)') % pubUrl)
+    print((_('To share your profile: \n\t%s (public)') % pubUrl))
     if not smolt.secure:
-        print(_('\tAdmin Password: %s') % admin)
+        print((_('\tAdmin Password: %s') % admin))
 
 
 def get_proxies(opts):
@@ -292,8 +292,8 @@ def get_proxies(opts):
 
 def read_profile(gate, uuid):
     ensure_code_reachability()
-    from i18n import _
-    import smolt
+    from .i18n import _
+    from . import smolt
 
     try:
         profile = smolt.create_profile(gate, uuid)
@@ -305,7 +305,7 @@ def read_profile(gate, uuid):
 
 def register_with_fedora_account_system(opts):
     ensure_code_reachability()
-    from i18n import _
+    from .i18n import _
 
     if not opts.password:
         password = getpass.getpass('\n' + _('Password:') + ' ')
@@ -313,12 +313,12 @@ def register_with_fedora_account_system(opts):
         password = opts.password
 
     if profile.register(userName=opts.userName, password=password, user_agent=opts.user_agent, smoonURL=opts.smoonURL, timeout=opts.timeout):
-        print(_('Registration Failed, Try again'))
+        print((_('Registration Failed, Try again')))
 
 
 def do_scan_remote(profile, opts, gate):
     ensure_code_reachability()
-    from scan import scan, rating
+    from .scan import scan, rating
 
     scan(profile, opts.smoonURL, gate)
     try:
@@ -329,15 +329,15 @@ def do_scan_remote(profile, opts, gate):
 
 def mention_missing_uuid():
     ensure_code_reachability()
-    from i18n import _
+    from .i18n import _
     print()
-    print(_('No Public UUID found!  Please re-run with -n to generate a new public uuid'))
+    print((_('No Public UUID found!  Please re-run with -n to generate a new public uuid')))
 
 
 def main_request_new_public_uuid(uuiddb, uuid, profile, opts):
     ensure_code_reachability()
-    from i18n import _
-    from smolt import error, ServerError
+    from .i18n import _
+    from .smolt import error, ServerError
 
     try:
         pub_uuid = profile.regenerate_pub_uuid(uuiddb, uuid, user_agent=opts.user_agent,
@@ -347,7 +347,7 @@ def main_request_new_public_uuid(uuiddb, uuid, profile, opts):
         error(_('Error contacting server: %s') % str(e))
         sys.exit(1)
 
-    print(_('Success!  Your new public UUID is: %s' % pub_uuid))
+    print((_('Success!  Your new public UUID is: %s' % pub_uuid)))
     sys.exit(0)
 
 
@@ -359,7 +359,7 @@ def main_scan_only(profile, opts, gate):
 def main_print_only(profile):
     for line in profile.getProfile():
         if not line.startswith('#'):
-            print(line.encode('utf-8'))
+            print((line.encode('utf-8')))
     sys.exit(0)
 
 
@@ -385,10 +385,10 @@ def main_send_profile(uuiddb, uuid, profile, opts, gate):
 
 def main():
     ensure_code_reachability()
-    from i18n import _
-    import smolt
-    from gate import create_default_gate, create_gate_from_file
-    from uuiddb import create_default_uuiddb
+    from .i18n import _
+    from . import smolt
+    from .gate import create_default_gate, create_gate_from_file
+    from .uuiddb import create_default_uuiddb
 
     (opts, args) = command_line()
 

@@ -16,12 +16,12 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
 
-import ConfigParser
+import configparser
 import logging
 import os , sys 
-sys.path.extend(map(os.path.abspath, ['../../']))
+sys.path.extend(list(map(os.path.abspath, ['../../'])))
 from smolt_config import get_config_attr
-from request import Request
+from .request import Request
 
 _SECTION = 'MAIN'
 
@@ -48,7 +48,7 @@ class _UuidDb:
 
     def __init__(self, database_filename):
         self._database_filename = database_filename
-        self._config = ConfigParser.RawConfigParser()
+        self._config = configparser.RawConfigParser()
         self._config.read(self._database_filename)
         if not self._config.has_section(_SECTION):
             self._config.add_section(_SECTION)
@@ -58,7 +58,7 @@ class _UuidDb:
         try:
             smolt_user_config_dir = os.path.expanduser('~/.smolt/')
             if not os.path.exists(smolt_user_config_dir):
-                os.mkdir(smolt_user_config_dir, 0700)
+                os.mkdir(smolt_user_config_dir, 0o700)
             f = open(self._database_filename, 'w')
             self._config.write(f)
             f.close()
@@ -70,7 +70,7 @@ class _UuidDb:
             pub_uuid = self._config.get(_SECTION, _get_option_name(hw_uuid, host))
             logging.info('Public UUID "%s" read from database' % pub_uuid)
             return pub_uuid
-        except ConfigParser.NoOptionError:
+        except configparser.NoOptionError:
             try:
                 req = Request('/client/pub_uuid/%s' % self.get_priv_uuid())
                 pudict = json.loads(req.open().read())

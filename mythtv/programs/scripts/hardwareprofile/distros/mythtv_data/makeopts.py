@@ -48,7 +48,7 @@ class MakeOpts:
         return self._makeopts
 
     def dump(self):
-        print('MAKEOPTS: ' + str(self.get()))
+        print(('MAKEOPTS: ' + str(self.get())))
         print()
 
 

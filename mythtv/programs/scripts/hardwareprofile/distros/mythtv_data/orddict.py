@@ -20,7 +20,7 @@
 __doc__="""This is an ordered dictionary implementation to be used to
 store client data before transmission to the server."""
 
-from itertools import imap, izip
+
 
 class OrdDict( dict ):
     """
@@ -68,44 +68,44 @@ class OrdDict( dict ):
     def update(self, *data, **kwdata):
         if len(data) == 1:
             try:
-                for k,v in data[0].iteritems():
+                for k,v in data[0].items():
                     self[k] = v
             except AttributeError:
                 for k,v in iter(data[0]):
                     self[k] = v
         if len(kwdata):
-            for k,v in kwdata.iteritems():
+            for k,v in kwdata.items():
                 self[k] = v
 
     def __iter__(self):
-        return self.iterkeys()
+        return iter(self.keys())
 
     def iterkeys(self):
         return iter(self._field_order)
 
     def keys(self):
-        return list(self.iterkeys())
+        return list(self.keys())
 
     def itervalues(self):
-        return imap(self.get, self.iterkeys())
+        return map(self.get, iter(self.keys()))
 
     def values(self):
-        return list(self.itervalues())
+        return list(self.values())
 
     def iteritems(self):
-        return izip(self.iterkeys(), self.itervalues())
+        return zip(iter(self.keys()), iter(self.values()))
 
     def items(self):
-        return list(self.iteritems())
+        return list(self.items())
 
     def copy(self):
         c = self.__class__()
-        for k,v in self.items():
+        for k,v in list(self.items()):
             try:
                 c[k] = v.copy()
             except AttributeError:
                 c[k] = v
-        for k,v in self.__dict__.items():
+        for k,v in list(self.__dict__.items()):
             try:
                 c[k] = v.copy()
             except AttributeError:

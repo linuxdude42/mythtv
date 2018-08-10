@@ -18,15 +18,15 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
 
 import os
-import commands
+import subprocess
 import re
 import sys
-import smolt_config
+from . import smolt_config
 
 
 def read_lsb_release():
     if os.access('/usr/bin/lsb_release', os.X_OK):
-        return commands.getstatusoutput('/usr/bin/lsb_release')[1].strip()
+        return subprocess.getstatusoutput('/usr/bin/lsb_release')[1].strip()
     return ''
 
 initdefault_re = re.compile(r':(\d+):initdefault:')
@@ -39,10 +39,10 @@ def read_runlevel():
         if match:
             defaultRunlevel = match.group(1)
     except IOError:
-	try:
-		defaultRunlevel = commands.getstatusoutput('/sbin/runlevel')[1].split()[1].strip()
-	except:
-        	sys.stderr.write(_('Cannot Determine Runlevel'))
+        try:
+                defaultRunlevel = subprocess.getstatusoutput('/sbin/runlevel')[1].split()[1].strip()
+        except:
+                sys.stderr.write(_('Cannot Determine Runlevel'))
     return defaultRunlevel.strip()
 
 def read_os():
@@ -54,5 +54,5 @@ if __name__ == '__main__':
         'Run level':read_runlevel(),
         'OS':read_os(),
     }
-    for k, v in dict.items():
-        print('%s: "%s"' % (k, v))
+    for k, v in list(dict.items()):
+        print(('%s: "%s"' % (k, v)))

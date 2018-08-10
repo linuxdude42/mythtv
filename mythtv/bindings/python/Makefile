@@ -1,4 +1,5 @@
 include ../../config.mak
+PYTHON=python3
 
 ifdef INSTALL_ROOT
 	ROOT_FLAGS = --root="$(INSTALL_ROOT)"

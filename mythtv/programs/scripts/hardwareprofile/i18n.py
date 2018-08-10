@@ -26,6 +26,7 @@ except locale.Error:
 
 import os
 import gettext
+import sys
 
 try:
     if os.path.isdir('po'):
@@ -39,4 +40,8 @@ except IndexError:
     locale.setlocale(locale.LC_ALL, 'C')
     t = gettext.translation('smolt', '/usr/share/locale/', fallback=True, languages='en_US')
 
-_ = t.ugettext
+print(t)
+if (sys.version_info > (3, 0)):
+    _ = t.gettext
+else:
+    _ = t.ugettext

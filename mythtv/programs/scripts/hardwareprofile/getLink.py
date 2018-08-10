@@ -21,17 +21,17 @@
 
 import sys
 from optparse import OptionParser
-from urlparse import urljoin
+from urllib.parse import urljoin
 import urlgrabber.grabber
 import json
 
 sys.path.append('/usr/share/smolt/client')
 
-from i18n import _
-import smolt
-from smolt import debug
-from smolt import error
-from scan import scan
+from .i18n import _
+from . import smolt
+from .smolt import debug
+from .smolt import error
+from .scan import scan
 
 parser = OptionParser(version = smolt.smoltProtocol)
 
@@ -63,7 +63,7 @@ parser.add_option('--uuidFile',
 (opts, args) = parser.parse_args()
 
 def main():
-    from gate import create_default_gate
+    from .gate import create_default_gate
     profile = smolt.create_profile(create_default_gate(), smolt.read_uuid())
     grabber = urlgrabber.grabber.URLGrabber(user_agent=opts.user_agent, timeout=opts.timeout)
     #first find out the server desired protocol

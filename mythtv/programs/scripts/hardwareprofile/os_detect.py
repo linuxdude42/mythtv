@@ -35,8 +35,7 @@ class OrderedType( type ):
         mcs.nextorder += 1
         return type.__new__(mcs, name, bases, attrs)
 
-class OS( object ):
-    __metaclass__ = OrderedType
+class OS( object, metaclass=OrderedType ):
     _requires_func = True
     def __init__(self, ostype=-1, func=None, inst=None):
         if callable(ostype):
@@ -168,7 +167,7 @@ class OSFromUname( OS ):
 class OSInfoType( type ):
     def __new__(mcs, name, bases, attrs):
         OSs = []
-        for k,v in attrs.items():
+        for k,v in list(attrs.items()):
             if isinstance(v, OS):
                 # build list of stored OS types
                 OSs.append((v._order, k))
@@ -188,9 +187,7 @@ class OSInfoType( type ):
             # fall through to Unknown
             return 'Unknown'
 
-class get_os_info( object ):
-    __metaclass__ = OSInfoType
-
+class get_os_info( object, metaclass=OSInfoType ):
     @OS('nt')
     def windows(self):
         win_version = {

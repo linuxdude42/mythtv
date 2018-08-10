@@ -20,7 +20,7 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
 
 import os
-from hwdata import DeviceMap
+from .hwdata import DeviceMap
 
 
 # Info pulled from - http://www.acm.uiuc.edu/sigops/roll_your_own/7.c.1.html
