@@ -1,7 +1,9 @@
 include ../config.mak
 
-SUBDIRS = FFmpeg libmythdvdnav libudfread
-SUBDIRS += libmythsoundtouch
+SUBDIRS = FFmpeg libudfread libmythsoundtouch
+ifeq ($(CONFIG_DVD),yes)
+SUBDIRS += libmythdvdnav
+endif
 ifeq ($(CONFIG_MYTHLOGSERVER),yes)
     SUBDIRS += zeromq nzmqt
 endif

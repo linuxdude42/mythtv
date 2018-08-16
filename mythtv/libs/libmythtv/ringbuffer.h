@@ -26,8 +26,12 @@ extern "C" {
 #define kReadTestSize PNG_MIN_SIZE
 
 class ThreadedFileWriter;
+#if CONFIG_DVD
 class DVDRingBuffer;
+#endif
+#if CONFIG_LIBBLURAY
 class BDRingBuffer;
+#endif
 class LiveTVChain;
 class RemoteFile;
 
@@ -102,12 +106,20 @@ class MTV_PUBLIC RingBuffer : protected MThread
 
     // DVD and bluray methods
     bool IsDisc(void) const { return IsDVD() || IsBD(); }
+#if CONFIG_DVD
     bool IsDVD(void)  const { return type == kRingBuffer_DVD; }
-    bool IsBD(void)   const { return type == kRingBuffer_BD;  }
     const DVDRingBuffer *DVD(void) const;
-    const BDRingBuffer  *BD(void)  const;
     DVDRingBuffer *DVD(void);
+#else
+    bool IsDVD(void)  const { return false; }
+#endif
+#if CONFIG_LIBBLURAY
+    bool IsBD(void)   const { return type == kRingBuffer_BD;  }
+    const BDRingBuffer  *BD(void)  const;
     BDRingBuffer  *BD(void);
+#else
+    bool IsBD(void)   const { return false;  }
+#endif
     virtual bool StartFromBeginning(void)                   { return true;  }
     virtual void IgnoreWaitStates(bool /*ignore*/)          { }
     virtual bool IsInMenu(void) const                       { return false; }

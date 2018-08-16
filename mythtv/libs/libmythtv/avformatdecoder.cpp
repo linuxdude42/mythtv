@@ -36,8 +36,9 @@ using namespace std;
 #include "interactivetv.h"
 #include "videodisplayprofile.h"
 #include "mythuihelper.h"
+#if CONFIG_DVD
 #include "DVD/dvdringbuffer.h"
-#include "Bluray/bdringbuffer.h"
+#endif
 #include "mythavutil.h"
 
 #include "lcddevice.h"
@@ -2095,12 +2096,14 @@ int AvFormatDecoder::ScanStreams(bool novideo)
     map<int,uint> lang_aud_cnt;
     uint audioStreamCount = 0;
 
+#if CONFIG_DVD
     if (ringBuffer && ringBuffer->IsDVD() &&
         ringBuffer->DVD()->AudioStreamsChanged())
     {
         ringBuffer->DVD()->AudioStreamsChanged(false);
         RemoveAudioStreams();
     }
+#endif
 
     for (uint i = 0; i < ic->nb_streams; i++)
     {
@@ -2339,12 +2342,14 @@ int AvFormatDecoder::ScanStreams(bool novideo)
             else
             {
                 int logical_stream_id;
+#if CONFIG_DVD
                 if (ringBuffer && ringBuffer->IsDVD())
                 {
                     logical_stream_id = ringBuffer->DVD()->GetAudioTrackNum(ic->streams[i]->id);
                     channels = ringBuffer->DVD()->GetNumAudioChannels(logical_stream_id);
                 }
                 else
+#endif
                     logical_stream_id = ic->streams[i]->id;
 
                 if (logical_stream_id == -1)
@@ -3351,8 +3356,10 @@ void AvFormatDecoder::MpegPreProcessPkt(AVStream *stream, AVPacket *pkt)
         bufptr = avpriv_find_start_code(bufptr, bufend, &start_code_state);
 
         float aspect_override = -1.0f;
+#if CONFIG_DVD
         if (ringBuffer->IsDVD())
             aspect_override = ringBuffer->DVD()->GetAspectOverride();
+#endif
 
         if (start_code_state >= SLICE_MIN && start_code_state <= SLICE_MAX)
             continue;
@@ -4154,6 +4161,7 @@ bool AvFormatDecoder::ProcessSubtitlePacket(AVStream *curstream, AVPacket *pkt)
     AVSubtitle subtitle;
     memset(&subtitle, 0, sizeof(AVSubtitle));
 
+#if CONFIG_DVD
     if (ringBuffer->IsDVD())
     {
         if (ringBuffer->DVD()->NumMenuButtons() > 0)
@@ -4171,7 +4179,9 @@ bool AvFormatDecoder::ProcessSubtitlePacket(AVStream *curstream, AVPacket *pkt)
             }
         }
     }
-    else if (decodeAllSubtitles || pkt->stream_index == subIdx)
+    else
+#endif
+    if (decodeAllSubtitles || pkt->stream_index == subIdx)
     {
         AVCodecContext *ctx = gCodecMap->getCodecContext(curstream);
         QMutexLocker locker(avcodeclock);

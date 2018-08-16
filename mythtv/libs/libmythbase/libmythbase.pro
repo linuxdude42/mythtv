@@ -91,7 +91,8 @@ inc2.files = $${inc.files}
 
 INSTALLS += inc inc2
 
-INCLUDEPATH += ../../external/qjsonwrapper/ ../../external/libudfread
+INCLUDEPATH += ../../external/qjsonwrapper/
+INCLUDEPATH +=  ../../external/libudfread
 DEPENDPATH  +=  ../../external/libudfread
 
 DEFINES += RUNPREFIX=\\\"$${RUNPREFIX}\\\"

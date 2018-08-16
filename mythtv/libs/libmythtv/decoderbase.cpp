@@ -9,8 +9,12 @@ using namespace std;
 #include "decoderbase.h"
 #include "programinfo.h"
 #include "iso639.h"
+#if CONFIG_DVD
 #include "DVD/dvdringbuffer.h"
+#endif
+#if CONFIG_LIBBLURAY
 #include "Bluray/bdringbuffer.h"
+#endif
 
 #define LOC QString("Dec: ")
 
@@ -120,6 +124,7 @@ bool DecoderBase::PosMapFromDb(void)
     // Overwrites current positionmap with entire contents of database
     frm_pos_map_t posMap, durMap;
 
+#if CONFIG_DVD
     if (ringBuffer && ringBuffer->IsDVD())
     {
         long long totframes;
@@ -130,7 +135,10 @@ bool DecoderBase::PosMapFromDb(void)
         totframes = (long long)(ringBuffer->DVD()->GetTotalTimeOfTitle() * fps);
         posMap[totframes] = ringBuffer->DVD()->GetTotalReadPosition();
     }
-    else if (ringBuffer && ringBuffer->IsBD())
+    else
+#endif
+#if CONFIG_LIBBLURAY
+    if (ringBuffer && ringBuffer->IsBD())
     {
         long long totframes;
         keyframedist = 15;
@@ -147,7 +155,9 @@ bool DecoderBase::PosMapFromDb(void)
                 .arg(ringBuffer->BD()->GetTotalReadPosition()).arg(fps));
 #endif
     }
-    else if ((positionMapType == MARK_UNSET) ||
+    else
+#endif
+    if ((positionMapType == MARK_UNSET) ||
         (keyframedist == -1))
     {
         m_playbackinfo->QueryPositionMap(posMap, MARK_GOP_BYFRAME);
@@ -399,19 +409,24 @@ bool DecoderBase::SyncPositionMap(void)
         long long totframes = 0;
         int length = 0;
 
+#if CONFIG_DVD
         if (ringBuffer && ringBuffer->IsDVD())
         {
             length = ringBuffer->DVD()->GetTotalTimeOfTitle();
             QMutexLocker locker(&m_positionMapLock);
             totframes = m_positionMap.back().index;
         }
-        else if (ringBuffer && ringBuffer->IsBD())
+        else
+#endif
+#if CONFIG_LIBBLURAY
+        if (ringBuffer && ringBuffer->IsBD())
         {
             length = ringBuffer->BD()->GetTotalTimeOfTitle();
             QMutexLocker locker(&m_positionMapLock);
             totframes = m_positionMap.back().index;
         }
         else
+#endif
         {
             QMutexLocker locker(&m_positionMapLock);
             totframes = m_positionMap.back().index * keyframedist;
@@ -739,12 +754,15 @@ bool DecoderBase::DoFastForward(long long desiredFrame, bool discardFrames)
         return false;
     }
 
+#if CONFIG_DVD
     if (ringBuffer->IsDVD() &&
         !ringBuffer->IsInDiscMenuOrStillFrame() &&
         ringBuffer->DVD()->TitleTimeLeft() < 5)
     {
         return false;
     }
+#endif
+
     // Rewind if we have already played the desiredFrame. The +1 is for
     // MPEG4 NUV files, which need to decode an extra frame sometimes.
     // This shouldn't effect how this works in general because this is

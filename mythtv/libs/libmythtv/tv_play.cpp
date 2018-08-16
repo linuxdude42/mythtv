@@ -53,8 +53,12 @@ using namespace std;
 #include "mythuiactions.h"              // for ACTION_LEFT, ACTION_RIGHT, etc
 
 // libmythtv
+#if CONFIG_LIBBLURAY
 #include "DVD/dvdringbuffer.h"
+#endif
+#if CONFIG_LIBBLURAY
 #include "Bluray/bdringbuffer.h"
+#endif
 #include "remoteencoder.h"
 #include "tvremoteutil.h"
 #include "mythplayer.h"
@@ -3298,11 +3302,13 @@ bool TV::HandleLCDTimerEvent(void)
         if (StateIsLiveTV(GetState(actx)))
             ShowLCDChannelInfo(actx);
 
+#if CONFIG_DVD
         if (actx->buffer && actx->buffer->IsDVD())
         {
             ShowLCDDVDInfo(actx);
             showProgress = !actx->buffer->IsInDiscMenuOrStillFrame();
         }
+#endif
 
         if (showProgress)
         {
@@ -4834,6 +4840,7 @@ bool TV::ActiveHandleAction(PlayerContext *ctx,
             {
                 // If it's a DVD, and we're not trying to execute a
                 // jumppoint, try to back up.
+#if CONFIG_DVD
                 if (isDVD &&
                     !GetMythMainWindow()->IsExitingToMain() &&
                     has_action("BACK", actions) &&
@@ -4841,6 +4848,7 @@ bool TV::ActiveHandleAction(PlayerContext *ctx,
                 {
                     return handled;
                 }
+#endif
                 SetExitPlayer(true, true);
             }
         }
@@ -5582,7 +5590,7 @@ void TV::ProcessNetworkControlCommand(PlayerContext *ctx,
             }
 
             QString bufferFilename =
-              ctx->buffer ? ctx->buffer->GetFilename() : QString("no buffer");
+              ctx->buffer ? ctx->buffer->GetFilename() : "no buffer";
             if ((infoStr == "Recorded") || (infoStr == "LiveTV"))
             {
                 infoStr += QString(" %1 %2 %3 %4 %5 %6 %7")
@@ -8536,6 +8544,7 @@ void TV::ShowLCDChannelInfo(const PlayerContext *ctx)
     }
 }
 
+#if CONFIG_DVD
 static void format_time(int seconds, QString &tMin, QString &tHrsMin)
 {
     int minutes     = seconds / 60;
@@ -8594,7 +8603,7 @@ void TV::ShowLCDDVDInfo(const PlayerContext *ctx)
         lcdSubtitle = subStatus;
     }
 }
-
+#endif
 
 bool TV::IsTunable(const PlayerContext *ctx, uint chanid)
 {
@@ -12393,8 +12402,12 @@ void TV::PlaybackMenuInit(const MenuBase &menu)
     m_tvm_hasPIP            = (player.size() > 1) && GetPlayer(ctx,1)->IsPIP();
     m_tvm_freerecordercount = -1;
     m_tvm_isdvd             = (m_tvm_state == kState_WatchingDVD);
+#if CONFIG_LIBBLURAY
     m_tvm_isbd              = (ctx->buffer && ctx->buffer->IsBD() &&
                                ctx->buffer->BD()->IsHDMVNavigation());
+#else
+    m_tvm_isbd              = false;
+#endif
     m_tvm_jump              = (!m_tvm_num_chapters && !m_tvm_isdvd &&
                                !m_tvm_isbd && ctx->buffer &&
                                ctx->buffer->IsSeekingAllowed());
@@ -13125,9 +13138,12 @@ void TV::ITVRestart(PlayerContext *ctx, bool isLive)
 
 void TV::DoJumpFFWD(PlayerContext *ctx)
 {
+#if CONFIG_DVD
     if (GetState(ctx) == kState_WatchingDVD)
         DVDJumpForward(ctx);
-    else if (GetNumChapters(ctx) > 0)
+    else
+#endif
+    if (GetNumChapters(ctx) > 0)
         DoJumpChapter(ctx, 9999);
     else
         DoSeek(ctx, ctx->jumptime * 60, tr("Jump Ahead"),
@@ -13144,9 +13160,12 @@ void TV::DoSeekFFWD(PlayerContext *ctx)
 
 void TV::DoJumpRWND(PlayerContext *ctx)
 {
+#if CONFIG_DVD
     if (GetState(ctx) == kState_WatchingDVD)
         DVDJumpBack(ctx);
-    else if (GetNumChapters(ctx) > 0)
+    else
+#endif
+    if (GetNumChapters(ctx) > 0)
         DoJumpChapter(ctx, -1);
     else
         DoSeek(ctx, -ctx->jumptime * 60, tr("Jump Back"),
@@ -13164,6 +13183,7 @@ void TV::DoSeekRWND(PlayerContext *ctx)
 /*  \fn TV::DVDJumpBack(PlayerContext*)
     \brief jump to the previous dvd title or chapter
 */
+#if CONFIG_DVD
 void TV::DVDJumpBack(PlayerContext *ctx)
 {
     DVDRingBuffer *dvdrb = dynamic_cast<DVDRingBuffer*>(ctx->buffer);
@@ -13244,6 +13264,7 @@ void TV::DVDJumpForward(PlayerContext *ctx)
         }
     }
 }
+#endif
 
 /* \fn TV::IsBookmarkAllowed(const PlayerContext*) const
  * \brief Returns true if bookmarks are allowed for the current player.

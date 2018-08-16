@@ -243,8 +243,8 @@ HEADERS += channelscan/iptvchannelfetcher.h
 SOURCES += channelscan/scaninfo.cpp channelscan/channelimporter.cpp
 SOURCES += channelscan/iptvchannelfetcher.cpp
 
-HEADERS += dvdstream.h
-SOURCES += dvdstream.cpp
+using_dvd: HEADERS += dvdstream.h
+using_dvd: SOURCES += dvdstream.cpp
 
 # subtitles: srt
 HEADERS += srtwriter.h
@@ -273,6 +273,7 @@ inc2.files += visualisations/goom/v3d.h
 
 INSTALLS += inc2
 
+using_dvd {
 #DVD stuff
 DEPENDPATH  += ../../external/libmythdvdnav/
 DEPENDPATH  += ../../external/libmythdvdnav/dvdread # for dvd_reader.h & dvd_input.h
@@ -284,44 +285,49 @@ win32-msvc*|freebsd {
   QMAKE_CXXFLAGS += -isystem ../../external/libmythdvdnav/dvdnav
   QMAKE_CXXFLAGS += -isystem ../../external/libmythdvdnav/dvdread
 }
-
-!win32-msvc*:POST_TARGETDEPS += ../../external/libmythdvdnav/libmythdvdnav-$${MYTH_LIB_EXT}
-
-HEADERS += DVD/dvdringbuffer.h
-SOURCES += DVD/dvdringbuffer.cpp
-using_frontend {
-    HEADERS += DVD/mythdvdplayer.h
-    SOURCES += DVD/mythdvdplayer.cpp
-    HEADERS += DVD/avformatdecoderdvd.h
-    SOURCES += DVD/avformatdecoderdvd.cpp
 }
-LIBS += -L../../external/libmythdvdnav
-LIBS += -lmythdvdnav-$$LIBVERSION
 
-#Bluray stuff
-HEADERS += Bluray/bdiowrapper.h Bluray/bdringbuffer.h
-SOURCES += Bluray/bdiowrapper.cpp Bluray/bdringbuffer.cpp
-using_frontend {
-    HEADERS += Bluray/mythbdplayer.h
-    SOURCES += Bluray/mythbdplayer.cpp
-    HEADERS += Bluray/avformatdecoderbd.h
-    SOURCES += Bluray/avformatdecoderbd.cpp
-    HEADERS += Bluray/bdoverlayscreen.h
-    SOURCES += Bluray/bdoverlayscreen.cpp
-}
-!using_libbluray_external {
-    INCLUDEPATH += ../../external/libmythbluray/src
-    DEPENDPATH += ../../external/libmythbluray
-    LIBS += -L../../external/libmythbluray     -lmythbluray-$${LIBVERSION}
-    !win32-msvc*:POST_TARGETDEPS += ../../external/libmythbluray/libmythbluray-$${MYTH_LIB_EXT}
-}
-using_libbluray_external:android {
-    LIBS += -lbluray -lxml2
+using_dvd {
+    !win32-msvc*:POST_TARGETDEPS += ../../external/libmythdvdnav/libmythdvdnav-$${MYTH_LIB_EXT}
+
+    HEADERS += DVD/dvdringbuffer.h
+    SOURCES += DVD/dvdringbuffer.cpp
+    using_frontend {
+        HEADERS += DVD/mythdvdplayer.h
+        SOURCES += DVD/mythdvdplayer.cpp
+        HEADERS += DVD/avformatdecoderdvd.h
+        SOURCES += DVD/avformatdecoderdvd.cpp
+    }
+    LIBS += -L../../external/libmythdvdnav
+    LIBS += -lmythdvdnav-$$LIBVERSION
 }
 
 DEPENDPATH += ../../external/libudfread
 LIBS += -L../../external/libudfread
 LIBS += -lmythudfread-$$LIBVERSION
+
+#Bluray stuff
+using_libbluray {
+    HEADERS += Bluray/bdiowrapper.h Bluray/bdringbuffer.h
+    SOURCES += Bluray/bdiowrapper.cpp Bluray/bdringbuffer.cpp
+    using_frontend {
+        HEADERS += Bluray/mythbdplayer.h
+        SOURCES += Bluray/mythbdplayer.cpp
+        HEADERS += Bluray/avformatdecoderbd.h
+        SOURCES += Bluray/avformatdecoderbd.cpp
+        HEADERS += Bluray/bdoverlayscreen.h
+        SOURCES += Bluray/bdoverlayscreen.cpp
+    }
+    !using_libbluray_external {
+        INCLUDEPATH += ../../external/libmythbluray/src
+        DEPENDPATH += ../../external/libmythbluray
+        LIBS += -L../../external/libmythbluray     -lmythbluray-$${LIBVERSION}
+        !win32-msvc*:POST_TARGETDEPS += ../../external/libmythbluray/libmythbluray-$${MYTH_LIB_EXT}
+    }
+    using_libbluray_external:android {
+        LIBS += -lbluray -lxml2
+    }
+}
 
 #HLS stuff
 HEADERS += HLS/httplivestream.h

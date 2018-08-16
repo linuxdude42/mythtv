@@ -31,8 +31,12 @@
 #include "mythdate.h"
 #include "mythtimer.h"
 #include "mythlogging.h"
+#if CONFIG_DVD
 #include "DVD/dvdringbuffer.h"
+#endif
+#if CONFIG_LIBBLURAY
 #include "Bluray/bdringbuffer.h"
+#endif
 #include "HLS/httplivestreambuffer.h"
 #include "mythcdrom.h"
 
@@ -175,6 +179,7 @@ RingBuffer *RingBuffer::Create(
             bddir  = true;
     }
 
+#if CONFIG_DVD
     if (!stream_only && (dvdurl || dvddir))
     {
         if (lfilename.startsWith("dvd:"))        // URI "dvd:" + path
@@ -186,7 +191,9 @@ RingBuffer *RingBuffer::Create(
 
         return new DVDRingBuffer(lfilename);
     }
-    else if (!stream_only && (bdurl || bddir))
+#endif
+#if CONFIG_LIBBLURAY
+    if (!stream_only && (bdurl || bddir))
     {
         if (lfilename.startsWith("bd:"))        // URI "bd:" + path
             lfilename.remove(0,3);             // e.g. "bd:/videos/ET"
@@ -197,7 +204,9 @@ RingBuffer *RingBuffer::Create(
 
         return new BDRingBuffer(lfilename);
     }
+#endif
 
+#if CONFIG_DVD
     if (!mythurl && imgext && lfilename.startsWith("dvd:"))
     {
         LOG(VB_PLAYBACK, LOG_INFO, "DVD image at " + lfilename);
@@ -212,6 +221,7 @@ RingBuffer *RingBuffer::Create(
 
         delete s;
     }
+#endif
 
     return new FileRingBuffer(
         lfilename, write, usereadahead, timeout_ms);
@@ -1950,25 +1960,29 @@ void RingBuffer::IgnoreLiveEOF(bool ignore)
     rwlock.unlock();
 }
 
+#if CONFIG_DVD
 const DVDRingBuffer *RingBuffer::DVD(void) const
 {
     return dynamic_cast<const DVDRingBuffer*>(this);
-}
-
-const BDRingBuffer  *RingBuffer::BD(void) const
-{
-    return dynamic_cast<const BDRingBuffer*>(this);
 }
 
 DVDRingBuffer *RingBuffer::DVD(void)
 {
     return dynamic_cast<DVDRingBuffer*>(this);
 }
+#endif
+
+#if CONFIG_LIBBLURAY
+const BDRingBuffer  *RingBuffer::BD(void) const
+{
+    return dynamic_cast<const BDRingBuffer*>(this);
+}
 
 BDRingBuffer  *RingBuffer::BD(void)
 {
     return dynamic_cast<BDRingBuffer*>(this);
 }
+#endif
 
 void RingBuffer::AVFormatInitNetwork(void)
 {

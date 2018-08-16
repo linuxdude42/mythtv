@@ -8,6 +8,7 @@
 
 // MythTV headers
 
+#include "mythconfig.h"
 #include "mythtvexp.h"
 #include "programtypes.h"
 #include "mythscreentype.h"
@@ -199,9 +200,13 @@ class OSD
     void EnableSubtitles(int type, bool forced_only = false);
     void DisableForcedSubtitles(void);
     void ClearSubtitles(void);
+#if CONFIG_DVD
     void DisplayDVDButton(AVSubtitle* dvdButton, QRect &pos);
+#endif
 
+#if CONFIG_LIBBLURAY
     void DisplayBDOverlay(BDOverlay *overlay);
+#endif
     MythPlayer *GetPlayer(void) { return m_parent; }
 
   private:

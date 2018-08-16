@@ -17,25 +17,27 @@ QMAKE_CLEAN += version.cpp
 HEADERS += cleanup.h  dbaccess.h  dirscan.h  globals.h  parentalcontrols.h
 HEADERS += videoscan.h  videoutils.h  videometadata.h  videometadatalistmanager.h
 HEADERS += quicksp.h metadatacommon.h metadatadownload.h metadataimagedownload.h
-HEADERS += bluraymetadata.h mythmetaexp.h metadatafactory.h mythuimetadataresults.h
+HEADERS += mythmetaexp.h metadatafactory.h mythuimetadataresults.h
 HEADERS += mythuiimageresults.h
 HEADERS += musicmetadata.h musicutils.h metaio.h metaiotaglib.h
 HEADERS += metaioflacvorbis.h metaioavfcomment.h metaiomp4.h
 HEADERS += metaiowavpack.h metaioid3.h metaiooggvorbis.h
 HEADERS += imagetypes.h imagemetadata.h imagethumbs.h imagescanner.h imagemanager.h
 HEADERS += musicfilescanner.h metadatagrabber.h lyricsdata.h
+using_libbluray: HEADERS += bluraymetadata.h
 
 SOURCES += cleanup.cpp  dbaccess.cpp  dirscan.cpp  globals.cpp
 SOURCES += parentalcontrols.cpp  videoscan.cpp  videoutils.cpp
 SOURCES += videometadata.cpp  videometadatalistmanager.cpp
 SOURCES += metadatacommon.cpp metadatadownload.cpp metadataimagedownload.cpp
-SOURCES += bluraymetadata.cpp metadatafactory.cpp mythuimetadataresults.cpp
+SOURCES += metadatafactory.cpp mythuimetadataresults.cpp
 SOURCES += mythuiimageresults.cpp
 SOURCES += musicmetadata.cpp musicutils.cpp metaio.cpp metaiotaglib.cpp
 SOURCES += metaioflacvorbis.cpp metaioavfcomment.cpp metaiomp4.cpp
 SOURCES += metaiowavpack.cpp metaioid3.cpp metaiooggvorbis.cpp
 SOURCES += imagemetadata.cpp imagethumbs.cpp imagescanner.cpp imagemanager.cpp
 SOURCES += musicfilescanner.cpp metadatagrabber.cpp lyricsdata.cpp
+using_libbluray: SOURCES += bluraymetadata.cpp
 
 INCLUDEPATH += ../libmythbase ../libmythtv
 INCLUDEPATH += ../.. ../ ./ ../libmythui
@@ -94,7 +96,7 @@ inc.path = $${PREFIX}/include/mythtv/metadata/
 inc.files = cleanup.h  dbaccess.h  dirscan.h  globals.h  parentalcontrols.h
 inc.files += videoscan.h  videoutils.h  videometadata.h  videometadatalistmanager.h
 inc.files += quicksp.h metadatacommon.h metadatadownload.h metadataimagedownload.h
-inc.files += bluraymetadata.h mythmetaexp.h metadatafactory.h mythuimetadataresults.h
+inc.files += mythmetaexp.h metadatafactory.h mythuimetadataresults.h
 inc.files += mythuiimageresults.h metadataimagehelper.h
 inc.files += musicmetadata.h musicutils.h
 inc.files += metaio.h metaiotaglib.h
@@ -102,6 +104,7 @@ inc.files += metaioflacvorbis.h metaioavfcomment.h metaiomp4.h
 inc.files += metaiowavpack.h metaioid3.h metaiooggvorbis.h
 inc.files += imagetypes.h imagemetadata.h imagemanager.h
 inc.files += musicfilescanner.h metadatagrabber.h lyricsdata.h
+using_libbluray: inc.files += bluraymetadata.h
 
 INSTALLS += inc
 

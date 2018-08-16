@@ -395,6 +395,7 @@ bool Video::UpdateVideoWatchedStatus ( int  nId,
 
 DTC::BlurayInfo* Video::GetBluray( const QString &sPath )
 {
+#if CONFIG_LIBBLURAY
     QString path = sPath;
 
     if (sPath.isEmpty())
@@ -443,6 +444,10 @@ DTC::BlurayInfo* Video::GetBluray( const QString &sPath )
     delete bdmeta;
 
     return pBlurayInfo;
+#else
+    Q_UNUSED(sPath);
+    throw( QString( "Bluray not compiled into MythTV!" ));
+#endif
 }
 
 /////////////////////////////////////////////////////////////////////////////

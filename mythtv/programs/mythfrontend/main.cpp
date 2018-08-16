@@ -103,8 +103,12 @@ using namespace std;
 #include "gallerythumbview.h"
 
 // DVD & Bluray
+#if CONFIG_DVD
 #include "DVD/dvdringbuffer.h"
+#endif
+#if CONFIG_LIBBLURAY
 #include "Bluray/bdringbuffer.h"
+#endif
 
 // AirPlay
 #ifdef USING_AIRPLAY
@@ -708,6 +712,7 @@ static void RunGallery()
 
 static void playDisc()
 {
+#if CONFIG_DVD || CONFIG_BLURAY
     //
     //  Get the command string to play a DVD
     //
@@ -788,6 +793,7 @@ static void playDisc()
         }
         GetMythUI()->RemoveCurrentLocation();
     }
+#endif
 }
 
 /////////////////////////////////////////////////
@@ -1284,6 +1290,7 @@ static int internal_play_media(const QString &mrl, const QString &plot,
 
     bool bookmarkPresent = false;
 
+#if CONFIG_DVD
     if (pginfo->IsVideoDVD())
     {
         DVDInfo *dvd = new DVDInfo(pginfo->GetPlaybackURL());
@@ -1309,7 +1316,10 @@ static int internal_play_media(const QString &mrl, const QString &plot,
         }
         delete dvd;
     }
-    else if (pginfo->IsVideoBD())
+    else
+#endif
+#if CONFIG_LIBBLURAY
+    if (pginfo->IsVideoBD())
     {
         BDInfo bd(pginfo->GetPlaybackURL());
         if (bd.IsValid())
@@ -1333,7 +1343,9 @@ static int internal_play_media(const QString &mrl, const QString &plot,
             return res;
         }
     }
-    else if (pginfo->IsVideo())
+    else
+#endif
+    if (pginfo->IsVideo())
         bookmarkPresent = (pginfo->QueryBookmark() > 0);
 
     if (useBookmark && bookmarkPresent)
@@ -1563,11 +1575,12 @@ static void InitJumpPoints(void)
          "The Video Listings"), "", jumpScreenVideoTree);
      REG_JUMP(JUMP_VIDEO_GALLERY, QT_TRANSLATE_NOOP("MythControls",
          "The Video Gallery"), "", jumpScreenVideoGallery);
+#if CONFIG_DVD || CONFIG_BLURAY
      REG_JUMP("Play Disc", QT_TRANSLATE_NOOP("MythControls",
          "Play an Optical Disc"), "", playDisc);
+#endif
 
      // Gallery
-
      REG_JUMP(JUMP_GALLERY_DEFAULT, QT_TRANSLATE_NOOP("MythControls",
          "Image Gallery"), "", RunGallery);
 

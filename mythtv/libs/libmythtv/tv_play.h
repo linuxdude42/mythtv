@@ -579,8 +579,10 @@ class MTV_PUBLIC TV : public QObject, public MenuItemDisplayer
     void ChangeSpeed(PlayerContext*, int direction);
     void ToggleTimeStretch(PlayerContext*);
     void ChangeTimeStretch(PlayerContext*, int dir, bool allowEdit = true);
+#if CONFIG_DVD
     void DVDJumpBack(PlayerContext*);
     void DVDJumpForward(PlayerContext*);
+#endif
     float StopFFRew(PlayerContext*);
     void ChangeFFRew(PlayerContext*, int direction);
     void SetFFRew(PlayerContext*, int index);
@@ -768,7 +770,9 @@ class MTV_PUBLIC TV : public QObject, public MenuItemDisplayer
     // LCD
     void UpdateLCD(void);
     void ShowLCDChannelInfo(const PlayerContext*);
+#if CONFIG_DVD
     void ShowLCDDVDInfo(const PlayerContext*);
+#endif
 
     // Other stuff
     int GetLastRecorderNum(int player_idx) const;

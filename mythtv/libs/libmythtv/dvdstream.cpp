@@ -10,7 +10,7 @@
 #include <QtGlobal>
 #include <QtAlgorithms>
 
-#include "dvdread/dvd_reader.h"
+//#include "dvdread/dvd_reader.h"
 #include "dvdread/dvd_udf.h"    // for UDFFindFile
 extern "C" {
 #include "dvd_input.h"          // for DVDINPUT_READ_DECRYPT & DVDCSS_SEEK_KEY

@@ -23,8 +23,10 @@
 #include "subtitlescreen.h"
 #include "interactivescreen.h"
 #include "osd.h"
+#if CONFIG_LIBBLURAY
 #include "Bluray/bdringbuffer.h"
 #include "Bluray/bdoverlayscreen.h"
+#endif
 #include "tv_actions.h"
 
 #define LOC     QString("OSD: ")
@@ -1092,10 +1094,12 @@ MythScreenType *OSD::GetWindow(const QString &window)
     {
         new_window = new InteractiveScreen(m_parent, window);
     }
+#if CONFIG_LIBBLURAY
     else if (window == OSD_WIN_BDOVERLAY)
     {
         new_window = new BDOverlayScreen(m_parent, window);
     }
+#endif
     else
     {
         new_window = new MythOSDWindow(NULL, window, false);
@@ -1439,6 +1443,7 @@ void OSD::ClearSubtitles(void)
         sub->ClearAllSubtitles();
 }
 
+#if CONFIG_DVD
 void OSD::DisplayDVDButton(AVSubtitle* dvdButton, QRect &pos)
 {
     if (!dvdButton)
@@ -1451,7 +1456,9 @@ void OSD::DisplayDVDButton(AVSubtitle* dvdButton, QRect &pos)
         sub->DisplayDVDButton(dvdButton, pos);
     }
 }
+#endif
 
+#if CONFIG_LIBBLURAY
 void OSD::DisplayBDOverlay(BDOverlay* overlay)
 {
     if (!overlay)
@@ -1461,6 +1468,7 @@ void OSD::DisplayBDOverlay(BDOverlay* overlay)
     if (bd)
         bd->DisplayBDOverlay(overlay);
 }
+#endif
 
 OsdNavigation::OsdNavigation(QObject *retobject, const QString &name, OSD *osd)
   : MythScreenType((MythScreenType*)NULL, name),

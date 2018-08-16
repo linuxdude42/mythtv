@@ -16,8 +16,12 @@
 #include "videometadatautil.h"
 #include "metadataimagehelper.h"
 #include "mythlogging.h"
+#if CONFIG_DVD
 #include "DVD/mythdvdplayer.h"
+#endif
+#if CONFIG_LIBBLURAY
 #include "Bluray/mythbdplayer.h"
+#endif
 #include "channelutil.h"
 #include "tv_play.h"
 
@@ -389,11 +393,16 @@ bool PlayerContext::CreatePlayer(TV *tv, QWidget *widget,
     playerflags |= nohardwaredecoders ? kNoFlags : kDecodeAllowGPU;
 
     MythPlayer *player = NULL;
+#if CONFIG_LIBBLURAY
     if (kState_WatchingBD  == desiredState)
         player = new MythBDPlayer((PlayerFlags)playerflags);
-    else if (kState_WatchingDVD == desiredState)
+    else
+#endif
+#if CONFIG_DVD
+    if (kState_WatchingDVD == desiredState)
         player = new MythDVDPlayer((PlayerFlags)playerflags);
     else
+#endif
         player = new MythPlayer((PlayerFlags)playerflags);
 
     QString passthru_device =
@@ -418,7 +427,7 @@ bool PlayerContext::CreatePlayer(TV *tv, QWidget *widget,
 
     if (!IsAudioNeeded())
         audio->SetNoAudio();
-    else
+    else if (buffer)
     {
         QString subfn = buffer->GetSubtitleFilename();
         bool isInProgress =
