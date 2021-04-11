@@ -2482,6 +2482,8 @@ components:
           type: string
         originalLanguage:
           type: string
+        originalNetwork:
+          $ref: '#/components/schemas/NetworkBaseRecord'
         overviewTranslations:
           items:
             type: string
@@ -2565,6 +2567,8 @@ components:
           type: string
         originalLanguage:
           type: string
+        originalNetwork:
+          $ref: '#/components/schemas/NetworkBaseRecord'
         overviewTranslations:
           items:
             type: string
