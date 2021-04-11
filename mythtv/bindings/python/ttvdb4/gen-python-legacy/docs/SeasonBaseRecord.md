@@ -1,0 +1,23 @@
+# SeasonBaseRecord
+
+season genre record
+
+## Properties
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**abbreviation** | **str** |  | [optional] 
+**country** | **str** |  | [optional] 
+**id** | **int** |  | [optional] 
+**image** | **str** |  | [optional] 
+**image_type** | **int** |  | [optional] 
+**name** | **str** |  | [optional] 
+**name_translations** | **list[str]** |  | [optional] 
+**number** | **int** |  | [optional] 
+**overview_translations** | **list[str]** |  | [optional] 
+**series_id** | **int** |  | [optional] 
+**slug** | **str** |  | [optional] 
+**type** | **int** |  | [optional] 
+
+[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+
+
