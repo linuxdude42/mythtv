@@ -40,7 +40,7 @@ static bool RemoteSendReceiveStringList(const QString &host, QStringList &strlis
 {
     bool ok = false;
 
-    if (gCoreContext->IsMasterBackend())
+    if (gCoreContext->IsPrimaryBackend())
     {
         // since the master backend cannot connect back around to
         // itself, and the libraries do not have access to the list
@@ -1316,7 +1316,7 @@ QStringList RemoteFile::FindFileList(const QString& filename, const QString& hos
     QString hostName = host;
 
     if (hostName.isEmpty())
-        hostName = gCoreContext->GetMasterHostName();
+        hostName = gCoreContext->GetPrimaryHostName();
 
     // if we are looking for the file on this host just search the local storage group first
     if (gCoreContext->IsThisBackend(hostName))
@@ -1364,7 +1364,7 @@ QStringList RemoteFile::FindFileList(const QString& filename, const QString& hos
     }
 
     // if we didn't find any files ask the master BE to find it
-    if (strList.isEmpty() && !gCoreContext->IsMasterBackend())
+    if (strList.isEmpty() && !gCoreContext->IsPrimaryBackend())
     {
         strList << "QUERY_FINDFILE" << hostName << storageGroup << filename
                 << (useRegex ? "1" : "0")

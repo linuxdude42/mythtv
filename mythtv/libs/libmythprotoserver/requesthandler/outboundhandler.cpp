@@ -17,26 +17,26 @@
 OutboundRequestHandler::OutboundRequestHandler(void) 
 {
     m_timer.setSingleShot(true);
-    connect(&m_timer, &QTimer::timeout, this, &OutboundRequestHandler::ConnectToMaster);
+    connect(&m_timer, &QTimer::timeout, this, &OutboundRequestHandler::ConnectToPrimary);
 }
 
-void OutboundRequestHandler::ConnectToMaster(void)
+void OutboundRequestHandler::ConnectToPrimary(void)
 {
     m_timer.stop();
-    if (!DoConnectToMaster())
+    if (!DoConnectToPrimary())
         m_timer.start(5s);
 }
 
-bool OutboundRequestHandler::DoConnectToMaster(void)
+bool OutboundRequestHandler::DoConnectToPrimary(void)
 {
     if (m_socket)
         m_socket->DecrRef();
 
     m_socket = new MythSocket(-1, m_parent);
 
-    QString server   = gCoreContext->GetMasterServerIP();
-    QString hostname = gCoreContext->GetMasterHostName();
-    int port         = MythCoreContext::GetMasterServerPort();
+    QString server   = gCoreContext->GetPrimaryServerIP();
+    QString hostname = gCoreContext->GetPrimaryHostName();
+    int port         = MythCoreContext::GetPrimaryServerPort();
 
     if (!m_socket->ConnectToHost(server, port))
     {
@@ -81,5 +81,5 @@ void OutboundRequestHandler::connectionClosed(MythSocket *socket)
 {
     // connection has closed, trigger an immediate reconnection
     if (socket == m_socket)
-        ConnectToMaster();
+        ConnectToPrimary();
 }

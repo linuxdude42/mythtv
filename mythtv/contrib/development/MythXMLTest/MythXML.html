@@ -22,7 +22,7 @@ function GetRecording( )
 {
 	var oForm = FindObject( "GetRecording" );
 
-	var sQuery = GetMasterBackend( "GetRecording" ) + "?ChanId=" + oForm.ChanId.value + "&StartTime=" + oForm.StartTime.value;
+	var sQuery = GetPrimaryBackend( "GetRecording" ) + "?ChanId=" + oForm.ChanId.value + "&StartTime=" + oForm.StartTime.value;
 
 	oForm.action = sQuery;
 }

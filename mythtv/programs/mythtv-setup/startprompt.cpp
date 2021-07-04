@@ -35,7 +35,7 @@ StartPrompter::~StartPrompter()
 void StartPrompter::handleStart()
 {
     // Offer to stop the backend if sensible
-    if (MythCoreContext::BackendIsRunning() && gCoreContext->IsMasterHost())
+    if (MythCoreContext::BackendIsRunning() && gCoreContext->IsPrimaryHost())
     {
         backendRunningPrompt();
     }    
@@ -63,8 +63,8 @@ void StartPrompter::backendRunningPrompt(void)
 {
     bool backendIsRecording = false;
     // Get recording status
-    if (!gCoreContext->IsConnectedToMaster() &&
-        gCoreContext->ConnectToMasterServer(false))
+    if (!gCoreContext->IsConnectedToPrimary() &&
+        gCoreContext->ConnectToPrimaryServer(false))
     {
         backendIsRecording = RemoteGetRecordingStatus(nullptr, false);
     }

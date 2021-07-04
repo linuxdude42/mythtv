@@ -32,13 +32,13 @@ ExitPrompter::~ExitPrompter()
     delete m_d;
 }
 
-void ExitPrompter::masterPromptExit()
+void ExitPrompter::primaryPromptExit()
 {
-    if (gCoreContext->IsMasterHost() && needsMFDBReminder())
+    if (gCoreContext->IsPrimaryHost() && needsMFDBReminder())
     {
         QString label = tr("If you've added or altered channels,"
                            " please run 'mythfilldatabase' on the"
-                           " master backend to populate the"
+                           " primary backend to populate the"
                            " database with guide information.");
 
         auto *dia = new MythConfirmationDialog(m_d->m_stk, label, false);
@@ -83,12 +83,12 @@ void ExitPrompter::handleExit()
         
         dia->AddButton(tr("Yes please"));
         dia->AddButton(tr("No, I know what I am doing"),
-                       &ExitPrompter::masterPromptExit);
+                       &ExitPrompter::primaryPromptExit);
                 
         m_d->m_stk->AddScreen(dia);
     }
     else
-        masterPromptExit();
+        primaryPromptExit();
 }
 
 void ExitPrompter::customEvent(QEvent *event)
@@ -111,7 +111,7 @@ void ExitPrompter::customEvent(QEvent *event)
                 case 0 :
                     break;
                 case 1 :
-                    masterPromptExit();
+                    primaryPromptExit();
                     break;
             }
         }

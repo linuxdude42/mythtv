@@ -325,7 +325,7 @@ int handle_command(const MythBackendCommandLineParser &cmdline)
 
     if (!eventString.isEmpty())
     {
-        if (gCoreContext->ConnectToMasterServer())
+        if (gCoreContext->ConnectToPrimaryServer())
         {
             gCoreContext->SendMessage(eventString);
             return GENERIC_EXIT_OK;
@@ -335,7 +335,7 @@ int handle_command(const MythBackendCommandLineParser &cmdline)
 
     if (cmdline.toBool("setverbose"))
     {
-        if (gCoreContext->ConnectToMasterServer())
+        if (gCoreContext->ConnectToPrimaryServer())
         {
             QString message = "SET_VERBOSE ";
             message += cmdline.toString("setverbose");
@@ -352,7 +352,7 @@ int handle_command(const MythBackendCommandLineParser &cmdline)
 
     if (cmdline.toBool("setloglevel"))
     {
-        if (gCoreContext->ConnectToMasterServer())
+        if (gCoreContext->ConnectToPrimaryServer())
         {
             QString message = "SET_LOG_LEVEL ";
             message += cmdline.toString("setloglevel");
@@ -369,7 +369,7 @@ int handle_command(const MythBackendCommandLineParser &cmdline)
 
     if (cmdline.toBool("clearcache"))
     {
-        if (gCoreContext->ConnectToMasterServer())
+        if (gCoreContext->ConnectToPrimaryServer())
         {
             gCoreContext->SendMessage("CLEAR_SETTINGS_CACHE");
             LOG(VB_GENERAL, LOG_INFO, "Sent CLEAR_SETTINGS_CACHE message");
@@ -386,7 +386,7 @@ int handle_command(const MythBackendCommandLineParser &cmdline)
         auto *sched = new Scheduler(false, &tvList);
         if (cmdline.toBool("printsched"))
         {
-            if (!gCoreContext->ConnectToMasterServer())
+            if (!gCoreContext->ConnectToPrimaryServer())
             {
                 LOG(VB_GENERAL, LOG_ERR, "Cannot connect to master");
                 delete sched;
@@ -416,7 +416,7 @@ int handle_command(const MythBackendCommandLineParser &cmdline)
     if (cmdline.toBool("resched"))
     {
         bool ok = false;
-        if (gCoreContext->ConnectToMasterServer())
+        if (gCoreContext->ConnectToPrimaryServer())
         {
             LOG(VB_GENERAL, LOG_INFO, "Connected to master for reschedule");
             ScheduledRecording::RescheduleMatch(0, 0, 0, QDateTime(),
@@ -432,7 +432,7 @@ int handle_command(const MythBackendCommandLineParser &cmdline)
     if (cmdline.toBool("scanvideos"))
     {
         bool ok = false;
-        if (gCoreContext->ConnectToMasterServer())
+        if (gCoreContext->ConnectToPrimaryServer())
         {
             gCoreContext->SendReceiveStringList(QStringList() << "SCAN_VIDEOS");
             LOG(VB_GENERAL, LOG_INFO, "Requested video scan");
@@ -460,8 +460,8 @@ int connect_to_master(void)
 {
     auto *tempMonitorConnection = new MythSocket();
     if (tempMonitorConnection->ConnectToHost(
-            gCoreContext->GetMasterServerIP(),
-            MythCoreContext::GetMasterServerPort()))
+            gCoreContext->GetPrimaryServerIP(),
+            MythCoreContext::GetPrimaryServerPort()))
     {
         if (!gCoreContext->CheckProtoVersion(tempMonitorConnection))
         {
@@ -581,7 +581,7 @@ int run_backend(MythBackendCommandLineParser &cmdline)
         return GENERIC_EXIT_DB_NOTIMEZONE;
     }
 
-    bool ismaster = gCoreContext->IsMasterHost();
+    bool ismaster = gCoreContext->IsPrimaryHost();
 
     if (!UpgradeTVDatabaseSchema(ismaster, ismaster, true))
     {
@@ -750,7 +750,7 @@ int run_backend(MythBackendCommandLineParser &cmdline)
     StorageGroup::CheckAllStorageGroupDirs();
 
     be_sd_notify("STATUS=Sending \"master started\" message");
-    if (gCoreContext->IsMasterBackend())
+    if (gCoreContext->IsPrimaryBackend())
         gCoreContext->SendSystemEvent("MASTER_STARTED");
 
     // Provide systemd ready notification (for type=notify units)
@@ -762,7 +762,7 @@ int run_backend(MythBackendCommandLineParser &cmdline)
     ///////////////////////////////
     ///////////////////////////////
 
-    if (gCoreContext->IsMasterBackend())
+    if (gCoreContext->IsPrimaryBackend())
     {
         gCoreContext->SendSystemEvent("MASTER_SHUTDOWN");
         qApp->processEvents();

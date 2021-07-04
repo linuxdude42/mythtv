@@ -104,7 +104,7 @@ void VideoScannerThread::SetHosts(const QStringList &hosts)
 
 void VideoScannerThread::SetDirs(QStringList dirs)
 {
-    QString master = gCoreContext->GetMasterHostName().toLower();
+    QString master = gCoreContext->GetPrimaryHostName().toLower();
     QStringList searchhosts;
     QStringList mdirs;
     m_offlineSGHosts.clear();

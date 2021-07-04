@@ -807,14 +807,14 @@ void EditMetadataDialog::customEvent(QEvent *event)
                 {
                     QString cleanName = fixFilename(s_metadata->Artist().toLower());
                     QString file = QString("Icons/%1/%2.jpg").arg("artist", cleanName);
-                    newFilename = MythCoreContext::GenMythURL(gCoreContext->GetMasterHostName(),
+                    newFilename = MythCoreContext::GenMythURL(gCoreContext->GetPrimaryHostName(),
                                                               0, file, "MusicArt");
                 }
                 else if (m_searchType == "genre")
                 {
                     QString cleanName = fixFilename(s_metadata->Genre().toLower());
                     QString file = QString("Icons/%1/%2.jpg").arg("genre", cleanName);
-                    newFilename = MythCoreContext::GenMythURL(gCoreContext->GetMasterHostName(),
+                    newFilename = MythCoreContext::GenMythURL(gCoreContext->GetPrimaryHostName(),
                                                               0, file, "MusicArt");
                 }
                 else if (m_searchType == "album")

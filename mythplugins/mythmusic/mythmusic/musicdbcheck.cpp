@@ -854,7 +854,7 @@ static bool doUpgradeMusicDatabaseSchema(QString &dbver)
         {
             "ALTER TABLE music_songs ADD COLUMN hostname VARCHAR(255) NOT NULL default '';",
             qPrintable(QString("UPDATE music_songs SET hostname = '%1';")
-                       .arg(gCoreContext->GetMasterHostName()))
+                       .arg(gCoreContext->GetPrimaryHostName()))
         };
 
         if (!performActualUpdate("MythMusic", MythMusicVersionName,
@@ -868,7 +868,7 @@ static bool doUpgradeMusicDatabaseSchema(QString &dbver)
         {
             "ALTER TABLE music_albumart ADD COLUMN hostname VARCHAR(255) NOT NULL default '';",
             qPrintable(QString("UPDATE music_albumart SET hostname = '%1';")
-                       .arg(gCoreContext->GetMasterHostName()))
+                       .arg(gCoreContext->GetPrimaryHostName()))
         };
 
         if (!performActualUpdate("MythMusic", MythMusicVersionName,

@@ -289,14 +289,14 @@ void LCDProcClient::checkConnections()
         LOG(VB_GENERAL, LOG_INFO, "LCDProcClient: checking connections");
 
     // check connection to mythbackend
-    if (!gCoreContext->IsConnectedToMaster())
+    if (!gCoreContext->IsConnectedToPrimary())
     {
         if (debug_level > 0)
             LOG(VB_GENERAL, LOG_INFO,
-                "LCDProcClient: connecting to master server");
-        if (!gCoreContext->ConnectToMasterServer(false))
+                "LCDProcClient: connecting to primary server");
+        if (!gCoreContext->ConnectToPrimaryServer(false))
             LOG(VB_GENERAL, LOG_ERR,
-                "LCDProcClient: connecting to master server failed");
+                "LCDProcClient: connecting to primary server failed");
     }
 
     //check connection to LCDProc server
@@ -2416,13 +2416,13 @@ void LCDProcClient::updateRecordingList(void)
     m_tunerList.clear();
     m_isRecording = false;
 
-    if (!gCoreContext->IsConnectedToMaster())
+    if (!gCoreContext->IsConnectedToPrimary())
     {
-        if (!gCoreContext->ConnectToMasterServer(false))
+        if (!gCoreContext->ConnectToPrimaryServer(false))
         {
             LOG(VB_GENERAL, LOG_ERR,
                 "LCDProcClient: Cannot get recording status "
-                "- is the master server running?\n\t\t\t"
+                "- is the primary server running?\n\t\t\t"
                 "Will retry in 30 seconds");
             QTimer::singleShot(30s, this, &LCDProcClient::updateRecordingList);
 

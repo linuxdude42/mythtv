@@ -82,7 +82,7 @@ function UpdateIFrame( sURL )
 	var obj = FindObject( "fraResults" );
 	
 	if (obj != null)
-		obj.src = window.parent.frames[ "topFrame" ].GetMasterBackend( sRootPath, sURL );
+		obj.src = window.parent.frames[ "topFrame" ].GetPrimaryBackend( sRootPath, sURL );
 
 	if (curElement != null)
 		curElement.className = "menu";
@@ -103,7 +103,7 @@ function SetFormAddress( sMethod )
 	var obj = FindObject( sMethod );
 	
 	if (obj != null)
-		obj.action = window.parent.frames[ "topFrame" ].GetMasterBackend( sRootPath, sMethod );
+		obj.action = window.parent.frames[ "topFrame" ].GetPrimaryBackend( sRootPath, sMethod );
 
 	return true;
 }

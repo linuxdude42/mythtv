@@ -326,12 +326,12 @@ void HttpStatus::FillStatusXML( QDomDocument *pDoc )
     root.appendChild(backends);
 
     int numbes = 0;
-    if (!gCoreContext->IsMasterBackend())
+    if (!gCoreContext->IsPrimaryBackend())
     {
         numbes++;
-        QString masterhost = gCoreContext->GetMasterHostName();
-        QString masterip   = gCoreContext->GetMasterServerIP();
-        int masterport = gCoreContext->GetMasterServerStatusPort();
+        QString masterhost = gCoreContext->GetPrimaryHostName();
+        QString masterip   = gCoreContext->GetPrimaryServerIP();
+        int masterport = gCoreContext->GetPrimaryServerStatusPort();
 
         QDomElement mbe = pDoc->createElement("Backend");
         backends.appendChild(mbe);

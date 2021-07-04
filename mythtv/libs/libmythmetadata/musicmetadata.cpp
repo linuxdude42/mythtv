@@ -1316,8 +1316,8 @@ QString MusicMetadata::getAlbumArtFile(void)
             {
                 if (albumart_image->m_embedded)
                 {
-                    if (gCoreContext->IsMasterBackend() &&
-                        url.host() == gCoreContext->GetMasterHostName())
+                    if (gCoreContext->IsPrimaryBackend() &&
+                        url.host() == gCoreContext->GetPrimaryHostName())
                     {
                         QStringList paramList;
                         paramList.append(QString("--songid='%1'").arg(ID()));

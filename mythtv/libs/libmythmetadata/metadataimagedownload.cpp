@@ -206,7 +206,7 @@ void MetadataImageDownload::run()
                 bool exists = false;
                 bool onMaster = false;
                 QString resolvedFN;
-                if (gCoreContext->IsMasterBackend() &&
+                if (gCoreContext->IsPrimaryBackend() &&
                     gCoreContext->IsThisHost(lookup->GetHost()))
                 {
                     StorageGroup sg(getStorageGroupName(type), lookup->GetHost());

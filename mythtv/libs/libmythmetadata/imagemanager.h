@@ -228,8 +228,8 @@ class ImageAdapterSg : public ImageAdapterBase
 {
 public:
     ImageAdapterSg() :
-        m_hostname(gCoreContext->GetMasterHostName()),
-        m_hostport(MythCoreContext::GetMasterServerPort()),
+        m_hostname(gCoreContext->GetPrimaryHostName()),
+        m_hostport(MythCoreContext::GetPrimaryServerPort()),
         m_sg(StorageGroup(IMAGE_STORAGE_GROUP, m_hostname, false)) {}
 
     ImageItem *CreateItem(const QFileInfo &fi, int parentId, int devId,

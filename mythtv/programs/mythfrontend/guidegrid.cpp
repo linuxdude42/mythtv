@@ -2137,8 +2137,8 @@ void GuideGrid::updateChannelsUI(const QVector<ChannelInfo *> &chinfos,
             if (!chinfo->m_icon.isEmpty())
             {
                 QString iconurl =
-                                gCoreContext->GetMasterHostPrefix("ChannelIcons",
-                                                                  chinfo->m_icon);
+                                gCoreContext->GetPrimaryHostPrefix("ChannelIcons",
+                                                                   chinfo->m_icon);
                 item->SetImage(iconurl, "channelicon");
             }
         }
@@ -2172,8 +2172,8 @@ void GuideGrid::updateInfo(void)
         m_channelImage->Reset();
         if (!chinfo->m_icon.isEmpty())
         {
-            QString iconurl = gCoreContext->GetMasterHostPrefix("ChannelIcons",
-                                                                chinfo->m_icon);
+            QString iconurl = gCoreContext->GetPrimaryHostPrefix("ChannelIcons",
+                                                                 chinfo->m_icon);
 
             m_channelImage->SetFilename(iconurl);
             m_channelImage->Load();

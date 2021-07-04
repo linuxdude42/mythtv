@@ -439,9 +439,9 @@ void UPNPScanner::Start()
     connect(m_watchdogTimer, &QTimer::timeout, this, &UPNPScanner::CheckStatus);
     m_watchdogTimer->start(10s);
 
-    // avoid connecting to the master backend
-    m_masterHost = gCoreContext->GetMasterServerIP();
-    m_masterPort = gCoreContext->GetMasterServerStatusPort();
+    // avoid connecting to the primary backend
+    m_primaryHost = gCoreContext->GetPrimaryServerIP();
+    m_primaryPort = gCoreContext->GetPrimaryServerStatusPort();
 
     m_lock.unlock();
     LOG(VB_GENERAL, LOG_INFO, LOC + "Started");
@@ -926,17 +926,17 @@ void UPNPScanner::AddServer(const QString &usn, const QString &url)
         return;
     }
 
-    // sometimes initialisation is too early and m_masterHost is empty
-    if (m_masterHost.isEmpty())
+    // sometimes initialisation is too early and m_primaryHost is empty
+    if (m_primaryHost.isEmpty())
     {
-        m_masterHost = gCoreContext->GetMasterServerIP();
-        m_masterPort = gCoreContext->GetMasterServerStatusPort();
+        m_primaryHost = gCoreContext->GetPrimaryServerIP();
+        m_primaryPort = gCoreContext->GetPrimaryServerStatusPort();
     }
 
     QUrl qurl(url);
-    if (qurl.host() == m_masterHost && qurl.port() == m_masterPort)
+    if (qurl.host() == m_primaryHost && qurl.port() == m_primaryPort)
     {
-        LOG(VB_UPNP, LOG_INFO, LOC + "Ignoring master backend.");
+        LOG(VB_UPNP, LOG_INFO, LOC + "Ignoring primary backend.");
         return;
     }
 

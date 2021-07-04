@@ -126,7 +126,7 @@ void MetadataFactory::Lookup(RecordingRule *recrule, bool automatic,
     lookup->SetAutomatic(automatic);
     lookup->SetHandleImages(getimages);
     lookup->SetAllowGeneric(allowgeneric);
-    lookup->SetHost(gCoreContext->GetMasterHostName());
+    lookup->SetHost(gCoreContext->GetPrimaryHostName());
     lookup->SetTitle(recrule->m_title);
     lookup->SetSubtitle(recrule->m_subtitle);
     lookup->SetInetref(recrule->m_inetref);
@@ -154,7 +154,7 @@ void MetadataFactory::Lookup(ProgramInfo *pginfo, bool automatic,
     lookup->SetAutomatic(automatic);
     lookup->SetHandleImages(getimages);
     lookup->SetAllowGeneric(allowgeneric);
-    lookup->SetHost(gCoreContext->GetMasterHostName());
+    lookup->SetHost(gCoreContext->GetPrimaryHostName());
     lookup->SetTitle(pginfo->GetTitle());
     lookup->SetSubtitle(pginfo->GetSubtitle());
     lookup->SetSeason(pginfo->GetSeason());

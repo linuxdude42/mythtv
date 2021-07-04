@@ -134,8 +134,8 @@ class UPNPScanner : public QObject
     QTimer *m_updateTimer {nullptr};
     QTimer *m_watchdogTimer {nullptr};
 
-    QString m_masterHost;
-    int     m_masterPort {0};
+    QString m_primaryHost;
+    int     m_primaryPort {0};
 
     bool    m_scanComplete {false};
     bool    m_fullscan {false};

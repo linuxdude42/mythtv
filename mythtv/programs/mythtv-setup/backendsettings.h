@@ -14,20 +14,20 @@ class BackendSettings : public GroupSetting
     ~BackendSettings() override;
 
   private:
-    TransMythUICheckBoxSetting *m_isMasterBackend   {nullptr};
+    TransMythUICheckBoxSetting *m_isPrimaryBackend  {nullptr};
     HostTextEditSetting        *m_localServerPort   {nullptr};
     HostComboBoxSetting        *m_backendServerAddr {nullptr};
-    GlobalTextEditSetting      *m_masterServerName  {nullptr};
+    GlobalTextEditSetting      *m_primaryServerName {nullptr};
     IpAddressSettings          *m_ipAddressSettings {nullptr};
     bool                        m_isLoaded          {false};
-    QString                     m_priorMasterName;
+    QString                     m_priorPrimaryName;
 
     // Deprecated - still here to support bindings
-    GlobalTextEditSetting      *m_masterServerIP    {nullptr};
-    GlobalTextEditSetting      *m_masterServerPort  {nullptr};
+    GlobalTextEditSetting      *m_primaryServerIP   {nullptr};
+    GlobalTextEditSetting      *m_primaryServerPort {nullptr};
 
   private slots:
-    void masterBackendChanged(void);
+    void primaryBackendChanged(void);
     void listenChanged(void);
 };
 

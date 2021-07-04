@@ -34,7 +34,7 @@ void StorageGroupEditor::SetLabel()
         dispGroup = QCoreApplication::translate("(StorageGroups)",
                                                 m_group.toLatin1().constData());
 
-    if (gCoreContext->IsMasterHost())
+    if (gCoreContext->IsPrimaryHost())
     {
         setLabel(tr("'%1' Storage Group Directories").arg(dispGroup));
     }
@@ -71,7 +71,7 @@ bool StorageGroupEditor::canDelete(void)
 
 void StorageGroupEditor::ShowDeleteDialog()
 {
-    bool is_master_host = gCoreContext->IsMasterHost();
+    bool is_master_host = gCoreContext->IsPrimaryHost();
 
     QString dispGroup = m_group;
     if (m_group == "Default")
@@ -109,7 +109,7 @@ void StorageGroupEditor::DoDeleteSlot(bool doDelete)
 {
     if (doDelete)
     {
-        bool is_master_host = gCoreContext->IsMasterHost();
+        bool is_master_host = gCoreContext->IsPrimaryHost();
         MSqlQuery query(MSqlQuery::InitCon());
         QString sql = "DELETE FROM storagegroup "
                       "WHERE groupname = :NAME";
@@ -337,7 +337,7 @@ void StorageGroupEditor::customEvent(QEvent *event)
 
 StorageGroupListEditor::StorageGroupListEditor(void)
 {
-    if (gCoreContext->IsMasterHost())
+    if (gCoreContext->IsPrimaryHost())
         setLabel(tr("Storage Groups (directories for new recordings)"));
     else
         setLabel(tr("Local Storage Groups (directories for new recordings)"));
@@ -357,7 +357,7 @@ void StorageGroupListEditor::Load(void)
     QStringList masterNames;
     bool createAddDefaultButton = false;
     QVector< bool > createAddSpecialGroupButton( StorageGroup::kSpecialGroups.size() );
-    bool isMaster = gCoreContext->IsMasterHost();
+    bool isPrimary = gCoreContext->IsPrimaryHost();
 
     MSqlQuery query(MSqlQuery::InitCon());
     query.prepare("SELECT distinct groupname "
@@ -392,7 +392,7 @@ void StorageGroupListEditor::Load(void)
 
     clearSettings();
 
-    if (isMaster || names.contains("Default"))
+    if (isPrimary || names.contains("Default"))
     {
         AddSelection(tr("Default", "Default storage group"),
                      "Default");
@@ -443,7 +443,7 @@ void StorageGroupListEditor::Load(void)
         curGroup++;
     }
 
-    if (isMaster)
+    if (isPrimary)
     {
         auto *newGroup = new ButtonStandardSetting(tr("(Create new group)"));
         connect(newGroup, &ButtonStandardSetting::clicked, this, &StorageGroupListEditor::ShowNewGroupDialog);

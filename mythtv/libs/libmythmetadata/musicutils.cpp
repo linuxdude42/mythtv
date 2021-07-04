@@ -51,7 +51,7 @@ QString findIcon(const QString &type, const QString &name, bool ignoreCache)
     QString imageExtensions = "(jpg|jpeg|png|gif)";
     QStringList fileList;
 
-    fileList = RemoteFile::FindFileList(file + imageExtensions, gCoreContext->GetMasterHostName(), "MusicArt", true, true);
+    fileList = RemoteFile::FindFileList(file + imageExtensions, gCoreContext->GetPrimaryHostName(), "MusicArt", true, true);
     if (!fileList.isEmpty())
     {
         LOG(VB_FILE, LOG_INFO, QString("findicon: found %1 icons using %2").arg(fileList.size()).arg(fileList[0]));

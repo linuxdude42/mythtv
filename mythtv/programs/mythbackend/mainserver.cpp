@@ -134,7 +134,7 @@ bool delete_file_immediately(const QString &filename,
 };
 
 QMutex MainServer::s_truncate_and_close_lock;
-const std::chrono::milliseconds MainServer::kMasterServerReconnectTimeout { 1s };
+const std::chrono::milliseconds MainServer::kPrimaryServerReconnectTimeout { 1s };
 
 class ProcessRequestRunnable : public QRunnable
 {
@@ -302,7 +302,7 @@ MainServer::MainServer(bool master, int port,
         m_masterServerReconnect->setSingleShot(true);
         connect(m_masterServerReconnect, &QTimer::timeout,
                 this, &MainServer::reconnectTimeout);
-        m_masterServerReconnect->start(kMasterServerReconnectTimeout);
+        m_masterServerReconnect->start(kPrimaryServerReconnectTimeout);
     }
 
     m_deferredDeleteTimer = new QTimer(this);
@@ -1501,7 +1501,7 @@ void MainServer::customEvent(QEvent *e)
             m_sched->ResetIdleTime();
 
         if (me->Message() == "LOCAL_RECONNECT_TO_MASTER")
-            m_masterServerReconnect->start(kMasterServerReconnectTimeout);
+            m_masterServerReconnect->start(kPrimaryServerReconnectTimeout);
 
         if (me->Message() == "LOCAL_SLAVE_BACKEND_ENCODERS_OFFLINE")
             HandleSlaveDisconnectedEvent(*me);
@@ -1822,7 +1822,7 @@ void MainServer::HandleAnnounce(QStringList &slist, QStringList commands,
             // On a combined mbe/fe the frontend will connect using the localhost
             // address, we need the external IP which happily will be the same as
             // the backend's external IP
-            if (frontend->m_name == gCoreContext->GetMasterHostName())
+            if (frontend->m_name == gCoreContext->GetPrimaryHostName())
                 frontend->m_ip = QHostAddress(gCoreContext->GetBackendServerIP());
             else
                 frontend->m_ip = socket->GetPeerAddress();
@@ -4121,7 +4121,7 @@ void MainServer::HandleQueryFindFile(QStringList &slist, PlaybackSock *pbs)
         {
             hostname = query.value(0).toString();
 
-            if (hostname == gCoreContext->GetMasterHostName())
+            if (hostname == gCoreContext->GetPrimaryHostName())
             {
                 StorageGroup sgroup(storageGroup, hostname);
 
@@ -4153,8 +4153,8 @@ void MainServer::HandleQueryFindFile(QStringList &slist, PlaybackSock *pbs)
                     QString fname = sgroup.FindFile(filename);
                     if (!fname.isEmpty())
                     {
-                        fileList << MythCoreContext::GenMythURL(gCoreContext->GetMasterHostName(),
-                                                                MythCoreContext::GetMasterServerPort(),
+                        fileList << MythCoreContext::GenMythURL(gCoreContext->GetPrimaryHostName(),
+                                                                MythCoreContext::GetPrimaryServerPort(),
                                                                 filename, storageGroup);
                     }
                 }
@@ -5829,7 +5829,7 @@ void MainServer::HandleDownloadFile(const QStringList &command,
         if (GetMythDownloadManager()->download(srcURL, outFile))
         {
             retlist << "OK";
-            retlist << gCoreContext->GetMasterHostPrefix(storageGroup)
+            retlist << gCoreContext->GetPrimaryHostPrefix(storageGroup)
                        + filename;
         }
         else
@@ -5839,12 +5839,12 @@ void MainServer::HandleDownloadFile(const QStringList &command,
     {
         QMutexLocker locker(&m_downloadURLsLock);
         m_downloadURLs[outFile] =
-            gCoreContext->GetMasterHostPrefix(storageGroup) +
+            gCoreContext->GetPrimaryHostPrefix(storageGroup) +
             StorageGroup::GetRelativePathname(outFile);
 
         GetMythDownloadManager()->queueDownload(srcURL, outFile, this);
         retlist << "OK";
-        retlist << gCoreContext->GetMasterHostPrefix(storageGroup) + filename;
+        retlist << gCoreContext->GetPrimaryHostPrefix(storageGroup) + filename;
     }
 
     if (pbssock)
@@ -8179,8 +8179,8 @@ void MainServer::reconnectTimeout(void)
 {
     auto *masterServerSock = new MythSocket(-1, this);
 
-    QString server = gCoreContext->GetMasterServerIP();
-    int port = MythCoreContext::GetMasterServerPort();
+    QString server = gCoreContext->GetPrimaryServerIP();
+    int port = MythCoreContext::GetPrimaryServerPort();
 
     LOG(VB_GENERAL, LOG_NOTICE, LOC +
         QString("Connecting to master server: %1:%2")
@@ -8190,7 +8190,7 @@ void MainServer::reconnectTimeout(void)
     {
         LOG(VB_GENERAL, LOG_NOTICE, LOC +
             "Connection to master server timed out.");
-        m_masterServerReconnect->start(kMasterServerReconnectTimeout);
+        m_masterServerReconnect->start(kPrimaryServerReconnectTimeout);
         masterServerSock->DecrRef();
         return;
     }
@@ -8243,7 +8243,7 @@ void MainServer::reconnectTimeout(void)
                 QString(", error was %1").arg(strlist[1]) :
                 QString(", remote error")));
         }
-        m_masterServerReconnect->start(kMasterServerReconnectTimeout);
+        m_masterServerReconnect->start(kPrimaryServerReconnectTimeout);
         return;
     }
     masterServerSock->SetReadyReadCallbackEnabled(true);

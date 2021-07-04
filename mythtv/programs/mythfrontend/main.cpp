@@ -1718,7 +1718,7 @@ static bool WasAutomaticStart(void)
     {
         QDateTime startupTime = QDateTime();
 
-        if( gCoreContext->IsMasterHost() )
+        if( gCoreContext->IsPrimaryHost() )
         {
             QString s = gCoreContext->GetSetting("MythShutdownWakeupTime", "");
             if (!s.isEmpty())

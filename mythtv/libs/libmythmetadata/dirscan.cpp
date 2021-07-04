@@ -255,7 +255,7 @@ bool ScanVideoDirectory(const QString &start_path, DirectoryHandler *handler,
         QString path = sgurl.path();
 
         if (!scan_sg_dir(path, host, path, handler, extlookup, 
-                (gCoreContext->IsMasterHost(host) &&
+                (gCoreContext->IsPrimaryHost(host) &&
                  (gCoreContext->GetHostName().toLower() == host.toLower()))))
         {
             LOG(VB_GENERAL, LOG_ERR, 

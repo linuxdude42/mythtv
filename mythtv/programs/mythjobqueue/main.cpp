@@ -108,9 +108,9 @@ int main(int argc, char *argv[])
 
     cmdline.ApplySettingsOverride();
 
-    if (!gCoreContext->ConnectToMasterServer())
+    if (!gCoreContext->ConnectToPrimaryServer())
     {
-        LOG(VB_GENERAL, LOG_ERR, LOC + "Failed to connect to master server");
+        LOG(VB_GENERAL, LOG_ERR, LOC + "Failed to connect to primary server");
         return GENERIC_EXIT_CONNECT_ERROR;
     }
 

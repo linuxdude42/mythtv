@@ -18,7 +18,7 @@ void MessageHandler::customEvent(QEvent *e)
     if (e->type() != MythEvent::MythEventMessage)
         return;
 
-    if (!gCoreContext->IsMasterBackend())
+    if (!gCoreContext->IsPrimaryBackend())
         // only master backend should forward events
         return;
 

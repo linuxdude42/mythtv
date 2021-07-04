@@ -1144,7 +1144,7 @@ class MythXML( XMLConnection ):
         self.log = MythLog('Python XML Connection')
         if backend is None:
             # use master backend
-            backend = self.db.getMasterBackend()
+            backend = self.db.getPrimaryBackend()
 
         # assume hostname from settings
         host = self.db._getpreferredaddr(backend)

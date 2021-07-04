@@ -76,9 +76,9 @@ class MythCoreContextPrivate : public QObject
 
     QMutex  m_localHostLock;        ///< Locking for m_localHostname
     QString m_localHostname;        ///< hostname from config.xml or gethostname()
-    QMutex  m_masterHostLock;       ///< Locking for m_masterHostname
-    QString m_masterHostname;       ///< master backend hostname
-    QMutex  m_scopesLock;           ///< Locking for m_masterHostname
+    QMutex  m_primaryHostLock;      ///< Locking for m_primaryHostname
+    QString m_primaryHostname;      ///< primary backend hostname
+    QMutex  m_scopesLock;           ///< Locking for m_primaryHostname
     QMap<QString, QString> m_scopes;///< Scope Id cache for Link-Local addresses
 
     QMutex      m_sockLock;         ///< protects both m_serverSock and m_eventSock
@@ -343,7 +343,7 @@ bool MythCoreContext::SetupCommandSocket(MythSocket *serverSock,
     if (!serverSock->WriteStringList(strlist))
     {
         LOG(VB_GENERAL, LOG_ERR, LOC + "Connecting server socket to "
-                                       "master backend, socket write failed");
+                                       "primary backend, socket write failed");
         return false;
     }
 
@@ -353,12 +353,12 @@ bool MythCoreContext::SetupCommandSocket(MythSocket *serverSock,
         if (!strlist.empty())
         {
             LOG(VB_GENERAL, LOG_ERR, LOC + "Problem connecting "
-                                           "server socket to master backend");
+                                           "server socket to primary backend");
         }
         else
         {
             LOG(VB_GENERAL, LOG_ERR, LOC + "Timeout connecting "
-                                           "server socket to master backend");
+                                           "server socket to primary backend");
         }
         return false;
     }
@@ -366,37 +366,37 @@ bool MythCoreContext::SetupCommandSocket(MythSocket *serverSock,
     return true;
 }
 
-// Connects to master server safely (i.e. by taking m_sockLock)
-bool MythCoreContext::SafeConnectToMasterServer(bool blockingClient,
-                                                bool openEventSocket)
+// Connects to primary server safely (i.e. by taking m_sockLock)
+bool MythCoreContext::SafeConnectToPrimaryServer(bool blockingClient,
+                                                 bool openEventSocket)
 {
     QMutexLocker locker(&d->m_sockLock);
-    bool success = ConnectToMasterServer(blockingClient, openEventSocket);
+    bool success = ConnectToPrimaryServer(blockingClient, openEventSocket);
 
     return success;
 }
 
 // Assumes that either m_sockLock is held, or the app is still single
 // threaded (i.e. during startup).
-bool MythCoreContext::ConnectToMasterServer(bool blockingClient,
-                                            bool openEventSocket)
+bool MythCoreContext::ConnectToPrimaryServer(bool blockingClient,
+                                             bool openEventSocket)
 {
-    if (IsMasterBackend())
+    if (IsPrimaryBackend())
     {
         // Should never get here unless there is a bug in the code somewhere.
         // If this happens, it can cause endless event loops.
-        LOG(VB_GENERAL, LOG_ERR, LOC + "ERROR: Master backend tried to connect back "
-                "to itself!");
+        LOG(VB_GENERAL, LOG_ERR, LOC + "ERROR: Primary backend tried to "
+                "connect back to itself!");
         return false;
     }
     if (IsExiting())
         return false;
 
-    QString server = GetMasterServerIP();
+    QString server = GetPrimaryServerIP();
     if (server.isEmpty())
         return false;
 
-    int     port   = GetMasterServerPort();
+    int     port   = GetPrimaryServerPort();
     bool    proto_mismatch = false;
 
     if (d->m_serverSock && !d->m_serverSock->IsConnected())
@@ -552,8 +552,8 @@ MythSocket *MythCoreContext::ConnectCommandSocket(
     if (!serverSock && !proto_mismatch)
     {
         LOG(VB_GENERAL, LOG_ERR,
-                "Connection to master server timed out.\n\t\t\t"
-                "Either the server is down or the master server settings"
+                "Connection to primary server timed out.\n\t\t\t"
+                "Either the server is down or the primary server settings"
                 "\n\t\t\t"
                 "in mythtv-settings does not contain the proper IP address\n");
     }
@@ -576,7 +576,7 @@ MythSocket *MythCoreContext::ConnectEventSocket(const QString &hostname,
     if (!eventSock->ConnectToHost(hostname, port))
     {
         LOG(VB_GENERAL, LOG_ERR, LOC + "Failed to connect event "
-                                       "socket to master backend");
+                                       "socket to primary backend");
         eventSock->DecrRef();
         return nullptr;
     }
@@ -592,12 +592,12 @@ MythSocket *MythCoreContext::ConnectEventSocket(const QString &hostname,
         if (!strlist.empty())
         {
             LOG(VB_GENERAL, LOG_ERR, LOC +
-                "Problem connecting event socket to master backend");
+                "Problem connecting event socket to primary backend");
         }
         else
         {
             LOG(VB_GENERAL, LOG_ERR, LOC +
-                "Timeout connecting event socket to master backend");
+                "Timeout connecting event socket to primary backend");
         }
         ok = false;
     }
@@ -611,7 +611,7 @@ MythSocket *MythCoreContext::ConnectEventSocket(const QString &hostname,
     return eventSock;
 }
 
-bool MythCoreContext::IsConnectedToMaster(void)
+bool MythCoreContext::IsConnectedToPrimary(void)
 {
     QMutexLocker locker(&d->m_sockLock);
     return d->m_serverSock;
@@ -680,17 +680,17 @@ bool MythCoreContext::IsFrontend(void) const
     return d->m_frontend;
 }
 
-bool MythCoreContext::IsMasterHost(void)
+bool MythCoreContext::IsPrimaryHost(void)
 {
     QString host = GetHostName();
-    return IsMasterHost(host);
+    return IsPrimaryHost(host);
 }
 
-bool MythCoreContext::IsMasterHost(const QString &host)
+bool MythCoreContext::IsPrimaryHost(const QString &host)
 {
     // Temporary code here only to facilitate the upgrade
-    // from 1346 or earlier. The way of determining master host is
-    // changing, and the new way of determning master host
+    // from 1346 or earlier. The way of determining primary host is
+    // changing, and the new way of determning primary host
     // will not work with earlier databases.
     // This code can be removed when updating from prior to
     // 1347 is no longer allowed.
@@ -716,9 +716,9 @@ bool MythCoreContext::IsMasterHost(const QString &host)
     return GetSetting("MasterServerName") ==  host;
 }
 
-bool MythCoreContext::IsMasterBackend(void)
+bool MythCoreContext::IsPrimaryBackend(void)
 {
-    return (IsBackend() && IsMasterHost());
+    return (IsBackend() && IsPrimaryHost());
 }
 
 bool MythCoreContext::BackendIsRunning(void)
@@ -819,34 +819,34 @@ QString MythCoreContext::GenMythURL(const QString& host, int port, QString path,
     return ret.toString();
 }
 
-QString MythCoreContext::GetMasterHostPrefix(const QString &storageGroup,
-                                             const QString &path)
+QString MythCoreContext::GetPrimaryHostPrefix(const QString &storageGroup,
+                                              const QString &path)
 {
-    return GenMythURL(GetMasterHostName(),
-                      GetMasterServerPort(),
+    return GenMythURL(GetPrimaryHostName(),
+                      GetPrimaryServerPort(),
                       path,
                       storageGroup);
 }
 
-QString MythCoreContext::GetMasterHostName(void)
+QString MythCoreContext::GetPrimaryHostName(void)
 {
-    QMutexLocker locker(&d->m_masterHostLock);
+    QMutexLocker locker(&d->m_primaryHostLock);
 
-    if (d->m_masterHostname.isEmpty())
+    if (d->m_primaryHostname.isEmpty())
     {
 
-        if (IsMasterBackend())
-            d->m_masterHostname = d->m_localHostname;
+        if (IsPrimaryBackend())
+            d->m_primaryHostname = d->m_localHostname;
         else
         {
             QStringList strlist("QUERY_HOSTNAME");
 
             if (SendReceiveStringList(strlist))
-                d->m_masterHostname = strlist[0];
+                d->m_primaryHostname = strlist[0];
         }
     }
 
-    return d->m_masterHostname;
+    return d->m_primaryHostname;
 }
 
 void MythCoreContext::ClearSettingsCache(const QString &myKey)
@@ -983,42 +983,42 @@ double MythCoreContext::GetFloatSettingOnHost(const QString &key,
 }
 
 /**
- * Returns the Master Backend IP address
+ * Returns the Primary Backend IP address
  * If the address is an IPv6 address, the scope Id is removed.
- * If no master server address has been defined in the database, return localhost
+ * If no primary server address has been defined in the database, return localhost
  */
-QString MythCoreContext::GetMasterServerIP(void)
+QString MythCoreContext::GetPrimaryServerIP(void)
 {
-    QString masterserver = gCoreContext->GetSetting("MasterServerName");
-    QString masterip = resolveSettingAddress("BackendServerAddr",masterserver);
+    QString primaryServer = gCoreContext->GetSetting("MasterServerName");
+    QString primaryIP = resolveSettingAddress("BackendServerAddr",primaryServer);
     // Even if empty, return it here if we were to assume that localhost
     // should be used it just causes a lot of unnecessary error messages.
-    return masterip;
+    return primaryIP;
 }
 
 /**
- * Returns the Master Backend control port
- * If no master server port has been defined in the database, return the default
+ * Returns the Primary Backend control port
+ * If no primary server port has been defined in the database, return the default
  * 6543
  */
-int MythCoreContext::GetMasterServerPort(void)
+int MythCoreContext::GetPrimaryServerPort(void)
 {
-    QString masterserver = gCoreContext->GetSetting
+    QString primaryServer = gCoreContext->GetSetting
         ("MasterServerName");
     return gCoreContext->GetNumSettingOnHost
-        ("BackendServerPort", masterserver, 6543);
+        ("BackendServerPort", primaryServer, 6543);
 }
 
 /**
- * Returns the Master Backend status port
- * If no master server status port has been defined in the database,
+ * Returns the Primary Backend status port
+ * If no primary server status port has been defined in the database,
  * return the default 6544
  */
-int MythCoreContext::GetMasterServerStatusPort(void)
+int MythCoreContext::GetPrimaryServerStatusPort(void)
 {
-    QString masterhost = GetMasterHostName();
+    QString primaryHost = GetPrimaryHostName();
 
-    return GetBackendStatusPort(masterhost);
+    return GetBackendStatusPort(primaryHost);
 }
 
 /**
@@ -1403,7 +1403,7 @@ bool MythCoreContext::SendReceiveStringList(
     {
         bool blockingClient = d->m_blockingClient &&
                              (GetNumSetting("idleTimeoutSecs",0) > 0);
-        ConnectToMasterServer(blockingClient);
+        ConnectToPrimaryServer(blockingClient);
     }
 
     bool ok = false;
@@ -1429,7 +1429,7 @@ bool MythCoreContext::SendReceiveStringList(
 
             if (block)
             {
-                ConnectToMasterServer(d->m_blockingClient);
+                ConnectToPrimaryServer(d->m_blockingClient);
 
                 if (d->m_serverSock)
                 {

@@ -2301,23 +2301,23 @@ void HTTPRequest::AddCORSHeaders( const QString &sOrigin )
     // ----------------------------------------------------------------------
 
     // ----------------------------------------------------------------------
-    // SECURITY: Allow the WebFrontend on the Master backend and ONLY this
-    // machine to access resources on a frontend or slave web server
+    // SECURITY: Allow the WebFrontend on the Primary backend and ONLY this
+    // machine to access resources on a frontend or secondary web server
     //
     // http://www.w3.org/TR/cors/#introduction
     // ----------------------------------------------------------------------
 
     QStringList allowedOrigins;
 
-    int serverStatusPort = gCoreContext->GetMasterServerStatusPort();
+    int serverStatusPort = gCoreContext->GetPrimaryServerStatusPort();
     int backendSSLPort = gCoreContext->GetNumSetting( "BackendSSLPort",
                          serverStatusPort + 10);
 
     QString masterAddrPort = QString("%1:%2")
-        .arg(gCoreContext->GetMasterServerIP())
+        .arg(gCoreContext->GetPrimaryServerIP())
         .arg(serverStatusPort);
     QString masterTLSAddrPort = QString("%1:%2")
-        .arg(gCoreContext->GetMasterServerIP())
+        .arg(gCoreContext->GetPrimaryServerIP())
         .arg(backendSSLPort);
 
     allowedOrigins << QString("http://%1").arg(masterAddrPort);
