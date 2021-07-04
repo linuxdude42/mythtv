@@ -441,7 +441,7 @@ bool RemoteGetFileList(const QString& host, const QString& path, QStringList* li
 
     bool ok = false;
 
-    if (gCoreContext->IsMasterBackend())
+    if (gCoreContext->IsPrimaryBackend())
     {
         // since the master backend cannot connect back around to
         // itself, and the libraries do not have access to the list

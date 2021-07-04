@@ -34,11 +34,11 @@ QString GetThumbnailFilename(const QString& url, const QString& title)
 
 QString GetMythXMLURL(void)
 {
-    QString MasterIP = gCoreContext->GetMasterServerIP();
-    int MasterStatusPort = gCoreContext->GetMasterServerStatusPort();
+    QString PrimaryIP = gCoreContext->GetPrimaryServerIP();
+    int PrimaryStatusPort = gCoreContext->GetPrimaryServerStatusPort();
 
-    return QString("http://%1:%2/InternetContent/").arg(MasterIP)
-        .arg(MasterStatusPort);
+    return QString("http://%1:%2/InternetContent/").arg(PrimaryIP)
+        .arg(PrimaryStatusPort);
 }
 
 QUrl GetMythXMLSearch(const QString& url, const QString& query, const QString& grabber,

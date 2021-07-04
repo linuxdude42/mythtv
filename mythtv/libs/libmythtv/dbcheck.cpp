@@ -3233,7 +3233,7 @@ static bool doUpgradeTVDatabaseSchema(void)
     {
         QString master;
         // Create new MasterServerName setting
-        if (gCoreContext->IsMasterHost())
+        if (gCoreContext->IsPrimaryHost())
         {
             master =
             "insert into settings (value,data,hostname) "

@@ -1058,7 +1058,7 @@ QString VideoMetadata::VideoFileHash(const QString &file_name,
     if (host.isEmpty())
         return FileHash(file_name);
 
-    if (gCoreContext->IsMasterBackend() && gCoreContext->IsThisHost(host))
+    if (gCoreContext->IsPrimaryBackend() && gCoreContext->IsThisHost(host))
     {
         StorageGroup sgroup("Videos", host);
         QString fullname = sgroup.FindFile(file_name);

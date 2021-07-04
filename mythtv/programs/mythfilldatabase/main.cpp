@@ -276,15 +276,15 @@ int main(int argc, char *argv[])
         return GENERIC_EXIT_DB_OUTOFDATE;
     }
 
-    if (gCoreContext->SafeConnectToMasterServer(true, false))
+    if (gCoreContext->SafeConnectToPrimaryServer(true, false))
     {
         LOG(VB_GENERAL, LOG_INFO,
-            "Opening blocking connection to master backend");
+            "Opening blocking connection to primary backend");
     }
     else
     {
         LOG(VB_GENERAL, LOG_WARNING,
-            "Failed to connect to master backend. MythFillDatabase will "
+            "Failed to connect to primary backend. MythFillDatabase will "
             "continue running but will be unable to prevent backend from "
             "shutting down, or triggering a reschedule when complete.");
     }
@@ -657,9 +657,9 @@ int main(int argc, char *argv[])
 
     LOG(VB_GENERAL, LOG_INFO, "\n"
             "===============================================================\n"
-            "| Attempting to contact the master backend for rescheduling.  |\n"
-            "| If the master is not running, rescheduling will happen when |\n"
-            "| the master backend is restarted.                            |\n"
+            "| Attempting to contact the primary backend for rescheduling.  |\n"
+            "| If the primary is not running, rescheduling will happen when |\n"
+            "| the primary backend is restarted.                            |\n"
             "===============================================================");
 
     ScheduledRecording::RescheduleMatch(0, 0, 0, QDateTime(),

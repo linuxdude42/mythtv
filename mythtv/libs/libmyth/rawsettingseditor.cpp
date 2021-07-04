@@ -147,7 +147,7 @@ void RawSettingsEditor::Save(void)
         ++it;
     }
 
-    if (changed && (!gCoreContext->IsMasterHost() || MythCoreContext::BackendIsRunning()))
+    if (changed && (!gCoreContext->IsPrimaryHost() || MythCoreContext::BackendIsRunning()))
         gCoreContext->SendMessage("CLEAR_SETTINGS_CACHE");
 
     Close();

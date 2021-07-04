@@ -1111,7 +1111,7 @@ bool FileServerHandler::HandleDownloadFile(SocketHandler *socket,
         if (GetMythDownloadManager()->download(srcURL, outFile))
         {
             res << "OK"
-                << gCoreContext->GetMasterHostPrefix(storageGroup)
+                << gCoreContext->GetPrimaryHostPrefix(storageGroup)
                        + filename;
         }
         else
@@ -1121,12 +1121,12 @@ bool FileServerHandler::HandleDownloadFile(SocketHandler *socket,
     {
         QMutexLocker locker(&m_downloadURLsLock);
         m_downloadURLs[outFile] =
-            gCoreContext->GetMasterHostPrefix(storageGroup) +
+            gCoreContext->GetPrimaryHostPrefix(storageGroup) +
             StorageGroup::GetRelativePathname(outFile);
 
         GetMythDownloadManager()->queueDownload(srcURL, outFile, this);
         res << "OK"
-            << gCoreContext->GetMasterHostPrefix(storageGroup) + filename;
+            << gCoreContext->GetPrimaryHostPrefix(storageGroup) + filename;
     }
 
     socket->WriteStringList(res);

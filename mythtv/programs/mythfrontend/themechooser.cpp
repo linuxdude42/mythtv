@@ -1033,8 +1033,8 @@ ThemeUpdateChecker::ThemeUpdateChecker(void) :
         m_mythVersions << version;
     }
 
-    m_infoPackage = MythCoreContext::GenMythURL(gCoreContext->GetMasterHostName(),
-                                                MythCoreContext::GetMasterServerPort(),
+    m_infoPackage = MythCoreContext::GenMythURL(gCoreContext->GetPrimaryHostName(),
+                                                MythCoreContext::GetPrimaryServerPort(),
                                                 "remotethemes/themes.zip",
                                                 "Temp");
 
@@ -1083,8 +1083,8 @@ void ThemeUpdateChecker::checkForUpdate(void)
         {
 
             QString remoteThemeDir =
-                MythCoreContext::GenMythURL(gCoreContext->GetMasterHostName(),
-                                            MythCoreContext::GetMasterServerPort(),
+                MythCoreContext::GenMythURL(gCoreContext->GetPrimaryHostName(),
+                                            MythCoreContext::GetPrimaryServerPort(),
                                             QString("remotethemes/%1/%2")
                                             .arg(*Iversion,
                                                  GetMythUI()->GetThemeName()),

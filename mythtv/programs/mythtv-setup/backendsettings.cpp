@@ -9,7 +9,7 @@
 #include <QNetworkInterface>
 
 
-static TransMythUICheckBoxSetting *IsMasterBackend()
+static TransMythUICheckBoxSetting *IsPrimaryBackend()
 {
     auto *gc = new TransMythUICheckBoxSetting();
     gc->setLabel(QObject::tr("This server is the Master Backend"));
@@ -24,7 +24,7 @@ static TransMythUICheckBoxSetting *IsMasterBackend()
     return gc;
 };
 
-static GlobalTextEditSetting *MasterServerName()
+static GlobalTextEditSetting *PrimaryServerName()
 {
     auto *gc = new GlobalTextEditSetting("MasterServerName");
     gc->setLabel(QObject::tr("Master Backend Name"));
@@ -183,7 +183,7 @@ static HostComboBoxSetting *BackendServerAddr()
 };
 
 // Deprecated
-static GlobalTextEditSetting *MasterServerIP()
+static GlobalTextEditSetting *PrimaryServerIP()
 {
     auto *gc = new GlobalTextEditSetting("MasterServerIP");
     gc->setLabel(QObject::tr("IP address"));
@@ -192,7 +192,7 @@ static GlobalTextEditSetting *MasterServerIP()
 };
 
 // Deprecated
-static GlobalTextEditSetting *MasterServerPort()
+static GlobalTextEditSetting *PrimaryServerPort()
 {
     auto *gc = new GlobalTextEditSetting("MasterServerPort");
     gc->setLabel(QObject::tr("Port"));
@@ -368,7 +368,7 @@ static GlobalSpinBoxSetting *EITTransportTimeout()
     return gc;
 }
 
-static GlobalCheckBoxSetting *MasterBackendOverride()
+static GlobalCheckBoxSetting *PrimaryBackendOverride()
 {
     auto *gc = new GlobalCheckBoxSetting("MasterBackendOverride");
     gc->setLabel(QObject::tr("Master backend override"));
@@ -879,8 +879,8 @@ BackendSettings::BackendSettings()
 {
     // These two are included for backward compatibility -
     // used by python bindings. They could be removed later
-    m_masterServerIP = MasterServerIP();
-    m_masterServerPort = MasterServerPort();
+    m_primaryServerIP = PrimaryServerIP();
+    m_primaryServerPort = PrimaryServerPort();
 
     //++ Host Address Backend Setup ++
     auto* server = new GroupSetting();
@@ -903,13 +903,13 @@ BackendSettings::BackendSettings()
             this, &BackendSettings::listenChanged);
     m_backendServerAddr = BackendServerAddr();
     server->addChild(m_backendServerAddr);
-    //++ Master Backend ++
-    m_isMasterBackend = IsMasterBackend();
-    connect(m_isMasterBackend, &TransMythUICheckBoxSetting::valueChanged,
-            this, &BackendSettings::masterBackendChanged);
-    server->addChild(m_isMasterBackend);
-    m_masterServerName = MasterServerName();
-    server->addChild(m_masterServerName);
+    //++ Primary Backend ++
+    m_isPrimaryBackend = IsPrimaryBackend();
+    connect(m_isPrimaryBackend, &TransMythUICheckBoxSetting::valueChanged,
+            this, &BackendSettings::primaryBackendChanged);
+    server->addChild(m_isPrimaryBackend);
+    m_primaryServerName = PrimaryServerName();
+    server->addChild(m_primaryServerName);
     addChild(server);
 
     //++ Locale Settings ++
@@ -925,7 +925,7 @@ BackendSettings::BackendSettings()
 
     auto* fm = new GroupSetting();
     fm->setLabel(QObject::tr("File Management Settings"));
-    fm->addChild(MasterBackendOverride());
+    fm->addChild(PrimaryBackendOverride());
     fm->addChild(DeletesFollowLinks());
     fm->addChild(TruncateDeletes());
     fm->addChild(HDRingbufferSize());
@@ -1027,15 +1027,15 @@ BackendSettings::BackendSettings()
 
 }
 
-void BackendSettings::masterBackendChanged()
+void BackendSettings::primaryBackendChanged()
 {
     if (!m_isLoaded)
         return;
-    bool ismasterchecked = m_isMasterBackend->boolValue();
-    if (ismasterchecked)
-        m_masterServerName->setValue(gCoreContext->GetHostName());
+    bool isPrimaryChecked = m_isPrimaryBackend->boolValue();
+    if (isPrimaryChecked)
+        m_primaryServerName->setValue(gCoreContext->GetHostName());
     else
-        m_masterServerName->setValue(m_priorMasterName);
+        m_primaryServerName->setValue(m_priorPrimaryName);
 }
 
 void BackendSettings::listenChanged()
@@ -1097,40 +1097,40 @@ void BackendSettings::Load(void)
 
     // These two are included for backward compatibility - only used by python
     // bindings. They should be removed later
-    m_masterServerIP->Load();
-    m_masterServerPort->Load();
+    m_primaryServerIP->Load();
+    m_primaryServerPort->Load();
 
-    QString mastername = m_masterServerName->getValue();
-    // new installation - default to master
+    QString primaryName = m_primaryServerName->getValue();
+    // new installation - default to primary
     bool newInstall=false;
-    if (mastername.isEmpty())
+    if (primaryName.isEmpty())
     {
-        mastername = gCoreContext->GetHostName();
+        primaryName = gCoreContext->GetHostName();
         newInstall=true;
     }
-    bool ismaster = (mastername == gCoreContext->GetHostName());
-    m_isMasterBackend->setValue(ismaster);
-    m_priorMasterName = mastername;
+    bool isPrimary = (primaryName == gCoreContext->GetHostName());
+    m_isPrimaryBackend->setValue(isPrimary);
+    m_priorPrimaryName = primaryName;
     m_isLoaded=true;
-    masterBackendChanged();
+    primaryBackendChanged();
     listenChanged();
     if (!newInstall)
     {
         m_backendServerAddr->setChanged(false);
-        m_isMasterBackend->setChanged(false);
-        m_masterServerName->setChanged(false);
+        m_isPrimaryBackend->setChanged(false);
+        m_primaryServerName->setChanged(false);
     }
 }
 
 void BackendSettings::Save(void)
 {
     // Setup deprecated backward compatibility settings
-    if (m_isMasterBackend->boolValue())
+    if (m_isPrimaryBackend->boolValue())
     {
         QString addr = m_backendServerAddr->getValue();
         QString ip = MythCoreContext::resolveAddress(addr);
-        m_masterServerIP->setValue(ip);
-        m_masterServerPort->setValue(m_localServerPort->getValue());
+        m_primaryServerIP->setValue(ip);
+        m_primaryServerPort->setValue(m_localServerPort->getValue());
     }
 
     // If listen on all is specified, set up values for the
@@ -1155,14 +1155,14 @@ void BackendSettings::Save(void)
 
     // These two are included for backward compatibility - only used by python
     // bindings. They should be removed later
-    m_masterServerIP->Save();
-    m_masterServerPort->Save();
+    m_primaryServerIP->Save();
+    m_primaryServerPort->Save();
 }
 
 BackendSettings::~BackendSettings()
 {
-    delete m_masterServerIP;
-    m_masterServerIP=nullptr;
-    delete m_masterServerPort;
-    m_masterServerPort=nullptr;
+    delete m_primaryServerIP;
+    m_primaryServerIP=nullptr;
+    delete m_primaryServerPort;
+    m_primaryServerPort=nullptr;
 }

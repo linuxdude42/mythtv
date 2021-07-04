@@ -73,10 +73,10 @@ class MBASE_PUBLIC MythCoreContext : public QObject, public MythObservable, publ
     void SetEventSocket(MythSocket *eventSock);
     void SetScheduler(MythScheduler *sched);
 
-    bool SafeConnectToMasterServer(bool blockingClient = true,
-                                   bool openEventSocket = true);
-    bool ConnectToMasterServer(bool blockingClient = true,
-                               bool openEventSocket = true);
+    bool SafeConnectToPrimaryServer(bool blockingClient = true,
+                                    bool openEventSocket = true);
+    bool ConnectToPrimaryServer(bool blockingClient = true,
+                                bool openEventSocket = true);
 
     MythSocket *ConnectCommandSocket(const QString &hostname, int  port,
                                      const QString &announcement,
@@ -97,22 +97,22 @@ class MBASE_PUBLIC MythCoreContext : public QObject, public MythObservable, publ
                               QString path = QString(),
                               const QString& storageGroup = QString());
 
-    QString GetMasterHostPrefix(const QString &storageGroup = QString(),
-                                const QString &path = QString());
-    QString GetMasterHostName(void);
+    QString GetPrimaryHostPrefix(const QString &storageGroup = QString(),
+                                 const QString &path = QString());
+    QString GetPrimaryHostName(void);
     QString GetHostName(void);
     QString GetFilePrefix(void);
 
-    bool IsConnectedToMaster(void);
+    bool IsConnectedToPrimary(void);
     void SetAsBackend(bool backend);
     bool IsBackend(void) const;        ///< is this process a backend process
     void SetAsFrontend(bool frontend);
     bool IsFrontend(void) const;  ///< is this process a frontend process
     bool IsFrontendOnly(void);   ///< is there a frontend, but no backend,
                                  ///<  running on this host
-    bool IsMasterHost(void);     ///< is this the same host as the master
-    bool IsMasterHost(const QString &host); ///< is specified host the master
-    bool IsMasterBackend(void);  ///< is this the actual MBE process
+    bool IsPrimaryHost(void);     ///< is this the same host as the primary
+    bool IsPrimaryHost(const QString &host); ///< is specified host the primary
+    bool IsPrimaryBackend(void);  ///< is this the actual primary BE process
     static bool BackendIsRunning(void); ///< a backend process is running on this host
 
     bool IsThisBackend(const QString &addr);    ///< is this address mapped to this backend host
@@ -197,9 +197,9 @@ class MBASE_PUBLIC MythCoreContext : public QObject, public MythObservable, publ
     QString GetBackendServerIP4(const QString &host);
     QString GetBackendServerIP6(void);
     QString GetBackendServerIP6(const QString &host);
-    QString GetMasterServerIP(void);
-    static int GetMasterServerPort(void);
-    int GetMasterServerStatusPort(void);
+    QString GetPrimaryServerIP(void);
+    static int GetPrimaryServerPort(void);
+    int GetPrimaryServerStatusPort(void);
     int GetBackendServerPort(void);
     int GetBackendServerPort(const QString &host);
     int GetBackendStatusPort(void);

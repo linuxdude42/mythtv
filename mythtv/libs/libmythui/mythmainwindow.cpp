@@ -2034,7 +2034,7 @@ void MythMainWindow::customEvent(QEvent* Event)
         }
         else if (message == "RECONNECT_SUCCESS" && m_priv->m_standby)
         {
-            // If the connection to the master backend has just been (re-)established
+            // If the connection to the primary backend has just been (re-)established
             // but we're in standby, make sure the backend is not blocked from
             // shutting down.
             gCoreContext->AllowShutdown();
@@ -2195,7 +2195,7 @@ void MythMainWindow::EnterStandby(bool Manual)
     // Cache WOL settings in case DB goes down
     QString masterserver = gCoreContext->GetSetting("MasterServerName");
     gCoreContext->GetSettingOnHost("BackendServerAddr", masterserver);
-    MythCoreContext::GetMasterServerPort();
+    MythCoreContext::GetPrimaryServerPort();
     gCoreContext->GetSetting("WOLbackendCommand", "");
 
     // While in standby do not attempt to wake the backend

@@ -444,7 +444,7 @@ PlaybackBox::PlaybackBox(MythScreenStack *parent, const QString& name,
     }
 
     if (gCoreContext->GetBoolSetting("MasterBackendOverride", false))
-        m_artHostOverride = gCoreContext->GetMasterHostName();
+        m_artHostOverride = gCoreContext->GetPrimaryHostName();
 
     if (player)
     {
@@ -5430,7 +5430,7 @@ void RecMetadataEdit::PerformQuery()
     }
     lookup->SetAllowGeneric(true);
     lookup->SetHandleImages(false);
-    lookup->SetHost(gCoreContext->GetMasterHostName());
+    lookup->SetHost(gCoreContext->GetPrimaryHostName());
     lookup->SetTitle(m_titleEdit->GetText());
     lookup->SetSubtitle(m_subtitleEdit->GetText());
     lookup->SetInetref(m_inetrefEdit->GetText());

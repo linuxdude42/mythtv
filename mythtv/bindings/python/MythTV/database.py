@@ -1351,7 +1351,7 @@ class DBCache( MythSchema ):
     def gethostname(self):
         return self.dbconfig.profile
 
-    def getMasterBackend(self):
+    def getPrimaryBackend(self):
         return self.settings.NULL.MasterServerName
 
     def getStorageGroup(self, groupname=None, hostname=None):

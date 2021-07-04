@@ -291,7 +291,7 @@ void NetBase::DoDownloadAndPlay()
                                                item->GetMediaURL());
 
     QString finalFilename = generate_file_url("Default",
-                                              gCoreContext->GetMasterHostName(),
+                                              gCoreContext->GetPrimaryHostName(),
                                               baseFilename);
 
     LOG(VB_GENERAL, LOG_INFO, QString("Downloading %1 to %2")

@@ -76,9 +76,9 @@ bool checkStoragePaths(QStringList &probs)
     }
     if (query.size() < 1)
     {
-        if (gCoreContext->IsMasterHost())
+        if (gCoreContext->IsPrimaryHost())
         {
-            // Master backend must have a defined Default SG
+            // Primary backend must have a defined Default SG
             QString trMesg =
                     QObject::tr("No Storage Group directories are defined.  "
                                 "You must add at least one directory to the "

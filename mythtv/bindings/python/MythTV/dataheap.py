@@ -216,7 +216,7 @@ class Record( CMPRecord, DBDataWrite, RECTYPE ):
                 self._artwork = RecordedArtwork(db=self._db)
                 self._artwork.inetref = self.inetref
                 self._artwork.season = self.season
-                self._artwork.host = self._db.getMasterBackend()
+                self._artwork.host = self._db.getPrimaryBackend()
                 self._artwork.create()
         return self._artwork
 
@@ -416,7 +416,7 @@ class Recorded( CMPRecord, DBDataWrite ):
                 self._artwork = RecordedArtwork(db=self._db)
                 self._artwork.inetref = self.inetref
                 self._artwork.season = self.season
-                self._artwork.host = self._db.getMasterBackend()
+                self._artwork.host = self._db.getPrimaryBackend()
                 self._artwork.create()
         return self._artwork
 

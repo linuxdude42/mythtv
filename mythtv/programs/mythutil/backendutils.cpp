@@ -26,7 +26,7 @@ static int RawSendEvent(const QStringList &eventStringList)
     if (eventStringList.isEmpty() || eventStringList[0].isEmpty())
         return GENERIC_EXIT_INVALID_CMDLINE;
 
-    if (gCoreContext->ConnectToMasterServer(false, false))
+    if (gCoreContext->ConnectToPrimaryServer(false, false))
     {
         QStringList message("MESSAGE");
         message << eventStringList;
@@ -38,7 +38,7 @@ static int RawSendEvent(const QStringList &eventStringList)
 
 static int ClearSettingsCache(const MythUtilCommandLineParser &/*cmdline*/)
 {
-    if (gCoreContext->ConnectToMasterServer(false, false))
+    if (gCoreContext->ConnectToPrimaryServer(false, false))
     {
         gCoreContext->SendMessage("CLEAR_SETTINGS_CACHE");
         LOG(VB_GENERAL, LOG_INFO, "Sent CLEAR_SETTINGS_CACHE message");
@@ -64,28 +64,28 @@ static int SendSystemEvent(const MythUtilCommandLineParser &cmdline)
 
 static int Reschedule(const MythUtilCommandLineParser &/*cmdline*/)
 {
-    if (gCoreContext->ConnectToMasterServer(false, false))
+    if (gCoreContext->ConnectToPrimaryServer(false, false))
     {
         ScheduledRecording::RescheduleMatch(0, 0, 0, QDateTime(),
                                             "MythUtilCommand");
-        LOG(VB_GENERAL, LOG_INFO, "Reschedule command sent to master");
+        LOG(VB_GENERAL, LOG_INFO, "Reschedule command sent to primary");
         return GENERIC_EXIT_OK;
     }
 
-    LOG(VB_GENERAL, LOG_ERR, "Cannot connect to master for reschedule");
+    LOG(VB_GENERAL, LOG_ERR, "Cannot connect to primary for reschedule");
     return GENERIC_EXIT_CONNECT_ERROR;
 }
 
 static int ScanVideos(const MythUtilCommandLineParser &/*cmdline*/)
 {
-    if (gCoreContext->ConnectToMasterServer(false, false))
+    if (gCoreContext->ConnectToPrimaryServer(false, false))
     {
         gCoreContext->SendReceiveStringList(QStringList() << "SCAN_VIDEOS");
         LOG(VB_GENERAL, LOG_INFO, "Requested video scan");
         return GENERIC_EXIT_OK;
     }
 
-    LOG(VB_GENERAL, LOG_ERR, "Cannot connect to master for video scan");
+    LOG(VB_GENERAL, LOG_ERR, "Cannot connect to primary for video scan");
     return GENERIC_EXIT_CONNECT_ERROR;
 }
 

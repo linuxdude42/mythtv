@@ -121,10 +121,10 @@ int main(int argc, char *argv[])
     cmdline.ApplySettingsOverride();
 
     gCoreContext->SetAsBackend(true); // blocks the event connection
-    ms_sd_notify("STATUS=Connecting to master server.");
-    if (!gCoreContext->ConnectToMasterServer())
+    ms_sd_notify("STATUS=Connecting to primary server.");
+    if (!gCoreContext->ConnectToPrimaryServer())
     {
-        LOG(VB_GENERAL, LOG_ERR, LOC + "Failed to connect to master server");
+        LOG(VB_GENERAL, LOG_ERR, LOC + "Failed to connect to primary server");
         return GENERIC_EXIT_CONNECT_ERROR;
     }
 
@@ -153,7 +153,7 @@ int main(int argc, char *argv[])
 
     auto *controlRequestHandler = new ControlRequestHandler();
     sockmanager->RegisterHandler(controlRequestHandler);
-    controlRequestHandler->ConnectToMaster();
+    controlRequestHandler->ConnectToPrimary();
 
     auto *sysEventHandler = new MythSystemEventHandler();
 

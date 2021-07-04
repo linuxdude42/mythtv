@@ -83,11 +83,11 @@ bool IdleScreen::CheckConnectionToServer(void)
 
     bool bRes = false;
 
-    if (gCoreContext->IsConnectedToMaster())
+    if (gCoreContext->IsConnectedToPrimary())
         bRes = true;
     else
     {
-        if (gCoreContext->SafeConnectToMasterServer(false))
+        if (gCoreContext->SafeConnectToPrimaryServer(false))
             bRes = true;
     }
 
@@ -224,7 +224,7 @@ bool IdleScreen::UpdateScheduledList()
 
     m_scheduledList.clear();
 
-    if (!gCoreContext->IsConnectedToMaster())
+    if (!gCoreContext->IsConnectedToPrimary())
     {
         return false;
     }

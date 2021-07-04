@@ -154,7 +154,7 @@ bool VideoSetupWizard::keyPressEvent(QKeyEvent *event)
 void VideoSetupWizard::testSDVideo(void)
 {
     QString sdtestfile = generate_file_url("Temp",
-                              gCoreContext->GetMasterHostName(),
+                              gCoreContext->GetPrimaryHostName(),
                               VIDEO_SAMPLE_SD_FILENAME);
     QString desiredpbp =
         m_playbackProfileButtonList->GetItemCurrent()->GetText();
@@ -175,7 +175,7 @@ void VideoSetupWizard::testSDVideo(void)
 void VideoSetupWizard::testHDVideo(void)
 {
     QString hdtestfile = generate_file_url("Temp",
-                              gCoreContext->GetMasterHostName(),
+                              gCoreContext->GetPrimaryHostName(),
                               VIDEO_SAMPLE_HD_FILENAME);
     QString desiredpbp =
         m_playbackProfileButtonList->GetItemCurrent()->GetText();

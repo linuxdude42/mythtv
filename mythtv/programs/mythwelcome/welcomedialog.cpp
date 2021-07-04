@@ -329,7 +329,7 @@ void WelcomeDialog::updateScreen(void)
 {
     QString status;
 
-    if (!gCoreContext->IsConnectedToMaster())
+    if (!gCoreContext->IsConnectedToPrimary())
     {
         m_recordingText->SetText(tr("Cannot connect to server!"));
         m_scheduledText->SetText(tr("Cannot connect to server!"));
@@ -463,7 +463,7 @@ bool WelcomeDialog::updateRecordingList()
     m_isRecording = false;
     m_screenTunerNo = 0;
 
-    if (!gCoreContext->IsConnectedToMaster())
+    if (!gCoreContext->IsConnectedToPrimary())
         return false;
 
     m_isRecording = RemoteGetRecordingStatus(&m_tunerList, true);
@@ -483,7 +483,7 @@ bool WelcomeDialog::updateScheduledList()
     m_scheduledList.clear();
     m_screenScheduledNo = 0;
 
-    if (!gCoreContext->IsConnectedToMaster())
+    if (!gCoreContext->IsConnectedToPrimary())
     {
         updateStatusMessage();
         return false;
@@ -559,11 +559,11 @@ bool WelcomeDialog::checkConnectionToServer(void)
 
     bool bRes = false;
 
-    if (gCoreContext->IsConnectedToMaster())
+    if (gCoreContext->IsConnectedToPrimary())
         bRes = true;
     else
     {
-        if (gCoreContext->SafeConnectToMasterServer(false))
+        if (gCoreContext->SafeConnectToPrimaryServer(false))
         {
             bRes = true;
             updateAll();

@@ -23,14 +23,14 @@ class PROTOSERVER_PUBLIC OutboundRequestHandler : public SocketRequestHandler
     void connectionClosed(MythSocket *socket) override; // SocketRequestHandler
 
   public slots:
-    void ConnectToMaster(void);
+    void ConnectToPrimary(void);
 
   protected:
     virtual bool AnnounceSocket(void)               { return false; }
     MythSocket *m_socket { nullptr };
 
   private:
-    bool DoConnectToMaster(void);
+    bool DoConnectToPrimary(void);
     QTimer      m_timer;
 };
 

@@ -17,7 +17,7 @@ class PlaylistContainer;
 class AllMusic;
 class AllStream;
 
-/// send a message to the master BE without blocking the UI thread
+/// send a message to the primary BE without blocking the UI thread
 class SendStringListThread : public QRunnable
 {
   public:

@@ -180,7 +180,7 @@ static int unlockShutdown()
     if (!query.exec("UNLOCK TABLES;"))
         MythDB::DBError("unlockShutdown -- unlock", query);
 
-    // tell the master BE to reset its idle time
+    // tell the primary BE to reset its idle time
     gCoreContext->SendMessage("RESET_IDLETIME");
 
     return 0;
@@ -218,14 +218,14 @@ static QDateTime getDailyWakeupTime(const QString& sPeriod)
 
 static bool isRecording()
 {
-    if (!gCoreContext->IsConnectedToMaster())
+    if (!gCoreContext->IsConnectedToPrimary())
     {
         LOG(VB_GENERAL, LOG_INFO,
-                "isRecording: Attempting to connect to master server...");
-        if (!gCoreContext->ConnectToMasterServer(false))
+                "isRecording: Attempting to connect to primary server...");
+        if (!gCoreContext->ConnectToPrimaryServer(false))
         {
             LOG(VB_STDIO|VB_FLUSH, LOG_ERR,
-                QObject::tr("Error: Could not connect to master server",
+                QObject::tr("Error: Could not connect to primary server",
                             "mythshutdown") + "\n");
             return false;
         }
@@ -412,17 +412,17 @@ static void setWakeupTime(const QDateTime &wakeupTime)
 
 static int setScheduledWakeupTime()
 {
-    if (!gCoreContext->IsConnectedToMaster())
+    if (!gCoreContext->IsConnectedToPrimary())
     {
         LOG(VB_STDIO|VB_FLUSH, LOG_ERR,
             QObject::tr("Setting scheduled wakeup time: "
-                        "Attempting to connect to master server...",
+                        "Attempting to connect to primary server...",
                         "mythshutdown") + "\n");
-        if (!gCoreContext->ConnectToMasterServer(false))
+        if (!gCoreContext->ConnectToPrimaryServer(false))
         {
             LOG(VB_STDIO|VB_FLUSH, LOG_ERR,
                 QObject::tr("Setting scheduled wakeup time: "
-                            "Could not connect to master server!",
+                            "Could not connect to primary server!",
                             "mythshutdown") + "\n");
             return 1;
         }

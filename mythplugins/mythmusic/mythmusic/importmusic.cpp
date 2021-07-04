@@ -59,7 +59,7 @@ ImportMusicDialog::ImportMusicDialog(MythScreenStack *parent) :
     MythScreenType(parent, "musicimportfiles"),
     m_tracks(new std::vector<TrackInfo*>)
 {
-    QString lastHost = gCoreContext->GetSetting("MythMusicLastImportHost", gCoreContext->GetMasterHostName());
+    QString lastHost = gCoreContext->GetSetting("MythMusicLastImportHost", gCoreContext->GetPrimaryHostName());
     QStringList dirs = StorageGroup::getGroupDirs("Music", lastHost);
     if (dirs.count() > 0)
         m_musicStorageDir = StorageGroup::getGroupDirs("Music", lastHost).at(0);

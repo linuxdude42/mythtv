@@ -37,9 +37,9 @@ bool MythUserSession::IsValid(void) const
 bool MythUserSession::CheckPermission(const QString &/*context*/,
                                       uint /*permission*/)
 {
-    if (!gCoreContext->IsMasterBackend())
+    if (!gCoreContext->IsPrimaryBackend())
     {
-        // TODO: Connect to master and do checking there
+        // TODO: Connect to primary and do checking there
         return false;
     }
 
@@ -110,7 +110,7 @@ bool MythUserSession::Update(void)
  */
 MythSessionManager::MythSessionManager()
 {
-    if (gCoreContext->IsMasterBackend())
+    if (gCoreContext->IsPrimaryBackend())
         LoadSessions();
 }
 
@@ -153,9 +153,9 @@ bool MythSessionManager::IsValidUser(const QString& username)
     if (username.isEmpty())
         return false;
 
-    if (!gCoreContext->IsMasterBackend())
+    if (!gCoreContext->IsPrimaryBackend())
     {
-        // TODO: Connect to master and do checking there
+        // TODO: Connect to primary and do checking there
         return false;
     }
 
@@ -174,9 +174,9 @@ bool MythSessionManager::IsValidUser(const QString& username)
  */
 MythUserSession MythSessionManager::GetSession(const QString& sessionToken)
 {
-    if (!gCoreContext->IsMasterBackend())
+    if (!gCoreContext->IsPrimaryBackend())
     {
-        // TODO: Connect to master and do checking there
+        // TODO: Connect to primary and do checking there
         return MythUserSession();
     }
 
@@ -192,9 +192,9 @@ MythUserSession MythSessionManager::GetSession(const QString& sessionToken)
 MythUserSession MythSessionManager::GetSession(const QString &username,
                                                const QString &client)
 {
-    if (!gCoreContext->IsMasterBackend())
+    if (!gCoreContext->IsPrimaryBackend())
     {
-        // TODO: Connect to master and do checking there
+        // TODO: Connect to primary and do checking there
         return MythUserSession();
     }
 
@@ -241,9 +241,9 @@ QString MythSessionManager::GetPasswordDigest(const QString& username)
  */
 bool MythSessionManager::IsValidSession(const QString& sessionToken)
 {
-    if (!gCoreContext->IsMasterBackend())
+    if (!gCoreContext->IsPrimaryBackend())
     {
-        // TODO: Connect to master and do checking there
+        // TODO: Connect to primary and do checking there
         return false;
     }
 
@@ -287,9 +287,9 @@ MythUserSession MythSessionManager::LoginUser(const QString &username,
         digest.length() > 32)
         return MythUserSession();
 
-    if (!gCoreContext->IsMasterBackend())
+    if (!gCoreContext->IsPrimaryBackend())
     {
-        // TODO: Connect to master and do checking there
+        // TODO: Connect to primary and do checking there
         return MythUserSession();
     }
 
@@ -361,7 +361,7 @@ MythUserSession MythSessionManager::CreateUserSession(uint userId,
     if (clientIdentifier.isEmpty())
     {
         QString type = "Master";
-        if (!gCoreContext->IsMasterBackend())
+        if (!gCoreContext->IsPrimaryBackend())
             type = "Slave";
 
         clientIdentifier =

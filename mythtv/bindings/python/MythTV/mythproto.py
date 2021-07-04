@@ -76,7 +76,7 @@ class BECache( object ):
 
         if backend is None:
             # use master backend
-            backend = self.db.getMasterBackend()
+            backend = self.db.getPrimaryBackend()
         else:
             backend = backend.strip('[]')
 

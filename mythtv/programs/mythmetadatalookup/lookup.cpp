@@ -401,7 +401,7 @@ void LookerUpper::customEvent(QEvent *levent)
                 artmap.insert(it.key(), it.value());
             SetArtwork(lookup->GetInetref(),
                        lookup->GetIsCollection() ? 0 : lookup->GetSeason(),
-                       gCoreContext->GetMasterHostName(), artmap);
+                       gCoreContext->GetPrimaryHostName(), artmap);
         }
 
         m_busyRecList.removeAll(pginfo);

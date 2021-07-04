@@ -1415,7 +1415,7 @@ void MetadataOptions::OnImageSearchListSelection(const ArtworkInfo& info,
     auto *lookup = new MetadataLookup();
 
     lookup->SetType(kMetadataVideo);
-    lookup->SetHost(gCoreContext->GetMasterHostName());
+    lookup->SetHost(gCoreContext->GetPrimaryHostName());
     lookup->SetAutomatic(true);
     lookup->SetData(QVariant::fromValue<VideoArtworkType>(type));
 
@@ -1438,7 +1438,7 @@ void MetadataOptions::SelectLocalFanart()
         return;
 
     QString url = generate_file_url("Fanart",
-                  gCoreContext->GetMasterHostName(),
+                  gCoreContext->GetPrimaryHostName(),
                   "");
     FindImagePopup(url,"",*this, "fanart");
 }
@@ -1449,7 +1449,7 @@ void MetadataOptions::SelectLocalCoverart()
         return;
 
     QString url = generate_file_url("Coverart",
-                  gCoreContext->GetMasterHostName(),
+                  gCoreContext->GetPrimaryHostName(),
                   "");
     FindImagePopup(url,"",*this, "coverart");
 }
@@ -1460,7 +1460,7 @@ void MetadataOptions::SelectLocalBanner()
         return;
 
     QString url = generate_file_url("Banners",
-                  gCoreContext->GetMasterHostName(),
+                  gCoreContext->GetPrimaryHostName(),
                   "");
     FindImagePopup(url,"",*this, "banner");
 }
@@ -1594,7 +1594,7 @@ MetadataLookup *MetadataOptions::CreateLookup(MetadataType mtype)
     }
     lookup->SetAllowGeneric(true);
     lookup->SetHandleImages(false);
-    lookup->SetHost(gCoreContext->GetMasterHostName());
+    lookup->SetHost(gCoreContext->GetPrimaryHostName());
     lookup->SetTitle(m_recordingRule->m_title);
     lookup->SetSubtitle(m_recordingRule->m_subtitle);
     lookup->SetInetref(m_inetrefEdit->GetText());
@@ -1674,7 +1674,7 @@ void MetadataOptions::HandleDownloadedImages(MetadataLookup *lookup)
     }
 
     SetArtwork(m_inetrefEdit->GetText(), m_seasonSpin->GetIntValue(),
-               gCoreContext->GetMasterHostName(), m_artworkMap);
+               gCoreContext->GetPrimaryHostName(), m_artworkMap);
 
     ValuesChanged();
 }
@@ -1905,7 +1905,7 @@ void MetadataOptions::customEvent(QEvent *levent)
         }
 
         SetArtwork(m_inetrefEdit->GetText(), m_seasonSpin->GetIntValue(),
-               gCoreContext->GetMasterHostName(), m_artworkMap);
+               gCoreContext->GetPrimaryHostName(), m_artworkMap);
 
         ValuesChanged();
     }

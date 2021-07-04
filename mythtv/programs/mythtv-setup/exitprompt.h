@@ -16,7 +16,7 @@ class ExitPrompter : public QObject
     void customEvent(QEvent *event) override; // QObject
     
   public slots:
-    void masterPromptExit(void);
+    void primaryPromptExit(void);
     void handleExit(void);
     static void quit(void);
     

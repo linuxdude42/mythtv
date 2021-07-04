@@ -2625,8 +2625,8 @@ QString ProgramInfo::GetPlaybackURL(
         (gCoreContext->GetBoolSetting("MasterBackendOverride", false)) &&
         (RemoteCheckFile(this, false)))
     {
-        tmpURL = MythCoreContext::GenMythURL(gCoreContext->GetMasterHostName(),
-                                             MythCoreContext::GetMasterServerPort(),
+        tmpURL = MythCoreContext::GenMythURL(gCoreContext->GetPrimaryHostName(),
+                                             MythCoreContext::GetPrimaryServerPort(),
                                              basename);
 
         LOG(VB_FILE, LOG_INFO, LOC +

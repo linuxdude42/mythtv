@@ -915,7 +915,7 @@ static int FlagCommercials(ProgramInfo *program_info, int jobid,
     {
         if (program_info->GetRecordingEndTime() > MythDate::current())
         {
-            gCoreContext->ConnectToMasterServer();
+            gCoreContext->ConnectToPrimaryServer();
 
             recorder = RemoteGetExistingRecorder(program_info);
             if (recorder && (recorder->GetRecorderNumber() != -1))

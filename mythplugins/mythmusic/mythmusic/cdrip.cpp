@@ -178,7 +178,7 @@ CDRipperThread::CDRipperThread(RipStatus *parent,  QString device,
         m_cdDevice.chop(1);
 #endif // WIN32
 
-    QString lastHost = gCoreContext->GetSetting("MythMusicLastRipHost", gCoreContext->GetMasterHostName());
+    QString lastHost = gCoreContext->GetSetting("MythMusicLastRipHost", gCoreContext->GetPrimaryHostName());
     QStringList dirs = StorageGroup::getGroupDirs("Music", lastHost);
     if (dirs.count() > 0)
         m_musicStorageDir = StorageGroup::getGroupDirs("Music", lastHost).at(0);
@@ -546,7 +546,7 @@ Ripper::Ripper(MythScreenStack *parent, QString device) :
     myth_system(command);
 
     // get last host and directory we ripped to
-    QString lastHost = gCoreContext->GetSetting("MythMusicLastRipHost", gCoreContext->GetMasterHostName());
+    QString lastHost = gCoreContext->GetSetting("MythMusicLastRipHost", gCoreContext->GetPrimaryHostName());
     QStringList dirs = StorageGroup::getGroupDirs("Music", lastHost);
     if (dirs.count() > 0)
         m_musicStorageDir = StorageGroup::getGroupDirs("Music", lastHost).at(0);
@@ -915,7 +915,7 @@ bool Ripper::deleteExistingTrack(RipTrack *track)
         filename = MythCoreContext::GenMythURL(url.host(), 0, filename, "Music");
 
         // delete file
-        // FIXME: RemoteFile::DeleteFile will only work with files on the master BE
+        // FIXME: RemoteFile::DeleteFile will only work with files on the primary BE
         if (!RemoteFile::DeleteFile(filename))
         {
             LOG(VB_GENERAL, LOG_NOTICE, QString("Ripper::deleteExistingTrack() "
