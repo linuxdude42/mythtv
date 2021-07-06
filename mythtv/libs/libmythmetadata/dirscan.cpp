@@ -112,7 +112,7 @@ namespace
 
     bool scan_sg_dir(const QString &start_path, const QString &host,
                      const QString &base_path, DirectoryHandler *handler,
-                     const ext_lookup &ext_settings, bool isMaster = false)
+                     const ext_lookup &ext_settings, bool isPrimary = false)
     {
         QString path = start_path;
 
@@ -128,7 +128,7 @@ namespace
         QStringList list;
         bool ok = false;
 
-        if (isMaster)
+        if (isPrimary)
         {
             StorageGroup sg("Videos", host);
             list = sg.GetFileInfoList(start_path);
@@ -179,7 +179,7 @@ namespace
                 // as we reached it once to make it this far than we know the 
                 // SG/Path exists
                 (void) scan_sg_dir(start_path + "/" + fileName, host, base_path,
-                             dh, ext_settings, isMaster);
+                             dh, ext_settings, isPrimary);
             }
             else
             {

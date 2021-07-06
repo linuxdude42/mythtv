@@ -204,7 +204,7 @@ void MetadataImageDownload::run()
                 QString oldurl = info.url;
                 info.url = finalfile;
                 bool exists = false;
-                bool onMaster = false;
+                bool onPrimary = false;
                 QString resolvedFN;
                 if (gCoreContext->IsPrimaryBackend() &&
                     gCoreContext->IsThisHost(lookup->GetHost()))
@@ -217,14 +217,14 @@ void MetadataImageDownload::run()
                         resolvedFN = getLocalStorageGroupPath(type,
                                                  lookup->GetHost()) + "/" + filename;
                     }
-                    onMaster = true;
+                    onPrimary = true;
                 }
                 else
                     exists = RemoteFile::Exists(finalfile);
 
                 if (!exists || lookup->GetAllowOverwrites())
                 {
-                    if (exists && !onMaster)
+                    if (exists && !onPrimary)
                     {
                         QFileInfo fi(finalfile);
                         GetMythUI()->RemoveFromCacheByFile(fi.fileName());
@@ -252,7 +252,7 @@ void MetadataImageDownload::run()
                         break;
                     }
 
-                    if (!onMaster)
+                    if (!onPrimary)
                     {
                         RemoteFile outFile(finalfile, true);
 

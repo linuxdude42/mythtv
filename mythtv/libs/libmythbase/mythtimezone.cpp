@@ -87,7 +87,7 @@ QString getTimeZoneID(void)
 
 /** \fn checkTimeZone()
  *  \brief Verifies the time zone settings on this system agree with those
- *         on the master backend
+ *         on the primary backend
  */
 bool checkTimeZone(void)
 {
@@ -96,7 +96,7 @@ bool checkTimeZone(void)
 
 /// This overloaded version allows for the use of an existing (not managed by
 /// MythContext) connection to the backend.
-bool checkTimeZone(const QStringList &/*master_settings*/)
+bool checkTimeZone(const QStringList &/*primary_settings*/)
 {
     return true;
 }

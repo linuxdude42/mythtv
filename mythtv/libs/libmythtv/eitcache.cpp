@@ -426,7 +426,7 @@ uint EITCache::PruneOldEntries(uint timestamp)
 
 
 /** \fn EITCache::ClearChannelLocks(void)
- *  \brief Removes old channel locks, use it only at master backend start
+ *  \brief Removes old channel locks, use it only at primary backend start
  */
 void EITCache::ClearChannelLocks(void)
 {

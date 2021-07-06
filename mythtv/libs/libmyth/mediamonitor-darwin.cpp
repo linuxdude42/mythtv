@@ -33,7 +33,7 @@ extern "C" void diskChangedCallback(DADiskRef disk,
                                     CFArrayRef keys, void *context);
 extern "C" MythMediaType MediaTypeForBSDName(const char *bsdName);
 
-static mach_port_t sMasterPort;
+static mach_port_t sPrimaryPort;
 
 
 /**
@@ -132,7 +132,7 @@ MythMediaType MediaTypeForBSDName(const char *bsdName)
         return MEDIATYPE_UNKNOWN;
     }
 
-    matchingDict = IOBSDNameMatching(sMasterPort, 0, bsdName);
+    matchingDict = IOBSDNameMatching(sPrimaryPort, 0, bsdName);
     if (!matchingDict)
     {
         LOG(VB_GENERAL, LOG_ALERT,
@@ -142,7 +142,7 @@ MythMediaType MediaTypeForBSDName(const char *bsdName)
 
     // Return an iterator across all objects with the matching
     // BSD node name. Note that there should only be one match!
-    kernResult = IOServiceGetMatchingServices(sMasterPort, matchingDict, &iter);
+    kernResult = IOServiceGetMatchingServices(sPrimaryPort, matchingDict, &iter);
 
     if (KERN_SUCCESS != kernResult)
     {
@@ -376,7 +376,7 @@ void MonitorThreadDarwin::run(void)
     CFDictionaryRef match     = kDADiskDescriptionMatchVolumeMountable;
     DASessionRef    daSession = DASessionCreate(kCFAllocatorDefault);
 
-    IOMasterPort(MACH_PORT_NULL, &sMasterPort);
+    IOMasterPort(MACH_PORT_NULL, &sPrimaryPort);
 
     DARegisterDiskAppearedCallback(daSession, match,
                                    diskAppearedCallback, this);
@@ -648,7 +648,7 @@ QStringList MediaMonitorDarwin::GetCDROMBlockDevices()
     }
 
     // Create an iterator across all parents of the service object passed in.
-    kernResult = IOServiceGetMatchingServices(sMasterPort, devices, &iter);
+    kernResult = IOServiceGetMatchingServices(sPrimaryPort, devices, &iter);
 
     if (KERN_SUCCESS != kernResult)
     {

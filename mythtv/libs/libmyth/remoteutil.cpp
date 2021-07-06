@@ -87,10 +87,10 @@ bool RemoteGetMemStats(int &totalMB, int &freeMB, int &totalVM, int &freeVM)
     return false;
 }
 
-bool RemoteCheckFile(ProgramInfo *pginfo, bool checkSlaves)
+bool RemoteCheckFile(ProgramInfo *pginfo, bool checkSecondaries)
 {
     QStringList strlist("QUERY_CHECKFILE");
-    strlist << QString::number((int)checkSlaves);
+    strlist << QString::number((int)checkSecondaries);
     pginfo->ToStringList(strlist);
 
     if (!gCoreContext->SendReceiveStringList(strlist) ||
@@ -443,10 +443,10 @@ bool RemoteGetFileList(const QString& host, const QString& path, QStringList* li
 
     if (gCoreContext->IsPrimaryBackend())
     {
-        // since the master backend cannot connect back around to
+        // since the primary backend cannot connect back around to
         // itself, and the libraries do not have access to the list
-        // of connected slave backends to query an existing connection
-        // start up a new temporary connection directly to the slave
+        // of connected seondary backends to query an existing connection
+        // start up a new temporary connection directly to the secondary
         // backend to query the file list
         QString ann = QString("ANN Playback %1 0")
                         .arg(gCoreContext->GetHostName());
@@ -467,7 +467,7 @@ bool RemoteGetFileList(const QString& host, const QString& path, QStringList* li
     else
         ok = gCoreContext->SendReceiveStringList(*list);
 
-// Should the SLAVE UNREACH test be here ?
+// Should the SECONDARY UNREACH test be here ?
     return ok;
 }
 
@@ -564,7 +564,7 @@ vector<ProgramInfo *> *RemoteGetCurrentlyRecordingList(void)
 }
 
 /**
- * \brief return list of backends currently connected to the master
+ * \brief return list of backends currently connected to the primary
  */
 bool RemoteGetActiveBackends(QStringList *list)
 {

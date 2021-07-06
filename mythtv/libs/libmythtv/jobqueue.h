@@ -132,7 +132,7 @@ class MTV_PUBLIC JobQueue : public QObject, public QRunnable
 
     friend class QueueProcessorThread;
   public:
-    explicit JobQueue(bool master);
+    explicit JobQueue(bool primary);
     ~JobQueue(void) override;
     void customEvent(QEvent *e)  override; // QObject
 
@@ -270,7 +270,7 @@ class MTV_PUBLIC JobQueue : public QObject, public QRunnable
 #endif
     QMap<int, RunningJobInfo>  m_runningJobs;
 
-    bool                       m_isMaster;
+    bool                       m_isPrimary;
 
     MThread                   *m_queueThread         {nullptr};
     QWaitCondition             m_queueThreadCond;

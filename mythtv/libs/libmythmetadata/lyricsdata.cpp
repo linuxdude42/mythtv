@@ -94,7 +94,7 @@ void LyricsData::findLyrics(const QString &grabber)
     // listen for messages
     gCoreContext->addListener(this);
 
-    // send a message to the master BE to find the lyrics for this track
+    // send a message to the primary BE to find the lyrics for this track
     QStringList slist;
     slist << "MUSIC_LYRICS_FIND"
           << m_parent->Hostname()
@@ -127,7 +127,7 @@ void LyricsData::save(void)
     if (!m_parent || !m_parent->isDBTrack())
         return;
 
-    // send a message to the master BE to save the lyrics for this track
+    // send a message to the primary BE to save the lyrics for this track
     QStringList slist;
     slist << "MUSIC_LYRICS_SAVE"
           << m_parent->Hostname()

@@ -19,7 +19,7 @@ void MessageHandler::customEvent(QEvent *e)
         return;
 
     if (!gCoreContext->IsPrimaryBackend())
-        // only master backend should forward events
+        // only primary backend should forward events
         return;
 
     //MythEvent *me = static_cast<MythEvent *>(e);
@@ -79,7 +79,7 @@ bool MessageHandler::HandleInbound(SocketHandler *sock, QStringList &slist)
 /**
  * \fn MessageHandler::HandleOutbound
  *
- * Handle an asynchronous message received from the master backend.
+ * Handle an asynchronous message received from the primary backend.
  * These are converted into a MythEvent and dispatched to all classes
  * registered for events.
  *

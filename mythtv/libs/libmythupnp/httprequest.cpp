@@ -2313,15 +2313,15 @@ void HTTPRequest::AddCORSHeaders( const QString &sOrigin )
     int backendSSLPort = gCoreContext->GetNumSetting( "BackendSSLPort",
                          serverStatusPort + 10);
 
-    QString masterAddrPort = QString("%1:%2")
+    QString primaryAddrPort = QString("%1:%2")
         .arg(gCoreContext->GetPrimaryServerIP())
         .arg(serverStatusPort);
-    QString masterTLSAddrPort = QString("%1:%2")
+    QString primaryTLSAddrPort = QString("%1:%2")
         .arg(gCoreContext->GetPrimaryServerIP())
         .arg(backendSSLPort);
 
-    allowedOrigins << QString("http://%1").arg(masterAddrPort);
-    allowedOrigins << QString("https://%2").arg(masterTLSAddrPort);
+    allowedOrigins << QString("http://%1").arg(primaryAddrPort);
+    allowedOrigins << QString("https://%2").arg(primaryTLSAddrPort);
 
     QString localhostname = QHostInfo::localHostName();
     if (!localhostname.isEmpty())

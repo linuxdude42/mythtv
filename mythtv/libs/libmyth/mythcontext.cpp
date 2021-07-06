@@ -119,8 +119,6 @@ class MythContextPrivate : public QObject
                             /// Should this context use GUI elements?
     bool                    m_gui                {false};
 
-    QString                 m_masterhostname;  ///< master backend hostname
-
     DatabaseParams          m_dbParams;  ///< Current database host & WOL details
     QString                 m_dbHostCp;  ///< dbHostName backup
 
@@ -870,7 +868,7 @@ QString MythContextPrivate::TestDBconnection(bool prompt)
         QString beWOLCmd = QString();
         QString backendIP = QString();
         int backendPort = 0;
-        QString masterserver;
+        QString primaryServer;
 
         for (int attempt = 0;
             attempt < attempts && startupState != st_success;
@@ -966,10 +964,10 @@ QString MythContextPrivate::TestDBconnection(bool prompt)
                     startupState = st_success;
                     break;
                 }
-                masterserver = gCoreContext->GetSetting
+                primaryServer = gCoreContext->GetSetting
                     ("MasterServerName");
                 backendIP = gCoreContext->GetSettingOnHost
-                    ("BackendServerAddr", masterserver);
+                    ("BackendServerAddr", primaryServer);
                 backendPort = MythCoreContext::GetPrimaryServerPort();
                 [[clang::fallthrough]];
             case st_beWOL:
@@ -1403,15 +1401,15 @@ void MythContextPrivate::ShowConnectionFailurePopup(bool persistent)
 
     QString description = (persistent) ?
         QObject::tr(
-            "The connection to the master backend "
+            "The connection to the primary backend "
             "server has gone away for some reason. "
             "Is it running?") :
         QObject::tr(
-            "Could not connect to the master backend server. Is "
+            "Could not connect to the primary backend server. Is "
             "it running?  Is the IP address set for it in "
             "mythtv-setup correct?");
 
-    QString message = QObject::tr("Could not connect to master backend");
+    QString message = QObject::tr("Could not connect to primary backend");
     MythErrorNotification n(message, sLocation, description);
     n.SetId(m_registration);
     n.SetParent(this);

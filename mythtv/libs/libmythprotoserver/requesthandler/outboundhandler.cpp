@@ -40,7 +40,7 @@ bool OutboundRequestHandler::DoConnectToPrimary(void)
 
     if (!m_socket->ConnectToHost(server, port))
     {
-        LOG(VB_GENERAL, LOG_ERR, "Failed to connect to master backend.");
+        LOG(VB_GENERAL, LOG_ERR, "Failed to connect to primary backend.");
         m_socket->DecrRef();
         m_socket = nullptr;
         return false;
@@ -58,7 +58,7 @@ bool OutboundRequestHandler::DoConnectToPrimary(void)
 
     if (!AnnounceSocket())
     {
-        LOG(VB_GENERAL, LOG_NOTICE, "Announcement to upstream master backend failed.");
+        LOG(VB_GENERAL, LOG_NOTICE, "Announcement to upstream primary backend failed.");
         m_socket->DecrRef();
         m_socket = nullptr;
         return false;
@@ -72,7 +72,7 @@ bool OutboundRequestHandler::DoConnectToPrimary(void)
     handler->DecrRef(); // drop local instance in counter
     handler = nullptr;
 
-    LOG(VB_GENERAL, LOG_NOTICE, "Connected to master backend.");
+    LOG(VB_GENERAL, LOG_NOTICE, "Connected to primary backend.");
 
     return true;
 }
