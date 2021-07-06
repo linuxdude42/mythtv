@@ -92,26 +92,26 @@ inline TVState myth_deque_init(const TVState */*state*/) { return (TVState)(0); 
 
 QString StateToString(TVState state);
 
-/** \brief SleepStatus is an enumeration of the awake/sleep status of a slave.
+/** \brief SleepStatus is an enumeration of the awake/sleep status of a secondary.
  */
 enum SleepStatus {
-    /** \brief A slave is awake when it is connected to the master
+    /** \brief A secondary is awake when it is connected to the primary
       */
     sStatus_Awake         = 0x0,
-    /** \brief A slave is considered asleep when it is not awake and not
+    /** \brief A secondary is considered asleep when it is not awake and not
       *        undefined.
       */
     sStatus_Asleep        = 0x1,
-    /** \brief A slave is marked as falling asleep when told to shutdown by
-      *        the master.
+    /** \brief A secondary is marked as falling asleep when told to shutdown by
+      *        the primary.
       */
     sStatus_FallingAsleep = 0x3,
-    /** \brief A slave is marked as waking when the master runs the slave's
+    /** \brief A secondary is marked as waking when the primary runs the secondary's
       *        wakeup command.
       */
     sStatus_Waking        = 0x5,
-    /** \brief A slave's sleep status is undefined when it has never connected
-      *        to the master backend or is not able to be put to sleep and
+    /** \brief A secondary's sleep status is undefined when it has never connected
+      *        to the primary backend or is not able to be put to sleep and
       *        awakened.
       */
     sStatus_Undefined     = 0x8

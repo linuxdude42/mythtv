@@ -2542,7 +2542,7 @@ QString ProgramInfo::QueryBasename(void) const
  *        call and so should not be called from the UI thread.
  */
 QString ProgramInfo::GetPlaybackURL(
-    bool checkMaster, bool forceCheckLocal)
+    bool checkPrimary, bool forceCheckLocal)
 {
         // return the original path if BD or DVD URI
     if (IsVideoBD() || IsVideoDVD())
@@ -2620,8 +2620,8 @@ QString ProgramInfo::GetPlaybackURL(
         }
     }
 
-    // Check to see if we should stream from the master backend
-    if ((checkMaster) &&
+    // Check to see if we should stream from the primary backend
+    if ((checkPrimary) &&
         (gCoreContext->GetBoolSetting("MasterBackendOverride", false)) &&
         (RemoteCheckFile(this, false)))
     {
@@ -5443,7 +5443,7 @@ QStringList ProgramInfo::LoadFromScheduler(
     if (sched)
     {
         LOG(VB_GENERAL, LOG_ERR,
-            "Called from master backend\n\t\t\t"
+            "Called from primary backend\n\t\t\t"
             "with recordid or tmptable, this is not currently supported");
         return slist;
     }
@@ -5456,7 +5456,7 @@ QStringList ProgramInfo::LoadFromScheduler(
     if (!gCoreContext->SendReceiveStringList(slist) || slist.size() < 2)
     {
         LOG(VB_GENERAL, LOG_ALERT,
-                 "LoadFromScheduler(): Error querying master.");
+                 "LoadFromScheduler(): Error querying primary.");
         slist.clear();
     }
 

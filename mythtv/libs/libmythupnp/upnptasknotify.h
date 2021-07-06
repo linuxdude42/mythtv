@@ -55,7 +55,7 @@ class UPnpNotifyTask : public Task
 
         QMutex          m_mutex;
 
-        QString         m_sMasterIP;
+        QString         m_sPrimaryIP;
         int             m_nServicePort;
         std::chrono::seconds m_nMaxAge  {1h};
 

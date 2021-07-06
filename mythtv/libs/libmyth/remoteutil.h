@@ -22,7 +22,7 @@ MPUBLIC bool RemoteGetUptime(std::chrono::seconds &uptime);
 MPUBLIC
 bool RemoteGetMemStats(int &totalMB, int &freeMB, int &totalVM, int &freeVM);
 MPUBLIC bool RemoteCheckFile(
-    ProgramInfo *pginfo, bool checkSlaves = true);
+    ProgramInfo *pginfo, bool checkSecondaries = true);
 MPUBLIC bool RemoteDeleteRecording( uint recordingID, bool forceMetadataDelete,
                                     bool forgetHistory);
 MPUBLIC

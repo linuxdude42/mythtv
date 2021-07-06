@@ -71,7 +71,7 @@ bool StorageGroupEditor::canDelete(void)
 
 void StorageGroupEditor::ShowDeleteDialog()
 {
-    bool is_master_host = gCoreContext->IsPrimaryHost();
+    bool is_primary_host = gCoreContext->IsPrimaryHost();
 
     QString dispGroup = m_group;
     if (m_group == "Default")
@@ -81,7 +81,7 @@ void StorageGroupEditor::ShowDeleteDialog()
                                                 m_group.toLatin1().constData());
 
     QString message = tr("Delete '%1' Storage Group?").arg(dispGroup);
-    if (is_master_host)
+    if (is_primary_host)
     {
         if (m_group == "Default")
         {
@@ -109,13 +109,13 @@ void StorageGroupEditor::DoDeleteSlot(bool doDelete)
 {
     if (doDelete)
     {
-        bool is_master_host = gCoreContext->IsPrimaryHost();
+        bool is_primary_host = gCoreContext->IsPrimaryHost();
         MSqlQuery query(MSqlQuery::InitCon());
         QString sql = "DELETE FROM storagegroup "
                       "WHERE groupname = :NAME";
-        if (is_master_host)
+        if (is_primary_host)
         {
-            // From the master host, delete the group completely (versus just
+            // From the primary host, delete the group completely (versus just
             // local directory list) unless it's the Default group, then just
             // delete remote overrides of the Default group
             if (m_group == "Default")
@@ -123,14 +123,14 @@ void StorageGroupEditor::DoDeleteSlot(bool doDelete)
         }
         else
         {
-            // For non-master hosts, delete only the local override of the
+            // For non-primary hosts, delete only the local override of the
             // group directory list
             sql.append(" AND hostname = :HOSTNAME");
         }
         sql.append(';');
         query.prepare(sql);
         query.bindValue(":NAME", m_group);
-        if (!is_master_host || (m_group == "Default"))
+        if (!is_primary_host || (m_group == "Default"))
             query.bindValue(":HOSTNAME", gCoreContext->GetHostName());
         if (!query.exec())
             MythDB::DBError("StorageGroupListEditor::doDelete", query);
@@ -354,7 +354,7 @@ void StorageGroupListEditor::AddSelection(const QString &label,
 void StorageGroupListEditor::Load(void)
 {
     QStringList names;
-    QStringList masterNames;
+    QStringList namesOnPrimary;
     bool createAddDefaultButton = false;
     QVector< bool > createAddSpecialGroupButton( StorageGroup::kSpecialGroups.size() );
     bool isPrimary = gCoreContext->IsPrimaryHost();
@@ -387,7 +387,7 @@ void StorageGroupListEditor::Load(void)
     else
     {
         while (query.next())
-            masterNames << query.value(0).toString();
+            namesOnPrimary << query.value(0).toString();
     }
 
     clearSettings();
@@ -452,15 +452,15 @@ void StorageGroupListEditor::Load(void)
     else
     {
         curName = 0;
-        while (curName < masterNames.size())
+        while (curName < namesOnPrimary.size())
         {
-            if ((masterNames[curName] != "Default") &&
-                (!StorageGroup::kSpecialGroups.contains(masterNames[curName])) &&
-                (!names.contains(masterNames[curName])))
+            if ((namesOnPrimary[curName] != "Default") &&
+                (!StorageGroup::kSpecialGroups.contains(namesOnPrimary[curName])) &&
+                (!names.contains(namesOnPrimary[curName])))
             {
                 AddSelection(tr("(Create %1 group)")
-                                .arg(masterNames[curName]),
-                             masterNames[curName]);
+                                .arg(namesOnPrimary[curName]),
+                             namesOnPrimary[curName]);
             }
             curName++;
         }

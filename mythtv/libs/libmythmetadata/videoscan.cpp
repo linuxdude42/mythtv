@@ -104,7 +104,7 @@ void VideoScannerThread::SetHosts(const QStringList &hosts)
 
 void VideoScannerThread::SetDirs(QStringList dirs)
 {
-    QString master = gCoreContext->GetPrimaryHostName().toLower();
+    QString primary = gCoreContext->GetPrimaryHostName().toLower();
     QStringList searchhosts;
     QStringList mdirs;
     m_offlineSGHosts.clear();
@@ -128,16 +128,16 @@ void VideoScannerThread::SetDirs(QStringList dirs)
                 iter = dirs.erase(iter);
                 continue;
             }
-            if ((host == master) &&  (!mdirs.contains(path)))
+            if ((host == primary) &&  (!mdirs.contains(path)))
             {
-                // collect paths defined on master backend so other
+                // collect paths defined on primary backend so other
                 // online backends can be set to fall through to them
                 mdirs.append(path);
             }
             else if (!searchhosts.contains(host))
             {
                 // mark host as having directories defined so it
-                // does not fall through to those on the master
+                // does not fall through to those on the primary
                 searchhosts.append(host);
             }
         }
@@ -147,12 +147,12 @@ void VideoScannerThread::SetDirs(QStringList dirs)
 
     for (iter = m_liveSGHosts.begin(); iter != m_liveSGHosts.end(); ++iter)
     {
-        if ((!searchhosts.contains(*iter)) && (master != *iter))
+        if ((!searchhosts.contains(*iter)) && (primary != *iter))
         {
             for (iter2 = mdirs.begin(); iter2 != mdirs.end(); ++iter2)
             {
                 // backend is online, but has no directories listed
-                // fall back to those on the master backend
+                // fall back to those on the primary backend
                 dirs.append(MythCoreContext::GenMythURL(*iter,
                                                         0, *iter2, "Videos"));
             }

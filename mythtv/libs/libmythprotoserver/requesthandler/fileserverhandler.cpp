@@ -868,7 +868,7 @@ bool FileServerHandler::HandleGetFileList(SocketHandler *socket,
         }
         else
         {
-            LOG(VB_FILE, LOG_ERR, QString("Failed to grab slave socket : %1 :")
+            LOG(VB_FILE, LOG_ERR, QString("Failed to grab secondary socket : %1 :")
                      .arg(wantHost));
             res << "SLAVE UNREACHABLE: " << wantHost;
         }

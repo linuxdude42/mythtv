@@ -644,7 +644,7 @@ class MPUBLIC ProgramInfo
 
     // Extremely slow functions that cannot be called from the UI thread.
     QString DiscoverRecordingDirectory(void);
-    QString GetPlaybackURL(bool checkMaster = false,
+    QString GetPlaybackURL(bool checkPrimary = false,
                            bool forceCheckLocal = false);
     ProgramInfoType DiscoverProgramInfoType(void) const;
 

@@ -223,7 +223,7 @@ QString RecStatus::toDescription(RecStatus::Type recstatus, RecordingType rectyp
             case RecStatus::Missed:
             case RecStatus::MissedFuture:
                 message = QObject::tr("This showing was not recorded because "
-                                      "the master backend was not running.");
+                                      "the primary backend was not running.");
                 break;
             case RecStatus::Cancelled:
                 message = QObject::tr("This showing was not recorded because "

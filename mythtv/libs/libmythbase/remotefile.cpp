@@ -42,10 +42,10 @@ static bool RemoteSendReceiveStringList(const QString &host, QStringList &strlis
 
     if (gCoreContext->IsPrimaryBackend())
     {
-        // since the master backend cannot connect back around to
+        // since the primary backend cannot connect back around to
         // itself, and the libraries do not have access to the list
-        // of connected slave backends to query an existing connection
-        // start up a new temporary connection directly to the slave
+        // of connected secondary backends to query an existing connection
+        // start up a new temporary connection directly to the secondary
         // backend to query the file list
         QString ann = QString("ANN Playback %1 0")
                         .arg(gCoreContext->GetHostName());
@@ -1273,7 +1273,7 @@ QDateTime RemoteFile::LastModified(void) const
 /**
  *  \brief Search all BE's for a file in the give storage group
  *  \param filename the partial path and filename to look for
- *  \param host search this host first if given or default to the master BE if empty
+ *  \param host search this host first if given or default to the primary BE if empty
  *  \param storageGroup the name of the storage group to search
  *  \param useRegex if true filename is assumed to be a regex expression of files to find
  *  \param allowFallback if false only 'host' will be searched otherwise all host will be searched until a match is found
@@ -1294,7 +1294,7 @@ QString RemoteFile::FindFile(const QString& filename, const QString& host,
 /**
  *  \brief Search all BE's for files in the give storage group
  *  \param filename the partial path and filename to look for or regular espression (QRegularExpression)
- *  \param host search this host first if given or default to the master BE if empty
+ *  \param host search this host first if given or default to the primary BE if empty
  *  \param storageGroup the name of the storage group to search
  *  \param useRegex if true filename is assumed to be a regex expression of files to find
  *  \param allowFallback if false only 'host' will be searched otherwise all host will be searched until a match is found
@@ -1363,7 +1363,7 @@ QStringList RemoteFile::FindFileList(const QString& filename, const QString& hos
             return strList;
     }
 
-    // if we didn't find any files ask the master BE to find it
+    // if we didn't find any files ask the primary BE to find it
     if (strList.isEmpty() && !gCoreContext->IsPrimaryBackend())
     {
         strList << "QUERY_FINDFILE" << hostName << storageGroup << filename

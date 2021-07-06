@@ -776,7 +776,7 @@ bool DVBChannel::Tune(const DTVMultiplex &tuning,
     DVBChannel *master = GetMasterLock();
     if (master != this)
     {
-        LOG(VB_CHANNEL, LOG_INFO, LOC + "Tuning on slave channel");
+        LOG(VB_CHANNEL, LOG_INFO, LOC + "Tuning on secondary channel");
         SetSIStandard(tuning.m_sistandard);
         bool ok = master->Tune(tuning, force_reset, false);
         ReturnMasterLock(master);

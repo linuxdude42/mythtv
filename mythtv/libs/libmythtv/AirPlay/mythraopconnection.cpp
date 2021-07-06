@@ -511,7 +511,7 @@ void MythRAOPConnection::SendTimeRequest(void)
         return;
     }
     LOG(VB_PLAYBACK, LOG_DEBUG, LOC +
-        QString("Requesting master time (Local %1.%2)")
+        QString("Requesting server time (Local %1.%2)")
         .arg(ntpSec,8,16,QChar('0')).arg(ntpTicks,8,16,QChar('0')));
 }
 
@@ -545,11 +545,11 @@ void MythRAOPConnection::ProcessTimeResponse(const QByteArray &buf)
         .arg(sec,8,16,QChar('0')).arg(ticks,8,16,QChar('0')));
 
     // convert ticks into ms
-    std::chrono::milliseconds master = NTPToLocal(sec, ticks);
+    std::chrono::milliseconds server = NTPToLocal(sec, ticks);
 
     // This value is typically huge (~50 years) and meaningless as
     // Apple products send uptime, not wall time.
-    m_clockSkew     = master - time2;
+    m_clockSkew     = server - time2;
 }
 
 
@@ -1304,7 +1304,7 @@ void MythRAOPConnection::ProcessRequest(const QStringList &header,
             *m_textStream << "Session: 1\r\n";
             *m_textStream << "Audio-Jack-Status: connected\r\n";
 
-            // Ask for master clock value to determine time skew and average network latency
+            // Ask for server clock value to determine time skew and average network latency
             SendTimeRequest();
         }
         else

@@ -45,14 +45,14 @@
 
 #define LOC     QString("JobQueue: ")
 
-JobQueue::JobQueue(bool master) :
+JobQueue::JobQueue(bool primary) :
     m_hostname(gCoreContext->GetHostName()),
 #if QT_VERSION < QT_VERSION_CHECK(5,14,0)
     m_runningJobsLock(new QMutex(QMutex::Recursive)),
 #else
     m_runningJobsLock(new QRecursiveMutex()),
 #endif
-    m_isMaster(master),
+    m_isPrimary(primary),
     m_queueThread(new MThread("JobQueue", this))
 {
     m_jobQueueCPU = gCoreContext->GetNumSetting("JobQueueCPU", 0);

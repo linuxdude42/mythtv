@@ -32,7 +32,7 @@ int next_dbg_str = 0;
  * contexts and OpenGL interops - which may trigger a blocking callback. We cannot
  * hold the videobuffer lock while doing this as there are numerous playback paths
  * that can request the video buffer lock while the decoder thread is blocking.
- * So store the buffers and release once the master videobuffer lock is released.
+ * So store the buffers and release once the global videobuffer lock is released.
 */
 static inline void ReleaseDecoderResources(MythVideoFrame *Frame, std::vector<AVBufferRef *> &Discards)
 {
