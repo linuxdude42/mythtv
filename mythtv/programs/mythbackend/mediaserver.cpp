@@ -68,7 +68,7 @@ MediaServer::MediaServer(void) :
     LOG(VB_UPNP, LOG_INFO, "MediaServer(): End");
 }
 
-void MediaServer::Init(bool bIsMaster, bool bDisableUPnp /* = false */)
+void MediaServer::Init(bool bIsPrimary, bool bDisableUPnp /* = false */)
 {
     LOG(VB_UPNP, LOG_INFO, "MediaServer::Init(): Begin");
 
@@ -112,7 +112,7 @@ void MediaServer::Init(bool bIsMaster, bool bDisableUPnp /* = false */)
     QString sFileName = g_pConfig->GetValue( "upnpDescXmlPath",
                                                 m_sSharePath );
 
-    if ( bIsMaster )
+    if ( bIsPrimary )
         sFileName  += "devicemaster.xml";
     else
         sFileName += "deviceslave.xml";
@@ -215,10 +215,10 @@ void MediaServer::Init(bool bIsMaster, bool bDisableUPnp /* = false */)
     {
 
         // ------------------------------------------------------------------
-        // Register any HttpServerExtensions... Only The Master Backend
+        // Register any HttpServerExtensions... Only The Primary Backend
         // ------------------------------------------------------------------
 
-        if (bIsMaster)
+        if (bIsPrimary)
         {
             QString sSourceProtocols = GetSourceProtocolInfos().join(",");
 
@@ -275,7 +275,7 @@ void MediaServer::Init(bool bIsMaster, bool bDisableUPnp /* = false */)
             {
                 QByteArray name("Mythbackend on ");
                 name.append(gCoreContext->GetHostName().toUtf8());
-                QByteArray txt(bIsMaster ? "\x06master" : "\x05slave");
+                QByteArray txt(bIsPrimary ? "\x06master" : "\x05slave");
                 m_bonjour->Register(nPort, "_mythbackend._tcp", name, txt);
             }
         }

@@ -125,7 +125,7 @@ bool PlaybackSock::SendReceiveStringList(
     return true;
 }
 
-/** \brief Tells a slave to go to sleep
+/** \brief Tells a secondary to go to sleep
  */
 bool PlaybackSock::GoToSleep(void)
 {
@@ -329,7 +329,7 @@ QDateTime PlaybackSock::PixmapLastModified(const ProgramInfo *pginfo)
 bool PlaybackSock::CheckFile(ProgramInfo *pginfo)
 {
     QStringList strlist("QUERY_CHECKFILE");
-    strlist << QString::number(0); // don't check slaves
+    strlist << QString::number(0); // don't check secondaries
     pginfo->ToStringList(strlist);
 
     if (SendReceiveStringList(strlist, 2))
@@ -538,7 +538,7 @@ QStringList PlaybackSock::ForwardRequest(const QStringList &slist)
     return QStringList();
 }
 
-/** \brief Tells a slave to add a child input.
+/** \brief Tells a secondary to add a child input.
  */
 bool PlaybackSock::AddChildInput(uint childid)
 {

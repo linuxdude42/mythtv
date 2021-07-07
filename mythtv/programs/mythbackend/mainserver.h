@@ -119,7 +119,7 @@ class MainServer : public QObject, public MythSocketCBs
     friend class FreeSpaceUpdater;
     friend class RenameThread;
   public:
-    MainServer(bool master, int port,
+    MainServer(bool primary, int port,
                QMap<int, EncoderLink *> *tvList,
                Scheduler *sched, AutoExpire *expirer);
 
@@ -130,7 +130,7 @@ class MainServer : public QObject, public MythSocketCBs
     void customEvent(QEvent *e) override; // QObject
 
     bool isClientConnected(bool onlyBlockingClients = false);
-    void ShutSlaveBackendsDown(const QString &haltcmd);
+    void ShutSecondaryBackendsDown(const QString &haltcmd);
 
     void ProcessRequest(MythSocket *sock);
 
@@ -268,17 +268,17 @@ class MainServer : public QObject, public MythSocketCBs
     void HandleQueryTimeZone(PlaybackSock *pbs);
     void HandleBlockShutdown(bool blockShutdown, PlaybackSock *pbs);
     void HandleDownloadFile(const QStringList &command, PlaybackSock *pbs);
-    void HandleSlaveDisconnectedEvent(const MythEvent &event);
+    void HandleSecondaryDisconnectedEvent(const MythEvent &event);
 
     void SendResponse(MythSocket *sock, QStringList &commands);
     void SendErrorResponse(MythSocket *sock, const QString &error);
     void SendErrorResponse(PlaybackSock *pbs, const QString &error);
-    static void SendSlaveDisconnectedEvent(const QList<uint> &offlineEncoderIDs,
+    static void SendSecondaryDisconnectedEvent(const QList<uint> &offlineEncoderIDs,
                                     bool needsReschedule);
 
     static void getGuideDataThrough(QDateTime &GuideDataThrough);
 
-    PlaybackSock *GetSlaveByHostname(const QString &hostname);
+    PlaybackSock *GetSecondaryByHostname(const QString &hostname);
     PlaybackSock *GetMediaServerByHostname(const QString &hostname);
     PlaybackSock *GetPlaybackBySock(MythSocket *socket);
     FileTransfer *GetFileTransferByID(int id);
@@ -327,15 +327,15 @@ class MainServer : public QObject, public MythSocketCBs
     QWaitCondition              m_masterFreeSpaceListWait;
     QStringList                 m_masterFreeSpaceList;
 
-    QTimer       *m_masterServerReconnect    {nullptr}; // audited ref #5318
-    PlaybackSock *m_masterServer             {nullptr};
+    QTimer       *m_primaryServerReconnect   {nullptr}; // audited ref #5318
+    PlaybackSock *m_primaryServer            {nullptr};
 
-    bool m_ismaster;
+    bool m_isPrimary;
 
     QMutex m_deletelock;
     MThreadPool m_threadPool;
 
-    bool m_masterBackendOverride             {false};
+    bool m_primaryBackendOverride            {false};
 
     Scheduler  *m_sched                      {nullptr};
     AutoExpire *m_expirer                    {nullptr};

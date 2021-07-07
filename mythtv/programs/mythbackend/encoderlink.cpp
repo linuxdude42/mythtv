@@ -395,7 +395,7 @@ std::chrono::milliseconds EncoderLink::SetSignalMonitoringRate(std::chrono::mill
     return -1ms;
 }
 
-/** \brief Tell a slave to go to sleep
+/** \brief Tell a secondary to go to sleep
  */
 bool EncoderLink::GoToSleep(void)
 {

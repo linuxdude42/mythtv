@@ -53,19 +53,19 @@
 bool debugConflicts = false;
 
 Scheduler::Scheduler(bool runthread, QMap<int, EncoderLink *> *_tvList,
-                     const QString& tmptable, Scheduler *master_sched) :
+                     const QString& tmptable, Scheduler *primary_sched) :
     MThread("Scheduler"),
     m_recordTable(tmptable),
     m_priorityTable("powerpriority"),
-    m_specSched(master_sched),
+    m_specSched(primary_sched),
     m_tvList(_tvList),
     m_doRun(runthread),
     m_openEnd(openEndNever)
 {
     debugConflicts = qEnvironmentVariableIsSet("DEBUG_CONFLICTS");
 
-    if (master_sched)
-        master_sched->GetAllPending(m_recList);
+    if (primary_sched)
+        primary_sched->GetAllPending(m_recList);
 
     if (!m_doRun)
         m_dbConn = MSqlQuery::ChannelCon();
@@ -89,7 +89,7 @@ Scheduler::Scheduler(bool runthread, QMap<int, EncoderLink *> *_tvList,
             while (m_doRun && !isRunning())
                 m_reschedWait.wait(&m_schedLock);
         }
-        WakeUpSlaves();
+        WakeUpSecondaries();
     }
 }
 
@@ -565,7 +565,7 @@ void Scheduler::FillRecordListFromDB(uint recordid)
     LOG(VB_GENERAL, LOG_INFO, msg);
 }
 
-void Scheduler::FillRecordListFromMaster(void)
+void Scheduler::FillRecordListFromPrimary(void)
 {
     RecordingList schedList(false);
     bool dummy = false;
@@ -812,12 +812,12 @@ bool Scheduler::ChangeRecordingEnd(RecordingInfo *oldp, RecordingInfo *newp)
     return rs == RecStatus::Recording;
 }
 
-void Scheduler::SlaveConnected(const RecordingList &slavelist)
+void Scheduler::SecondaryConnected(const RecordingList &secondaryList)
 {
     QMutexLocker lockit(&m_schedLock);
     QReadLocker tvlocker(&TVRec::s_inputsLock);
 
-    for (auto *sp : slavelist)
+    for (auto *sp : secondaryList)
     {
         bool found = false;
 
@@ -887,7 +887,7 @@ void Scheduler::SlaveConnected(const RecordingList &slavelist)
     }
 }
 
-void Scheduler::SlaveDisconnected(uint cardid)
+void Scheduler::SecondaryDisconnected(uint cardid)
 {
     QMutexLocker lockit(&m_schedLock);
 
@@ -2016,7 +2016,7 @@ void Scheduler::run(void)
 
     OldRecordedFixups();
 
-    // wait for slaves to connect
+    // wait for secondaries to connect
     usleep(3s);
 
     QMutexLocker lockit(&m_schedLock);
@@ -2059,12 +2059,12 @@ void Scheduler::run(void)
             sched_sleep = std::min(sched_sleep, 15000ms);
         bool haveRequests = HaveQueuedRequests();
         int const kSleepCheck = 300;
-        bool checkSlaves = curtime >= nextSleepCheck;
+        bool checkSecondary = curtime >= nextSleepCheck;
 
         // If we're about to start a recording don't do any reschedules...
         // instead sleep for a bit
         if ((secs_to_next > -60s && secs_to_next < schedRunTime) ||
-            (!haveRequests && !checkSlaves))
+            (!haveRequests && !checkSecondary))
         {
             if (sched_sleep > 0ms)
             {
@@ -2072,7 +2072,7 @@ void Scheduler::run(void)
                     QString("sleeping for %1 ms "
                             "(s2n: %2 sr: %3 qr: %4 cs: %5)")
                     .arg(sched_sleep.count()).arg(secs_to_next.count()).arg(schedRunTime.count())
-                    .arg(haveRequests).arg(checkSlaves));
+                    .arg(haveRequests).arg(checkSecondary));
                 if (m_reschedWait.wait(&m_schedLock, sched_sleep.count()))
                     continue;
             }
@@ -2081,7 +2081,7 @@ void Scheduler::run(void)
         {
             if (haveRequests)
             {
-                // The master backend is a long lived program, so
+                // The primary backend is a long lived program, so
                 // we reload some key settings on each reschedule.
                 prerollseconds  =
                     gCoreContext->GetDurSetting<std::chrono::seconds>("RecordPreRoll", 0s);
@@ -2115,19 +2115,19 @@ void Scheduler::run(void)
                     continue;
             }
 
-            if (checkSlaves)
+            if (checkSecondary)
             {
-                // Check for slaves that can be put to sleep.
-                PutInactiveSlavesToSleep();
+                // Check for secondaries that can be put to sleep.
+                PutInactiveSecondariesToSleep();
                 nextSleepCheck = MythDate::current().addSecs(kSleepCheck);
-                checkSlaves = false;
+                checkSecondary = false;
             }
         }
 
         nextStartTime = MythDate::current().addDays(14);
-        // If checkSlaves is still set, choose a reasonable wake time
+        // If checkSecondary is still set, choose a reasonable wake time
         // in the future instead of one that we know is in the past.
-        if (checkSlaves)
+        if (checkSecondary)
             nextWakeTime = MythDate::current().addSecs(kSleepCheck);
         else
             nextWakeTime = nextSleepCheck;
@@ -2160,13 +2160,13 @@ void Scheduler::run(void)
         if (m_recListChanged)
             continue;
 
-        /// Wake any slave backends that need waking
+        /// Wake any secondary backends that need waking
         curtime = MythDate::current();
         for (auto it = startIter; it != m_recList.end(); ++it)
         {
             auto secsleft = std::chrono::seconds(curtime.secsTo((*it)->GetRecordingStartTime()));
             if ((secsleft - prerollseconds) <= wakeThreshold)
-                HandleWakeSlave(**it, prerollseconds);
+                HandleWakeSecondary(**it, prerollseconds);
             else
                 break;
         }
@@ -2502,7 +2502,7 @@ bool Scheduler::HandleRunSchedulerStartup(
 }
 
 // If a recording is about to start on a backend in a few minutes, wake it...
-void Scheduler::HandleWakeSlave(RecordingInfo &ri, std::chrono::seconds prerollseconds)
+void Scheduler::HandleWakeSecondary(RecordingInfo &ri, std::chrono::seconds prerollseconds)
 {
     static constexpr std::array<const std::chrono::seconds,4> kSysEventSecs = { 120s, 90s, 60s, 30s };
 
@@ -2564,11 +2564,11 @@ void Scheduler::HandleWakeSlave(RecordingInfo &ri, std::chrono::seconds prerolls
     if (nexttv->IsAsleep() && !nexttv->IsWaking())
     {
         LOG(VB_SCHEDULE, LOG_INFO, LOC +
-            QString("Slave Backend %1 is being awakened to record: %2")
+            QString("Secondary Backend %1 is being awakened to record: %2")
                 .arg(nexttv->GetHostName(), ri.GetTitle()));
 
-        if (!WakeUpSlave(nexttv->GetHostName()))
-            EnqueuePlace("HandleWakeSlave1");
+        if (!WakeUpSecondary(nexttv->GetHostName()))
+            EnqueuePlace("HandleWakeSecondary1");
     }
     else if ((nexttv->IsWaking()) &&
              ((secsleft - prerollseconds) < 210s) &&
@@ -2576,21 +2576,21 @@ void Scheduler::HandleWakeSlave(RecordingInfo &ri, std::chrono::seconds prerolls
              (nexttv->GetLastWakeTime().secsTo(curtime) > 10))
     {
         LOG(VB_SCHEDULE, LOG_INFO, LOC +
-            QString("Slave Backend %1 not available yet, "
+            QString("Secondary Backend %1 not available yet, "
                     "trying to wake it up again.")
                 .arg(nexttv->GetHostName()));
 
-        if (!WakeUpSlave(nexttv->GetHostName(), false))
-            EnqueuePlace("HandleWakeSlave2");
+        if (!WakeUpSecondary(nexttv->GetHostName(), false))
+            EnqueuePlace("HandleWakeSecondary2");
     }
     else if ((nexttv->IsWaking()) &&
              ((secsleft - prerollseconds) < 150s) &&
              (nexttv->GetSleepStatusTime().secsTo(curtime) < 300))
     {
         LOG(VB_GENERAL, LOG_WARNING, LOC +
-            QString("Slave Backend %1 has NOT come "
+            QString("Secondary Backend %1 has NOT come "
                     "back from sleep yet in 150 seconds. Setting "
-                    "slave status to unknown and attempting "
+                    "secondary status to unknown and attempting "
                     "to reschedule around its tuners.")
                 .arg(nexttv->GetHostName()));
 
@@ -2600,7 +2600,7 @@ void Scheduler::HandleWakeSlave(RecordingInfo &ri, std::chrono::seconds prerolls
                 enc->SetSleepStatus(sStatus_Undefined);
         }
 
-        EnqueuePlace("HandleWakeSlave3");
+        EnqueuePlace("HandleWakeSecondary3");
     }
 }
 
@@ -2735,7 +2735,7 @@ bool Scheduler::HandleRecording(
         if (secsleft > 0s)
         {
             LOG(VB_SCHEDULE, LOG_WARNING,
-                QString("WARNING: Slave Backend %1 has NOT come "
+                QString("WARNING: Secondary Backend %1 has NOT come "
                         "back from sleep yet.  Recording can "
                         "not begin yet for: %2")
                     .arg(nexttv->GetHostName(),
@@ -2744,8 +2744,8 @@ bool Scheduler::HandleRecording(
         else if (nexttv->GetLastWakeTime().secsTo(curtime) > 300)
         {
             LOG(VB_SCHEDULE, LOG_WARNING,
-                QString("WARNING: Slave Backend %1 has NOT come "
-                        "back from sleep yet. Setting slave "
+                QString("WARNING: Secondary Backend %1 has NOT come "
+                        "back from sleep yet. Setting secondary "
                         "status to unknown and attempting "
                         "to reschedule around its tuners.")
                     .arg(nexttv->GetHostName()));
@@ -2756,7 +2756,7 @@ bool Scheduler::HandleRecording(
                     enc->SetSleepStatus(sStatus_Undefined);
             }
 
-            EnqueuePlace("SlaveNotAwake");
+            EnqueuePlace("SecondaryNotAwake");
         }
 
         nextStartTime = std::min(nextStartTime, nextrectime);
@@ -3399,7 +3399,7 @@ void Scheduler::ShutdownServer(std::chrono::seconds prerollseconds,
                                         nullptr);
     }
 
-    // tell anyone who is listening the master server is going down now
+    // tell anyone who is listening the primary server is going down now
     MythEvent me(QString("SHUTDOWN_NOW"));
     gCoreContext->dispatch(me);
 
@@ -3408,8 +3408,8 @@ void Scheduler::ShutdownServer(std::chrono::seconds prerollseconds,
 
     if (!halt_cmd.isEmpty())
     {
-        // now we shut the slave backends down...
-        m_mainServer->ShutSlaveBackendsDown(halt_cmd);
+        // now we shut the secondary backends down...
+        m_mainServer->ShutSecondaryBackendsDown(halt_cmd);
 
         LOG(VB_GENERAL, LOG_NOTICE,
             QString("Running the command to shutdown "
@@ -3429,36 +3429,36 @@ void Scheduler::ShutdownServer(std::chrono::seconds prerollseconds,
     m_isShuttingDown = false;
 }
 
-void Scheduler::PutInactiveSlavesToSleep(void)
+void Scheduler::PutInactiveSecondariesToSleep(void)
 {
     std::chrono::seconds prerollseconds = 0s;
     std::chrono::seconds secsleft = 0s;
 
     QReadLocker tvlocker(&TVRec::s_inputsLock);
 
-    bool someSlavesCanSleep = false;
+    bool someSecondariesCanSleep = false;
     for (auto * enc : qAsConst(*m_tvList))
     {
         if (enc->CanSleep())
-            someSlavesCanSleep = true;
+            someSecondariesCanSleep = true;
     }
 
-    if (!someSlavesCanSleep)
+    if (!someSecondariesCanSleep)
         return;
 
     LOG(VB_SCHEDULE, LOG_INFO,
-        "Scheduler, Checking for slaves that can be shut down");
+        "Scheduler, Checking for secondaries that can be shut down");
 
     auto sleepThreshold =
         gCoreContext->GetDurSetting<std::chrono::seconds>( "SleepThreshold", 45min);
 
     LOG(VB_SCHEDULE, LOG_DEBUG,
-        QString("  Getting list of slaves that will be active in the "
+        QString("  Getting list of secondaries that will be active in the "
                 "next %1 minutes.") .arg(duration_cast<std::chrono::minutes>(sleepThreshold).count()));
 
     LOG(VB_SCHEDULE, LOG_DEBUG, "Checking scheduler's reclist");
     QDateTime curtime = MythDate::current();
-    QStringList SlavesInUse;
+    QStringList SecondariesInUse;
     for (auto *pginfo : m_recList)
     {
         if (pginfo->GetRecordingStatus() != RecStatus::Recording &&
@@ -3477,24 +3477,24 @@ void Scheduler::PutInactiveSlavesToSleep(void)
         {
             EncoderLink *enc = (*m_tvList)[pginfo->GetInputID()];
             if ((!enc->IsLocal()) &&
-                (!SlavesInUse.contains(enc->GetHostName())))
+                (!SecondariesInUse.contains(enc->GetHostName())))
             {
                 if (pginfo->GetRecordingStatus() == RecStatus::WillRecord ||
                     pginfo->GetRecordingStatus() == RecStatus::Pending)
                 {
                     LOG(VB_SCHEDULE, LOG_DEBUG,
-                        QString("    Slave %1 will be in use in %2 minutes")
+                        QString("    Secondary %1 will be in use in %2 minutes")
                             .arg(enc->GetHostName())
                             .arg(duration_cast<std::chrono::minutes>(secsleft).count()));
                 }
                 else
                 {
                     LOG(VB_SCHEDULE, LOG_DEBUG,
-                        QString("    Slave %1 is in use currently "
+                        QString("    Secondary %1 is in use currently "
                                 "recording '%1'")
                             .arg(enc->GetHostName(), pginfo->GetTitle()));
                 }
-                SlavesInUse << enc->GetHostName();
+                SecondariesInUse << enc->GetHostName();
             }
         }
     }
@@ -3508,15 +3508,15 @@ void Scheduler::PutInactiveSlavesToSleep(void)
     if (query.exec())
     {
         while(query.next()) {
-            SlavesInUse << query.value(0).toString();
+            SecondariesInUse << query.value(0).toString();
             LOG(VB_SCHEDULE, LOG_DEBUG,
-                QString("    Slave %1 is marked as in use by a %2")
+                QString("    Secondary %1 is marked as in use by a %2")
                     .arg(query.value(0).toString(),
                          query.value(1).toString()));
         }
     }
 
-    LOG(VB_SCHEDULE, LOG_DEBUG, QString("  Shutting down slaves which will "
+    LOG(VB_SCHEDULE, LOG_DEBUG, QString("  Shutting down secondaries which will "
         "be inactive for the next %1 minutes and can be put to sleep.")
             .arg(sleepThreshold.count() / 60));
 
@@ -3524,7 +3524,7 @@ void Scheduler::PutInactiveSlavesToSleep(void)
     {
         if ((!enc->IsLocal()) &&
             (enc->IsAwake()) &&
-            (!SlavesInUse.contains(enc->GetHostName())) &&
+            (!SecondariesInUse.contains(enc->GetHostName())) &&
             (!enc->IsFallingAsleep()))
         {
             QString sleepCommand =
@@ -3549,7 +3549,7 @@ void Scheduler::PutInactiveSlavesToSleep(void)
                         if (slv->GetHostName() == thisHost)
                         {
                             LOG(VB_SCHEDULE, LOG_DEBUG,
-                                QString("    Marking card %1 on slave %2 "
+                                QString("    Marking card %1 on secondary %2 "
                                         "as falling asleep.")
                                     .arg(slv->GetInputID())
                                     .arg(slv->GetHostName()));
@@ -3560,7 +3560,7 @@ void Scheduler::PutInactiveSlavesToSleep(void)
                 else
                 {
                     LOG(VB_GENERAL, LOG_ERR, LOC +
-                        QString("Unable to shutdown %1 slave backend, setting "
+                        QString("Unable to shutdown %1 secondary backend, setting "
                                 "sleep status to undefined.").arg(thisHost));
                     for (auto * slv : qAsConst(*m_tvList))
                     {
@@ -3573,28 +3573,28 @@ void Scheduler::PutInactiveSlavesToSleep(void)
     }
 }
 
-bool Scheduler::WakeUpSlave(const QString& slaveHostname, bool setWakingStatus)
+bool Scheduler::WakeUpSecondary(const QString& secondaryHostname, bool setWakingStatus)
 {
-    if (slaveHostname == gCoreContext->GetHostName())
+    if (secondaryHostname == gCoreContext->GetHostName())
     {
         LOG(VB_GENERAL, LOG_NOTICE,
             QString("Tried to Wake Up %1, but this is the "
-                    "master backend and it is not asleep.")
-                .arg(slaveHostname));
+                    "primary backend and it is not asleep.")
+                .arg(secondaryHostname));
         return false;
     }
 
     QString wakeUpCommand = gCoreContext->GetSettingOnHost( "WakeUpCommand",
-        slaveHostname);
+        secondaryHostname);
 
     if (wakeUpCommand.isEmpty()) {
         LOG(VB_GENERAL, LOG_NOTICE,
-            QString("Trying to Wake Up %1, but this slave "
-                    "does not have a WakeUpCommand set.").arg(slaveHostname));
+            QString("Trying to Wake Up %1, but this secondary "
+                    "does not have a WakeUpCommand set.").arg(secondaryHostname));
 
         for (auto * enc : qAsConst(*m_tvList))
         {
-            if (enc->GetHostName() == slaveHostname)
+            if (enc->GetHostName() == secondaryHostname)
                 enc->SetSleepStatus(sStatus_Undefined);
         }
 
@@ -3604,14 +3604,14 @@ bool Scheduler::WakeUpSlave(const QString& slaveHostname, bool setWakingStatus)
     QDateTime curtime = MythDate::current();
     for (auto * enc : qAsConst(*m_tvList))
     {
-        if (setWakingStatus && (enc->GetHostName() == slaveHostname))
+        if (setWakingStatus && (enc->GetHostName() == secondaryHostname))
             enc->SetSleepStatus(sStatus_Waking);
         enc->SetLastWakeTime(curtime);
     }
 
     if (!IsMACAddress(wakeUpCommand))
     {
-        LOG(VB_SCHEDULE, LOG_NOTICE, QString("Executing '%1' to wake up slave.")
+        LOG(VB_SCHEDULE, LOG_NOTICE, QString("Executing '%1' to wake up secondary.")
                 .arg(wakeUpCommand));
         myth_system(wakeUpCommand);
         return true;
@@ -3620,33 +3620,30 @@ bool Scheduler::WakeUpSlave(const QString& slaveHostname, bool setWakingStatus)
     return WakeOnLAN(wakeUpCommand);
 }
 
-void Scheduler::WakeUpSlaves(void)
+void Scheduler::WakeUpSecondaries(void)
 {
     QReadLocker tvlocker(&TVRec::s_inputsLock);
 
-    QStringList SlavesThatCanWake;
-    QString thisSlave;
+    QStringList SecondariesThatCanWake;
     for (auto * enc : qAsConst(*m_tvList))
     {
         if (enc->IsLocal())
             continue;
 
-        thisSlave = enc->GetHostName();
+        QString thisSecondary = enc->GetHostName();
 
-        if ((!gCoreContext->GetSettingOnHost("WakeUpCommand", thisSlave)
+        if ((!gCoreContext->GetSettingOnHost("WakeUpCommand", thisSecondary)
                 .isEmpty()) &&
-            (!SlavesThatCanWake.contains(thisSlave)))
-            SlavesThatCanWake << thisSlave;
+            (!SecondariesThatCanWake.contains(thisSecondary)))
+            SecondariesThatCanWake << thisSecondary;
     }
 
-    int slave = 0;
-    for (; slave < SlavesThatCanWake.count(); slave++)
+    for (const auto & thisSecondary : qAsConst(SecondariesThatCanWake))
     {
-        thisSlave = SlavesThatCanWake[slave];
         LOG(VB_SCHEDULE, LOG_NOTICE,
-            QString("Scheduler, Sending wakeup command to slave: %1")
-                .arg(thisSlave));
-        WakeUpSlave(thisSlave, false);
+            QString("Scheduler, Sending wakeup command to secondary: %1")
+                .arg(thisSecondary));
+        WakeUpSecondary(thisSecondary, false);
     }
 }
 
@@ -5423,7 +5420,7 @@ int Scheduler::FillRecordingDir(
                     {
                         QString backuppath = expire->GetPathname();
                         ProgramInfo *programinfo = expire;
-                        bool foundSlave = false;
+                        bool foundSecondary = false;
 
                         for (auto * enc : qAsConst(*m_tvList))
                         {
@@ -5431,11 +5428,11 @@ int Scheduler::FillRecordingDir(
                                 programinfo->GetHostname())
                             {
                                 enc->CheckFile(programinfo);
-                                foundSlave = true;
+                                foundSecondary = true;
                                 break;
                             }
                         }
-                        if (foundSlave &&
+                        if (foundSecondary &&
                             programinfo->GetPathname() == filename)
                         {
                             fs = *fslistit;

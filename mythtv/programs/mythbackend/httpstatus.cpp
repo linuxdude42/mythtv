@@ -50,13 +50,13 @@
 /////////////////////////////////////////////////////////////////////////////
 
 HttpStatus::HttpStatus( QMap<int, EncoderLink *> *tvList, Scheduler *sched,
-                        AutoExpire *expirer, bool bIsMaster )
+                        AutoExpire *expirer, bool bIsPrimary )
           : HttpServerExtension( "HttpStatus" , QString())
 {
     m_pEncoders = tvList;
     m_pSched    = sched;
     m_pExpirer  = expirer;
-    m_bIsMaster = bIsMaster;
+    m_bIsPrimary = bIsPrimary;
 
     m_nPreRollSeconds = gCoreContext->GetNumSetting("RecordPreRoll", 0);
 
@@ -329,15 +329,15 @@ void HttpStatus::FillStatusXML( QDomDocument *pDoc )
     if (!gCoreContext->IsPrimaryBackend())
     {
         numbes++;
-        QString masterhost = gCoreContext->GetPrimaryHostName();
-        QString masterip   = gCoreContext->GetPrimaryServerIP();
-        int masterport = gCoreContext->GetPrimaryServerStatusPort();
+        QString primaryHost = gCoreContext->GetPrimaryHostName();
+        QString primaryIP   = gCoreContext->GetPrimaryServerIP();
+        int primaryPort = gCoreContext->GetPrimaryServerStatusPort();
 
         QDomElement mbe = pDoc->createElement("Backend");
         backends.appendChild(mbe);
         mbe.setAttribute("type", "Master");
-        mbe.setAttribute("name", masterhost);
-        mbe.setAttribute("url" , masterip + ":" + QString::number(masterport));
+        mbe.setAttribute("name", primaryHost);
+        mbe.setAttribute("url" , primaryIP + ":" + QString::number(primaryPort));
     }
 
     SSDPCacheEntries *sbes = SSDP::Find(
@@ -444,7 +444,7 @@ void HttpStatus::FillStatusXML( QDomDocument *pDoc )
     QString fsID;
 
     if (m_pMainServer)
-        m_pMainServer->BackendQueryDiskSpace(strlist, true, m_bIsMaster);
+        m_pMainServer->BackendQueryDiskSpace(strlist, true, m_bIsPrimary);
 
     QDomElement total;
 

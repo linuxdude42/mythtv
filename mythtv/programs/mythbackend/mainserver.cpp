@@ -233,11 +233,11 @@ class FreeSpaceUpdater : public QRunnable
     static constexpr std::chrono::milliseconds kExitTimeout { 61s };
 };
 
-MainServer::MainServer(bool master, int port,
+MainServer::MainServer(bool primary, int port,
                        QMap<int, EncoderLink *> *_tvList,
                        Scheduler *sched, AutoExpire *_expirer) :
     m_encoderList(_tvList),
-    m_ismaster(master), m_threadPool("ProcessRequestPool"),
+    m_isPrimary(primary), m_threadPool("ProcessRequestPool"),
     m_sched(sched), m_expirer(_expirer)
 {
     PreviewGeneratorQueue::CreatePreviewGeneratorQueue(
@@ -246,7 +246,7 @@ MainServer::MainServer(bool master, int port,
 
     m_threadPool.setMaxThreadCount(PRT_STARTUP_THREAD_COUNT);
 
-    m_masterBackendOverride =
+    m_primaryBackendOverride =
         gCoreContext->GetBoolSetting("MasterBackendOverride", false);
 
     m_mythserver = new MythServer();
@@ -296,13 +296,13 @@ MainServer::MainServer(bool master, int port,
 
     gCoreContext->addListener(this);
 
-    if (!m_ismaster)
+    if (!m_isPrimary)
     {
-        m_masterServerReconnect = new QTimer(this);
-        m_masterServerReconnect->setSingleShot(true);
-        connect(m_masterServerReconnect, &QTimer::timeout,
+        m_primaryServerReconnect = new QTimer(this);
+        m_primaryServerReconnect->setSingleShot(true);
+        connect(m_primaryServerReconnect, &QTimer::timeout,
                 this, &MainServer::reconnectTimeout);
-        m_masterServerReconnect->start(kPrimaryServerReconnectTimeout);
+        m_primaryServerReconnect->start(kPrimaryServerReconnectTimeout);
     }
 
     m_deferredDeleteTimer = new QTimer(this);
@@ -339,7 +339,7 @@ MainServer::MainServer(bool master, int port,
     m_masterFreeSpaceList << "0";
     m_masterFreeSpaceList << "0";
 
-    m_masterFreeSpaceListUpdater = (master ? new FreeSpaceUpdater(*this) : nullptr);
+    m_masterFreeSpaceListUpdater = (primary ? new FreeSpaceUpdater(*this) : nullptr);
     if (m_masterFreeSpaceListUpdater)
     {
         MThreadPool::globalInstance()->startReserved(
@@ -655,7 +655,7 @@ void MainServer::ProcessRequestWork(MythSocket *sock)
     else if (command == "ADD_CHILD_INPUT")
     {
         QStringList reslist;
-        if (m_ismaster)
+        if (m_isPrimary)
         {
             LOG(VB_GENERAL, LOG_ERR, LOC +
                 "ADD_CHILD_INPUT command received in master context");
@@ -1046,7 +1046,7 @@ void MainServer::ProcessRequestWork(MythSocket *sock)
     {
         if (tokens.size() != 1)
             SendErrorResponse(pbs, "Bad SHUTDOWN_NOW query");
-        else if (!m_ismaster)
+        else if (!m_isPrimary)
         {
             QString halt_cmd;
             if (listline.size() >= 2)
@@ -1419,10 +1419,10 @@ void MainServer::customEvent(QEvent *e)
 #else
             QStringList tokens = me->Message().split(" ", Qt::SkipEmptyParts);
 #endif
-            if (!m_ismaster)
+            if (!m_isPrimary)
             {
                 LOG(VB_GENERAL, LOG_ERR, LOC +
-                    "ADD_CHILD_INPUT event received in slave context");
+                    "ADD_CHILD_INPUT event received in secondary context");
             }
             else if (tokens.size() != 2)
             {
@@ -1501,10 +1501,10 @@ void MainServer::customEvent(QEvent *e)
             m_sched->ResetIdleTime();
 
         if (me->Message() == "LOCAL_RECONNECT_TO_MASTER")
-            m_masterServerReconnect->start(kPrimaryServerReconnectTimeout);
+            m_primaryServerReconnect->start(kPrimaryServerReconnectTimeout);
 
         if (me->Message() == "LOCAL_SLAVE_BACKEND_ENCODERS_OFFLINE")
-            HandleSlaveDisconnectedEvent(*me);
+            HandleSecondaryDisconnectedEvent(*me);
 
         if (me->Message().startsWith("LOCAL_"))
             return;
@@ -1590,7 +1590,7 @@ void MainServer::customEvent(QEvent *e)
         m_sockListLock.unlock();
 
         bool sendGlobal = false;
-        if (m_ismaster && broadcast[1].startsWith("GLOBAL_"))
+        if (m_isPrimary && broadcast[1].startsWith("GLOBAL_"))
         {
             broadcast[1].replace("GLOBAL_", "LOCAL_");
             MythEvent me(broadcast[1], broadcast[2]);
@@ -1621,13 +1621,13 @@ void MainServer::customEvent(QEvent *e)
 
             if (broadcast[1] == "CLEAR_SETTINGS_CACHE")
             {
-                if ((m_ismaster) &&
-                    (pbs->isSlaveBackend() || pbs->wantsEvents()))
+                if ((m_isPrimary) &&
+                    (pbs->isSecondaryBackend() || pbs->wantsEvents()))
                     reallysendit = true;
             }
             else if (sendGlobal)
             {
-                if (pbs->isSlaveBackend())
+                if (pbs->isSecondaryBackend())
                     reallysendit = true;
             }
             else if (pbs->wantsEvents())
@@ -1878,14 +1878,14 @@ void MainServer::HandleAnnounce(QStringList &slist, QStringList commands,
         lock.unlock();
 
         LOG(VB_GENERAL, LOG_INFO, LOC +
-            QString("adding: %1 as a slave backend server")
+            QString("adding: %1 as a secondary backend server")
                                .arg(commands[2]));
-        pbs->setAsSlaveBackend();
+        pbs->setAsSecondaryBackend();
         pbs->setIP(commands[3]);
 
         if (m_sched)
         {
-            RecordingList slavelist;
+            RecordingList secondaryList;
             QStringList::const_iterator sit = slist.cbegin()+1;
             while (sit != slist.cend())
             {
@@ -1895,9 +1895,9 @@ void MainServer::HandleAnnounce(QStringList &slist, QStringList commands,
                     delete recinfo;
                     break;
                 }
-                slavelist.push_back(recinfo);
+                secondaryList.push_back(recinfo);
             }
-            m_sched->SlaveConnected(slavelist);
+            m_sched->SecondaryConnected(secondaryList);
         }
 
         bool wasAsleep = true;
@@ -1914,7 +1914,7 @@ void MainServer::HandleAnnounce(QStringList &slist, QStringList commands,
         TVRec::s_inputsLock.unlock();
 
         if (!wasAsleep && m_sched)
-            m_sched->ReschedulePlace("SlaveConnected");
+            m_sched->ReschedulePlace("SecondaryConnected");
 
         QString message = QString("LOCAL_SLAVE_BACKEND_ONLINE %2")
                                   .arg(commands[2]);
@@ -2202,13 +2202,13 @@ void MainServer::HandleQueryRecordings(const QString& type, PlaybackSock *pbs)
 
     for (auto* proginfo : destination)
     {
-        PlaybackSock *slave = nullptr;
+        PlaybackSock *secondary = nullptr;
 
         if (proginfo->GetHostname() != gCoreContext->GetHostName())
-            slave = GetSlaveByHostname(proginfo->GetHostname());
+            secondary = GetSecondaryByHostname(proginfo->GetHostname());
 
         if ((proginfo->GetHostname() == gCoreContext->GetHostName()) ||
-            (!slave && m_masterBackendOverride))
+            (!secondary && m_primaryBackendOverride))
         {
             proginfo->SetPathname(MythCoreContext::GenMythURL(host,port,
                                                               proginfo->GetBasename()));
@@ -2230,7 +2230,7 @@ void MainServer::HandleQueryRecordings(const QString& type, PlaybackSock *pbs)
                 }
             }
         }
-        else if (!slave)
+        else if (!secondary)
         {
             proginfo->SetPathname(GetPlaybackURL(proginfo));
             if (proginfo->GetPathname().isEmpty())
@@ -2248,7 +2248,7 @@ void MainServer::HandleQueryRecordings(const QString& type, PlaybackSock *pbs)
         {
             if (!proginfo->GetFilesize())
             {
-                if (!slave->FillProgramInfo(*proginfo, playbackhost))
+                if (!secondary->FillProgramInfo(*proginfo, playbackhost))
                 {
                     LOG(VB_GENERAL, LOG_ERR, LOC +
                         "MainServer::HandleQueryRecordings()"
@@ -2278,8 +2278,8 @@ void MainServer::HandleQueryRecordings(const QString& type, PlaybackSock *pbs)
             }
         }
 
-        if (slave)
-            slave->DecrRef();
+        if (secondary)
+            secondary->DecrRef();
 
         proginfo->ToStringList(outputlist);
     }
@@ -2834,13 +2834,13 @@ void MainServer::HandleCheckRecordingActive(QStringList &slist,
 
     int result = 0;
 
-    if (m_ismaster && pginfo.GetHostname() != gCoreContext->GetHostName())
+    if (m_isPrimary && pginfo.GetHostname() != gCoreContext->GetHostName())
     {
-        PlaybackSock *slave = GetSlaveByHostname(pginfo.GetHostname());
-        if (slave)
+        PlaybackSock *secondary = GetSecondaryByHostname(pginfo.GetHostname());
+        if (secondary)
         {
-            result = slave->CheckRecordingActive(&pginfo);
-            slave->DecrRef();
+            result = secondary->CheckRecordingActive(&pginfo);
+            secondary->DecrRef();
         }
     }
     else
@@ -2867,13 +2867,13 @@ void MainServer::HandleStopRecording(QStringList &slist, PlaybackSock *pbs)
     RecordingInfo recinfo(it, slist.cend());
     if (recinfo.GetChanID())
     {
-        if (m_ismaster)
+        if (m_isPrimary)
         {
             // Stop recording may have been called for the same program on
             // different channel in the guide, we need to find the actual channel
             // that the recording is occurring on. This only needs doing once
-            // on the master backend, as the correct chanid will then be sent
-            // to the slave
+            // on the primamry backend, as the correct chanid will then be sent
+            // to the secondary
             ProgramList schedList;
             bool hasConflicts = false;
             LoadFromScheduler(schedList, hasConflicts);
@@ -2905,13 +2905,13 @@ void MainServer::DoHandleStopRecording(
     // change than I care to make during the 0.25 code freeze.
     recinfo.SetRecordingStatus(RecStatus::Unknown);
 
-    if (m_ismaster && recinfo.GetHostname() != gCoreContext->GetHostName())
+    if (m_isPrimary && recinfo.GetHostname() != gCoreContext->GetHostName())
     {
-        PlaybackSock *slave = GetSlaveByHostname(recinfo.GetHostname());
+        PlaybackSock *secondary = GetSecondaryByHostname(recinfo.GetHostname());
 
-        if (slave)
+        if (secondary)
         {
-            int num = slave->StopRecording(&recinfo);
+            int num = secondary->StopRecording(&recinfo);
 
             if (num > 0)
             {
@@ -2930,13 +2930,13 @@ void MainServer::DoHandleStopRecording(
                 SendResponse(pbssock, outputlist);
             }
 
-            slave->DecrRef();
+            secondary->DecrRef();
             return;
         }
 
-        // If the slave is unreachable, we can assume that the
+        // If the secondary is unreachable, we can assume that the
         // recording has stopped and the status should be updated.
-        // Continue so that the master can try to update the endtime
+        // Continue so that the primary can try to update the endtime
         // of the file is in a shared directory.
         if (m_sched)
             m_sched->UpdateRecStatus(&recinfo);
@@ -2961,7 +2961,7 @@ void MainServer::DoHandleStopRecording(
                 std::this_thread::sleep_for(100us);
             }
 
-            if (m_ismaster)
+            if (m_isPrimary)
             {
                 if (m_sched)
                     m_sched->UpdateRecStatus(&recinfo);
@@ -3073,13 +3073,13 @@ void MainServer::DoHandleDeleteRecording(
 
     // If this recording was made by a another recorder, and that
     // recorder is available, tell it to do the deletion.
-    if (m_ismaster && recinfo.GetHostname() != gCoreContext->GetHostName())
+    if (m_isPrimary && recinfo.GetHostname() != gCoreContext->GetHostName())
     {
-        PlaybackSock *slave = GetSlaveByHostname(recinfo.GetHostname());
+        PlaybackSock *secondary = GetSecondaryByHostname(recinfo.GetHostname());
 
-        if (slave)
+        if (secondary)
         {
-            int num = slave->DeleteRecording(&recinfo, forceMetadataDelete);
+            int num = secondary->DeleteRecording(&recinfo, forceMetadataDelete);
 
             if (forgetHistory)
                 recinfo.ForgetHistory();
@@ -3094,7 +3094,7 @@ void MainServer::DoHandleDeleteRecording(
                 SendResponse(pbssock, outputlist);
             }
 
-            slave->DecrRef();
+            secondary->DecrRef();
             return;
         }
     }
@@ -3274,7 +3274,7 @@ bool MainServer::HandleAddChildInput(uint inputid)
 
     TVRec::s_inputsLock.lockForWrite();
 
-    if (m_ismaster)
+    if (m_isPrimary)
     {
         // First, add the new input to the database.
         uint childid = CardUtil::AddChildInput(inputid);
@@ -3291,7 +3291,7 @@ bool MainServer::HandleAddChildInput(uint inputid)
         LOG(VB_GENERAL, LOG_INFO, LOC +
             QString("HandleAddChildInput: Added child input %1").arg(childid));
 
-        // Next, create the master TVRec and/or EncoderLink.
+        // Next, create the primary TVRec and/or EncoderLink.
         QString localhostname = gCoreContext->GetHostName();
         QString hostname = CardUtil::GetHostname(childid);
 
@@ -3338,7 +3338,7 @@ bool MainServer::HandleAddChildInput(uint inputid)
     }
     else
     {
-        // Create the slave TVRec and EncoderLink.
+        // Create the secondary TVRec and EncoderLink.
         auto *tv = new TVRec(inputid);
         if (!tv || !tv->Init())
         {
@@ -3385,7 +3385,7 @@ void MainServer::HandleForgetRecording(QStringList &slist, PlaybackSock *pbs)
 /**
  * \addtogroup myth_network_protocol
  * \par        GO_TO_SLEEP
- * Commands a slave to go to sleep
+ * Commands a secondary to go to sleep
  */
 void MainServer::HandleGoToSleep(PlaybackSock *pbs)
 {
@@ -3397,7 +3397,7 @@ void MainServer::HandleGoToSleep(PlaybackSock *pbs)
         strlist << "OK";
         SendResponse(pbs->getSocket(), strlist);
         LOG(VB_GENERAL, LOG_NOTICE, LOC +
-            "Received GO_TO_SLEEP command from master, running SleepCommand.");
+            "Received GO_TO_SLEEP command from primary, running SleepCommand.");
         myth_system(sleepCmd);
     }
     else
@@ -3607,23 +3607,23 @@ void MainServer::HandleQueryTimeZone(PlaybackSock *pbs)
 void MainServer::HandleQueryCheckFile(QStringList &slist, PlaybackSock *pbs)
 {
     MythSocket *pbssock = pbs->getSocket();
-    bool checkSlaves = slist[1].toInt() != 0;
+    bool checkSecondaries = slist[1].toInt() != 0;
 
     QStringList::const_iterator it = slist.cbegin() + 2;
     RecordingInfo recinfo(it, slist.cend());
 
     bool exists = false;
 
-    if (recinfo.HasPathname() && (m_ismaster) &&
+    if (recinfo.HasPathname() && (m_isPrimary) &&
         (recinfo.GetHostname() != gCoreContext->GetHostName()) &&
-        (checkSlaves))
+        (checkSecondaries))
     {
-        PlaybackSock *slave = GetMediaServerByHostname(recinfo.GetHostname());
+        PlaybackSock *secondary = GetMediaServerByHostname(recinfo.GetHostname());
 
-        if (slave)
+        if (secondary)
         {
-            exists = slave->CheckFile(&recinfo);
-            slave->DecrRef();
+            exists = secondary->CheckFile(&recinfo);
+            secondary->DecrRef();
 
             QStringList outputlist( QString::number(static_cast<int>(exists)) );
             if (exists)
@@ -3703,11 +3703,11 @@ void MainServer::HandleQueryFileHash(QStringList &slist, PlaybackSock *pbs)
     }
     else
     {
-        PlaybackSock *slave = GetMediaServerByHostname(hostname);
-        if (slave)
+        PlaybackSock *secondary = GetMediaServerByHostname(hostname);
+        if (secondary)
         {
-            hash = slave->GetFileHash(filename, storageGroup);
-            slave->DecrRef();
+            hash = secondary->GetFileHash(filename, storageGroup);
+            secondary->DecrRef();
         }
         // I deleted the incorrect SQL select that was supposed to get
         // host name from ip address. Since it cannot work and has
@@ -3935,7 +3935,7 @@ void MainServer::HandleSGGetFileList(QStringList &sList,
     if (sList.size() >= 5)
         fileNamesOnly = (sList.at(4).toInt() != 0);
 
-    bool slaveUnreachable = false;
+    bool secondaryUnreachable = false;
 
     LOG(VB_FILE, LOG_INFO,  LOC +
         QString("HandleSGGetFileList: group = %1  host = %2 "
@@ -3956,27 +3956,27 @@ void MainServer::HandleSGGetFileList(QStringList &sList,
     }
     else
     {
-        PlaybackSock *slave = GetMediaServerByHostname(wantHost);
-        if (slave)
+        PlaybackSock *secondary = GetMediaServerByHostname(wantHost);
+        if (secondary)
         {
             LOG(VB_FILE, LOG_INFO, LOC +
                 "HandleSGGetFileList: Getting remote info");
-            strList = slave->GetSGFileList(wantHost, groupname, path,
+            strList = secondary->GetSGFileList(wantHost, groupname, path,
                                            fileNamesOnly);
-            slave->DecrRef();
-            slaveUnreachable = false;
+            secondary->DecrRef();
+            secondaryUnreachable = false;
         }
         else
         {
             LOG(VB_FILE, LOG_INFO, LOC +
-                QString("HandleSGGetFileList: Failed to grab slave socket "
+                QString("HandleSGGetFileList: Failed to grab secondary socket "
                         ": %1 :").arg(wantHost));
-            slaveUnreachable = true;
+            secondaryUnreachable = true;
         }
 
     }
 
-    if (slaveUnreachable)
+    if (secondaryUnreachable)
         strList << "SLAVE UNREACHABLE: " << host;
 
     if (strList.isEmpty() || (strList.at(0) == "0"))
@@ -4074,29 +4074,29 @@ void MainServer::HandleQueryFindFile(QStringList &slist, PlaybackSock *pbs)
     {
         LOG(VB_FILE, LOG_INFO, LOC + QString("Checking remote host '%1' for file").arg(hostname));
 
-        // check the given slave hostname
-        PlaybackSock *slave = GetMediaServerByHostname(hostname);
-        if (slave)
+        // check the given secondary hostname
+        PlaybackSock *secondary = GetMediaServerByHostname(hostname);
+        if (secondary)
         {
-            QStringList slaveFiles = slave->GetFindFile(hostname, filename, storageGroup, useRegex);
+            QStringList secondaryFiles = secondary->GetFindFile(hostname, filename, storageGroup, useRegex);
 
-            if (!slaveFiles.isEmpty() && slaveFiles[0] != "NOT FOUND" && !slaveFiles[0].startsWith("ERROR: "))
-                fileList += slaveFiles;
+            if (!secondaryFiles.isEmpty() && secondaryFiles[0] != "NOT FOUND" && !secondaryFiles[0].startsWith("ERROR: "))
+                fileList += secondaryFiles;
 
-            slave->DecrRef();
+            secondary->DecrRef();
         }
         else
         {
-            LOG(VB_FILE, LOG_INFO, LOC + QString("Slave '%1' was unreachable").arg(hostname));
+            LOG(VB_FILE, LOG_INFO, LOC + QString("Secondary '%1' was unreachable").arg(hostname));
             fileList << QString("ERROR: SLAVE UNREACHABLE: %1").arg(hostname);
             SendResponse(pbs->getSocket(), fileList);
             return;
         }
     }
 
-    // if we still haven't found it and this is the master and fallback is enabled
-    // check all other slaves that have a directory in the storagegroup
-    if (m_ismaster && fileList.isEmpty() && allowFallback)
+    // if we still haven't found it and this is the primary and fallback is enabled
+    // check all other secondaries that have a directory in the storagegroup
+    if (m_isPrimary && fileList.isEmpty() && allowFallback)
     {
         // get a list of hosts
         MSqlQuery query(MSqlQuery::InitCon());
@@ -4161,15 +4161,15 @@ void MainServer::HandleQueryFindFile(QStringList &slist, PlaybackSock *pbs)
             }
             else
             {
-                // check the slave host
-                PlaybackSock *slave = GetMediaServerByHostname(hostname);
-                if (slave)
+                // check the secondary host
+                PlaybackSock *secondary = GetMediaServerByHostname(hostname);
+                if (secondary)
                 {
-                    QStringList slaveFiles = slave->GetFindFile(hostname, filename, storageGroup, useRegex);
-                    if (!slaveFiles.isEmpty() && slaveFiles[0] != "NOT FOUND" && !slaveFiles[0].startsWith("ERROR: "))
-                        fileList += slaveFiles;
+                    QStringList secondaryFiles = secondary->GetFindFile(hostname, filename, storageGroup, useRegex);
+                    if (!secondaryFiles.isEmpty() && secondaryFiles[0] != "NOT FOUND" && !secondaryFiles[0].startsWith("ERROR: "))
+                        fileList += secondaryFiles;
 
-                    slave->DecrRef();
+                    secondary->DecrRef();
                 }
             }
 
@@ -4223,7 +4223,7 @@ void MainServer::HandleSGFileQuery(QStringList &sList,
         allowFallback = (sList.at(4).toInt() > 0);
     LOG(VB_FILE, LOG_ERR, QString("HandleSGFileQuery - allowFallback: %1").arg(allowFallback));
 
-    bool slaveUnreachable = false;
+    bool secondaryUnreachable = false;
 
     LOG(VB_FILE, LOG_INFO, LOC + QString("HandleSGFileQuery: %1")
             .arg(gCoreContext->GenMythURL(wantHost, 0, filename, groupname)));
@@ -4239,26 +4239,26 @@ void MainServer::HandleSGFileQuery(QStringList &sList,
     }
     else
     {
-        PlaybackSock *slave = GetMediaServerByHostname(wantHost);
-        if (slave)
+        PlaybackSock *secondary = GetMediaServerByHostname(wantHost);
+        if (secondary)
         {
             LOG(VB_FILE, LOG_INFO, LOC +
                 "HandleSGFileQuery: Getting remote info");
-            strList = slave->GetSGFileQuery(wantHost, groupname, filename);
-            slave->DecrRef();
-            slaveUnreachable = false;
+            strList = secondary->GetSGFileQuery(wantHost, groupname, filename);
+            secondary->DecrRef();
+            secondaryUnreachable = false;
         }
         else
         {
             LOG(VB_FILE, LOG_INFO, LOC +
-                QString("HandleSGFileQuery: Failed to grab slave socket : %1 :")
+                QString("HandleSGFileQuery: Failed to grab secondary socket : %1 :")
                     .arg(wantHost));
-            slaveUnreachable = true;
+            secondaryUnreachable = true;
         }
 
     }
 
-    if (slaveUnreachable)
+    if (secondaryUnreachable)
         strList << "SLAVE UNREACHABLE: " << wantHost;
 
     if (strList.count() == 0 || (strList.at(0) == "0"))
@@ -5096,11 +5096,11 @@ void MainServer::HandleIsActiveBackendQuery(const QStringList &slist,
 
     if (gCoreContext->GetHostName() != queryhostname)
     {
-        PlaybackSock *slave = GetSlaveByHostname(queryhostname);
-        if (slave != nullptr)
+        PlaybackSock *secondary = GetSecondaryByHostname(queryhostname);
+        if (secondary != nullptr)
         {
             retlist << "TRUE";
-            slave->DecrRef();
+            secondary->DecrRef();
         }
         else
             retlist << "FALSE";
@@ -5899,7 +5899,7 @@ void MainServer::HandleScanMusic(const QStringList &slist, PlaybackSock *pbs)
 
     QStringList strlist;
 
-    if (m_ismaster)
+    if (m_isPrimary)
     {
         // get a list of hosts with a directory defined for the 'Music' storage group
         MSqlQuery query(MSqlQuery::InitCon());
@@ -5916,9 +5916,9 @@ void MainServer::HandleScanMusic(const QStringList &slist, PlaybackSock *pbs)
 
                 if (hostname == gCoreContext->GetHostName())
                 {
-                    // this is the master BE with a music storage group directory defined so run the file scanner
+                    // this is the primary BE with a music storage group directory defined so run the file scanner
                     LOG(VB_GENERAL, LOG_INFO, LOC +
-                        QString("HandleScanMusic: running filescanner on master BE '%1'").arg(hostname));
+                        QString("HandleScanMusic: running filescanner on primary BE '%1'").arg(hostname));
                     QScopedPointer<MythSystem> cmd(MythSystem::Create(GetAppBinDir() + "mythutil --scanmusic",
                                                                       kMSAutoCleanup | kMSRunBackground |
                                                                       kMSDontDisableDrawing | kMSProcessEvents |
@@ -5926,19 +5926,19 @@ void MainServer::HandleScanMusic(const QStringList &slist, PlaybackSock *pbs)
                 }
                 else
                 {
-                    // found a slave BE so ask it to run the file scanner
-                    PlaybackSock *slave = GetMediaServerByHostname(hostname);
-                    if (slave)
+                    // found a secondary BE so ask it to run the file scanner
+                    PlaybackSock *secondary = GetMediaServerByHostname(hostname);
+                    if (secondary)
                     {
                         LOG(VB_GENERAL, LOG_INFO, LOC +
-                            QString("HandleScanMusic: asking slave '%1' to run file scanner").arg(hostname));
-                        slave->ForwardRequest(slist);
-                        slave->DecrRef();
+                            QString("HandleScanMusic: asking secondary '%1' to run file scanner").arg(hostname));
+                        secondary->ForwardRequest(slist);
+                        secondary->DecrRef();
                     }
                     else
                     {
                         LOG(VB_GENERAL, LOG_INFO, LOC +
-                            QString("HandleScanMusic: Failed to grab slave socket on '%1'").arg(hostname));
+                            QString("HandleScanMusic: Failed to grab secondary socket on '%1'").arg(hostname));
                     }
                 }
             }
@@ -5946,9 +5946,9 @@ void MainServer::HandleScanMusic(const QStringList &slist, PlaybackSock *pbs)
     }
     else
     {
-        // must be a slave with a music storage group directory defined so run the file scanner
+        // must be a secondary with a music storage group directory defined so run the file scanner
         LOG(VB_GENERAL, LOG_INFO,  LOC +
-            QString("HandleScanMusic: running filescanner on slave BE '%1'")
+            QString("HandleScanMusic: running filescanner on secondary BE '%1'")
                 .arg(gCoreContext->GetHostName()));
         QScopedPointer<MythSystem> cmd(MythSystem::Create(GetAppBinDir() + "mythutil --scanmusic",
                                                           kMSAutoCleanup | kMSRunBackground |
@@ -5972,16 +5972,16 @@ void MainServer::HandleMusicTagUpdateVolatile(const QStringList &slist, Playback
 
     QString hostname = slist[1];
 
-    if (m_ismaster && !gCoreContext->IsThisHost(hostname))
+    if (m_isPrimary && !gCoreContext->IsThisHost(hostname))
     {
-        // forward the request to the slave BE
-        PlaybackSock *slave = GetMediaServerByHostname(hostname);
-        if (slave)
+        // forward the request to the secondary BE
+        PlaybackSock *secondary = GetMediaServerByHostname(hostname);
+        if (secondary)
         {
             LOG(VB_GENERAL, LOG_INFO, LOC +
-                QString("HandleMusicTagUpdateVolatile: asking slave '%1' to update the metadata").arg(hostname));
-            strlist = slave->ForwardRequest(slist);
-            slave->DecrRef();
+                QString("HandleMusicTagUpdateVolatile: asking secondary '%1' to update the metadata").arg(hostname));
+            strlist = secondary->ForwardRequest(slist);
+            secondary->DecrRef();
 
             if (pbssock)
                 SendResponse(pbssock, strlist);
@@ -5990,7 +5990,7 @@ void MainServer::HandleMusicTagUpdateVolatile(const QStringList &slist, Playback
         }
 
         LOG(VB_GENERAL, LOG_INFO, LOC +
-            QString("HandleMusicTagUpdateVolatile: Failed to grab slave socket on '%1'").arg(hostname));
+            QString("HandleMusicTagUpdateVolatile: Failed to grab secondary socket on '%1'").arg(hostname));
 
         strlist << "ERROR: slave not found";
 
@@ -6032,16 +6032,16 @@ void MainServer::HandleMusicCalcTrackLen(const QStringList &slist, PlaybackSock 
 
     QString hostname = slist[1];
 
-    if (m_ismaster && !gCoreContext->IsThisHost(hostname))
+    if (m_isPrimary && !gCoreContext->IsThisHost(hostname))
     {
-        // forward the request to the slave BE
-        PlaybackSock *slave = GetMediaServerByHostname(hostname);
-        if (slave)
+        // forward the request to the secondary BE
+        PlaybackSock *secondary = GetMediaServerByHostname(hostname);
+        if (secondary)
         {
             LOG(VB_GENERAL, LOG_INFO, LOC +
-                QString("HandleMusicCalcTrackLen: asking slave '%1' to update the track length").arg(hostname));
-            strlist = slave->ForwardRequest(slist);
-            slave->DecrRef();
+                QString("HandleMusicCalcTrackLen: asking secondary '%1' to update the track length").arg(hostname));
+            strlist = secondary->ForwardRequest(slist);
+            secondary->DecrRef();
 
             if (pbssock)
                 SendResponse(pbssock, strlist);
@@ -6050,7 +6050,7 @@ void MainServer::HandleMusicCalcTrackLen(const QStringList &slist, PlaybackSock 
         }
 
         LOG(VB_GENERAL, LOG_INFO, LOC +
-            QString("HandleMusicCalcTrackLen: Failed to grab slave socket on '%1'").arg(hostname));
+            QString("HandleMusicCalcTrackLen: Failed to grab secondary socket on '%1'").arg(hostname));
 
         strlist << "ERROR: slave not found";
 
@@ -6090,17 +6090,17 @@ void MainServer::HandleMusicTagUpdateMetadata(const QStringList &slist, Playback
 
     QString hostname = slist[1];
 
-    if (m_ismaster && !gCoreContext->IsThisHost(hostname))
+    if (m_isPrimary && !gCoreContext->IsThisHost(hostname))
     {
-        // forward the request to the slave BE
-        PlaybackSock *slave = GetMediaServerByHostname(hostname);
-        if (slave)
+        // forward the request to the secondary BE
+        PlaybackSock *secondary = GetMediaServerByHostname(hostname);
+        if (secondary)
         {
             LOG(VB_GENERAL, LOG_INFO, LOC +
-                QString("HandleMusicTagUpdateMetadata: asking slave '%1' "
+                QString("HandleMusicTagUpdateMetadata: asking secondary '%1' "
                         "to update the metadata").arg(hostname));
-            strlist = slave->ForwardRequest(slist);
-            slave->DecrRef();
+            strlist = secondary->ForwardRequest(slist);
+            secondary->DecrRef();
 
             if (pbssock)
                 SendResponse(pbssock, strlist);
@@ -6110,7 +6110,7 @@ void MainServer::HandleMusicTagUpdateMetadata(const QStringList &slist, Playback
 
         LOG(VB_GENERAL, LOG_INFO, LOC +
             QString("HandleMusicTagUpdateMetadata: Failed to grab "
-                    "slave socket on '%1'").arg(hostname));
+                    "secondary socket on '%1'").arg(hostname));
 
         strlist << "ERROR: slave not found";
 
@@ -6176,17 +6176,17 @@ void MainServer::HandleMusicFindAlbumArt(const QStringList &slist, PlaybackSock 
 
     QString hostname = slist[1];
 
-    if (m_ismaster && !gCoreContext->IsThisHost(hostname))
+    if (m_isPrimary && !gCoreContext->IsThisHost(hostname))
     {
-        // forward the request to the slave BE
-        PlaybackSock *slave = GetMediaServerByHostname(hostname);
-        if (slave)
+        // forward the request to the secondary BE
+        PlaybackSock *secondary = GetMediaServerByHostname(hostname);
+        if (secondary)
         {
             LOG(VB_GENERAL, LOG_INFO, LOC +
-                QString("HandleMusicFindAlbumArt: asking slave '%1' "
+                QString("HandleMusicFindAlbumArt: asking secondary '%1' "
                         "to update the albumart").arg(hostname));
-            strlist = slave->ForwardRequest(slist);
-            slave->DecrRef();
+            strlist = secondary->ForwardRequest(slist);
+            secondary->DecrRef();
 
             if (pbssock)
                 SendResponse(pbssock, strlist);
@@ -6196,7 +6196,7 @@ void MainServer::HandleMusicFindAlbumArt(const QStringList &slist, PlaybackSock 
 
         LOG(VB_GENERAL, LOG_INFO, LOC +
             QString("HandleMusicFindAlbumArt: Failed to grab "
-                    "slave socket on '%1'").arg(hostname));
+                    "secondary socket on '%1'").arg(hostname));
 
         strlist << "ERROR: slave not found";
 
@@ -6330,17 +6330,17 @@ void MainServer::HandleMusicTagGetImage(const QStringList &slist, PlaybackSock *
     QString songid = slist[2];
     QString imagetype = slist[3];
 
-    if (m_ismaster && !gCoreContext->IsThisHost(hostname))
+    if (m_isPrimary && !gCoreContext->IsThisHost(hostname))
     {
-        // forward the request to the slave BE
-        PlaybackSock *slave = GetMediaServerByHostname(hostname);
-        if (slave)
+        // forward the request to the secondary BE
+        PlaybackSock *secondary = GetMediaServerByHostname(hostname);
+        if (secondary)
         {
             LOG(VB_GENERAL, LOG_INFO, LOC +
-                QString("HandleMusicTagGetImage: asking slave '%1' to "
+                QString("HandleMusicTagGetImage: asking secondary '%1' to "
                         "extract the image").arg(hostname));
-            strlist = slave->ForwardRequest(slist);
-            slave->DecrRef();
+            strlist = secondary->ForwardRequest(slist);
+            secondary->DecrRef();
 
             if (pbssock)
                 SendResponse(pbssock, strlist);
@@ -6349,7 +6349,7 @@ void MainServer::HandleMusicTagGetImage(const QStringList &slist, PlaybackSock *
         }
 
         LOG(VB_GENERAL, LOG_INFO, LOC +
-            QString("HandleMusicTagGetImage: Failed to grab slave "
+            QString("HandleMusicTagGetImage: Failed to grab secondary "
                     "socket on '%1'").arg(hostname));
     }
     else
@@ -6382,17 +6382,17 @@ void MainServer::HandleMusicTagChangeImage(const QStringList &slist, PlaybackSoc
 
     QString hostname = slist[1];
 
-    if (m_ismaster && !gCoreContext->IsThisHost(hostname))
+    if (m_isPrimary && !gCoreContext->IsThisHost(hostname))
     {
-        // forward the request to the slave BE
-        PlaybackSock *slave = GetMediaServerByHostname(hostname);
-        if (slave)
+        // forward the request to the secondary BE
+        PlaybackSock *secondary = GetMediaServerByHostname(hostname);
+        if (secondary)
         {
             LOG(VB_GENERAL, LOG_INFO, LOC +
-                QString("HandleMusicTagChangeImage: asking slave '%1' "
+                QString("HandleMusicTagChangeImage: asking secondary '%1' "
                         "to update the metadata").arg(hostname));
-            strlist = slave->ForwardRequest(slist);
-            slave->DecrRef();
+            strlist = secondary->ForwardRequest(slist);
+            secondary->DecrRef();
 
             if (pbssock)
                 SendResponse(pbssock, strlist);
@@ -6402,7 +6402,7 @@ void MainServer::HandleMusicTagChangeImage(const QStringList &slist, PlaybackSoc
 
         LOG(VB_GENERAL, LOG_INFO, LOC +
             QString("HandleMusicTagChangeImage: Failed to grab "
-                    "slave socket on '%1'").arg(hostname));
+                    "secondary socket on '%1'").arg(hostname));
 
         strlist << "ERROR: slave not found";
 
@@ -6549,17 +6549,17 @@ void MainServer::HandleMusicTagAddImage(const QStringList& slist, PlaybackSock* 
 
     QString hostname = slist[1];
 
-    if (m_ismaster && !gCoreContext->IsThisHost(hostname))
+    if (m_isPrimary && !gCoreContext->IsThisHost(hostname))
     {
-        // forward the request to the slave BE
-        PlaybackSock *slave = GetMediaServerByHostname(hostname);
-        if (slave)
+        // forward the request to the secondary BE
+        PlaybackSock *secondary = GetMediaServerByHostname(hostname);
+        if (secondary)
         {
             LOG(VB_GENERAL, LOG_INFO, LOC +
-                QString("HandleMusicTagAddImage: asking slave '%1' "
+                QString("HandleMusicTagAddImage: asking secondary '%1' "
                         "to add the image").arg(hostname));
-            strlist = slave->ForwardRequest(slist);
-            slave->DecrRef();
+            strlist = secondary->ForwardRequest(slist);
+            secondary->DecrRef();
 
             if (pbssock)
                 SendResponse(pbssock, strlist);
@@ -6569,7 +6569,7 @@ void MainServer::HandleMusicTagAddImage(const QStringList& slist, PlaybackSock* 
 
         LOG(VB_GENERAL, LOG_INFO, LOC +
             QString("HandleMusicTagAddImage: Failed to grab "
-                    "slave socket on '%1'").arg(hostname));
+                    "secondary socket on '%1'").arg(hostname));
 
         strlist << "ERROR: slave not found";
 
@@ -6704,17 +6704,17 @@ void MainServer::HandleMusicTagRemoveImage(const QStringList& slist, PlaybackSoc
 
     QString hostname = slist[1];
 
-    if (m_ismaster && !gCoreContext->IsThisHost(hostname))
+    if (m_isPrimary && !gCoreContext->IsThisHost(hostname))
     {
-        // forward the request to the slave BE
-        PlaybackSock *slave = GetMediaServerByHostname(hostname);
-        if (slave)
+        // forward the request to the secondary BE
+        PlaybackSock *secondary = GetMediaServerByHostname(hostname);
+        if (secondary)
         {
             LOG(VB_GENERAL, LOG_INFO, LOC +
-                QString("HandleMusicTagRemoveImage: asking slave '%1' "
+                QString("HandleMusicTagRemoveImage: asking secondary '%1' "
                         "to remove the image").arg(hostname));
-            strlist = slave->ForwardRequest(slist);
-            slave->DecrRef();
+            strlist = secondary->ForwardRequest(slist);
+            secondary->DecrRef();
 
             if (pbssock)
                 SendResponse(pbssock, strlist);
@@ -6724,7 +6724,7 @@ void MainServer::HandleMusicTagRemoveImage(const QStringList& slist, PlaybackSoc
 
         LOG(VB_GENERAL, LOG_INFO, LOC +
             QString("HandleMusicTagRemoveImage: Failed to grab "
-                    "slave socket on '%1'").arg(hostname));
+                    "secondary socket on '%1'").arg(hostname));
 
         strlist << "ERROR: slave not found";
 
@@ -6843,17 +6843,17 @@ void MainServer::HandleMusicFindLyrics(const QStringList &slist, PlaybackSock *p
         title = slist[6];
     }
 
-    if (m_ismaster && !gCoreContext->IsThisHost(hostname))
+    if (m_isPrimary && !gCoreContext->IsThisHost(hostname))
     {
-        // forward the request to the slave BE
-        PlaybackSock *slave = GetMediaServerByHostname(hostname);
-        if (slave)
+        // forward the request to the secondary BE
+        PlaybackSock *secondary = GetMediaServerByHostname(hostname);
+        if (secondary)
         {
             LOG(VB_GENERAL, LOG_INFO, LOC +
-                QString("HandleMusicFindLyrics: asking slave '%1' to "
+                QString("HandleMusicFindLyrics: asking secondary '%1' to "
                         "find lyrics").arg(hostname));
-            strlist = slave->ForwardRequest(slist);
-            slave->DecrRef();
+            strlist = secondary->ForwardRequest(slist);
+            secondary->DecrRef();
 
             if (pbssock)
                 SendResponse(pbssock, strlist);
@@ -6862,7 +6862,7 @@ void MainServer::HandleMusicFindLyrics(const QStringList &slist, PlaybackSock *p
         }
 
         LOG(VB_GENERAL, LOG_INFO, LOC +
-            QString("HandleMusicFindLyrics: Failed to grab slave "
+            QString("HandleMusicFindLyrics: Failed to grab secondary "
                     "socket on '%1'").arg(hostname));
     }
     else
@@ -7006,17 +7006,17 @@ void MainServer::HandleMusicSaveLyrics(const QStringList& slist, PlaybackSock* p
     QString hostname = slist[1];
     int songID = slist[2].toInt();
 
-    if (m_ismaster && !gCoreContext->IsThisHost(hostname))
+    if (m_isPrimary && !gCoreContext->IsThisHost(hostname))
     {
-        // forward the request to the slave BE
-        PlaybackSock *slave = GetMediaServerByHostname(hostname);
-        if (slave)
+        // forward the request to the secondary BE
+        PlaybackSock *secondary = GetMediaServerByHostname(hostname);
+        if (secondary)
         {
             LOG(VB_GENERAL, LOG_INFO, LOC +
-                QString("HandleMusicSaveLyrics: asking slave '%1' to "
+                QString("HandleMusicSaveLyrics: asking secondary '%1' to "
                         "save the lyrics").arg(hostname));
-            strlist = slave->ForwardRequest(slist);
-            slave->DecrRef();
+            strlist = secondary->ForwardRequest(slist);
+            secondary->DecrRef();
 
             if (pbssock)
                 SendResponse(pbssock, strlist);
@@ -7025,7 +7025,7 @@ void MainServer::HandleMusicSaveLyrics(const QStringList& slist, PlaybackSock* p
         }
 
         LOG(VB_GENERAL, LOG_INFO, LOC +
-            QString("HandleMusicSaveLyrics: Failed to grab slave "
+            QString("HandleMusicSaveLyrics: Failed to grab secondary "
                     "socket on '%1'").arg(hostname));
     }
     else
@@ -7457,34 +7457,34 @@ void MainServer::HandleGenPreviewPixmap(QStringList &slist, PlaybackSock *pbs)
 
     m_previewRequestedBy[token] = pbs->getHostname();
 
-    if ((m_ismaster) &&
+    if ((m_isPrimary) &&
         (pginfo.GetHostname() != gCoreContext->GetHostName()) &&
-        (!m_masterBackendOverride || !pginfo.IsLocal()))
+        (!m_primaryBackendOverride || !pginfo.IsLocal()))
     {
-        PlaybackSock *slave = GetSlaveByHostname(pginfo.GetHostname());
+        PlaybackSock *secondary = GetSecondaryByHostname(pginfo.GetHostname());
 
-        if (slave)
+        if (secondary)
         {
             QStringList outputlist;
             if (has_extra_data)
             {
                 if (time != std::chrono::seconds::max())
                 {
-                    outputlist = slave->GenPreviewPixmap(
+                    outputlist = secondary->GenPreviewPixmap(
                         token, &pginfo, time, -1, outputfile, outputsize);
                 }
                 else
                 {
-                    outputlist = slave->GenPreviewPixmap(
+                    outputlist = secondary->GenPreviewPixmap(
                         token, &pginfo, std::chrono::seconds::max(), frame, outputfile, outputsize);
                 }
             }
             else
             {
-                outputlist = slave->GenPreviewPixmap(token, &pginfo);
+                outputlist = secondary->GenPreviewPixmap(token, &pginfo);
             }
 
-            slave->DecrRef();
+            secondary->DecrRef();
 
             if (outputlist.empty() || outputlist[0] != "OK")
                 m_previewRequestedBy.remove(token);
@@ -7541,19 +7541,19 @@ void MainServer::HandlePixmapLastModified(QStringList &slist, PlaybackSock *pbs)
 
     QStringList strlist;
 
-    if (m_ismaster &&
+    if (m_isPrimary &&
         (pginfo.GetHostname() != gCoreContext->GetHostName()) &&
-        (!m_masterBackendOverride || !pginfo.IsLocal()))
+        (!m_primaryBackendOverride || !pginfo.IsLocal()))
     {
-        PlaybackSock *slave = GetSlaveByHostname(pginfo.GetHostname());
+        PlaybackSock *secondary = GetSecondaryByHostname(pginfo.GetHostname());
 
-        if (slave)
+        if (secondary)
         {
-             QDateTime slavetime = slave->PixmapLastModified(&pginfo);
-             slave->DecrRef();
+             QDateTime secondaryTime = secondary->PixmapLastModified(&pginfo);
+             secondary->DecrRef();
 
-             strlist = (slavetime.isValid()) ?
-                 QStringList(QString::number(slavetime.toSecsSinceEpoch())) :
+             strlist = (secondaryTime.isValid()) ?
+                 QStringList(QString::number(secondaryTime.toSecsSinceEpoch())) :
                  QStringList("BAD");
 
              SendResponse(pbssock, strlist);
@@ -7705,10 +7705,10 @@ void MainServer::HandlePixmapGetIfModified(
     }
 
     // handle remote ...
-    if (m_ismaster && pginfo.GetHostname() != gCoreContext->GetHostName())
+    if (m_isPrimary && pginfo.GetHostname() != gCoreContext->GetHostName())
     {
-        PlaybackSock *slave = GetSlaveByHostname(pginfo.GetHostname());
-        if (!slave)
+        PlaybackSock *secondary = GetSecondaryByHostname(pginfo.GetHostname());
+        if (!secondary)
         {
             strlist = QStringList("ERROR");
             strlist +=
@@ -7717,9 +7717,9 @@ void MainServer::HandlePixmapGetIfModified(
             return;
         }
 
-        strlist = slave->ForwardRequest(slist);
+        strlist = secondary->ForwardRequest(slist);
 
-        slave->DecrRef();
+        secondary->DecrRef();
 
         if (!strlist.empty())
         {
@@ -7789,31 +7789,31 @@ void MainServer::connectionClosed(MythSocket *socket)
     // make sure these are not actually deleted in the callback
     socket->IncrRef();
     m_decrRefSocketList.push_back(socket);
-    QList<uint> disconnectedSlaves;
+    QList<uint> disconnectedSecondaries;
 
     for (auto it = m_playbackList.begin(); it != m_playbackList.end(); ++it)
     {
         PlaybackSock *pbs = (*it);
         MythSocket *sock = pbs->getSocket();
-        if (sock == socket && pbs == m_masterServer)
+        if (sock == socket && pbs == m_primaryServer)
         {
             m_playbackList.erase(it);
             m_sockListLock.unlock();
-            m_masterServer->DecrRef();
-            m_masterServer = nullptr;
+            m_primaryServer->DecrRef();
+            m_primaryServer = nullptr;
             MythEvent me("LOCAL_RECONNECT_TO_MASTER");
             gCoreContext->dispatch(me);
             return;
         }
         if (sock == socket)
         {
-            disconnectedSlaves.clear();
+            disconnectedSecondaries.clear();
             bool needsReschedule = false;
 
-            if (m_ismaster && pbs->isSlaveBackend())
+            if (m_isPrimary && pbs->isSecondaryBackend())
             {
                 LOG(VB_GENERAL, LOG_ERR, LOC +
-                    QString("Slave backend: %1 no longer connected")
+                    QString("Secondary backend: %1 no longer connected")
                         .arg(pbs->getHostname()));
 
                 bool isFallingAsleep = true;
@@ -7827,7 +7827,7 @@ void MainServer::connectionClosed(MythSocket *socket)
 
                         elink->SetSocket(nullptr);
                         if (m_sched)
-                            disconnectedSlaves.push_back(elink->GetInputID());
+                            disconnectedSecondaries.push_back(elink->GetInputID());
                     }
                 }
                 TVRec::s_inputsLock.unlock();
@@ -7846,7 +7846,7 @@ void MainServer::connectionClosed(MythSocket *socket)
                     QString("SLAVE_DISCONNECTED HOSTNAME %1")
                             .arg(pbs->getHostname()));
             }
-            else if (m_ismaster && pbs->IsFrontend())
+            else if (m_isPrimary && pbs->IsFrontend())
             {
                 if (gBackendContext)
                     gBackendContext->SetFrontendDisconnected(pbs->getHostname());
@@ -7895,8 +7895,8 @@ void MainServer::connectionClosed(MythSocket *socket)
 
             // Since we may already be holding the scheduler lock
             // delay handling the disconnect until a little later. #9885
-            if (!disconnectedSlaves.isEmpty())
-                SendSlaveDisconnectedEvent(disconnectedSlaves, needsReschedule);
+            if (!disconnectedSecondaries.isEmpty())
+                SendSecondaryDisconnectedEvent(disconnectedSecondaries, needsReschedule);
             else
             {
                 // During idle periods customEvent() might never be called,
@@ -7948,16 +7948,16 @@ void MainServer::connectionClosed(MythSocket *socket)
     UpdateSystemdStatus();
 }
 
-PlaybackSock *MainServer::GetSlaveByHostname(const QString &hostname)
+PlaybackSock *MainServer::GetSecondaryByHostname(const QString &hostname)
 {
-    if (!m_ismaster)
+    if (!m_isPrimary)
         return nullptr;
 
     m_sockListLock.lockForRead();
 
     for (auto *pbs : m_playbackList)
     {
-        if (pbs->isSlaveBackend() &&
+        if (pbs->isSecondaryBackend() &&
             gCoreContext->IsThisHost(hostname, pbs->getHostname()))
         {
             m_sockListLock.unlock();
@@ -7973,7 +7973,7 @@ PlaybackSock *MainServer::GetSlaveByHostname(const QString &hostname)
 
 PlaybackSock *MainServer::GetMediaServerByHostname(const QString &hostname)
 {
-    if (!m_ismaster)
+    if (!m_isPrimary)
         return nullptr;
 
     QReadLocker rlock(&m_sockListLock);
@@ -8177,21 +8177,21 @@ QString MainServer::LocalFilePath(const QString &path, const QString &wantgroup)
 
 void MainServer::reconnectTimeout(void)
 {
-    auto *masterServerSock = new MythSocket(-1, this);
+    auto *primaryServerSock = new MythSocket(-1, this);
 
     QString server = gCoreContext->GetPrimaryServerIP();
     int port = MythCoreContext::GetPrimaryServerPort();
 
     LOG(VB_GENERAL, LOG_NOTICE, LOC +
-        QString("Connecting to master server: %1:%2")
+        QString("Connecting to primary server: %1:%2")
             .arg(server).arg(port));
 
-    if (!masterServerSock->ConnectToHost(server, port))
+    if (!primaryServerSock->ConnectToHost(server, port))
     {
         LOG(VB_GENERAL, LOG_NOTICE, LOC +
-            "Connection to master server timed out.");
-        m_masterServerReconnect->start(kPrimaryServerReconnectTimeout);
-        masterServerSock->DecrRef();
+            "Connection to primary server timed out.");
+        m_primaryServerReconnect->start(kPrimaryServerReconnectTimeout);
+        primaryServerSock->DecrRef();
         return;
     }
 
@@ -8224,40 +8224,40 @@ void MainServer::reconnectTimeout(void)
 
     // Calling SendReceiveStringList() with callbacks enabled is asking for
     // trouble, our reply might be swallowed by readyRead
-    masterServerSock->SetReadyReadCallbackEnabled(false);
-    if (!masterServerSock->SendReceiveStringList(strlist, 1) ||
+    primaryServerSock->SetReadyReadCallbackEnabled(false);
+    if (!primaryServerSock->SendReceiveStringList(strlist, 1) ||
         (strlist[0] == "ERROR"))
     {
-        masterServerSock->DecrRef();
-        masterServerSock = nullptr;
+        primaryServerSock->DecrRef();
+        primaryServerSock = nullptr;
         if (strlist.empty())
         {
             LOG(VB_GENERAL, LOG_ERR, LOC +
-                "Failed to open master server socket, timeout");
+                "Failed to open primary server socket, timeout");
         }
         else
         {
             LOG(VB_GENERAL, LOG_ERR, LOC +
-                "Failed to open master server socket" +
+                "Failed to open primary server socket" +
                 ((strlist.size() >= 2) ?
                 QString(", error was %1").arg(strlist[1]) :
                 QString(", remote error")));
         }
-        m_masterServerReconnect->start(kPrimaryServerReconnectTimeout);
+        m_primaryServerReconnect->start(kPrimaryServerReconnectTimeout);
         return;
     }
-    masterServerSock->SetReadyReadCallbackEnabled(true);
+    primaryServerSock->SetReadyReadCallbackEnabled(true);
 
-    m_masterServer = new PlaybackSock(this, masterServerSock, server,
+    m_primaryServer = new PlaybackSock(this, primaryServerSock, server,
                                     kPBSEvents_Normal);
     m_sockListLock.lockForWrite();
-    m_playbackList.push_back(m_masterServer);
+    m_playbackList.push_back(m_primaryServer);
     m_sockListLock.unlock();
 
     m_autoexpireUpdateTimer->start(1s);
 }
 
-// returns true, if a client (slavebackends are not counted!)
+// returns true, if a client (secondary backends are not counted!)
 // is connected by checking the lists.
 bool MainServer::isClientConnected(bool onlyBlockingClients)
 {
@@ -8270,8 +8270,8 @@ bool MainServer::isClientConnected(bool onlyBlockingClients)
     for (auto it = m_playbackList.begin();
          !foundClient && (it != m_playbackList.end()); ++it)
     {
-        // Ignore slave backends
-        if ((*it)->isSlaveBackend())
+        // Ignore secondary backends
+        if ((*it)->isSecondaryBackend())
             continue;
 
         // If we are only interested in blocking clients then ignore
@@ -8287,8 +8287,8 @@ bool MainServer::isClientConnected(bool onlyBlockingClients)
     return (foundClient);
 }
 
-/// Sends the Slavebackends the request to shut down using haltcmd
-void MainServer::ShutSlaveBackendsDown(const QString &haltcmd)
+/// Sends the Secondary backends the request to shut down using haltcmd
+void MainServer::ShutSecondaryBackendsDown(const QString &haltcmd)
 {
 // TODO FIXME We should issue a MythEvent and have customEvent
 // send this with the proper syncronisation and locking.
@@ -8300,27 +8300,27 @@ void MainServer::ShutSlaveBackendsDown(const QString &haltcmd)
 
     for (auto & pbs : m_playbackList)
     {
-        if (pbs->isSlaveBackend())
+        if (pbs->isSecondaryBackend())
             pbs->getSocket()->WriteStringList(bcast);
     }
 
     m_sockListLock.unlock();
 }
 
-void MainServer::HandleSlaveDisconnectedEvent(const MythEvent &event)
+void MainServer::HandleSecondaryDisconnectedEvent(const MythEvent &event)
 {
     if (event.ExtraDataCount() > 0 && m_sched)
     {
         bool needsReschedule = event.ExtraData(0).toUInt() != 0U;
         for (int i = 1; i < event.ExtraDataCount(); i++)
-            m_sched->SlaveDisconnected(event.ExtraData(i).toUInt());
+            m_sched->SecondaryDisconnected(event.ExtraData(i).toUInt());
 
         if (needsReschedule)
-            m_sched->ReschedulePlace("SlaveDisconnected");
+            m_sched->ReschedulePlace("SecondaryDisconnected");
     }
 }
 
-void MainServer::SendSlaveDisconnectedEvent(
+void MainServer::SendSecondaryDisconnectedEvent(
     const QList<uint> &offlineEncoderIDs, bool needsReschedule)
 {
     QStringList extraData;
@@ -8340,15 +8340,15 @@ void MainServer::UpdateSystemdStatus (void)
 #if CONFIG_SYSTEMD_NOTIFY
     QStringList status2;
 
-    if (m_ismaster)
-        status2 << QString("Master backend.");
+    if (m_isPrimary)
+        status2 << QString("Primary backend.");
     else
-        status2 << QString("Slave backend.");
+        status2 << QString("Secondary backend.");
 
 #if 0
     // Count connections
     {
-        int playback = 0, frontend = 0, monitor = 0, slave = 0, media = 0;
+        int playback = 0, frontend = 0, monitor = 0, secondary = 0, media = 0;
         QReadLocker rlock(&m_sockListLock);
 
         for (auto iter = m_playbackList.begin(); iter != m_playbackList.end(); ++iter)
@@ -8356,8 +8356,8 @@ void MainServer::UpdateSystemdStatus (void)
             PlaybackSock *pbs = *iter;
             if (pbs->IsDisconnected())
                 continue;
-            if (pbs->isSlaveBackend())
-                slave += 1;
+            if (pbs->isSecondaryBackend())
+                secondary += 1;
             else if (pbs->isMediaServer())
                 media += 1;
             else if (pbs->IsFrontend())
@@ -8368,7 +8368,7 @@ void MainServer::UpdateSystemdStatus (void)
                 monitor += 1;
         }
         status2 << QString("Connections: Pl %1, Fr %2, Mo %3, Sl %4, MS %5, FT %6, Co %7")
-            .arg(playback).arg(frontend).arg(monitor).arg(slave).arg(media)
+            .arg(playback).arg(frontend).arg(monitor).arg(secondary).arg(media)
             .arg(m_fileTransferList.size()).arg(m_controlSocketList.size());
     }
 #endif

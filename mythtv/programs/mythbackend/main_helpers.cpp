@@ -66,14 +66,14 @@
 
 static MainServer *mainServer = nullptr;
 
-bool setupTVs(bool ismaster, bool &error)
+bool setupTVs(bool isPrimary, bool &error)
 {
     error = false;
     QString localhostname = gCoreContext->GetHostName();
 
     MSqlQuery query(MSqlQuery::InitCon());
 
-    if (ismaster)
+    if (isPrimary)
     {
         // Hack to make sure recorded.basename gets set if the user
         // downgrades to a prior version and creates new entries
@@ -186,7 +186,7 @@ bool setupTVs(bool ismaster, bool &error)
         QString host   = hosts[i];
         QString cidmsg = QString("Card %1").arg(cardid);
 
-        if (!ismaster)
+        if (!isPrimary)
         {
             if (host == localhostname)
             {
@@ -201,8 +201,8 @@ bool setupTVs(bool ismaster, bool &error)
                     LOG(VB_GENERAL, LOG_ERR, "Problem with capture cards. " +
                             cidmsg + " failed init");
                     delete tv;
-                    // The master assumes card comes up so we need to
-                    // set error and exit if a non-master card fails.
+                    // The primary assumes card comes up so we need to
+                    // set error and exit if a non-primary card fails.
                     error = true;
                 }
             }
@@ -388,12 +388,12 @@ int handle_command(const MythBackendCommandLineParser &cmdline)
         {
             if (!gCoreContext->ConnectToPrimaryServer())
             {
-                LOG(VB_GENERAL, LOG_ERR, "Cannot connect to master");
+                LOG(VB_GENERAL, LOG_ERR, "Cannot connect to primary");
                 delete sched;
                 return GENERIC_EXIT_CONNECT_ERROR;
             }
-            std::cout << "Retrieving Schedule from Master backend.\n";
-            sched->FillRecordListFromMaster();
+            std::cout << "Retrieving Schedule from Primary backend.\n";
+            sched->FillRecordListFromPrimary();
         }
         else
         {
@@ -418,13 +418,13 @@ int handle_command(const MythBackendCommandLineParser &cmdline)
         bool ok = false;
         if (gCoreContext->ConnectToPrimaryServer())
         {
-            LOG(VB_GENERAL, LOG_INFO, "Connected to master for reschedule");
+            LOG(VB_GENERAL, LOG_INFO, "Connected to primary for reschedule");
             ScheduledRecording::RescheduleMatch(0, 0, 0, QDateTime(),
                                                 "MythBackendCommand");
             ok = true;
         }
         else
-            LOG(VB_GENERAL, LOG_ERR, "Cannot connect to master for reschedule");
+            LOG(VB_GENERAL, LOG_ERR, "Cannot connect to primary for reschedule");
 
         return (ok) ? GENERIC_EXIT_OK : GENERIC_EXIT_CONNECT_ERROR;
     }
@@ -439,7 +439,7 @@ int handle_command(const MythBackendCommandLineParser &cmdline)
             ok = true;
         }
         else
-            LOG(VB_GENERAL, LOG_ERR, "Cannot connect to master for video scan");
+            LOG(VB_GENERAL, LOG_ERR, "Cannot connect to primary for video scan");
 
         return (ok) ? GENERIC_EXIT_OK : GENERIC_EXIT_CONNECT_ERROR;
     }
@@ -456,7 +456,7 @@ int handle_command(const MythBackendCommandLineParser &cmdline)
 }
 using namespace MythTZ;
 
-int connect_to_master(void)
+int connect_to_primary(void)
 {
     auto *tempMonitorConnection = new MythSocket();
     if (tempMonitorConnection->ConnectToHost(
@@ -465,8 +465,8 @@ int connect_to_master(void)
     {
         if (!gCoreContext->CheckProtoVersion(tempMonitorConnection))
         {
-            LOG(VB_GENERAL, LOG_ERR, "Master backend is incompatible with "
-                    "this backend.\nCannot become a slave.");
+            LOG(VB_GENERAL, LOG_ERR, "Primary backend is incompatible with "
+                    "this backend.\nCannot become a secondary.");
             tempMonitorConnection->DecrRef();
             return GENERIC_EXIT_CONNECT_ERROR;
         }
@@ -511,13 +511,13 @@ int connect_to_master(void)
         }
 
         QDateTime our_time = MythDate::current();
-        QDateTime master_time = MythDate::fromString(timeCheck[2]);
-        int timediff = abs(our_time.secsTo(master_time));
+        QDateTime primary_time = MythDate::fromString(timeCheck[2]);
+        int timediff = abs(our_time.secsTo(primary_time));
 
         if (timediff > 300)
         {
             LOG(VB_GENERAL, LOG_ERR,
-                QString("Current time on the master backend differs by "
+                QString("Current time on the primary backend differs by "
                         "%1 seconds from time on this system. Exiting.")
                 .arg(timediff));
             if (tempMonitorConnection)
@@ -528,7 +528,7 @@ int connect_to_master(void)
         if (timediff > 20)
         {
             LOG(VB_GENERAL, LOG_WARNING,
-                    QString("Time difference between the master "
+                    QString("Time difference between the primary "
                             "backend and this system is %1 seconds.")
                 .arg(timediff));
         }
@@ -581,23 +581,23 @@ int run_backend(MythBackendCommandLineParser &cmdline)
         return GENERIC_EXIT_DB_NOTIMEZONE;
     }
 
-    bool ismaster = gCoreContext->IsPrimaryHost();
+    bool isPrimary = gCoreContext->IsPrimaryHost();
 
-    if (!UpgradeTVDatabaseSchema(ismaster, ismaster, true))
+    if (!UpgradeTVDatabaseSchema(isPrimary, isPrimary, true))
     {
         LOG(VB_GENERAL, LOG_ERR,
             QString("Couldn't upgrade database to new schema on %1 backend.")
-            .arg(ismaster ? "master" : "slave"));
+            .arg(isPrimary ? "primary" : "secondary"));
         return GENERIC_EXIT_DB_OUTOFDATE;
     }
 
     be_sd_notify("STATUS=Loading translation");
     MythTranslation::load("mythfrontend");
 
-    if (!ismaster)
+    if (!isPrimary)
     {
-        be_sd_notify("STATUS=Connecting to master backend");
-        int ret = connect_to_master();
+        be_sd_notify("STATUS=Connecting to primary backend");
+        int ret = connect_to_primary();
         if (ret != GENERIC_EXIT_OK)
             return ret;
     }
@@ -617,16 +617,10 @@ int run_backend(MythBackendCommandLineParser &cmdline)
 
     sysEventHandler = new MythSystemEventHandler();
 
-    if (ismaster)
-    {
-        LOG(VB_GENERAL, LOG_NOTICE, LOC + "Starting up as the master server.");
-    }
-    else
-    {
-        LOG(VB_GENERAL, LOG_NOTICE, LOC + "Running as a slave backend.");
-    }
+    LOG(VB_GENERAL, LOG_NOTICE, LOC + QString("Starting up as %1 server.")
+        .arg(isPrimary ? "the primary" : "a secondary"));
 
-   if (ismaster)
+   if (isPrimary)
     {
         EITCache::ClearChannelLocks();
     }
@@ -634,12 +628,12 @@ int run_backend(MythBackendCommandLineParser &cmdline)
     print_warnings(cmdline);
 
     bool fatal_error = false;
-    bool runsched = setupTVs(ismaster, fatal_error);
+    bool runsched = setupTVs(isPrimary, fatal_error);
     if (fatal_error)
         return GENERIC_EXIT_SETUP_ERROR;
 
     Scheduler *sched = nullptr;
-    if (ismaster)
+    if (isPrimary)
     {
         if (runsched)
         {
@@ -670,7 +664,7 @@ int run_backend(MythBackendCommandLineParser &cmdline)
         be_sd_notify("STATUS=Creating housekeeper");
         housekeeping = new HouseKeeper();
 
-        if (ismaster)
+        if (isPrimary)
         {
             housekeeping->RegisterTask(new LogCleanerTask());
             housekeeping->RegisterTask(new CleanupTask());
@@ -694,7 +688,7 @@ int run_backend(MythBackendCommandLineParser &cmdline)
     }
 
     if (!cmdline.toBool("nojobqueue"))
-        jobqueue = new JobQueue(ismaster);
+        jobqueue = new JobQueue(isPrimary);
 
     // ----------------------------------------------------------------------
     //
@@ -705,7 +699,7 @@ int run_backend(MythBackendCommandLineParser &cmdline)
         be_sd_notify("STATUS=Creating UPnP media server");
         g_pUPnp = new MediaServer();
 
-        g_pUPnp->Init(ismaster, cmdline.toBool("noupnp"));
+        g_pUPnp->Init(isPrimary, cmdline.toBool("noupnp"));
     }
 
     if (cmdline.toBool("dvbv3"))
@@ -726,13 +720,13 @@ int run_backend(MythBackendCommandLineParser &cmdline)
         LOG(VB_GENERAL, LOG_INFO, "Main::Registering HttpStatus Extension");
         be_sd_notify("STATUS=Registering HttpStatus Extension");
 
-        httpStatus = new HttpStatus( &tvList, sched, expirer, ismaster );
+        httpStatus = new HttpStatus( &tvList, sched, expirer, isPrimary );
         pHS->RegisterExtension( httpStatus );
     }
 
     be_sd_notify("STATUS=Creating main server");
     mainServer = new MainServer(
-        ismaster, port, &tvList, sched, expirer);
+        isPrimary, port, &tvList, sched, expirer);
 
     int exitCode = mainServer->GetExitCode();
     if (exitCode != GENERIC_EXIT_OK)
@@ -749,7 +743,7 @@ int run_backend(MythBackendCommandLineParser &cmdline)
     be_sd_notify("STATUS=Check all storage groups");
     StorageGroup::CheckAllStorageGroupDirs();
 
-    be_sd_notify("STATUS=Sending \"master started\" message");
+    be_sd_notify("STATUS=Sending \"primary started\" message");
     if (gCoreContext->IsPrimaryBackend())
         gCoreContext->SendSystemEvent("MASTER_STARTED");
 

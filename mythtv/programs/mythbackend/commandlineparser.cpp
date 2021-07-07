@@ -27,15 +27,15 @@ void MythBackendCommandLineParser::LoadArguments(void)
 //                    ->SetDeprecated("use mythutil instead")
          << add("--resched", "resched", false,
                 "Trigger a run of the recording scheduler on the existing "
-                "master backend.",
-                "This command will connect to the master backend and trigger "
+                "primary backend.",
+                "This command will connect to the primary backend and trigger "
                 "a run of the recording scheduler. The call will return "
                 "immediately, however the scheduler run may take several "
                 "seconds to a minute or longer to complete.")
                     ->SetDeprecated("use mythutil instead")
          << add("--scanvideos", "scanvideos", false,
                 "Trigger a rescan of media content in MythVideo.",
-                "This command will connect to the master backend and trigger "
+                "This command will connect to the primary backend and trigger "
                 "a run of the Video scanner. The call will return "
                 "immediately, however the scanner may take several seconds "
                 "to tens of minutes, depending on how much new or moved "
@@ -51,7 +51,7 @@ void MythBackendCommandLineParser::LoadArguments(void)
                     ->SetDeprecated("use mythutil instead")
          << add("--clearcache", "clearcache", false,
                 "Trigger a cache clear on all connected MythTV systems.",
-                "This command will connect to the master backend and trigger "
+                "This command will connect to the primary backend and trigger "
                 "a cache clear event, which will subsequently be pushed to "
                 "all other connected programs. This event will clear the "
                 "local database settings cache used by each program, causing "
@@ -61,16 +61,16 @@ void MythBackendCommandLineParser::LoadArguments(void)
                 "Print upcoming list of recordings to be expired.", "")
 //                    ->SetDeprecated("use mythutil instead")
          << add("--setverbose", "setverbose", "",
-                "Change debug mask of the existing master backend.", "")
+                "Change debug mask of the existing primary backend.", "")
 //                    ->SetDeprecated("use mythutil instead")
          << add("--setloglevel", "setloglevel", "",
-                "Change logging level of the existing master backend.", "")
+                "Change logging level of the existing primary backend.", "")
 //                    ->SetDeprecated("use mythutil instead");
     );
 
     add("--nosched", "nosched", false, "",
             "Intended for debugging use only, disable the scheduler "
-            "on this backend if it is the master backend, preventing "
+            "on this backend if it is the primary backend, preventing "
             "any recordings from occuring until the backend is "
             "restarted without this option.");
     add("--nojobqueue", "nojobqueue", false, "",
@@ -80,12 +80,12 @@ void MythBackendCommandLineParser::LoadArguments(void)
             "backend.");
     add("--nohousekeeper", "nohousekeeper", false, "",
             "Intended for debugging use only, disable the housekeeper "
-            "on this backend if it is the master backend, preventing "
+            "on this backend if it is the primary backend, preventing "
             "any guide processing, recording cleanup, or any other "
             "task performed by the housekeeper.");
     add("--noautoexpire", "noautoexpire", false, "",
             "Intended for debugging use only, disable the autoexpirer "
-            "on this backend if it is the master backend, preventing "
+            "on this backend if it is the primary backend, preventing "
             "recordings from being expired to clear room for new "
             "recordings.");
     add("--user", "username", "",
@@ -117,6 +117,6 @@ QString MythBackendCommandLineParser::GetHelpHeader(void) const
     return "MythBackend is the primary server application for MythTV. It is \n"
            "used for recording and remote streaming access of media. Only one \n"
            "instance of this application is allowed to run on one host at a \n"
-           "time, and one must be configured to operate as a master, performing \n"
+           "time, and one must be configured to operate as a primary, performing \n"
            "additional scheduler and housekeeper tasks.";
 }
