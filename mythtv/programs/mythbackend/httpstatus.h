@@ -47,7 +47,7 @@ class HttpStatus : public HttpServerExtension
         QMap<int, EncoderLink *>    *m_pEncoders;
         AutoExpire                  *m_pExpirer;
         MainServer                  *m_pMainServer;
-        bool                         m_bIsMaster;
+        bool                         m_bIsPrimary;
         int                          m_nPreRollSeconds;
         QMutex                       m_settingLock;
 
@@ -82,7 +82,7 @@ class HttpStatus : public HttpServerExtension
 
     public:
                  HttpStatus( QMap<int, EncoderLink *> *tvList, Scheduler *sched,
-                             AutoExpire *expirer, bool bIsMaster );
+                             AutoExpire *expirer, bool bIsPrimary );
         ~HttpStatus() override = default;
 
         void     SetMainServer(MainServer *mainServer)

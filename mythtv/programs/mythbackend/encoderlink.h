@@ -70,7 +70,7 @@ class EncoderLink
     /// \brief Returns the TVRec used by a local EncoderLink instance.
     TVRec *GetTVRec(void) { return m_tv; }
 
-    /// \brief Tell a slave backend to go to sleep
+    /// \brief Tell a secondary backend to go to sleep
     bool GoToSleep(void);
     int LockTuner(void);
     /// \brief Unlock the tuner.

@@ -47,7 +47,7 @@ class MediaServer : public UPnp
 
     public:
         explicit MediaServer();
-        void Init(bool bIsMaster, bool bDisableUPnp = false);
+        void Init(bool bIsPrimary, bool bDisableUPnp = false);
 
         ~MediaServer() override;
 

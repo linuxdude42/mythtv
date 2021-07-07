@@ -782,7 +782,7 @@ bool UPnpCDSVideo::LoadVideos(const UPnpCDSRequest* pRequest,
             pItem->SetPropValue( "refID", sRefId );
         }
 
-        // FIXME - If the slave or storage hosting this video is offline we
+        // FIXME - If the secondary or storage hosting this video is offline we
         //         won't find it. We probably shouldn't list it, but better
         //         still would be storing the filesize in the database so we
         //         don't waste time re-checking it constantly

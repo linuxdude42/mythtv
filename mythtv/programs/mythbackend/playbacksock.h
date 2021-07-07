@@ -50,8 +50,8 @@ class PlaybackSock : public ReferenceCounter
     void SetAsFrontend(void) { m_frontend = true; }
 
     // all backend<->backend stuff below here
-    bool isSlaveBackend(void) const { return m_backend; }
-    void setAsSlaveBackend(void) { m_backend = true; m_mediaserver = true; }
+    bool isSecondaryBackend(void) const { return m_backend; }
+    void setAsSecondaryBackend(void) { m_backend = true; m_mediaserver = true; }
 
     bool isMediaServer(void) const { return m_mediaserver; }
     void setAsMediaServer(void) { m_mediaserver = true; }

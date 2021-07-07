@@ -46,7 +46,7 @@ class Scheduler : public MThread, public MythScheduler
 {
   public:
     Scheduler(bool runthread, QMap<int, EncoderLink *> *_tvList,
-              const QString& tmptable = "record", Scheduler *master_sched = nullptr);
+              const QString& tmptable = "record", Scheduler *primary_sched = nullptr);
     ~Scheduler() override;
 
     void Stop(void);
@@ -68,7 +68,7 @@ class Scheduler : public MThread, public MythScheduler
     void AddRecording(const ProgramInfo& prog)
     { AddRecording(RecordingInfo(prog)); };
     void FillRecordListFromDB(uint recordid = 0);
-    void FillRecordListFromMaster(void);
+    void FillRecordListFromPrimary(void);
 
     void UpdateRecStatus(RecordingInfo *pginfo);
     void UpdateRecStatus(uint cardid, uint chanid,
@@ -100,8 +100,8 @@ class Scheduler : public MThread, public MythScheduler
 
     void SetMainServer(MainServer *ms);
 
-    void SlaveConnected(const RecordingList &slavelist);
-    void SlaveDisconnected(uint cardid);
+    void SecondaryConnected(const RecordingList &secondaryList);
+    void SecondaryDisconnected(uint cardid);
 
     void DisableScheduling(void) { m_schedulingEnabled = false; }
     void EnableScheduling(void) { m_schedulingEnabled = true; }
@@ -184,9 +184,9 @@ class Scheduler : public MThread, public MythScheduler
     static bool CheckShutdownServer(std::chrono::seconds prerollseconds, QDateTime &idleSince,
                              bool &blockShutdown, uint logmask);
     void ShutdownServer(std::chrono::seconds prerollseconds, QDateTime &idleSince);
-    void PutInactiveSlavesToSleep(void);
-    bool WakeUpSlave(const QString& slaveHostname, bool setWakingStatus = true);
-    void WakeUpSlaves(void);
+    void PutInactiveSecondariesToSleep(void);
+    bool WakeUpSecondary(const QString& secondaryHostname, bool setWakingStatus = true);
+    void WakeUpSecondaries(void);
 
     int FillRecordingDir(const QString &title,
                          const QString &hostname,
@@ -205,7 +205,7 @@ class Scheduler : public MThread, public MythScheduler
     bool HandleReschedule(void);
     bool HandleRunSchedulerStartup(
         std::chrono::seconds prerollseconds, std::chrono::minutes idleWaitForRecordingTime);
-    void HandleWakeSlave(RecordingInfo &ri, std::chrono::seconds prerollseconds);
+    void HandleWakeSecondary(RecordingInfo &ri, std::chrono::seconds prerollseconds);
     bool HandleRecording(RecordingInfo &ri, bool &statuschanged,
                          QDateTime &nextStartTime, QDateTime &nextWakeTime,
                          std::chrono::seconds prerollseconds);
