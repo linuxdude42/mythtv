@@ -1,7 +1,7 @@
 <div id='wizard-network' class='setuptab'>
 <input type='hidden' id='MasterServerIP'>
 <table>
-    <tr><th align=right><i18n>Master Backend</i18n>:</th>
+    <tr><th align=right><i18n>Primary Backend</i18n>:</th>
         <td id='MasterServerIP_cell'>&nbsp;
             <a href="javascript:showSettingHelp('MasterServerIP')">[?]</a>
             </td></tr>
@@ -46,8 +46,8 @@ loadContent('/Config/General?__group__=local_server')">Advanced General Setup Sc
         (settingsList["MasterServerIP"] != settingsList["BackendServerIP"])) {
         $("#MasterServerIP_cell").append("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
             + "<input type='button' "
-            + " onClick='javascript:makeLocalBackendTheMaster()' "
-            + " value='<i18n>Make this server the master backend</i18n>'>");
+            + " onClick='javascript:makeLocalBackendThePrimary()' "
+            + " value='<i18n>Make this server the primary backend</i18n>'>");
     }
 
 </script>

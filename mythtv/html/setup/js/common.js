@@ -91,7 +91,7 @@ function setSettingInputValues(divName) {
     });
 }
 
-function makeLocalBackendTheMaster() {
+function makeLocalBackendThePrimary() {
     $("#MasterServerIP").val(settingsList["BackendServerIP"]);
     $("#MasterServerIP_cell").html("<b>" + settingsList["BackendServerIP"]
         + "</b>");
