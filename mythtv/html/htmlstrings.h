@@ -157,8 +157,8 @@ void html_strings_null() {
     /* ./setup/wizard-network.qsp */
     HtmlUI::tr("Local Backend"),
     HtmlUI::tr("Local Backend (IPv6)"),
-    HtmlUI::tr("Make this server the master backend"),
-    HtmlUI::tr("Master Backend"),
+    HtmlUI::tr("Make this server the primary backend"),
+    HtmlUI::tr("Primary Backend"),
     HtmlUI::tr("Security PIN"),
     HtmlUI::tr("Use Link-Local"),
     /* ./tv/ajax_backends/program_util.qsp */
