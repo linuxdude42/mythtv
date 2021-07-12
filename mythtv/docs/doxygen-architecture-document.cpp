@@ -503,7 +503,7 @@ Any 64 bit numbers are represented as a stringlist of two 32bit words
 
 There are three main types of networking interactions in %MythTV;
 identification commands (which tell the backend about this client),
-query commands that are sent to the master backend
+query commands that are sent to the primary backend
 (<I>%e.g.</I> listing recordings or viewing guide data), and
 file streaming commands (when a frontend is watching or editing a recording).
 
@@ -575,7 +575,7 @@ to access these assets:
 
   <li>The new config.xml has replaced the old mysql.txt, and is loaded from
       GetConfDir() only. If not found, %MythTV will attempt to discover the
-      database credentials over UPnP from the master backend, falling back to
+      database credentials over UPnP from the primary backend, falling back to
       the compiled-in defaults of mythtv:mythtv\@localhost/mythconverg. If no
       connection can be established, the necessary information is queried from
       the user.</li>
