@@ -1039,7 +1039,7 @@ void ClassicCommDetector::GetSceneChangeMap(frm_dir_map_t &scenes,
 frm_dir_map_t ClassicCommDetector::Combine2Maps(const frm_dir_map_t &a,
                                                 const frm_dir_map_t &b) const
 {
-    LOG(VB_COMMFLAG, LOG_INFO, "CommDetect::BuildMasterCommList()");
+    LOG(VB_COMMFLAG, LOG_INFO, "CommDetect::BuildCombinedCommList()");
 
     frm_dir_map_t newMap;
 

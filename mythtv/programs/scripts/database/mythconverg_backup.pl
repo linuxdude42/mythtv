@@ -201,7 +201,7 @@ script), you may call the script before starting mythbackend or after stopping
 mythbackend. Note, however, that checking whether to perform the backup is the
 responsibility of the init script (not this script)--i.e. in a system with
 multiple frontends/backends, the init script should ensure the backup is
-created only on the master backend.
+created only on the primary backend.
 
 DATABASE INFORMATION FILE
 
