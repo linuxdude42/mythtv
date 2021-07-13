@@ -12,28 +12,28 @@
 static TransMythUICheckBoxSetting *IsPrimaryBackend()
 {
     auto *gc = new TransMythUICheckBoxSetting();
-    gc->setLabel(QObject::tr("This server is the Master Backend"));
+    gc->setLabel(QObject::tr("This server is the Primary Backend"));
     gc->setValue(false);
     gc->setHelpText(QObject::tr(
                     "Enable this if this is the only backend or is the "
-                    "master backend server. If enabled, all frontend and "
-                    "non-master backend machines "
-                    "will connect to this server. To change to a new master "
+                    "primary backend server. If enabled, all frontend and "
+                    "non-primary backend machines "
+                    "will connect to this server. To change to a new primary "
                     "backend, run setup on that server and select it as "
-                    "master backend."));
+                    "primary backend."));
     return gc;
 };
 
 static GlobalTextEditSetting *PrimaryServerName()
 {
     auto *gc = new GlobalTextEditSetting("MasterServerName");
-    gc->setLabel(QObject::tr("Master Backend Name"));
+    gc->setLabel(QObject::tr("Primary Backend Name"));
     gc->setValue("");
     gc->setEnabled(true);
     gc->setReadOnly(true);
     gc->setHelpText(QObject::tr(
-                    "Host name of Master Backend. This is set by selecting "
-                    "\"This server is the Master Backend\" on that server."));
+                    "Host name of Primary Backend. This is set by selecting "
+                    "\"This server is the Primary Backend\" on that server."));
     return gc;
 };
 
@@ -371,12 +371,12 @@ static GlobalSpinBoxSetting *EITTransportTimeout()
 static GlobalCheckBoxSetting *PrimaryBackendOverride()
 {
     auto *gc = new GlobalCheckBoxSetting("MasterBackendOverride");
-    gc->setLabel(QObject::tr("Master backend override"));
+    gc->setLabel(QObject::tr("Primary backend override"));
     gc->setValue(true);
-    gc->setHelpText(QObject::tr("If enabled, the master backend will stream and"
+    gc->setHelpText(QObject::tr("If enabled, the primary backend will stream and"
                     " delete files if it finds them in a storage directory. "
                     "Useful if you are using a central storage location, like "
-                    "a NFS share, and your slave backend isn't running."));
+                    "a NFS share, and your secondary backend isn't running."));
     return gc;
 };
 
@@ -398,8 +398,8 @@ static GlobalSpinBoxSetting *WOLbackendReconnectWaitTime()
     gc->setLabel(QObject::tr("Delay between wake attempts (secs)"));
     gc->setValue(0);
     gc->setHelpText(QObject::tr("Length of time the frontend waits between "
-                    "tries to wake up the master backend. This should be the "
-                    "time your master backend needs to startup. Set to 0 to "
+                    "tries to wake up the primary backend. This should be the "
+                    "time your primary backend needs to startup. Set to 0 to "
                     "disable."));
     return gc;
 };
@@ -409,7 +409,7 @@ static GlobalSpinBoxSetting *WOLbackendConnectRetry()
     auto *gc = new GlobalSpinBoxSetting("WOLbackendConnectRetry", 1, 60, 1);
     gc->setLabel(QObject::tr("Wake attempts"));
     gc->setHelpText(QObject::tr("Number of times the frontend will try to wake "
-                    "up the master backend."));
+                    "up the primary backend."));
     gc->setValue(5);
     return gc;
 };
@@ -419,7 +419,7 @@ static GlobalTextEditSetting *WOLbackendCommand()
     auto *gc = new GlobalTextEditSetting("WOLbackendCommand");
     gc->setLabel(QObject::tr("Wake command"));
     gc->setValue("");
-    gc->setHelpText(QObject::tr("The command used to wake up your master "
+    gc->setHelpText(QObject::tr("The command used to wake up your primary "
             "backend server (e.g. wakeonlan 00:00:00:00:00:00)."));
     return gc;
 };
@@ -429,9 +429,9 @@ static HostTextEditSetting *SleepCommand()
     auto *gc = new HostTextEditSetting("SleepCommand");
     gc->setLabel(QObject::tr("Sleep command"));
     gc->setValue("");
-    gc->setHelpText(QObject::tr("The command used to put this slave to sleep. "
-                    "If set, the master backend will use this command to put "
-                    "this slave to sleep when it is not needed for recording."));
+    gc->setHelpText(QObject::tr("The command used to put this secondary to sleep. "
+                    "If set, the primary backend will use this command to put "
+                    "this secondary to sleep when it is not needed for recording."));
     return gc;
 };
 
@@ -440,8 +440,8 @@ static HostTextEditSetting *WakeUpCommand()
     auto *gc = new HostTextEditSetting("WakeUpCommand");
     gc->setLabel(QObject::tr("Wake command"));
     gc->setValue("");
-    gc->setHelpText(QObject::tr("The command used to wake up this slave "
-                    "from sleep. This setting is not used on the master "
+    gc->setHelpText(QObject::tr("The command used to wake up this secondary "
+                    "from sleep. This setting is not used on the primary "
                     "backend."));
     return gc;
 };
@@ -452,7 +452,7 @@ static GlobalTextEditSetting *BackendStopCommand()
     gc->setLabel(QObject::tr("Backend stop command"));
     gc->setValue("killall mythbackend");
     gc->setHelpText(QObject::tr("The command used to stop the backend"
-                    " when running on the master backend server "
+                    " when running on the primary backend server "
                     "(e.g. sudo /etc/init.d/mythtv-backend stop)"));
     return gc;
 };
@@ -463,7 +463,7 @@ static GlobalTextEditSetting *BackendStartCommand()
     gc->setLabel(QObject::tr("Backend start command"));
     gc->setValue("mythbackend");
     gc->setHelpText(QObject::tr("The command used to start the backend"
-                    " when running on the master backend server "
+                    " when running on the primary backend server "
                     "(e.g. sudo /etc/init.d/mythtv-backend start)."));
     return gc;
 };
@@ -473,7 +473,7 @@ static GlobalSpinBoxSetting *idleTimeoutSecs()
     auto *gc = new GlobalSpinBoxSetting("idleTimeoutSecs", 0, 1200, 5);
     gc->setLabel(QObject::tr("Idle shutdown timeout (secs)"));
     gc->setValue(0);
-    gc->setHelpText(QObject::tr("The number of seconds the master backend "
+    gc->setHelpText(QObject::tr("The number of seconds the primary backend "
                     "idles before it shuts down all other backends. Set to 0 to "
                     "disable automatic shutdown."));
     return gc;
@@ -484,7 +484,7 @@ static GlobalSpinBoxSetting *idleWaitForRecordingTime()
     auto *gc = new GlobalSpinBoxSetting("idleWaitForRecordingTime", 0, 300, 1);
     gc->setLabel(QObject::tr("Maximum wait for recording (mins)"));
     gc->setValue(15);
-    gc->setHelpText(QObject::tr("The number of minutes the master backend "
+    gc->setHelpText(QObject::tr("The number of minutes the primary backend "
                     "waits for a recording. If the backend is idle but a "
                     "recording starts within this time period, it won't "
                     "shut down."));
@@ -496,7 +496,7 @@ static GlobalSpinBoxSetting *StartupSecsBeforeRecording()
     auto *gc = new GlobalSpinBoxSetting("StartupSecsBeforeRecording", 0, 1200, 5);
     gc->setLabel(QObject::tr("Startup before recording (secs)"));
     gc->setValue(120);
-    gc->setHelpText(QObject::tr("The number of seconds the master backend "
+    gc->setHelpText(QObject::tr("The number of seconds the primary backend "
                     "will be woken up before a recording starts."));
     return gc;
 };
@@ -519,7 +519,7 @@ static GlobalTextEditSetting *SetWakeuptimeCommand()
     gc->setLabel(QObject::tr("Command to set wakeup time"));
     gc->setValue("");
     gc->setHelpText(QObject::tr("The command used to set the wakeup time "
-                                "(passed as $time) for the Master Backend"));
+                                "(passed as $time) for the Primary Backend"));
     return gc;
 };
 
@@ -766,7 +766,7 @@ static GlobalCheckBoxSetting *UPNPShowRecordingUnderVideos()
     GlobalCheckBoxSetting *gc = new GlobalCheckBoxSetting("UPnP/RecordingsUnderVideos");
     gc->setLabel(QObject::tr("Include recordings in video list"));
     gc->setValue(false);
-    gc->setHelpText(QObject::tr("If enabled, the master backend will include"
+    gc->setHelpText(QObject::tr("If enabled, the primary backend will include"
                     " the list of recorded shows in the list of videos. "
                     " This is mainly to accommodate UPnP players which do not"
                     " allow more than 1 video section." ));
@@ -964,17 +964,17 @@ BackendSettings::BackendSettings()
     group4->setLabel(QObject::tr("Backend Wakeup settings"));
 
     auto* backend = new GroupSetting();
-    backend->setLabel(QObject::tr("Master Backend"));
+    backend->setLabel(QObject::tr("Primary Backend"));
     backend->addChild(WOLbackendReconnectWaitTime());
     backend->addChild(WOLbackendConnectRetry());
     backend->addChild(WOLbackendCommand());
     group4->addChild(backend);
 
-    auto* slaveBackend = new GroupSetting();
-    slaveBackend->setLabel(QObject::tr("Slave Backends"));
-    slaveBackend->addChild(SleepCommand());
-    slaveBackend->addChild(WakeUpCommand());
-    group4->addChild(slaveBackend);
+    auto* secondaryBackend = new GroupSetting();
+    secondaryBackend->setLabel(QObject::tr("Secondary Backends"));
+    secondaryBackend->addChild(SleepCommand());
+    secondaryBackend->addChild(WakeUpCommand());
+    group4->addChild(secondaryBackend);
     addChild(group4);
 
     auto* backendControl = new GroupSetting();

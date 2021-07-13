@@ -91,15 +91,15 @@ void MythUtilCommandLineParser::LoadArguments(void)
         // backendutils.cpp
         << add("--resched", "resched", false,
                 "Trigger a run of the recording scheduler on the existing "
-                "master backend.",
-                "This command will connect to the master backend and trigger "
+                "primary backend.",
+                "This command will connect to the primary backend and trigger "
                 "a run of the recording scheduler. The call will return "
                 "immediately, however the scheduler run may take several "
                 "seconds to a minute or longer to complete.")
                 ->SetGroup("Backend")
         << add("--scanvideos", "scanvideos", false,
                 "Trigger a rescan of media content in MythVideo.",
-                "This command will connect to the master backend and trigger "
+                "This command will connect to the primary backend and trigger "
                 "a run of the Video scanner. The call will return "
                 "immediately, however the scanner may take several seconds "
                 "to tens of minutes, depending on how much new or moved "
@@ -115,7 +115,7 @@ void MythUtilCommandLineParser::LoadArguments(void)
                 ->SetGroup("Backend")
         << add("--clearcache", "clearcache", false,
                 "Trigger a cache clear on all connected MythTV systems.",
-                "This command will connect to the master backend and trigger "
+                "This command will connect to the primary backend and trigger "
                 "a cache clear event, which will subsequently be pushed to "
                 "all other connected programs. This event will clear the "
                 "local database settings cache used by each program, causing "

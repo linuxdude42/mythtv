@@ -109,7 +109,7 @@ to setup the daily wakeup/shutdown periods and control whether to automatically
 start the mythfrontend when mythwelcome is started and it is determined that it
 was started manually.
 
-Period 1 Start Time  - These setting determine a period of time that the master backend
+Period 1 Start Time  - These setting determine a period of time that the primary backend
 Period 1 End Time      should always wake up for. Set both times to 00:00 to
                        disable this feature. 
 
@@ -121,8 +121,8 @@ Mythfrontend           the system was started to record something or because of 
                        wakeup/shutdown period. If not it will automatically start the
                        frontend. You can disable this feature by unchecking this option.   
 
-Shutdown with Master - (Frontend only machines). If set mythwelcome will shutdown this system
-Backend                when the master backend shutsdown.
+Shutdown with Primary - (Frontend only machines). If set mythwelcome will shutdown this system
+Backend                when the primary backend shutsdown.
 
 
 MYTHBACKEND SETUP OPTIONS
@@ -298,7 +298,7 @@ Shutdown Now         -  Force the system to shutdown even if it is not idle or i
                         FE only machines simply shutdown using the 'Poweroff command'
                         that has been setup in settings.
 
-                        Master BE machines will not shutdown if the backend
+                        Primary BE machines will not shutdown if the backend
                         is recording or is about to start recording otherwise 
                         mythwelcome sets the time of the next wakeup and shuts down
                         the system.
