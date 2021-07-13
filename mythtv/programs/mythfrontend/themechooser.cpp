@@ -885,7 +885,7 @@ void ThemeChooser::customEvent(QEvent *e)
                     else
                     {
                         m_downloadState = dsIdle;
-                        ShowOkPopup(tr("ERROR downloading theme package on master backend."));
+                        ShowOkPopup(tr("ERROR downloading theme package on primary backend."));
                     }
                 }
 
@@ -912,7 +912,7 @@ void ThemeChooser::customEvent(QEvent *e)
                     else
                     {
                         m_downloadState = dsIdle;
-                        ShowOkPopup(tr("ERROR downloading theme package from master backend."));
+                        ShowOkPopup(tr("ERROR downloading theme package from primary backend."));
                     }
                 }
             }

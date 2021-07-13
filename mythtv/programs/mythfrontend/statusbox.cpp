@@ -1183,7 +1183,7 @@ void StatusBox::getActualRecordedBPS(const QString& hostnames)
 /** \fn StatusBox::doMachineStatus()
  *  \brief Show machine status.
  *
- *   This returns statisics for master backend when using
+ *   This returns statisics for primary backend when using
  *   a frontend only machine. And returns info on the current
  *   system if frontend is running on a backend machine.
  *  \bug We should report on all backends and the current frontend.

@@ -1756,7 +1756,7 @@ static bool WasAutomaticStart(void)
         {
             QString wakeupCmd = gCoreContext->GetSetting("WakeUpCommand");
 
-            // A slave backend that has no wakeup command cannot be woken
+            // A secondary backend that has no wakeup command cannot be woken
             // automatically so can be ignored.
             if (!wakeupCmd.isEmpty())
             {

@@ -444,7 +444,7 @@ class VideoListImp
     QScopedPointer <MythGenericTree> m_videoTreeRoot;
 
     VideoMetadataListManager m_metadata;
-    meta_dir_node m_metadataTree; // master list for tree views
+    meta_dir_node m_metadataTree; // main list for tree views
 
     metadata_view_list m_metadataViewFlat;
     meta_dir_node m_metadataViewTree;
