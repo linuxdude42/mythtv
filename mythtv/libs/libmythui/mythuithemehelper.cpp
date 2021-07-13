@@ -218,7 +218,7 @@ QList<ThemeInfo> MythUIThemeHelper::GetThemes(ThemeType Type)
     for (const auto & theme : qAsConst(fileList))
     {
         if (theme.baseName() == "default" || theme.baseName() == "default-wide" ||
-            theme.baseName() == "Slave")
+            theme.baseName() == "Secondary")
         {
             continue;
         }
