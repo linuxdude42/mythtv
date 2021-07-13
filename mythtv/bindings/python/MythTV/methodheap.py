@@ -175,7 +175,7 @@ class MythBE( FileOps ):
 
             cmd += ' %d' % id
             if card.hostname != be.hostname:
-                # connect to slave backend if needed
+                # connect to seconary backend if needed
                 be = MythBE(card.hostname, db=self.db)
 
         res = be.backendCommand(cmd).split(BACKEND_SEP)
@@ -377,7 +377,7 @@ class MythBE( FileOps ):
                 )).split(BACKEND_SEP)
         if res[0] == 'EMPTY LIST':
             return -1
-        if res[0] == 'SLAVE UNREACHABLE: ':
+        if res[0] == 'SECONDARY UNREACHABLE: ':
             return -2
         dirs = []
         files = []
@@ -410,7 +410,7 @@ class MythBE( FileOps ):
                 ['QUERY_SG_FILEQUERY',host,sg,path])).split(BACKEND_SEP)
         if res[0] == 'EMPTY LIST':
             return -1
-        if res[0] == 'SLAVE UNREACHABLE: ':
+        if res[0] == 'SECONDARY UNREACHABLE: ':
             return -2
         return tuple(res[1:3])
 

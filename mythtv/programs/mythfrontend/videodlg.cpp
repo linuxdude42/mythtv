@@ -1374,7 +1374,7 @@ QString VideoDialog::RemoteImageCheck(const QString& host, const QString& filena
 
             bool ok = gCoreContext->SendReceiveStringList(list);
 
-            if (!ok || list.at(0).startsWith("SLAVE UNREACHABLE"))
+            if (!ok || list.at(0).startsWith("SECONDARY UNREACHABLE"))
             {
                 LOG(VB_GENERAL, LOG_WARNING,
                     QString("Backend : %1 currently Unreachable. Skipping "

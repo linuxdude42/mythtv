@@ -137,7 +137,7 @@ namespace
         else
             ok = RemoteGetFileList(host, start_path, &list, "Videos");
 
-        if (!ok || (!list.isEmpty() && list.at(0).startsWith("SLAVE UNREACHABLE")))
+        if (!ok || (!list.isEmpty() && list.at(0).startsWith("SECONDARY UNREACHABLE")))
         {
             LOG(VB_GENERAL, LOG_INFO,
                 QString("Backend : %1 : Is currently Unreachable. Skipping "
