@@ -322,10 +322,10 @@ class MainServer : public QObject, public MythSocketCBs
     QSet<MythSocket*>      m_controlSocketList;
     vector<MythSocket*>    m_decrRefSocketList;
 
-    QMutex                      m_masterFreeSpaceListLock;
-    FreeSpaceUpdater * volatile m_masterFreeSpaceListUpdater {nullptr};
-    QWaitCondition              m_masterFreeSpaceListWait;
-    QStringList                 m_masterFreeSpaceList;
+    QMutex                      m_freeSpaceListLock;
+    FreeSpaceUpdater * volatile m_freeSpaceListUpdater {nullptr};
+    QWaitCondition              m_freeSpaceListWait;
+    QStringList                 m_freeSpaceList;
 
     QTimer       *m_primaryServerReconnect   {nullptr}; // audited ref #5318
     PlaybackSock *m_primaryServer            {nullptr};
