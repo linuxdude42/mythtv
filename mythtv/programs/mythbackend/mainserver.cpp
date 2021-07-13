@@ -176,9 +176,9 @@ class FreeSpaceUpdater : public QRunnable
     }
     ~FreeSpaceUpdater() override
     {
-        QMutexLocker locker(&m_parent.m_masterFreeSpaceListLock);
-        m_parent.m_masterFreeSpaceListUpdater = nullptr;
-        m_parent.m_masterFreeSpaceListWait.wakeAll();
+        QMutexLocker locker(&m_parent.m_freeSpaceListLock);
+        m_parent.m_freeSpaceListUpdater = nullptr;
+        m_parent.m_freeSpaceListWait.wakeAll();
     }
 
     void run(void) override // QRunnable
@@ -190,8 +190,8 @@ class FreeSpaceUpdater : public QRunnable
             QStringList list;
             m_parent.BackendQueryDiskSpace(list, true, true);
             {
-                QMutexLocker locker(&m_parent.m_masterFreeSpaceListLock);
-                m_parent.m_masterFreeSpaceList = list;
+                QMutexLocker locker(&m_parent.m_freeSpaceListLock);
+                m_parent.m_freeSpaceList = list;
             }
             QMutexLocker locker(&m_lock);
             std::chrono::milliseconds left = kRequeryTimeout - t.elapsed();
@@ -330,20 +330,20 @@ MainServer::MainServer(bool primary, int port,
 
     AutoExpire::Update(true);
 
-    m_masterFreeSpaceList << gCoreContext->GetHostName();
-    m_masterFreeSpaceList << "TotalDiskSpace";
-    m_masterFreeSpaceList << "0";
-    m_masterFreeSpaceList << "-2";
-    m_masterFreeSpaceList << "-2";
-    m_masterFreeSpaceList << "0";
-    m_masterFreeSpaceList << "0";
-    m_masterFreeSpaceList << "0";
+    m_freeSpaceList << gCoreContext->GetHostName();
+    m_freeSpaceList << "TotalDiskSpace";
+    m_freeSpaceList << "0";
+    m_freeSpaceList << "-2";
+    m_freeSpaceList << "-2";
+    m_freeSpaceList << "0";
+    m_freeSpaceList << "0";
+    m_freeSpaceList << "0";
 
-    m_masterFreeSpaceListUpdater = (primary ? new FreeSpaceUpdater(*this) : nullptr);
-    if (m_masterFreeSpaceListUpdater)
+    m_freeSpaceListUpdater = (primary ? new FreeSpaceUpdater(*this) : nullptr);
+    if (m_freeSpaceListUpdater)
     {
         MThreadPool::globalInstance()->startReserved(
-            m_masterFreeSpaceListUpdater, "FreeSpaceUpdater");
+            m_freeSpaceListUpdater, "FreeSpaceUpdater");
     }
 }
 
@@ -360,9 +360,9 @@ void MainServer::Stop()
     gCoreContext->removeListener(this);
 
     {
-        QMutexLocker locker(&m_masterFreeSpaceListLock);
-        if (m_masterFreeSpaceListUpdater)
-            m_masterFreeSpaceListUpdater->KeepRunning(false);
+        QMutexLocker locker(&m_freeSpaceListLock);
+        if (m_freeSpaceListUpdater)
+            m_freeSpaceListUpdater->KeepRunning(false);
     }
 
     m_threadPool.Stop();
@@ -393,11 +393,11 @@ void MainServer::Stop()
         m_expirer->SetMainServer(nullptr);
 
     {
-        QMutexLocker locker(&m_masterFreeSpaceListLock);
-        while (m_masterFreeSpaceListUpdater)
+        QMutexLocker locker(&m_freeSpaceListLock);
+        while (m_freeSpaceListUpdater)
         {
-            m_masterFreeSpaceListUpdater->KeepRunning(false);
-            m_masterFreeSpaceListWait.wait(locker.mutex());
+            m_freeSpaceListUpdater->KeepRunning(false);
+            m_freeSpaceListWait.wait(locker.mutex());
         }
     }
 
@@ -3424,19 +3424,19 @@ void MainServer::HandleQueryFreeSpace(PlaybackSock *pbs, bool allHosts)
 
     if (allHosts)
     {
-        QMutexLocker locker(&m_masterFreeSpaceListLock);
-        strlist = m_masterFreeSpaceList;
-        if (!m_masterFreeSpaceListUpdater ||
-            !m_masterFreeSpaceListUpdater->KeepRunning(true))
+        QMutexLocker locker(&m_freeSpaceListLock);
+        strlist = m_freeSpaceList;
+        if (!m_freeSpaceListUpdater ||
+            !m_freeSpaceListUpdater->KeepRunning(true))
         {
-            while (m_masterFreeSpaceListUpdater)
+            while (m_freeSpaceListUpdater)
             {
-                m_masterFreeSpaceListUpdater->KeepRunning(false);
-                m_masterFreeSpaceListWait.wait(locker.mutex());
+                m_freeSpaceListUpdater->KeepRunning(false);
+                m_freeSpaceListWait.wait(locker.mutex());
             }
-            m_masterFreeSpaceListUpdater = new FreeSpaceUpdater(*this);
+            m_freeSpaceListUpdater = new FreeSpaceUpdater(*this);
             MThreadPool::globalInstance()->startReserved(
-                m_masterFreeSpaceListUpdater, "FreeSpaceUpdater");
+                m_freeSpaceListUpdater, "FreeSpaceUpdater");
         }
     }
     else
@@ -3454,19 +3454,19 @@ void MainServer::HandleQueryFreeSpaceSummary(PlaybackSock *pbs)
 {
     QStringList strlist;
     {
-        QMutexLocker locker(&m_masterFreeSpaceListLock);
-        strlist = m_masterFreeSpaceList;
-        if (!m_masterFreeSpaceListUpdater ||
-            !m_masterFreeSpaceListUpdater->KeepRunning(true))
+        QMutexLocker locker(&m_freeSpaceListLock);
+        strlist = m_freeSpaceList;
+        if (!m_freeSpaceListUpdater ||
+            !m_freeSpaceListUpdater->KeepRunning(true))
         {
-            while (m_masterFreeSpaceListUpdater)
+            while (m_freeSpaceListUpdater)
             {
-                m_masterFreeSpaceListUpdater->KeepRunning(false);
-                m_masterFreeSpaceListWait.wait(locker.mutex());
+                m_freeSpaceListUpdater->KeepRunning(false);
+                m_freeSpaceListWait.wait(locker.mutex());
             }
-            m_masterFreeSpaceListUpdater = new FreeSpaceUpdater(*this);
+            m_freeSpaceListUpdater = new FreeSpaceUpdater(*this);
             MThreadPool::globalInstance()->startReserved(
-                m_masterFreeSpaceListUpdater, "FreeSpaceUpdater");
+                m_freeSpaceListUpdater, "FreeSpaceUpdater");
         }
     }
 
