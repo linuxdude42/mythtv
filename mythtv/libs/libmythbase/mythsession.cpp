@@ -360,10 +360,8 @@ MythUserSession MythSessionManager::CreateUserSession(uint userId,
     QString clientIdentifier = client;
     if (clientIdentifier.isEmpty())
     {
-        QString type = "Master";
-        if (!gCoreContext->IsPrimaryBackend())
-            type = "Slave";
-
+        QString type =
+            gCoreContext->IsPrimaryBackend() ? "Primary" : "Secondary";
         clientIdentifier =
             QString("%1_%2").arg(type, gCoreContext->GetHostName());
     }
