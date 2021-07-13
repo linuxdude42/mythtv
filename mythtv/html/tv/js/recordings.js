@@ -192,7 +192,7 @@ var MythRecordings = new function() {
         wsClient = new parent.WebSocketEventClient();
         wsClient.name = "Recording List";
         wsClient.eventReceiver = function(event) { HandleMythEvent(event) };
-        wsClient.filters = ["MASTER_UPDATE_REC_INFO", "RECORDING_LIST_CHANGE",
+        wsClient.filters = ["PRIMARY_UPDATE_REC_INFO", "RECORDING_LIST_CHANGE",
                             "UPDATE_FILE_SIZE"];
         parent.globalWSHandler.AddListener(wsClient);
     };
@@ -221,7 +221,7 @@ var MythRecordings = new function() {
             return;
         // TODO: Add some information to the event so we can decide whether
         // the current page needs reloading.
-        if (tokens[0] == "MASTER_UPDATE_REC_INFO")
+        if (tokens[0] == "PRIMARY_UPDATE_REC_INFO")
         {
             if (tokens.length < 2)
                 return;

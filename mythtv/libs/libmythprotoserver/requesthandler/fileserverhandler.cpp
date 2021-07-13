@@ -355,7 +355,7 @@ bool FileServerHandler::HandleAnnounce(MythSocket *socket,
 void FileServerHandler::connectionAnnounced(MythSocket *socket,
                                 QStringList &commands, QStringList &slist)
 {
-    if (commands[1] == "SlaveBackend")
+    if (commands[1] == "SecondaryBackend")
     {
         // were not going to handle these, but we still want to track them
         // for commands that need access to these sockets
@@ -870,7 +870,7 @@ bool FileServerHandler::HandleGetFileList(SocketHandler *socket,
         {
             LOG(VB_FILE, LOG_ERR, QString("Failed to grab secondary socket : %1 :")
                      .arg(wantHost));
-            res << "SLAVE UNREACHABLE: " << wantHost;
+            res << "SECONDARY UNREACHABLE: " << wantHost;
         }
     }
 
@@ -930,7 +930,7 @@ bool FileServerHandler::HandleFileQuery(SocketHandler *socket,
         }
         else
         {
-            res << "SLAVE UNREACHABLE: " << wantHost;
+            res << "SECONDARY UNREACHABLE: " << wantHost;
         }
     }
 

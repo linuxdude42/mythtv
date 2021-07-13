@@ -82,7 +82,7 @@ void ProgramInfoUpdater::run(void)
             }
             else
             {
-                msg = QString("MASTER_UPDATE_REC_INFO %1")
+                msg = QString("PRIMARY_UPDATE_REC_INFO %1")
                     .arg(itu.key());
             }
 

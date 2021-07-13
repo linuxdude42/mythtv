@@ -44,8 +44,8 @@
  *       http://www.mythtv.org/wiki/Category:Myth_Protocol_Commands
  *       http://www.mythtv.org/wiki/Category:Myth_Protocol
  */
-#define MYTH_PROTO_VERSION "91"
-#define MYTH_PROTO_TOKEN "BuzzOff"
+#define MYTH_PROTO_VERSION "92"
+#define MYTH_PROTO_TOKEN "BumbleBee"
 /*
  *  Protocol cleanups needed:
  *

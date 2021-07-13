@@ -1500,10 +1500,10 @@ void MainServer::customEvent(QEvent *e)
         if (me->Message().startsWith("RESET_IDLETIME") && m_sched)
             m_sched->ResetIdleTime();
 
-        if (me->Message() == "LOCAL_RECONNECT_TO_MASTER")
+        if (me->Message() == "LOCAL_RECONNECT_TO_PRIMARY")
             m_primaryServerReconnect->start(kPrimaryServerReconnectTimeout);
 
-        if (me->Message() == "LOCAL_SLAVE_BACKEND_ENCODERS_OFFLINE")
+        if (me->Message() == "LOCAL_SECONDARY_BACKEND_ENCODERS_OFFLINE")
             HandleSecondaryDisconnectedEvent(*me);
 
         if (me->Message().startsWith("LOCAL_"))
@@ -1516,7 +1516,7 @@ void MainServer::customEvent(QEvent *e)
             ImageManagerBe::getInstance()->HandleGetMetadata(me->ExtraData());
 
         std::unique_ptr<MythEvent> mod_me {nullptr};
-        if (me->Message().startsWith("MASTER_UPDATE_REC_INFO"))
+        if (me->Message().startsWith("PRIMARY_UPDATE_REC_INFO"))
         {
             QStringList tokens = me->Message().simplified().split(" ");
             uint recordedid = 0;
@@ -1731,8 +1731,8 @@ void MainServer::HandleVersion(MythSocket *socket, const QStringList &slist)
  * \par        ANN Monitor  \e host \e wantevents
  * Register \e host as a client, and allow shutdown of the socket
  *
- * \par        ANN SlaveBackend \e IPaddress
- * Register \e host as a slave backend, and allow shutdown of the socket
+ * \par        ANN SecondaryBackend \e IPaddress
+ * Register \e host as a secondary backend, and allow shutdown of the socket
  *
  * \par        ANN MediaServer \e IPaddress
  * Register \e host as a media server
@@ -1857,7 +1857,7 @@ void MainServer::HandleAnnounce(QStringList &slist, QStringList commands,
         gCoreContext->SendSystemEvent(
             QString("CLIENT_CONNECTED HOSTNAME %1").arg(commands[2]));
     }
-    else if (commands[1] == "SlaveBackend")
+    else if (commands[1] == "SecondaryBackend")
     {
         if (commands.size() < 4)
         {
@@ -1916,7 +1916,7 @@ void MainServer::HandleAnnounce(QStringList &slist, QStringList commands,
         if (!wasAsleep && m_sched)
             m_sched->ReschedulePlace("SecondaryConnected");
 
-        QString message = QString("LOCAL_SLAVE_BACKEND_ONLINE %2")
+        QString message = QString("LOCAL_SECONDARY_BACKEND_ONLINE %2")
                                   .arg(commands[2]);
         MythEvent me(message);
         gCoreContext->dispatch(me);
@@ -1926,7 +1926,7 @@ void MainServer::HandleAnnounce(QStringList &slist, QStringList commands,
         m_autoexpireUpdateTimer->start(1s);
 
         gCoreContext->SendSystemEvent(
-            QString("SLAVE_CONNECTED HOSTNAME %1").arg(commands[2]));
+            QString("SECONDARY_CONNECTED HOSTNAME %1").arg(commands[2]));
     }
     else if (commands[1] == "FileTransfer")
     {
@@ -3602,7 +3602,7 @@ void MainServer::HandleQueryTimeZone(PlaybackSock *pbs)
 
 /**
  * \addtogroup myth_network_protocol
- * \par        QUERY_CHECKFILE \e checkslaves \e programinfo
+ * \par        QUERY_CHECKFILE \e checksecondaries \e programinfo
  */
 void MainServer::HandleQueryCheckFile(QStringList &slist, PlaybackSock *pbs)
 {
@@ -3977,7 +3977,7 @@ void MainServer::HandleSGGetFileList(QStringList &sList,
     }
 
     if (secondaryUnreachable)
-        strList << "SLAVE UNREACHABLE: " << host;
+        strList << "SECONDARY UNREACHABLE: " << host;
 
     if (strList.isEmpty() || (strList.at(0) == "0"))
         strList << "EMPTY LIST";
@@ -4088,7 +4088,7 @@ void MainServer::HandleQueryFindFile(QStringList &slist, PlaybackSock *pbs)
         else
         {
             LOG(VB_FILE, LOG_INFO, LOC + QString("Secondary '%1' was unreachable").arg(hostname));
-            fileList << QString("ERROR: SLAVE UNREACHABLE: %1").arg(hostname);
+            fileList << QString("ERROR: SECONDARY UNREACHABLE: %1").arg(hostname);
             SendResponse(pbs->getSocket(), fileList);
             return;
         }
@@ -4259,7 +4259,7 @@ void MainServer::HandleSGFileQuery(QStringList &sList,
     }
 
     if (secondaryUnreachable)
-        strList << "SLAVE UNREACHABLE: " << wantHost;
+        strList << "SECONDARY UNREACHABLE: " << wantHost;
 
     if (strList.count() == 0 || (strList.at(0) == "0"))
         strList << "EMPTY LIST";
@@ -5992,7 +5992,7 @@ void MainServer::HandleMusicTagUpdateVolatile(const QStringList &slist, Playback
         LOG(VB_GENERAL, LOG_INFO, LOC +
             QString("HandleMusicTagUpdateVolatile: Failed to grab secondary socket on '%1'").arg(hostname));
 
-        strlist << "ERROR: slave not found";
+        strlist << "ERROR: secondary not found";
 
         if (pbssock)
             SendResponse(pbssock, strlist);
@@ -6052,7 +6052,7 @@ void MainServer::HandleMusicCalcTrackLen(const QStringList &slist, PlaybackSock 
         LOG(VB_GENERAL, LOG_INFO, LOC +
             QString("HandleMusicCalcTrackLen: Failed to grab secondary socket on '%1'").arg(hostname));
 
-        strlist << "ERROR: slave not found";
+        strlist << "ERROR: secondary not found";
 
         if (pbssock)
             SendResponse(pbssock, strlist);
@@ -6112,7 +6112,7 @@ void MainServer::HandleMusicTagUpdateMetadata(const QStringList &slist, Playback
             QString("HandleMusicTagUpdateMetadata: Failed to grab "
                     "secondary socket on '%1'").arg(hostname));
 
-        strlist << "ERROR: slave not found";
+        strlist << "ERROR: secondary not found";
 
         if (pbssock)
             SendResponse(pbssock, strlist);
@@ -6198,7 +6198,7 @@ void MainServer::HandleMusicFindAlbumArt(const QStringList &slist, PlaybackSock 
             QString("HandleMusicFindAlbumArt: Failed to grab "
                     "secondary socket on '%1'").arg(hostname));
 
-        strlist << "ERROR: slave not found";
+        strlist << "ERROR: secondary not found";
 
         if (pbssock)
             SendResponse(pbssock, strlist);
@@ -6404,7 +6404,7 @@ void MainServer::HandleMusicTagChangeImage(const QStringList &slist, PlaybackSoc
             QString("HandleMusicTagChangeImage: Failed to grab "
                     "secondary socket on '%1'").arg(hostname));
 
-        strlist << "ERROR: slave not found";
+        strlist << "ERROR: secondary not found";
 
         if (pbssock)
             SendResponse(pbssock, strlist);
@@ -6571,7 +6571,7 @@ void MainServer::HandleMusicTagAddImage(const QStringList& slist, PlaybackSock* 
             QString("HandleMusicTagAddImage: Failed to grab "
                     "secondary socket on '%1'").arg(hostname));
 
-        strlist << "ERROR: slave not found";
+        strlist << "ERROR: secondary not found";
 
         if (pbssock)
             SendResponse(pbssock, strlist);
@@ -6726,7 +6726,7 @@ void MainServer::HandleMusicTagRemoveImage(const QStringList& slist, PlaybackSoc
             QString("HandleMusicTagRemoveImage: Failed to grab "
                     "secondary socket on '%1'").arg(hostname));
 
-        strlist << "ERROR: slave not found";
+        strlist << "ERROR: secondary not found";
 
         if (pbssock)
             SendResponse(pbssock, strlist);
@@ -7801,7 +7801,7 @@ void MainServer::connectionClosed(MythSocket *socket)
             m_sockListLock.unlock();
             m_primaryServer->DecrRef();
             m_primaryServer = nullptr;
-            MythEvent me("LOCAL_RECONNECT_TO_MASTER");
+            MythEvent me("LOCAL_RECONNECT_TO_PRIMARY");
             gCoreContext->dispatch(me);
             return;
         }
@@ -7834,7 +7834,7 @@ void MainServer::connectionClosed(MythSocket *socket)
                 if (m_sched && !isFallingAsleep)
                     needsReschedule = true;
 
-                QString message = QString("LOCAL_SLAVE_BACKEND_OFFLINE %1")
+                QString message = QString("LOCAL_SECONDARY_BACKEND_OFFLINE %1")
                                           .arg(pbs->getHostname());
                 MythEvent me(message);
                 gCoreContext->dispatch(me);
@@ -7843,7 +7843,7 @@ void MainServer::connectionClosed(MythSocket *socket)
                 gCoreContext->dispatch(me2);
 
                 gCoreContext->SendSystemEvent(
-                    QString("SLAVE_DISCONNECTED HOSTNAME %1")
+                    QString("SECONDARY_DISCONNECTED HOSTNAME %1")
                             .arg(pbs->getHostname()));
             }
             else if (m_isPrimary && pbs->IsFrontend())
@@ -8197,7 +8197,7 @@ void MainServer::reconnectTimeout(void)
 
     LOG(VB_GENERAL, LOG_NOTICE, LOC + "Connected successfully");
 
-    QString str = QString("ANN SlaveBackend %1 %2")
+    QString str = QString("ANN SecondaryBackend %1 %2")
                           .arg(gCoreContext->GetHostName(),
                                gCoreContext->GetBackendServerIP());
 
@@ -8331,7 +8331,7 @@ void MainServer::SendSecondaryDisconnectedEvent(
     for (it = offlineEncoderIDs.begin(); it != offlineEncoderIDs.end(); ++it)
         extraData.push_back(QString::number(*it));
 
-    MythEvent me("LOCAL_SLAVE_BACKEND_ENCODERS_OFFLINE", extraData);
+    MythEvent me("LOCAL_SECONDARY_BACKEND_ENCODERS_OFFLINE", extraData);
     gCoreContext->dispatch(me);
 }
 
