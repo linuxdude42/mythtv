@@ -160,7 +160,7 @@ MediaRenderer::MediaRenderer()
         if (subscription)
             UPNPScanner::Enable(true, subscription);
 
-        // ensure the frontend is aware of all backends (slave and master) and
+        // ensure the frontend is aware of all backends (secondary and primary) and
         // other frontends
         SSDP::Instance()->PerformSearch("ssdp:all");
     }

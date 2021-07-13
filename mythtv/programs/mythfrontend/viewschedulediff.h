@@ -63,7 +63,7 @@ class ViewScheduleDiff : public MythScreenType
 
     std::vector<class ProgramStruct> m_recList;
 
-    int m_recordid {-1}; ///< recordid that differs from master (-1 = assume all)
+    int m_recordid {-1}; ///< recordid that differs from primary (-1 = assume all)
 };
 
 #endif
