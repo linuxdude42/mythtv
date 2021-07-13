@@ -884,22 +884,22 @@
             </state>
             <state name="beWOL" from="start">
                 <textarea name="status">
-                    <value>Attempting to wake master backend.</value>
+                    <value>Attempting to wake primary backend.</value>
                 </textarea>
             </state>
             <state name="beWOLFail" from="start">
                 <textarea name="status">
-                    <value>Master backend failed to wake.</value>
+                    <value>Primary backend failed to wake.</value>
                 </textarea>
             </state>
             <state name="beAwake" from="start">
                 <textarea name="status">
-                    <value>Attempting to connect to master backend.</value>
+                    <value>Attempting to connect to primary backend.</value>
                 </textarea>
             </state>
             <state name="beAwakeFail" from="start">
                 <textarea name="status">
-                    <value>Unable to connect to master backend.</value>
+                    <value>Unable to connect to primary backend.</value>
                 </textarea>
             </state>
         </statetype>

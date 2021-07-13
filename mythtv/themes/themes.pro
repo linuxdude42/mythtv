@@ -3,7 +3,7 @@ include ( ../settings.pro )
 TEMPLATE = aux
 
 themes.path = $${PREFIX}/share/mythtv/themes/
-themes.files = default default-wide classic DVR Slave
+themes.files = default default-wide classic DVR Secondary
 themes.files += Terra defaultmenu mediacentermenu
 themes.files += MythCenter MythCenter-wide
 themes.files += mythuitheme.dtd
