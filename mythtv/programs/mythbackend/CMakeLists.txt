@@ -148,6 +148,11 @@ add_executable(
   upnpcdsvideo.cpp
   upnpcdsvideo.h)
 
+if(TARGET Qt${QT_VERSION_MAJOR}::DBus)
+  target_sources(mythbackend PRIVATE platforms/mythnetworkdbus.h
+                                     platforms/mythnetworkdbus.cpp)
+endif()
+
 target_include_directories(mythbackend PRIVATE .)
 
 target_link_libraries(
