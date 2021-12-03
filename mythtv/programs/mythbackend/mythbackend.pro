@@ -95,3 +95,9 @@ SOURCES += servicesv2/v2capture.cpp
 SOURCES += servicesv2/v2music.cpp
 SOURCES += servicesv2/v2serviceUtil.cpp
 SOURCES += servicesv2/v2config.cpp
+
+using_qtdbus {
+    QT      += dbus
+    HEADERS += platforms/mythnetworkdbus.h
+    SOURCES += platforms/mythnetworkdbus.cpp
+}

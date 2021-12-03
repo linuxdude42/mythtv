@@ -74,6 +74,10 @@ static inline void be_sd_notify(const char */*str*/) {};
 #include "servicesv2/v2music.h"
 #include "servicesv2/v2config.h"
 
+#ifdef CONFIG_DBUS
+#include "platforms/mythnetworkdbus.h"
+#endif
+
 #define LOC      QString("MythBackend: ")
 #define LOC_WARN QString("MythBackend, Warning: ")
 #define LOC_ERR  QString("MythBackend, Error: ")
@@ -590,6 +594,10 @@ int run_backend(MythBackendCommandLineParser &cmdline)
     bool runsched = setupTVs(ismaster, fatal_error);
     if (fatal_error)
         return GENERIC_EXIT_SETUP_ERROR;
+
+#ifdef CONFIG_DBUS
+    new MythNetworkDBus(QCoreApplication::instance());
+#endif
 
     Scheduler *sched = nullptr;
     if (ismaster)
