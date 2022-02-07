@@ -60,3 +60,9 @@ uic_wrapper.sh
 __pycache__
 mocinclude.opt
 build
+*.bak
+README.CMake.*
+CMakeUserPresets.json
+libsinstall*
+cppcheck.html
+cppcheck.xml
