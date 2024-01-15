@@ -32,9 +32,10 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_INSTALL_FULL_LIBDIR}/cmake")
 #
 # Describe this project
 #
-project(WindowsPackaging
-        VERSION ${SUPER_VERSION}
-        LANGUAGES CXX)
+project(
+  WindowsPackaging
+  VERSION ${SUPER_VERSION}
+  LANGUAGES CXX)
 include(VersionInformation)
 
 # Save variables for rebuilds
@@ -59,8 +60,8 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS ON)
 
-# Inject code from super-project provided modules (part 1).  We need
-# the options before setting up variables for Qt.
+# Inject code from super-project provided modules (part 1).  We need the options
+# before setting up variables for Qt.
 include(MythOptions)
 message(STATUS "Including user overrides ${MYTH_USER_OVERRIDES1}")
 include(${MYTH_USER_OVERRIDES1} OPTIONAL)
@@ -79,27 +80,26 @@ endif()
 file(MAKE_DIRECTORY install/bin/plugin)
 
 #
-# Given a directory and a target pattern, for each matching file do
-# the following:
+# Given a directory and a target pattern, for each matching file do the
+# following:
 #
 # 1) symlink the file into the specified directory
 #
 # 2) create a dependency upon the original file
 #
 function(link_files TYPE BASE PATTERN TARGET)
-  #message(DEBUG "link_files(${TYPE} ${BASE} ${PATTERN} ${TARGET})")
+  # message(DEBUG "link_files(${TYPE} ${BASE} ${PATTERN} ${TARGET})")
   file(${TYPE} FILES RELATIVE ${BASE} ${BASE}/${PATTERN})
-  #message(DEBUG "FILES: ${FILES}")
+  # message(DEBUG "FILES: ${FILES}")
   foreach(FILE IN LISTS FILES)
-    file(CREATE_LINK ${BASE}/${FILE} ${TARGET}/${FILE}
-         COPY_ON_ERROR SYMBOLIC)
+    file(CREATE_LINK ${BASE}/${FILE} ${TARGET}/${FILE} COPY_ON_ERROR SYMBOLIC)
     list(APPEND ALLFILES ${BASE}/${FILE})
   endforeach()
 endfunction()
 
 #
-# Consolidate all files in the LIBS_INSTALL_PREFIX and
-# CMAKE_INSTALL_PREFIX directories into a single location.
+# Consolidate all files in the LIBS_INSTALL_PREFIX and CMAKE_INSTALL_PREFIX
+# directories into a single location.
 #
 set(PREFIXES ${LIBS_INSTALL_PREFIX} ${CMAKE_INSTALL_PREFIX})
 list(REMOVE_DUPLICATES PREFIXES)
@@ -120,7 +120,7 @@ foreach(PREFIX IN LISTS PREFIXES)
   link_files(GLOB_RECURSE ${PREFIX}/lib "python*/*" install/lib)
 
   # lib64
- if(EXISTS ${PREFIX}/lib64)
+  if(EXISTS ${PREFIX}/lib64)
     link_files(GLOB_RECURSE ${PREFIX}/lib64 "perl*/*" install/lib)
     link_files(GLOB_RECURSE ${PREFIX}/lib64 "python*/*" install/lib)
   endif()
@@ -137,10 +137,9 @@ foreach(PREFIX IN LISTS PREFIXES)
 endforeach()
 
 #
-# Pick up other libraries from the mingw sys-root.  Some of these are
-# libraries that we didn't have to build because they were available
-# in pre-built mingw packages.  Others are low level gcc/mingw
-# libraries.
+# Pick up other libraries from the mingw sys-root.  Some of these are libraries
+# that we didn't have to build because they were available in pre-built mingw
+# packages.  Others are low level gcc/mingw libraries.
 #
 set(SYSROOT /usr/${TOOLCHAIN_PREFIX}/sys-root/mingw)
 set(FILENAME_BASES
@@ -186,10 +185,7 @@ set(FILENAME_BASES
     # cmake-format: on
 )
 
-function(find_names
-         VARIABLE
-         PATH
-         SUFFIX)
+function(find_names VARIABLE PATH SUFFIX)
   if(ARGC LESS 4)
     message(DEBUG "Not enough arguments to find_names")
   endif()
@@ -202,26 +198,21 @@ function(find_names
       PARENT_SCOPE)
 endfunction()
 
-# Copy dll files from the sysroot bin directory to our local install
-# tree.
-find_names(
-  BINNAMES
-  "${SYSROOT}/bin"
-  "*.dll"
-  ${FILENAME_BASES})
+# Copy dll files from the sysroot bin directory to our local install tree.
+find_names(BINNAMES "${SYSROOT}/bin" "*.dll" ${FILENAME_BASES})
 if(BINNAMES)
   file(COPY ${BINNAMES} DESTINATION install/bin)
 endif()
 
 #
-# Cmake puts all DLL files into /bin. Move the plugins to the right
-# directory.
+# Cmake puts all DLL files into /bin. Move the plugins to the right directory.
 #
-link_files(GLOB ${PROJECT_BINARY_DIR}/install/lib/mythtv/plugins *.dll install/bin/plugins)
+link_files(GLOB ${PROJECT_BINARY_DIR}/install/lib/mythtv/plugins *.dll
+           install/bin/plugins)
 
 #
-# Command to create the zip install file, dependent on any of the
-# original files that were symlinked into the local install directory.
+# Command to create the zip install file, dependent on any of the original files
+# that were symlinked into the local install directory.
 #
 add_custom_command(
   OUTPUT MythTV_Windows.zip

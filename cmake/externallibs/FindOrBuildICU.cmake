@@ -5,13 +5,13 @@
 #
 
 # Windows builds of Qt use the Windows API instead of ICU.
-# https://lists.qt-project.org/pipermail/development/2016-May/025797.html
-# We create a library here so that harfbuzz can declare a dependency
-# on ICU without having to care whether it is building for android or
-# windows.
+# https://lists.qt-project.org/pipermail/development/2016-May/025797.html We
+# create a library here so that harfbuzz can declare a dependency on ICU without
+# having to care whether it is building for android or windows.
 if(WIN32)
   add_library(icu SHARED IMPORTED GLOBAL)
   function(find_or_build_icu)
+
   endfunction()
   return()
 endif()
