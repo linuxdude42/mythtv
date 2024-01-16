@@ -121,6 +121,9 @@ option(ENABLE_FIREWIRE "Enable support for FireWire cable boxes." ON)
 set(MYTH_FIREWIRE_SDK
     "$ENV{HOME}/Frameworks"
     CACHE PATH "Specify location for mac FireWire SDK [mac only]")
+if(NOT EXISTS ${MYTH_FIREWIRE_SDK})
+  set(MYTH_FIREWIRE_SDK "")
+endif()
 
 #
 # Miscellaneous features
