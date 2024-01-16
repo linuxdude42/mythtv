@@ -207,11 +207,14 @@ if(ENABLE_FIREWIRE)
             recorders/firewiresignalmonitor.cpp)
 
   if(APPLE)
-    target_compile_definitions(mythtv PRIVATE USING_OSX_FIREWIRE)
+    target_compile_definitions(mythtv PRIVATE USING_FIREWIRE USING_OSX_FIREWIRE)
+    target_compile_options(mythtv PRIVATE -iframework
+                                          ${APPLE_AVCVIDEOSERVICES_HEADERS})
     target_sources(
       mythtv
       PRIVATE recorders/darwinfirewiredevice.h recorders/darwinavcinfo.h
               recorders/darwinavcinfo.cpp recorders/darwinfirewiredevice.cpp)
+    target_link_libraries(mythtv PUBLIC ${APPLE_AVCVIDEOSERVICES_LIBRARY})
   else()
     target_compile_definitions(mythtv PRIVATE USING_LINUX_FIREWIRE)
     target_sources(
