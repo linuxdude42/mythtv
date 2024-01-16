@@ -43,8 +43,8 @@ set(CMAKE_AUTOMOC ON)
 # initialization performed by the project function.
 #
 include(MythOptions)
-message(STATUS "Including user overrides ${USER_OVERRIDES1}")
-include(${USER_OVERRIDES1} OPTIONAL)
+message(STATUS "Including user overrides ${MYTH_USER_OVERRIDES1}")
+include(${MYTH_USER_OVERRIDES1} OPTIONAL)
 
 #
 # Declare the 'theme string tool' project
@@ -58,8 +58,8 @@ include(VersionInformation)
 #
 # Read user options (part 2)
 #
-message(STATUS "Including user overrides ${USER_OVERRIDES2}")
-include(${USER_OVERRIDES2} OPTIONAL)
+message(STATUS "Including user overrides ${MYTH_USER_OVERRIDES2}")
+include(${MYTH_USER_OVERRIDES2} OPTIONAL)
 
 # Inject code from project provided modules
 include(SetSearchPaths)
