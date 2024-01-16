@@ -8,6 +8,16 @@ if(NOT APPLE)
   return()
 endif()
 
+# MacPorts or Homebrew?
+if(EXISTS /opt/local/share/macports)
+  set(MACPORTS ON)
+elseif(
+  EXISTS /opt/local/bin/port
+  OR EXISTS /usr/local/bin/brew
+  OR EXISTS /opt/homebrew/bin/brew)
+  set(HOMEBREW ON)
+endif()
+
 #
 # Apple builds require Objective C++ compiler.
 #
@@ -15,7 +25,11 @@ include(CheckLanguage)
 check_language(OBJCXX)
 
 # FFmpeg needs a little help in finding the mp3lame library.
-list(APPEND FF_PLATFORM_ARGS "--extra-ldflags=-L/opt/local/lib")
+if(MACPORTS)
+  list(APPEND FF_PLATFORM_ARGS "--extra-ldflags=-L/opt/local/lib")
+elseif(HOMEBREW)
+  list(APPEND FF_PLATFORM_ARGS "--extra-ldflags=-L/opt/homebrew/lib")
+endif()
 
 # Qt6 builds need a little help finding the libraries.
 set(_QT_BASE "/opt/local/libexec/${QT_PKG_NAME_LC}")
