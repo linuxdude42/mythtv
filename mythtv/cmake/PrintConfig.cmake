@@ -40,7 +40,8 @@ function(message_trg4 _label1 _target1 _label2 _target2)
 endfunction()
 
 function(message_vrbl _label _vname)
-  if("${${_vname}}" STREQUAL "" OR "${${_vname}}" MATCHES "NOTFOUND")
+  if("${${_vname}}" STREQUAL "" OR "${${_vname}}" MATCHES
+                                   "(OFF|FALSE|NOTFOUND)")
     set(_string no)
   else()
     set(_string yes)
