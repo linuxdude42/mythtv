@@ -460,6 +460,10 @@ if(APPLE)
   find_library(APPLE_IOSURFACE_LIBRARY IOSurface)
   find_library(APPLE_OPENGL_LIBRARY OpenGL)
   find_library(APPLE_VIDEOTOOLBOX_LIBRARY VideoToolbox)
+  if(NOT APPLE_AVCVIDEOSERVICES_LIBRARY)
+    message(STATUS "Firewire being disabled. FireWire SDK missing.")
+    set(ENABLE_FIREWIRE OFF)
+  endif()
 
   # Take our cue on videotolbox from ffmpeg
   find_program(_ffmpeg mythffmpeg)
@@ -545,15 +549,7 @@ if(ENABLE_MHEG)
   target_compile_definitions(mythtv_mheg INTERFACE USING_MHEG)
 endif()
 
-if(ENABLE_FIREWIRE AND ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  if(${MYTH_FIREWIRE_SDK} STREQUAL ""
-     OR NOT EXISTS ${MYTH_FIREWIRE_SDK}
-     OR NOT EXISTS ${MYTH_FIREWIRE_SDK}/AVCVideoServices.framework)
-    message(STATUS "Firewire being disabled. FireWire SDK missing.")
-    set(ENABLE_FIREWIRE OFF)
-  endif()
-endif()
-if(ENABLE_FIREWIRE)
+if(ENABLE_FIREWIRE AND NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   pkg_check_modules(LibAVC1394 libavc1394 IMPORTED_TARGET)
   pkg_check_modules(LibIEC61883 libiec61883 IMPORTED_TARGET)
   if(TARGET PkgConfig::LibAVC1394 AND TARGET PkgConfig::LibIEC61883)
