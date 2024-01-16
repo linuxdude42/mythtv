@@ -445,11 +445,11 @@ if(APPLE)
     set(DARWIN_DA TRUE)
   endif()
 
-  list(APPEND CMAKE_FRAMEWORK_PATH MYTH_FIREWIRE_SDK)
   find_library(APPLE_APPLICATIONSERVICES_LIBRARY ApplicationServices)
   find_library(APPLE_AUDIOTOOLBOX_LIBRARY AudioToolbox)
   find_library(APPLE_AUDIOUNIT_LIBRARY AudioUnit)
-  find_library(APPLE_AVCVIDEOSERVICES_LIBRARY AVCVideoServices)
+  find_library(APPLE_AVCVIDEOSERVICES_LIBRARY AVCVideoServices
+               PATHS ${MYTH_FIREWIRE_SDK})
   find_library(APPLE_COCOA_LIBRARY Cocoa)
   find_library(APPLE_COREAUDIO_LIBRARY CoreAudio)
   find_library(APPLE_COREFOUNDATION_LIBRARY CoreFoundation)
