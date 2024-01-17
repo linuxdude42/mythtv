@@ -52,7 +52,7 @@ endif()
 # have no dependencies on MythTV and must have already been compiled and
 # installed by the super-package.
 #
-pkg_check_modules(LIBUDFREAD "libudfread >= 1.1.1" REQUIRED IMPORTED_TARGET)
+pkg_check_modules(LIBUDFREAD "libudfread>=1.1.1" REQUIRED IMPORTED_TARGET)
 
 # Sigh the exiv2Config.cmake file doesn't provide anything.
 #
@@ -66,7 +66,7 @@ pkg_check_modules(EXIV2 "exiv2>=0.27.99" REQUIRED IMPORTED_TARGET)
 # If not provided by the system, this is currently built as part of mythtv (not
 # the super-package) because it does have some tweaks.
 #
-pkg_check_modules(SYSTEM_LIBBLURAY "libbluray >= 0.9.3" IMPORTED_TARGET)
+pkg_check_modules(SYSTEM_LIBBLURAY "libbluray>=0.9.3" IMPORTED_TARGET)
 if(SYSTEM_LIBBLURAY_FOUND)
   target_compile_definitions(PkgConfig::SYSTEM_LIBBLURAY
                              INTERFACE HAVE_LIBBLURAY)
@@ -180,7 +180,7 @@ endif()
 #
 pkg_check_modules(LIBZIP "libzip" REQUIRED IMPORTED_TARGET)
 
-pkg_check_modules(TAGLIB "taglib >= 1.11.1" REQUIRED IMPORTED_TARGET)
+pkg_check_modules(TAGLIB "taglib>=1.11.1" REQUIRED IMPORTED_TARGET)
 add_build_config(PkgConfig::TAGLIB "taglib")
 pkg_check_modules(SAMPLERATE samplerate REQUIRED IMPORTED_TARGET)
 # MacPorts doesn't include the SoundTouch cmake module, but it does have a
@@ -294,7 +294,7 @@ endif()
 if(ENABLE_AUDIO_ALSA)
   # Can't call find_package("ALSA") on OSX. Use pkg_check_modules. 1.0.16
   # contains SND_PCM_NO_AUTO_RESAMPLE
-  pkg_check_modules(ALSA "alsa >= 1.0.16" IMPORTED_TARGET)
+  pkg_check_modules(ALSA "alsa>=1.0.16" IMPORTED_TARGET)
   add_build_config(PkgConfig::ALSA "alsa")
   if(ALSA_FOUND)
     target_compile_definitions(PkgConfig::ALSA INTERFACE USING_ALSA)

@@ -176,7 +176,7 @@ add_build_config(CRYSTALHD "crystalhd")
 #
 # See if there is a system libbluray for FFmpeg.
 #
-pkg_check_modules(SYSTEM_LIBBLURAY "libbluray >= 0.9.3" IMPORTED_TARGET)
+pkg_check_modules(SYSTEM_LIBBLURAY "libbluray>=0.9.3" IMPORTED_TARGET)
 add_build_config(PkgConfig::SYSTEM_LIBBLURAY "system_libbluray")
 if(SYSTEM_LIBBLURAY_FOUND)
   target_compile_definitions(PkgConfig::SYSTEM_LIBBLURAY

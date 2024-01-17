@@ -8,7 +8,7 @@
 # Maybe build libudfread.
 #
 function(find_or_build_udfread)
-  pkg_check_modules(LIBUDFREAD "libudfread >= 1.1.1" QUIET IMPORTED_TARGET)
+  pkg_check_modules(LIBUDFREAD "libudfread>=1.1.1" QUIET IMPORTED_TARGET)
   if(TARGET PkgConfig::LIBUDFREAD)
     message(
       STATUS
