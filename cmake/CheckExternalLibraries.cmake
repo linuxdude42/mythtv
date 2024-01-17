@@ -27,6 +27,8 @@ set(HAVE_THREADS ${Threads_FOUND}) # avformatdecoder and globalsettings
 #
 # Check libraries
 #
+
+# freetype2: fedora:freetype-devel debian:libfreetype-dev
 if(ENABLE_FREETYPE)
   # See https://github.com/ImageMagick/freetype/blob/main/docs/VERSIONS.TXT for
   # conversion between freetype release number and the (libtool) number returned
@@ -36,41 +38,48 @@ if(ENABLE_FREETYPE)
   set(HAVE_FT2 ${FT2_FOUND})
 endif()
 
+# fontconfig: fedora:fontconfig-devel debian:libfontconfig-dev
 if(ENABLE_FONTCONFIG)
   find_package(Fontconfig REQUIRED) # Only as a module
   add_build_config(Fontconfig::Fontconfig "fontconfig")
   set(HAVE_FONTCONFIG 1)
 endif()
 
+# xml2: fedora:libxml2-devel debian:libxml2-dev
 if(ENABLE_XML2)
   pkg_check_modules(LibXml2 "libxml-2.0" REQUIRED IMPORTED_TARGET)
   add_build_config(PkgConfig::LibXml2 "libxml2")
   set(HAVE_LIBXML2 1)
 endif()
 
+# x264: fedora:x264-devel debian:libx264-dev
 find_package(LibX264 0.118)
 if(ENABLE_X264 AND LibX264_VERSION)
   add_build_config(LibX264::LibX264 "x264")
   set(HAVE_LIBX264 ${LibX264_FOUND})
 endif()
 
+# x265: fedora:x265-devel debian:libx265-dev
 find_package(LibX265)
 if(ENABLE_X265 AND LibX265_VERSION)
   add_build_config(LibX265::LibX265 "x265")
   set(HAVE_LIBX264 ${LibX264_FOUND})
 endif()
 
+# xvid: fedora:xvidcore-devel debian:libxvidcore-dev
 find_package(LibXvid)
 if(ENABLE_XVID AND LibX2vid_VERSION)
   add_build_config(LibXvid::LibXvid "xvid")
   set(HAVE_LIBXvid ${LibXvid_FOUND})
 endif()
 
+# vpx: fedora:libvpx-devel debian:libvpx-dev
 if(ENABLE_VPX)
   pkg_check_modules(LIBVPX "vpx" IMPORTED_TARGET)
   add_build_config(PkgConfig::LIBVPX "vpx")
 endif()
 
+# mp3lame: fedora:lame-devel debian:libmp3lame-dev
 if(ENABLE_MP3LAME)
   find_package(Lame 3.98.3 MODULE REQUIRED)
   if(Lame_VERSION STREQUAL "unknown")
@@ -81,6 +90,7 @@ if(ENABLE_MP3LAME)
   add_library(lame ALIAS Lame::Lame)
 endif()
 
+# vdpau: fedora:libvdpau-devel debian:libvdpau-dev
 if(ENABLE_VDPAU)
   # Version 0.2 contains VDP_DECODER_PROFILE_MPEG4_PART2_ASP and
   # vdp_device_create_x11
@@ -91,6 +101,7 @@ if(ENABLE_VDPAU)
   endif()
 endif()
 
+# vaapi: fedora:libva-devel debian:libva-dev
 if(ENABLE_VAAPI)
   # No need to check for the individual features below.  Libva 1.2 was released
   # in 2013 and contains all these features. Just require libva >= 1.2.
@@ -113,6 +124,7 @@ if(ENABLE_VAAPI)
   endif()
 endif()
 
+# ass: fedora:libass-devel debian:libass-dev
 if(ENABLE_LIBASS)
   pkg_check_modules(LIBASS "libass>=0.9.10" IMPORTED_TARGET)
   add_build_config(PkgConfig::LIBASS "libass")
@@ -121,21 +133,28 @@ if(ENABLE_LIBASS)
   endif()
 endif()
 
+# udev: fedora:libdav1d-devel debian:libdav1d-dev
 if(ENABLE_LIBDAV1D)
   pkg_check_modules(LIBDAV1D "dav1d" IMPORTED_TARGET)
   add_build_config(PkgConfig::LIBDAV1 "dav1d")
 endif()
 
+# aom: fedora:libaom-devel debian:libaom-dev
 if(ENABLE_LIBAOM)
   pkg_check_modules(LIBAOM "aom" IMPORTED_TARGET)
   add_build_config(PkgConfig::LIBAOM "aom")
 endif()
 
+# gnutls: fedora:gnutls-devel debian:libgnutls28-dev
 if(ENABLE_GNUTLS)
   pkg_check_modules(GNUTLS "gnutls" IMPORTED_TARGET)
   add_build_config(PkgConfig::GNUTLS "gnutls")
 endif()
 
+# ~~~
+# udev: fedora:libiec61883-devel debian:libiec61883-dev
+# udev: fedora:libavc1394-devel debian:libavc1394-dev
+# ~~~
 if(ENABLE_FIREWIRE)
   pkg_check_modules(LIBIEC61883 "libiec61883" IMPORTED_TARGET)
   add_build_config(PkgConfig::LIBIEC61883 "iec61883")
@@ -147,11 +166,13 @@ if(ENABLE_FIREWIRE)
   endif()
 endif()
 
+# sdl2: fedora:SDL2-devel debian:libsdl2-dev
 if(ENABLE_SDL2)
   pkg_check_modules(SDL2 "sdl2" IMPORTED_TARGET)
   add_build_config(PkgConfig::SDL2 "sdl2")
 endif()
 
+# drm: fedora:libdrm-devel debian:libdrm-dev
 if(ENABLE_DRM)
   # ~~~
   # Drop old checks:
@@ -170,12 +191,15 @@ if(ENABLE_DRM)
 endif()
 
 # Needed to pass right config option to FFmpeg
+#
+# crystalhd: fedora:libcrystalhd-devel debian:libcrystalhd-dev
 find_library(CRYSTALHD crystalhd)
 add_build_config(CRYSTALHD "crystalhd")
 
 #
 # See if there is a system libbluray for FFmpeg.
 #
+# bluray: fedora:libbluray-devel debian:libbluray-dev
 pkg_check_modules(SYSTEM_LIBBLURAY "libbluray>=0.9.3" IMPORTED_TARGET)
 add_build_config(PkgConfig::SYSTEM_LIBBLURAY "system_libbluray")
 if(SYSTEM_LIBBLURAY_FOUND)

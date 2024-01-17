@@ -178,13 +178,20 @@ endif()
 # (on Fedora) is part of a separate libzip-tools package and may or may not be
 # installed.  Use pkg-config which only cares about the presence of the library.
 #
+# libzip: fedora:libzip-devel debian:libzip-dev:
 pkg_check_modules(LIBZIP "libzip" REQUIRED IMPORTED_TARGET)
 
+# taglib: fedora:taglib-devel debian:libtag1-dev
 pkg_check_modules(TAGLIB "taglib>=1.11.1" REQUIRED IMPORTED_TARGET)
 add_build_config(PkgConfig::TAGLIB "taglib")
+
+# samplerate: fedora:libsamplerate-devel debian:libsamplerate0-dev
 pkg_check_modules(SAMPLERATE samplerate REQUIRED IMPORTED_TARGET)
+
 # MacPorts doesn't include the SoundTouch cmake module, but it does have a
 # pkg-config file, so use pkg-config everywhere for consistency.
+#
+# soundtouch: fedora:soundtouch-devel debian:libsoundtouch-dev
 pkg_check_modules(SoundTouch "soundtouch>=1.8.0" REQUIRED IMPORTED_TARGET)
 
 #
@@ -291,6 +298,7 @@ if(NOT TARGET Vulkan::Vulkan AND NOT _HAVE_GL_OR_GLES)
   message(FATAL_ERROR "Require one of OpenGL or Vulkan. None found!")
 endif()
 
+# alsa: fedora:alsa-lib-devel debian:libasound2-dev
 if(ENABLE_AUDIO_ALSA)
   # Can't call find_package("ALSA") on OSX. Use pkg_check_modules. 1.0.16
   # contains SND_PCM_NO_AUTO_RESAMPLE
@@ -310,6 +318,7 @@ if(ENABLE_AUDIO_OSS)
   endif()
 endif()
 
+# pulseaudio: fedora:pulseaudio-libs-devel debian:libpulse-dev
 if(ENABLE_AUDIO_PULSE)
   # Can't call find_package("PulseAudio") on OSX.
   pkg_check_modules(PULSEAUDIO libpulse IMPORTED_TARGET)
@@ -323,6 +332,7 @@ if(ENABLE_AUDIO_PULSE)
   endif()
 endif()
 
+# jack: fedora:jack-audio-connection-kit-devel debian:n/a
 if(ENABLE_AUDIO_JACK)
   pkg_check_modules(JACK "jack" IMPORTED_TARGET)
   add_build_config(PkgConfig::JACK "jack")
@@ -331,6 +341,7 @@ if(ENABLE_AUDIO_JACK)
   endif()
 endif()
 
+# v4l2: fedora:kernel-headers debian:linux-libc-dev
 if(ENABLE_V4L2)
   # FreeBSD provides V4L2 library, but not videodev2.h header file.
   find_file(VIDEODEV2_HEADER linux/videodev2.h)
@@ -350,6 +361,7 @@ if(ENABLE_V4L2)
   endif()
 endif()
 
+# libcrypto: fedora:openssl-devel debian:libssl-dev
 if(ENABLE_LIBCRYPTO)
   pkg_check_modules(LIBCRYPTO "libcrypto" IMPORTED_TARGET)
   add_build_config(PkgConfig::LIBCRYPTO "libcrypto")
@@ -358,6 +370,7 @@ if(ENABLE_LIBCRYPTO)
   endif()
 endif()
 
+# dns_sd: fedora:avahi-compat-libdns_sd-devel debian:libavahi-compat-libdnssd-dev
 if(ENABLE_LIBDNS_SD)
   pkg_check_modules(LIBDNS_SD "libdns_sd" IMPORTED_TARGET)
   if(NOT LIBDNS_SD)
@@ -372,6 +385,7 @@ if(ENABLE_LIBDNS_SD)
   endif()
 endif()
 
+# libsystemd: fedora:systemd-devel debian:libsystemd-dev
 if(ENABLE_SYSTEMD_NOTIFY OR ENABLE_SYSTEMD_JOURNAL)
   pkg_check_modules(SYSTEMD "libsystemd" IMPORTED_TARGET)
   if(SYSTEMD_FOUND AND ENABLE_SYSTEMD_JOURNAL)
@@ -431,6 +445,9 @@ if(ENABLE_DVB)
     endif()
   endif()
 endif()
+
+# Linear Systems Ltd.'s Master Linux SDK
+# https://github.com/kierank/dveo-linux-master
 if(ENABLE_ASI)
   find_file(_ASI_H dveo/asi.h)
   find_file(_MASTER_H dveo/master.h)
@@ -441,6 +458,7 @@ if(ENABLE_ASI)
   endif()
 endif()
 
+# libcec: fedora:libcec-devel debian:libcec-dev
 if(ENABLE_LIBCEC)
   pkg_check_modules(LibCEC "libcec" IMPORTED_TARGET)
   add_build_config(PkgConfig::LibCEC "libcec")

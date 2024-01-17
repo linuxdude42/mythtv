@@ -53,6 +53,8 @@ check_symbol_exists(posix_memalign "stdlib.h" HAVE_POSIX_MEMALIGN)
 #
 # More complex checks for symbols in include files
 #
+
+# udev: fedora:systemd-devel ubuntu:libudev-dev
 cmake_push_check_state(RESET)
 set(CMAKE_REQUIRED_LIBRARIES udev)
 check_symbol_exists(udev_new "libudev.h" HAVE_LIBUDEV)
