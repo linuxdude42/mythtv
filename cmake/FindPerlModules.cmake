@@ -22,7 +22,7 @@ This module will set the following variables in your project:
   A list of of all the modules that were not found (required or optional)
 ``PerlModules_COMPONENTS_REQUIRED_MISSING``
   A list of of all the required modules that were not found
-``PerlModules_COMPONENTS_OPTIONSL_MISSING``
+``PerlModules_COMPONENTS_OPTIONAL_MISSING``
   A list of of all the optional modules that were not found
 ``PerlModules_yyy_VERSION``
   The version number of the yyy module
