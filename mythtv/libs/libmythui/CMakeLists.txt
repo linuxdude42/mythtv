@@ -409,7 +409,7 @@ if(TARGET joystick)
   target_sources(mythui PRIVATE devices/jsmenu.cpp devices/jsmenu.h
                                 devices/jsmenuevent.cpp devices/jsmenuevent.h)
   target_compile_definitions(mythui PRIVATE USE_JOYSTICK_MENU)
-  target_link_libraries(mythui PUBLIC udev)
+  target_link_libraries(mythui PUBLIC joystick)
 endif()
 
 if(ENABLE_LIRC AND NOT WIN32)
