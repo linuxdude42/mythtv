@@ -80,6 +80,7 @@ function(find_or_build_exiv2)
     PATCH_COMMAND patch -p1 -N -i
                   ${PROJECT_SOURCE_DIR}/patches/${EXIV2_PREFIX}.patch
     CMAKE_ARGS --no-warn-unused-cli
+               -DCMAKE_INSTALL_SO_NO_EXE=OFF
                -DBUILD_SHARED_LIBS:BOOL=ON
                -DEXIV2_ENABLE_XMP:BOOL=${BUILD_XMP}
                -DEXIV2_ENABLE_BMFF:BOOL=OFF # HEIC, HEIF, AVIF, CR3, JXL/bmff

@@ -132,6 +132,14 @@ include(MythFindFFmpeg)
 include(MythFindQt)
 add_compile_definitions(QT_DISABLE_DEPRECATED_BEFORE=${QT_MIN_VERSION_HEX})
 
+# Debian policy requires that shared libraries be installed without
+# executable permission.  Fedora policy requires that shared libraries
+# be installed with the executable permission.
+#
+# Tell CMake to ignore the Debian policy and set the executable bits
+# on all libraries.
+set(CMAKE_INSTALL_SO_NO_EXE OFF)
+
 # Qt changes target build names. Reset them.
 include(ResetTargetSuffixes)
 reset_target_suffixes(${MYTH_VERSIONED_EXTENSIONS})
