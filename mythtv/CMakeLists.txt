@@ -173,7 +173,7 @@ endif()
 # superpackage show up before FreeBSD's default /usr/local directory.  This
 # ensures that the proper versions of ffmpeg and exiv2 will be found while
 # building MythTV.
-if(CMAKE_SYSTEM_NAME STREQUAL "FreeBSD")
+if(CMAKE_SYSTEM_NAME STREQUAL "FreeBSD" OR CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   include_directories(BEFORE ${CMAKE_INSTALL_FULL_INCLUDEDIR})
   include_directories(BEFORE ${CMAKE_INSTALL_FULL_INCLUDEDIR}/mythtv)
 endif()

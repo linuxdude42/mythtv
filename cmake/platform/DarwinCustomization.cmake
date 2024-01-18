@@ -8,31 +8,63 @@ if(NOT APPLE)
   return()
 endif()
 
-# MacPorts or Homebrew?
-if(EXISTS /opt/local/share/macports)
-  set(MACPORTS ON)
-elseif(
-  EXISTS /opt/local/bin/port
-  OR EXISTS /usr/local/bin/brew
-  OR EXISTS /opt/homebrew/bin/brew)
-  set(HOMEBREW ON)
-endif()
-
 #
 # Apple builds require Objective C++ compiler.
 #
 include(CheckLanguage)
 check_language(OBJCXX)
 
-# FFmpeg needs a little help in finding the mp3lame library.
-if(MACPORTS)
-  list(APPEND FF_PLATFORM_ARGS "--extra-ldflags=-L/opt/local/lib")
-elseif(HOMEBREW)
-  list(APPEND FF_PLATFORM_ARGS "--extra-ldflags=-L/opt/homebrew/lib")
-endif()
+# MacPorts or Homebrew?
+execute_process(
+  COMMAND which port
+  RESULT_VARIABLE DETECT_MACPORTS
+  OUTPUT_VARIABLE MACPORTS_PREFIX
+  ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process(
+  COMMAND brew --prefix
+  RESULT_VARIABLE DETECT_HOMEBREW
+  OUTPUT_VARIABLE HOMEBREW_PREFIX
+  ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
+if(DETECT_MACPORTS EQUAL 0)
+  # The MACPORTS_PREFIX variable should contain a path name like
+  # "/opt/local/bin/port". Go up two levels to find the "root" directory for
+  # macports.
+  string(REPLACE "/bin/port" "" MACPORTS_PREFIX ${MACPORTS_PREFIX})
+
+  # Add macports specific include and lib directories.
+  link_directories(AFTER "${MACPORTS_PREFIX}/lib")
+  include_directories(AFTER SYSTEM "${MACPORTS_PREFIX}/include")
+
+  # FFmpeg needs a little help in finding the mp3lame library.
+  list(APPEND FF_PLATFORM_ARGS "--extra-ldflags=-L${MACPORTS_PREFIX}/lib"
+       "--extra-cflags=-I${MACPORTS_PREFIX}/include")
+
+  # Qt6 builds need a little help finding the libraries.
+  set(_QT_BASE "${MACPORTS_PREFIX}/libexec/${QT_PKG_NAME_LC}")
+
+  # Informational in case needed elsewhere.
+  message(STATUS "Detected MacPorts (${MACPORTS_PREFIX})")
+  set(MACPORTS ON)
+elseif(DETECT_HOMEBREW EQUAL 0)
+  # Add homebrew specific include and lib directories.
+  link_directories(AFTER "${HOMEBREW_PREFIX}/lib")
+  include_directories(AFTER SYSTEM "${HOMEBREW_PREFIX}/include")
+
+  # FFmpeg needs a little help in finding the mp3lame library.
+  list(APPEND FF_PLATFORM_ARGS "--extra-ldflags=-L${HOMEBREW_PREFIX}/lib"
+       "--extra-cflags=-I${HOMEBREW_PREFIX}/include")
+
+  # Qt6 builds need a little help finding the libraries.
+  set(_QT_BASE "${HOMEBREW_PREFIX}/opt/${QT_PKG_NAME_LC}")
+
+  # Informational in case needed elsewhere.
+  message(STATUS "Detected Homebrew (${HOMEBREW_PREFIX})")
+  set(HOMEBREW ON)
+else()
+  message(FATAL_ERROR "Not building with MacPorts or Homebrew.")
+endif(DETECT_MACPORTS EQUAL 0)
 
 # Qt6 builds need a little help finding the libraries.
-set(_QT_BASE "/opt/local/libexec/${QT_PKG_NAME_LC}")
 list(APPEND CMAKE_FRAMEWORK_PATH "${_QT_BASE}")
 list(APPEND CMAKE_MODULE_PATH "${_QT_BASE}/lib/cmake")
 
