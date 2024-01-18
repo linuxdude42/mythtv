@@ -22,7 +22,9 @@
 
 # Read both files
 file(READ "${DIR1}/cppcheck.xml" text1)
-file(READ "${DIR2}/cppcheck.xml" text2)
+if(NOT DIR2 STREQUAL "")
+  file(READ "${DIR2}/cppcheck.xml" text2)
+endif()
 
 # Cmake string handling is messed up. A cmake list is just a string with
 # semicolons separating the various items in the list.  We have to change the

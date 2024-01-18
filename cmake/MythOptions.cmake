@@ -185,6 +185,11 @@ option(LIBS_INSTALL_FFMPEG "Install the FFmpeg libraries in the libs directory"
        ON)
 
 #
+# Plugins
+#
+option(MYTH_BUILD_PLUGINS "Build and install the MythTV plugins." ON)
+
+#
 # Admin tools
 #
 option(MYTH_BUILD_THEMESTRING_TOOL

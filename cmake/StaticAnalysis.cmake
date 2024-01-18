@@ -43,28 +43,47 @@ function(sa_super)
 
   if(CLANG_TIDY_EXECUTABLE AND RUN_CLANG_TIDY_EXECUTABLE)
     sa_add_step(MythTV clang-tidy)
-    sa_add_step(MythPlugins clang-tidy)
-    add_custom_target(
-      run-clang-tidy
-      COMMAND ${CMAKE_COMMAND} --build . -t MythTV-clang-tidy
-      COMMAND ${CMAKE_COMMAND} --build . -t MythPlugins-clang-tidy
-      USES_TERMINAL)
+    if(TARGET MythPlugins)
+      sa_add_step(MythPlugins clang-tidy)
+      add_custom_target(
+        run-clang-tidy
+        COMMAND ${CMAKE_COMMAND} --build . -t MythTV-clang-tidy
+        COMMAND ${CMAKE_COMMAND} --build . -t MythPlugins-clang-tidy
+        USES_TERMINAL)
+    else()
+      add_custom_target(
+        run-clang-tidy
+        COMMAND ${CMAKE_COMMAND} --build . -t MythTV-clang-tidy
+        USES_TERMINAL)
+    endif()
   endif()
 
   if(CPPCHECK_EXECUTABLE)
     sa_add_cppcheck(MythTV)
-    sa_add_cppcheck(MythPlugins)
     ExternalProject_Get_Property(MythTV BINARY_DIR)
-    add_custom_target(
-      run-cppcheck
-      DEPENDS ${MythTV_BINARY_DIR}/cppcheck.xml
-              ${MythPlugins_BINARY_DIR}/cppcheck.xml
-      BYPRODUCTS ${PROJECT_SOURCE_DIR}/cppcheck.xml
-      COMMAND
-        ${CMAKE_COMMAND} -DDIR1=${MythTV_BINARY_DIR}
-        -DDIR2=${MythPlugins_BINARY_DIR} -DTOPDIR=${PROJECT_SOURCE_DIR} -P
-        ${CMAKE_CURRENT_LIST_DIR}/scripts/cppcheck-join-files.cmake
-      USES_TERMINAL)
+    if(TARGET MythPlugins)
+      sa_add_cppcheck(MythPlugins)
+      add_custom_target(
+        run-cppcheck
+        DEPENDS ${MythTV_BINARY_DIR}/cppcheck.xml
+                ${MythPlugins_BINARY_DIR}/cppcheck.xml
+        BYPRODUCTS ${PROJECT_SOURCE_DIR}/cppcheck.xml
+        COMMAND
+          ${CMAKE_COMMAND} -DDIR1=${MythTV_BINARY_DIR}
+          -DDIR2=${MythPlugins_BINARY_DIR} -DTOPDIR=${PROJECT_SOURCE_DIR} -P
+          ${CMAKE_CURRENT_LIST_DIR}/scripts/cppcheck-join-files.cmake
+        USES_TERMINAL)
+    else()
+      add_custom_target(
+        run-cppcheck
+        DEPENDS ${MythTV_BINARY_DIR}/cppcheck.xml
+        BYPRODUCTS ${PROJECT_SOURCE_DIR}/cppcheck.xml
+        COMMAND
+          ${CMAKE_COMMAND} -DDIR1=${MythTV_BINARY_DIR}
+          -DTOPDIR=${PROJECT_SOURCE_DIR} -P
+          ${CMAKE_CURRENT_LIST_DIR}/scripts/cppcheck-join-files.cmake
+        USES_TERMINAL)
+    endif()
   endif()
 endfunction()
 
