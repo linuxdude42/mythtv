@@ -370,7 +370,10 @@ if(ENABLE_LIBCRYPTO)
   endif()
 endif()
 
-# dns_sd: fedora:avahi-compat-libdns_sd-devel debian:libavahi-compat-libdnssd-dev
+# ~~~
+# dns_sd: fedora:avahi-compat-libdns_sd-devel
+#         debian:libavahi-compat-libdnssd-dev
+# ~~~
 if(ENABLE_LIBDNS_SD)
   pkg_check_modules(LIBDNS_SD "libdns_sd" IMPORTED_TARGET)
   if(NOT LIBDNS_SD)

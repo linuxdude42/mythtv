@@ -101,12 +101,12 @@ include(StaticAnalysis)
 include(CompilerCaching)
 include(SetCompilerOptions)
 
-# Debian policy requires that shared libraries be installed without
-# executable permission.  Fedora policy requires that shared libraries
-# be installed with the executable permission.
+# Debian policy requires that shared libraries be installed without executable
+# permission.  Fedora policy requires that shared libraries be installed with
+# the executable permission.
 #
-# Tell CMake to ignore the Debian policy and set the executable bits
-# on all libraries.
+# Tell CMake to ignore the Debian policy and set the executable bits on all
+# libraries.
 set(CMAKE_INSTALL_SO_NO_EXE OFF)
 
 #
