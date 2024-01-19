@@ -150,7 +150,7 @@ target_sources(
           DetectLetterbox.cpp)
 
 if(TARGET PkgConfig::LIBASS)
-  target_link_libraries(mythtv PRIVATE PkgConfig::LIBASS)
+  target_link_libraries(mythtv PUBLIC PkgConfig::LIBASS)
 endif()
 
 # Note - all OpenGL/EGL interop files are added under using_opengl... They are
@@ -227,16 +227,16 @@ endif()
 
 if(_HAVE_GL_OR_GLES)
   if(TARGET OpenGL::GL)
-    target_link_libraries(mythtv PRIVATE Qt${QT_VERSION_MAJOR}::OpenGL
+    target_link_libraries(mythtv PUBLIC Qt${QT_VERSION_MAJOR}::OpenGL
                                          OpenGL::GL)
     if(TARGET OpenGL::EGL)
-      target_link_libraries(mythtv PRIVATE OpenGL::EGL)
+      target_link_libraries(mythtv PUBLIC OpenGL::EGL)
     endif()
   else()
     target_link_libraries(mythtv PUBLIC Qt${QT_VERSION_MAJOR}::OpenGL
                                         PkgConfig::GLES2)
     if(TARGET PkgConfig::EGL)
-      target_link_libraries(mythtv PRIVATE PkgConfig::EGL)
+      target_link_libraries(mythtv PUBLIC PkgConfig::EGL)
     endif()
   endif()
   target_sources(
