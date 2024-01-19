@@ -178,9 +178,7 @@ target_include_directories(mythbackend PRIVATE .)
 
 target_compile_definitions(
   mythbackend
-  PRIVATE $<$<BOOL:${USING_DVB}>:USING_DVB>
-          $<$<BOOL:${USING_LIBDNS_SD}>:USING_LIBDNS_SD>
-          $<$<BOOL:${USING_VALGRIND}>:USING_VALGRIND>)
+  PRIVATE $<$<BOOL:${USING_VALGRIND}>:USING_VALGRIND>)
 
 target_link_libraries(
   mythbackend

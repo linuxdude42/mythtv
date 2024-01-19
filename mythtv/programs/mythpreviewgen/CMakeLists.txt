@@ -5,8 +5,7 @@ add_executable(
 target_include_directories(mythpreviewgen PRIVATE .)
 
 target_compile_definitions(
-  mythpreviewgen PRIVATE $<$<BOOL:${USING_DVB}>:USING_DVB>
-                         $<$<BOOL:${USING_VALGRIND}>:USING_VALGRIND>)
+  mythpreviewgen PRIVATE $<$<BOOL:${USING_VALGRIND}>:USING_VALGRIND>)
 
 target_link_libraries(mythpreviewgen PUBLIC myth mythtv mythbase)
 

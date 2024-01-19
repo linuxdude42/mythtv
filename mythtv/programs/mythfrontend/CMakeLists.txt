@@ -138,10 +138,6 @@ target_include_directories(mythfrontend PRIVATE .)
 target_compile_definitions(
   mythfrontend
   PRIVATE
-    $<$<BOOL:${USING_OPENGL}>:USING_OPENGL>
-    $<$<BOOL:${USING_VDPAU}>:USING_VDPAU>
-    $<$<AND:$<BOOL:${USING_VAAPI}>,$<BOOL:${USING_OPENGL}>>:USING_VAAPI>
-    $<$<BOOL:${USING_MMAL}>:USING_MMAL>
     $<$<BOOL:${MAC}>:USING_COREAUDIO>
     $<$<AND:$<BOOL:${WIN32}>,$<NOT:$<CONFIG:Debug>>>:WINDOWS_CLOSE_CONSOLE>)
 
