@@ -138,7 +138,6 @@ target_include_directories(mythfrontend PRIVATE .)
 target_compile_definitions(
   mythfrontend
   PRIVATE
-    $<$<BOOL:${MAC}>:USING_COREAUDIO>
     $<$<AND:$<BOOL:${WIN32}>,$<NOT:$<CONFIG:Debug>>>:WINDOWS_CLOSE_CONSOLE>)
 
 list(

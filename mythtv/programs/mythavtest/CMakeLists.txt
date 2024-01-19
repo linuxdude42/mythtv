@@ -3,10 +3,6 @@ add_executable(mythavtest mythavtest.cpp mythavtest_commandlineparser.cpp
 
 target_include_directories(mythavtest PRIVATE .)
 
-target_compile_definitions(
-  mythavtest
-  PRIVATE $<$<BOOL:${MAC}>:USING_COREAUDIO>)
-
 target_link_libraries(mythavtest PUBLIC myth mythtv mythbase mythui)
 
 install(TARGETS mythavtest RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
