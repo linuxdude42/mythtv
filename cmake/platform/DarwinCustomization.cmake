@@ -42,6 +42,15 @@ if(DETECT_MACPORTS EQUAL 0)
   # Qt6 builds need a little help finding the libraries.
   set(_QT_BASE "${MACPORTS_PREFIX}/libexec/${QT_PKG_NAME_LC}")
 
+  # Provide the default MacPorts location for Python3, if the the user hasn't
+  # already specified a value in their options override file. This prevents
+  # finding the Apple installed version.
+  if(Python3_ROOT_DIR STREQUAL "")
+    set(Python3_ROOT_DIR
+        "${MACPORTS_PREFIX}/Library/Frameworks/Python.framework/Versions/Current"
+    )
+  endif()
+
   # Informational in case needed elsewhere.
   message(STATUS "Detected MacPorts (${MACPORTS_PREFIX})")
   set(MACPORTS ON)
@@ -56,6 +65,14 @@ elseif(DETECT_HOMEBREW EQUAL 0)
 
   # Qt6 builds need a little help finding the libraries.
   set(_QT_BASE "${HOMEBREW_PREFIX}/opt/${QT_PKG_NAME_LC}")
+
+  # Provide the default Homebrew location for Python3, if the the user hasn't
+  # already specified a value in their options override file. This prevents
+  # finding the Apple installed version.
+  if(Python3_ROOT_DIR STREQUAL "")
+    set(Python3_ROOT_DIR
+        "${HOMEBREW_PREFIX}/Frameworks/Python.framework/Versions/Current")
+  endif()
 
   # Informational in case needed elsewhere.
   message(STATUS "Detected Homebrew (${HOMEBREW_PREFIX})")

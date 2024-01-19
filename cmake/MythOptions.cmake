@@ -46,13 +46,29 @@ option(ENABLE_BACKEND "Enable backend support." ON)
 #
 option(ENABLE_BINDINGS_PYTHON "Install the Python bindings" ON)
 option(ENABLE_BINDINGS_PERL "Install the Perl bindings" ON)
-option(ENABLE_BINDINGS_PHP "Install the Php bindings" ON)
+option(ENABLE_BINDINGS_PHP "Install the PHP bindings" ON)
 set(MYTH_BINDINGS_INSTALL_ROOT
     ""
     CACHE PATH "The root direcory for bindings installation")
 set(MYTH_PERL_CONFIG_OPTS
     ""
     CACHE STRING "Options to pass to PERL when creating bindings")
+
+#
+# Language Interpreter Locations
+#
+# Where to look first when searching for a usable versions of Python3, Perl, or
+# PHP.  Setting these variables shouldn't be necessary unless you need to
+# explicitly override the language interpreters found by CMake.
+set(Python3_ROOT_DIR
+    ""
+    CACHE STRING "The directory where Python3 is installed.")
+set(Perl_ROOT_DIR
+    ""
+    CACHE STRING "The directory where Perl is installed.")
+set(PHP_ROOT_DIR
+    ""
+    CACHE STRING "The directory where PHP is installed.")
 
 #
 # Audio Options
