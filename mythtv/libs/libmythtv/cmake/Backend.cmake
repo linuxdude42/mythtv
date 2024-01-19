@@ -292,7 +292,7 @@ if(TARGET mythtv_ceton)
 endif()
 
 # Support for Linux DVB drivers
-if(USING_DVB)
+if(TARGET mythtv_dvb)
   target_link_libraries(mythtv PUBLIC mythtv_dvb)
   target_sources(
     mythtv
