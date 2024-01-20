@@ -344,8 +344,10 @@ endif()
 # v4l2: fedora:kernel-headers debian:linux-libc-dev
 if(ENABLE_V4L2)
   # FreeBSD provides V4L2 library, but not videodev2.h header file.
+  message(STATUS "Checking for v4l header file")
   find_file(VIDEODEV2_HEADER linux/videodev2.h)
   if(VIDEODEV2_HEADER)
+    message(STATUS "  Found ${VIDEODEV2_HEADER}")
     pkg_check_modules(V4L2 "libv4l2" IMPORTED_TARGET)
     add_build_config(PkgConfig::V4L2 "v4l2")
     if(TARGET PkgConfig::V4L2)
