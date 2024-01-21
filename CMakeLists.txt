@@ -283,16 +283,18 @@ include(UpdatePkgConfig)
 #
 find_program(MAKE_EXECUTABLE NAMES gmake make REQUIRED)
 message(VERBOSE "Found make: ${MAKE_EXECUTABLE}")
-if(CMAKE_CROSSCOMPILING)
-  find_program(MESON_EXECUTABLE NAMES meson REQUIRED)
-  message(VERBOSE "Found meson: ${MESON_EXECUTABLE}")
-endif()
 if(CMAKE_GENERATOR STREQUAL "Ninja")
   find_program(NINJA_EXECUTABLE NAMES ninja REQUIRED)
   message(VERBOSE "Found ninja: ${NINJA_EXECUTABLE}")
 endif()
 find_program(PATCH_EXECUTABLE NAMES patch REQUIRED)
 message(VERBOSE "Found patch: ${PATCH_EXECUTABLE}")
+if(CMAKE_CROSSCOMPILING)
+  find_program(MESON_EXECUTABLE NAMES meson REQUIRED)
+  message(VERBOSE "Found meson: ${MESON_EXECUTABLE}")
+  find_program(MESON_EXECUTABLE NAMES gperf REQUIRED)
+  message(VERBOSE "Found gperf: ${GPERF_EXECUTABLE}")
+endif()
 
 #
 # Check compiler and installed header files
