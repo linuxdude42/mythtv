@@ -11,9 +11,14 @@
   The cmake builds are structured slightly different from the
   traditional make builds.  The top level cmake is essentially a build
   orchestrator, building any libraries that are needed and then
-  building mythtv and mythplugins.  After being built once, subsequent
-  runs of cmake should pick up the libraries from the previous build
-  and only build mythtv and mythplugins.
+  building mythtv and mythplugins.  This means that building the
+  embedded FFmpeg or exim2 are treated as the equivalent of building
+  the mythtv directory or the mythplugins directory.  After being
+  built once, subsequent runs of cmake should pick up the libraries
+  from the previous build and only build mythtv and mythplugins.
+
+  You will not need to run the traditional `configure` command when
+  building with cmake.
 
 ## Prerequisites
 
@@ -32,8 +37,8 @@
 
   - gperf
   - meson
-  - perl(FindBin)
-  - perl(IPC::Cmd)
+  - perl-FindBin(Fedora) libfindbin-libs-perl(Debian/Ubuntu)
+  - perl-IPC-Cmd(Fedora) perl-modules(Debian/Ubuntu)
 
 ### Compiling for Android
 
@@ -129,7 +134,9 @@
 
 ## Native Compiles
 
-  To compile a native version of MythTV, issue the following commands.
+  To compile a native version of MythTV, change into the **root**
+  directory of your checkout (not the mythtv directory) and issue the
+  following commands.  You do not need to run `configure`.
 
   ```
   $ cmake -S . -B mybuild -G Ninja -DCMAKE_INSTALL_PREFIX=<install_location>
