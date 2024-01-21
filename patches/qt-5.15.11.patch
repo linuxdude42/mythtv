@@ -46,7 +46,7 @@ index 9f90dcb391..80f9e2fc15 100644
  
 -QMAKE_STRIP             =
 -#$${CROSS_COMPILE}strip
-+QMAKE_STRIP             = llvm-strip
++QMAKE_STRIP             = $$NDK_LLVM_PATH/bin/llvm-strip
  
  
  equals(QT_ARCH, x86): CROSS_COMPILE = $$NDK_LLVM_PATH/bin/i686-linux-android-
@@ -55,7 +55,7 @@ index 9f90dcb391..80f9e2fc15 100644
  else: CROSS_COMPILE = $$NDK_LLVM_PATH/bin/arm-linux-androideabi-
  
 -QMAKE_RANLIB            = $${CROSS_COMPILE}ranlib
-+QMAKE_RANLIB            = llvm-ranlib
++QMAKE_RANLIB            = $$NDK_LLVM_PATH/bin/llvm-ranlib
  QMAKE_LINK_SHLIB        = $$QMAKE_LINK
  QMAKE_LFLAGS            =
  
