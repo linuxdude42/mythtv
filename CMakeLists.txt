@@ -396,6 +396,10 @@ ExternalProject_Add(
   USES_TERMINAL_BUILD TRUE
   USES_TERMINAL_TEST TRUE
   DEPENDS all_libs)
+add_custom_target(
+  mythtv
+  COMMAND ${CMAKE_COMMAND} --build MythTV-prefix/src/MythTV-build
+  USES_TERMINAL)
 
 include(MiscellaneousTargets)
 
@@ -420,6 +424,10 @@ if(MYTH_BUILD_PLUGINS)
     USES_TERMINAL_BUILD TRUE
     DEPENDS MythTV)
 endif()
+add_custom_target(
+  mythplugins
+  COMMAND ${CMAKE_COMMAND} --build MythPlugins-prefix/src/MythPlugins-build
+  USES_TERMINAL)
 
 #
 # Maybe build translations executable
