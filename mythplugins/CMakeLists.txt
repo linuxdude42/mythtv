@@ -90,6 +90,8 @@ if(CMAKE_CROSSCOMPILING)
 endif()
 include(platform/${CMAKE_SYSTEM_NAME}${_CROSS}Customization OPTIONAL)
 
+include(UpdatePkgConfig)
+
 #
 # Set up for static analysis
 #

@@ -96,27 +96,3 @@ endif()
 list(REMOVE_DUPLICATES CMAKE_FIND_ROOT_PATH)
 list(REMOVE_DUPLICATES CMAKE_MODULE_PATH)
 list(REMOVE_DUPLICATES PKG_CONFIG_PATH)
-
-# This file and the customization files have set up the PKG_CONFIG_XXX
-# variables.  Now export them into the environment so that they can be found by
-# the pkg-config executable.  All calls to pkg_check_modules in this project
-# will end up referencing these variables.
-#
-# Note: Any sub-project will also need to install these variables into its
-# environment, so that its calls to pkg_check_modules can reference the same
-# paths.  Those are going to be called from the invocation of "cmake --build"
-# not this invocation of "cmake -B xxx -G yyy".
-#
-if(PKG_CONFIG)
-  set(ENV{PKG_CONFIG} ${PKG_CONFIG})
-endif()
-if(PKG_CONFIG_ARGN)
-  set(ENV{PKG_CONFIG_ARGN} ${PKG_CONFIG_ARGN})
-endif()
-if(PKG_CONFIG_LIBDIR)
-  set(ENV{PKG_CONFIG_LIBDIR} "${PKG_CONFIG_LIBDIR}")
-endif()
-if(PKG_CONFIG_PATH)
-  list(JOIN PKG_CONFIG_PATH ":" PKG_CONFIG_PATH_STR)
-  set(ENV{PKG_CONFIG_PATH} ${PKG_CONFIG_PATH_STR})
-endif()
