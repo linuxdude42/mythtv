@@ -336,6 +336,7 @@ add_custom_target(libs DEPENDS all_libs)
 # Find (or build) system libraries
 #
 if(CMAKE_CROSSCOMPILING)
+  message(VERBOSE "Setting up sub-projects for the external dependencies.")
   # Build the dependencies that will be needed later to build MythTV.
   include(BuildExternalLibraries)
 else()
@@ -349,6 +350,46 @@ endif()
 #
 # Debugging code
 #
+# Add "--log-level=VERBOSE" to the cmake command to generate this output.
+#
+message(VERBOSE "find_xxx related variables:")
+list(APPEND CMAKE_MESSAGE_INDENT "  ")
+message(VERBOSE "CMAKE_FIND_ROOT_PATH: ${CMAKE_FIND_ROOT_PATH}")
+message(
+  VERBOSE
+  "CMAKE_FIND_ROOT_PATH_MODE_INCLUDE: ${CMAKE_FIND_ROOT_PATH_MODE_INCLUDE}")
+message(
+  VERBOSE
+  "CMAKE_FIND_ROOT_PATH_MODE_LIBRARY: ${CMAKE_FIND_ROOT_PATH_MODE_LIBRARY}")
+message(
+  VERBOSE
+  "CMAKE_FIND_ROOT_PATH_MODE_PACKAGE: ${CMAKE_FIND_ROOT_PATH_MODE_PACKAGE}")
+message(
+  VERBOSE
+  "CMAKE_FIND_ROOT_PATH_MODE_PROGRAM: ${CMAKE_FIND_ROOT_PATH_MODE_PROGRAM}")
+message(
+  VERBOSE
+  "CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: ${CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH}"
+)
+message(VERBOSE
+        "CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: ${CMAKE_FIND_USE_CMAKE_SYSTEM_PATH}")
+message(
+  VERBOSE
+  "CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: ${CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH}"
+)
+message(VERBOSE "CMAKE_FRAMEWORK_PATH: ${CMAKE_FRAMEWORK_PATH}")
+message(VERBOSE "CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH}")
+message(VERBOSE "CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH}")
+message(VERBOSE "CMAKE_PROGRAM_PATH: ${CMAKE_PROGRAM_PATH}")
+list(POP_BACK CMAKE_MESSAGE_INDENT)
+message(VERBOSE "pkg-config related variables:")
+list(APPEND CMAKE_MESSAGE_INDENT "  ")
+message(VERBOSE "PKG_CONFIG_COMMAND : ${PKG_CONFIG_COMMAND}")
+message(VERBOSE "PKG_CONFIG_ARGN : ${PKG_CONFIG_ARGN}")
+message(VERBOSE "PKG_CONFIG_LIBDIR : ${PKG_CONFIG_LIBDIR}")
+message(VERBOSE "PKG_CONFIG_PATH : ${PKG_CONFIG_PATH}")
+list(POP_BACK CMAKE_MESSAGE_INDENT)
+
 if(DUMP_VARIABLES)
   include(DumpAllVariables)
   dump_cmake_variables()
@@ -367,6 +408,7 @@ endif()
 # Add the build instructions for libraries that are embedded as part of the
 # mythtv sources.
 #
+message(VERBOSE "Setting up sub-projects for embedded libraries.")
 include(embeddedlibs/FindOrBuildNvCodecHeaders)
 include(embeddedlibs/FindOrBuildUdfRead)
 include(externallibs/FindOrBuildExiv2)
@@ -375,6 +417,7 @@ include(embeddedlibs/FindOrBuildFFmpeg)
 #
 # Always build MythTV
 #
+message(VERBOSE "Setting up a sub-project for the mythtv directory.")
 ExternalProject_Add(
   MythTV
   SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/mythtv
@@ -407,6 +450,7 @@ include(MiscellaneousTargets)
 # Maybe build MythTV plugins
 #
 if(MYTH_BUILD_PLUGINS)
+  message(VERBOSE "Setting up a sub-project for the mythplugins directory.")
   ExternalProject_Add(
     MythPlugins
     SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/mythplugins
@@ -423,6 +467,9 @@ if(MYTH_BUILD_PLUGINS)
     USES_TERMINAL_CONFIGURE TRUE
     USES_TERMINAL_BUILD TRUE
     DEPENDS MythTV)
+else()
+  message(VERBOSE
+          "Skipping setting up a sub-project for the mythplugins directory.")
 endif()
 add_custom_target(
   mythplugins
@@ -433,6 +480,7 @@ add_custom_target(
 # Maybe build translations executable
 #
 if(MYTH_BUILD_THEMESTRING_TOOL)
+  message(VERBOSE "Setting up a sub-project for the themestringtool directory.")
   ExternalProject_Add(
     ThemeStringTool
     SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/themestringstool
@@ -453,6 +501,10 @@ if(MYTH_BUILD_THEMESTRING_TOOL)
     USES_TERMINAL_BUILD TRUE
     DEPENDS MythTV
     EXCLUDE_FROM_ALL FALSE)
+else()
+  message(
+    VERBOSE
+    "Skipping setting up a sub-project for the themestringtool directory.")
 endif()
 
 # Package the results
