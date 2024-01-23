@@ -4,16 +4,19 @@
 # See the file LICENSE_FSF for licensing information.
 #
 
-# The setting of cmake minimum version 3.16 means that all policy numbers less
-# than or equal to CMP0097 are set to NEW.
+# The setting of cmake minimum version 3.20 means that all policy numbers less
+# than or equal to CMP0120 are set to NEW.
 #
-# https://cmake.org/cmake/help/latest/manual/cmake-policies.7.html#policies-introduced-by-cmake-3-16
+# https://cmake.org/cmake/help/latest/manual/cmake-policies.7.html#policies-introduced-by-cmake-3-20
 
 # ~~~
-# https://cmake.org/cmake/help/latest/policy/CMP0114.html
+# https://cmake.org/cmake/help/latest/policy/CMP0126.html
+#
+# When this policy is set to NEW, the set(CACHE) command does not
+# remove any normal variable of the same name from the current scope.
 # ~~~
-if(POLICY CMP0114)
-  cmake_policy(SET CMP0114 NEW)
+if(POLICY CMP0126)
+  cmake_policy(SET CMP0126 NEW)
 endif()
 
 # ~~~
