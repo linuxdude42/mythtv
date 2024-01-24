@@ -1,11 +1,13 @@
 # Get all propreties that cmake supports
 if(NOT CMAKE_PROPERTY_LIST)
   execute_process(COMMAND cmake --help-property-list
-                  OUTPUT_VARIABLE CMAKE_PROPERTY_LIST)
+                  OUTPUT_VARIABLE CMAKE_PROPERTY_LIST
+                  OUTPUT_STRIP_TRAILING_WHITESPACE)
 
   # Convert command output into a CMake list
   string(REGEX REPLACE ";" "\\\\;" CMAKE_PROPERTY_LIST "${CMAKE_PROPERTY_LIST}")
   string(REGEX REPLACE "\n" ";" CMAKE_PROPERTY_LIST "${CMAKE_PROPERTY_LIST}")
+  list(REMOVE_DUPLICATES CMAKE_PROPERTY_LIST)
 endif()
 
 function(print_properties)
