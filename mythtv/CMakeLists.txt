@@ -203,6 +203,18 @@ list(REMOVE_DUPLICATES MYTHTV_BUILD_CONFIG_LIST)
 list(JOIN MYTHTV_BUILD_CONFIG_LIST " " MYTH_BUILD_CONFIG)
 string(TOLOWER ${MYTH_BUILD_CONFIG} MYTH_BUILD_CONFIG)
 
+# Setup run path (RPATH) support.  This tells the loader where to look
+# for libraries.  Setting the paths relative to $ORIGIN (or
+# @loader_path on OSX) tells the loader to look in the directory
+# containing the executable, so the below paths will look in
+# <blah>/bin, <blah>/lib, and <blah>/lib64 to find library files.
+if(APPLE)
+  set(base @loader_path)
+else()
+  set(base $ORIGIN)
+endif()
+set(CMAKE_INSTALL_RPATH ${base} ${base}/../lib ${base}/../lib64)
+
 #
 # Need to build libmythmpeg2 on all platforms.  The original "configure" build
 # system has an exception for windows builds, which use an external mpeg2
