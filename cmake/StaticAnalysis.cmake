@@ -43,7 +43,7 @@ function(sa_super)
 
   if(CLANG_TIDY_EXECUTABLE AND RUN_CLANG_TIDY_EXECUTABLE)
     sa_add_step(MythTV clang-tidy)
-    if(TARGET MythPlugins)
+    if(MYTH_BUILD_PLUGINS AND TARGET MythPlugins)
       sa_add_step(MythPlugins clang-tidy)
       add_custom_target(
         run-clang-tidy
@@ -61,7 +61,7 @@ function(sa_super)
   if(CPPCHECK_EXECUTABLE)
     sa_add_cppcheck(MythTV)
     ExternalProject_Get_Property(MythTV BINARY_DIR)
-    if(TARGET MythPlugins)
+    if(MYTH_BUILD_PLUGINS AND TARGET MythPlugins)
       sa_add_cppcheck(MythPlugins)
       add_custom_target(
         run-cppcheck

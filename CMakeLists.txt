@@ -464,6 +464,7 @@ if(MYTH_BUILD_PLUGINS)
     USES_TERMINAL_BUILD TRUE
     DEPENDS MythTV)
 else()
+  add_custom_target(MythPlugins) # Dummy
   message(VERBOSE
           "Skipping setting up a sub-project for the mythplugins directory.")
 endif()
@@ -491,7 +492,7 @@ if(MYTH_BUILD_THEMESTRING_TOOL)
       -DPKG_CONFIG_PATH:PATH=${PKG_CONFIG_PATH}
     INSTALL_COMMAND ${CMAKE_COMMAND} -E echo "Nothing to install."
     USES_TERMINAL_BUILD TRUE
-    DEPENDS MythTV
+    DEPENDS MythTV MythPlugins
     EXCLUDE_FROM_ALL FALSE)
 else()
   message(

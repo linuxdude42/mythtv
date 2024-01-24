@@ -170,9 +170,12 @@ file(COPY ${_translations} DESTINATION ${ASSETS_DIR}/i18n)
 #
 # Copy the fonts, etc into the android-build/assets directory.
 #
-file(COPY ${MYTHTV_FULL_DATADIR}/fonts ${MYTHTV_FULL_DATADIR}/locales
-          ${MYTHTV_FULL_DATADIR}/metadata ${MYTHTV_FULL_DATADIR}/themes
-     DESTINATION ${ASSETS_DIR})
+foreach(DIRNAME ${MYTHTV_FULL_DATADIR}/fonts ${MYTHTV_FULL_DATADIR}/locales
+                ${MYTHTV_FULL_DATADIR}/metadata ${MYTHTV_FULL_DATADIR}/themes)
+  if(EXISTS ${DIRNAME})
+    file(COPY ${DIRNAME} DESTINATION ${ASSETS_DIR})
+  endif()
+endforeach()
 
 #
 # Copy additional libraries into the android-build/assets directory.
@@ -182,7 +185,7 @@ file(COPY ${MYTHTV_FULL_DATADIR}/fonts ${MYTHTV_FULL_DATADIR}/locales
 list(APPEND EXTRA_LIB_NAMES mariadb/libmariadb.so)
 
 # Libraries needed by the MythTV plugins.
-if(MYTH_BUILD_ANDROID_PLUGINS)
+if(MYTH_BUILD_PLUGINS AND MYTH_BUILD_ANDROID_PLUGINS)
   # MythMusic
   list(
     APPEND
@@ -237,7 +240,7 @@ list(SORT ANDROID_EXTRA_LIBS)
 #
 # Find and add the MythTV plugins to the list of shared objects.
 #
-if(MYTH_BUILD_ANDROID_PLUGINS)
+if(MYTH_BUILD_PLUGINS AND MYTH_BUILD_ANDROID_PLUGINS)
   set(PLUGIN_NAMES
       # MythTV plugins
       libmythpluginmytharchive.so
