@@ -65,13 +65,17 @@ set(GLES3_VERSION 3.2)
 # Create all the pkgconfig files
 #
 foreach(NAME IN ITEMS egl glesv1_cm glesv2 glesv3 vulkan zlib)
-  message(STATUS "Created file ${LIBS_INSTALL_PREFIX}/lib/pkgconfig/${NAME}.pc")
-  configure_file(${PROJECT_SOURCE_DIR}/cmake/files/android/${NAME}.pc.in
-                 ${LIBS_INSTALL_PREFIX}/lib/pkgconfig/${NAME}.pc @ONLY)
+  if(NOT EXISTS ${LIBS_INSTALL_PREFIX}/lib/pkgconfig/${NAME}.pc)
+    message(STATUS "Created file ${LIBS_INSTALL_PREFIX}/lib/pkgconfig/${NAME}.pc")
+    configure_file(${PROJECT_SOURCE_DIR}/cmake/files/android/${NAME}.pc.in
+                   ${LIBS_INSTALL_PREFIX}/lib/pkgconfig/${NAME}.pc @ONLY)
+  endif()
 endforeach(NAME)
 
 if(ANDROID_MIN_SDK_VERSION VERSION_GREATER_EQUAL 31)
-  message(STATUS "Created file ${LIBS_INSTALL_PREFIX}/lib/pkgconfig/icu-i18n.pc")
-  configure_file(${PROJECT_SOURCE_DIR}/cmake/files/android/icu-i18n.pc.in
-                 ${LIBS_INSTALL_PREFIX}/lib/pkgconfig/icu-i18n.pc @ONLY)
+  if(NOT EXISTS ${LIBS_INSTALL_PREFIX}/lib/pkgconfig/icu-i18n.pc)
+    message(STATUS "Created file ${LIBS_INSTALL_PREFIX}/lib/pkgconfig/icu-i18n.pc")
+    configure_file(${PROJECT_SOURCE_DIR}/cmake/files/android/icu-i18n.pc.in
+                   ${LIBS_INSTALL_PREFIX}/lib/pkgconfig/icu-i18n.pc @ONLY)
+  endif()
 endif()
