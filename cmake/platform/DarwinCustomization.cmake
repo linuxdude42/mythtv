@@ -74,6 +74,19 @@ elseif(DETECT_HOMEBREW EQUAL 0)
         "${HOMEBREW_PREFIX}/Frameworks/Python.framework/Versions/Current")
   endif()
 
+  # A couple more libraries that homebrew puts into their own subdirectories.
+  # These are added as cache variables so that a developer can override them on
+  # the command line or in an options override file.
+  set(SQLite3_ROOT
+      "${HOMEBREW_PREFIX}/opt/sqlite/"
+      CACHE STRING "The directory where SQLite3 is installed.")
+  set(ZLIB_ROOT
+      "${HOMEBREW_PREFIX}/opt/zlib/"
+      CACHE STRING "The directory where zlib is installed.")
+  set(Iconv_ROOT
+      "${HOMEBREW_PREFIX}/opt/libiconv/"
+      CACHE STRING "The directory where iconv is installed.")
+
   # Informational in case needed elsewhere.
   message(STATUS "Detected Homebrew (${HOMEBREW_PREFIX})")
   set(HOMEBREW ON)
