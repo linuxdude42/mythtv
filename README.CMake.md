@@ -5,14 +5,14 @@
 
   Support for building MythTV using "cmake" is an alternative to the
   long standing "make" build rules.  This provides a unified build
-  structure for building linux, android and windows executables using
+  structure for building Linux, android and windows executable using
   the same commands.
 
   The cmake builds are structured slightly different from the
   traditional make builds.  The top level cmake is essentially a build
   orchestrator, building any libraries that are needed and then
   building mythtv and mythplugins.  This means that building the
-  embedded FFmpeg or exim2 are treated as the equivalent of building
+  embedded FFmpeg or exiv2 are treated as the equivalent of building
   the mythtv directory or the mythplugins directory.  After being
   built once, subsequent runs of cmake should pick up the libraries
   from the previous build and only build mythtv and mythplugins.
@@ -61,7 +61,7 @@
   - mingw64-readline
   - mingw64-zstd
 
-  On Fedora, you can also install a number of pre-build libraries so
+  On Fedora, you can also install a number of pre-built libraries so
   that they don't have to be compiled as part of building MythTV.
   These are:
 
@@ -109,28 +109,14 @@
   longer list of dependencies, all of which are downloaded, compiled,
   and installed as separate projects.
 
-  CMake builds will compile in support for as many many optional parts
-  of MythTV if possible.  If the necessary system libraries are
-  present, then the cmake build will use them.  (This is the opposite
-  of the traditional make build, where all optional features were
-  disabled by default.)  If you encounter a problem with a feature,
-  you may disable it by adding `-DENABLE_<FEATURE>=OFF` to the command
-  line.  See the file cmake/MythOptions.cmake for a list of options
-  that can be disabled.  This is a project wide files listing all the
-  default option values.  The build will also load two per-user
-  options files (by default named
-  `.config/MythTV/BuildOverridesPre.cmake` and
-  `.config/MythTV/BuildOverridesPost.cmake`) so that you can
-  permanently disable an option for all your builds, or adjust other
-  aspects of the build.  For example, creating the file
-  `.config/MythTV/BuildOverridesPost.cmake` with the following
-  contents will disable the python bindings for all builds, and set
-  the location of your Android ndk.
-
-  ```
-  set(ENABLE_BINDINGS_PYTHON OFF)
-  set(CMAKE_ANDROID_NDK $ENV{HOME}/Android/Sdk/ndk/26.1.10909125)
-  ```
+  By default, CMake builds will try and compile in support for as many
+  optional parts of MythTV as possible.  If the necessary system
+  libraries are present, then the cmake build will use them.  (This is
+  the opposite of the traditional make build, where all optional
+  features were disabled by default.)  If you encounter a problem with
+  a feature, you may disable it by adding `-DENABLE_<FEATURE>=OFF` to
+  the command line.  See the [options](#options) section for more
+  information.
 
 ## Native Compiles
 
@@ -139,54 +125,55 @@
   following commands.  You do not need to run `configure`.
 
   ```
-  $ cmake -S . -B mybuild -G Ninja -DCMAKE_INSTALL_PREFIX=<install_location>
-  $ cmake --build mybuild
-  ```
-
-  The first line will create a new directory named "mybuild", and then
-  install into that directory the framework to compile MythTV using
-  the Ninja built tool.  The second line will download/compile/install
-  any dependencies, then compile/install MythTV, and then
-  compile/install the plugins.  Once the initial build has been
-  performed, you can compile only the MythTV component by issuing the
-  following command(s):
-
-  ```
-  $ cmake --build mybuild/MythTV-prefix/src/MythTV-build
-  ```
-  or
-  ```
-  $ cd mybuild/MythTV-prefix/src/MythTV-build
-  $ cmake --build .
-  ```
-
-  Alternatively, you can create the build directory yourself and
-  compile MythTV with the following:
-
-  ```
-  $ mkdir mybuild
-  $ cd mybuild
-  $ cmake -S .. -G Ninja -DCMAKE_INSTALL_PREFIX=<install_location>
-  $ cmake --build .
-  ```
-
-  There is a shorter form for doing this using one of the predefined
-  sets of arguments.  By default this will install into
-  ```/usr/local``` since no installation prefix was defined.
-
-  ```
-  $ cmake --preset qt5
+  $ cmake --preset qt5 -DCMAKE_INSTALL_PREFIX=<install_location>
   $ cmake --build build-qt5
   ```
 
-  You can also combine the two methods to customize your builds.  To
-  compile a qt6 version of MythTV using the defaults, except
-  installing into a custom directory, issue these command:
+  The first line will create a new directory named "build-qt5", and
+  then install into that directory the framework to compile MythTV
+  using the Ninja build tool.  The second line will
+  download/compile/install all dependencies, then compile/install
+  MythTV, and then compile/install the plugins.  More specifically,
+  this will compile/install exiv2, then compile/install FFmpeg. then
+  compile/install MythTV, then compile/install the plugins.  If you
+  don't specify the CMAKE_INSTALL_PREFIX directory, this will install
+  into /usr/local.  Once the initial build has been performed, you can
+  compile only the MythTV component by issuing the following
+  command(s):
 
   ```
-  $ cmake --preset qt6 -DCMAKE_INSTALL_PREFIX=<install_location>
-  $ cmake --build build-qt6
+  $ cmake --build build-qt5/MythTV-prefix/src/MythTV-build
   ```
+  or
+  ```
+  $ cd build-qt5/MythTV-prefix/src/MythTV-build
+  $ cmake --build .
+  ```
+
+  You can also delete the build directory and recreate it at any time.
+  The next time cmake is run in the top level directory it will pick
+  up the libraries from the previous build and only build mythtv and
+  mythplugins.  This is the equivalent of the traditional build's `git
+  clean -xfd ; configure ; make` sequence since all of the build
+  artifacts are contained within the build directory.
+
+  If you want more control over the build process, look at the first
+  few lines of output from the first cmake command to see what
+  variables are specified by that preset.  To create a custom build
+  without using a preset, you would issue commands like this:
+
+  ```
+  $ cmake -S . -B build-qt5 -G Ninja -DCMAKE_INSTALL_PREFIX=<install_location>
+  $ cmake --build build-qt5
+  ```
+
+  This will use the current directory as the source (-S) directory,
+  create a build (-B) directory named build-qt5, and use the Ninja
+  generator (-G) to create the build framework in the build-qt5
+  directory.  The build directory can be named anything, but
+  traditionally begins with the string "build".  The build directory
+  can also be located anywhere.  It doesn't need to be a subdirectory
+  of the source directory.
 
   CMake allows you to use multiple different
   [generators](https://cmake.org/cmake/help/latest/manual/cmake-generators.7.html)
@@ -213,13 +200,6 @@
 
   To get additional output during the builds, you can add the
   `-DVERBOSE=ON` argument to the initial cmake command.
-
-  You can also delete the build directory and recreate it at any time.
-  The next time you run cmake in the top level directory it will pick
-  up the libraries from the previous build and only build mythtv and
-  mythplugins.  (You can delete the libraries prior to running cmake
-  if you want them be rebuild.  The mythtv add mythplugins directories
-  will always be built.)
 
 ## Control Number of Jobs
 
@@ -258,30 +238,27 @@
   $ cmake --list-presets
   ```
 
-  These build will download/compile/install a much larger set of
+  These builds will download/compile/install a much larger set of
   dependencies thatn for native builds, and wil then compile/install
   MythTV, and then compile/install the plugins.  Once all this is
   finished, it will create an APK file that can be uploaded to an
-  android device.
+  android device.  This apk can be found in the build directory.  You
+  do not need to specify the CMAKE_INSTALL_DIRECTORY for an android
+  build as nothing is installed.
 
-  To set/change the [install
-  location](https://cmake.org/cmake/help/latest/variable/CMAKE_INSTALL_PREFIX.html)
-  for the intermediate files, add the
-  `-DCMAKE_INSTALL_PREFIX=<install_location>` argument to the initial
-  cmake command.  By default these files will be placed into a
-  directory named tmp_install_<arch> under the build directory.
-
-  To set/change the install location for the downloaded/compiled
-  external libraries, add the
-  `-DLIBS_INSTALL_PREFIX=<install_location>` argument to the initial
-  cmake command.  By default these files will be placed into a
-  directory named tmp_libsinstall_<arch> under the build directory.
-  In this location the libs install directory will be deleted when the
-  build directory is deleted. If you want the libraries to survive
-  deleting the build directory, you may place the
-  LIBS_INSTALL_DIRECTORY anywhere you want.  Using one of the presets
-  ending with "-libs" will place the library directory next to the
-  build directory instead of underneath the build directory.
+  The external libraries that are downloaded and compiled will be
+  installed the directory <builddir>/tmp_libinstall_arm64-v8a_qt5 and
+  the mythtv components will be installed into the directory
+  <builddir>/tmp_install_arm64-v8a_qt5.  (There should be no need to
+  modify these directory locations, but they could be change by
+  setting values into the LIBS_INSTALL_PREFIX and CMAKE_INSTALL_PREFIX
+  directories.)  Because these directories are located underneath the
+  build directory, they will both be deleted when the build directory
+  is deleted. If you want the libraries to survive deleting the build
+  directory, you may place the LIBS_INSTALL_DIRECTORY anywhere you
+  want.  The easiest solution is to use one of the presets ending with
+  "-libs" that will place the library directory next to the build
+  directory instead of underneath the build directory.
 
   To set the [android
   architecture](https://cmake.org/cmake/help/latest/variable/CMAKE_ANDROID_ARCH_ABI.html)
@@ -305,19 +282,30 @@
   $ cmake --build build-mingw-qt5
   ```
 
-  To set/change the install location for the downloaded/compiled
-  external libraries, add the
-  `-DLIBS_INSTALL_PREFIX=<install_location>` argument to the initial
-  cmake command.  By default these files will be placed into a
-  directory named tmp_libsinstall_win under the build directory.  In
-  this location the libs install directory will be deleted when the
-  build directory is deleted. If you want the libraries to survive
-  deleting the build directory, you may place the
-  LIBS_INSTALL_DIRECTORY anywhere you want.  Using one of the presets
-  ending with "-libs" will place the library directory next to the
-  build directory instead of underneath the build directory.
+  As with android, these builds will download/compile/install a much
+  larger set of dependencies thatn for native builds, and wil then
+  compile/install MythTV, and then compile/install the plugins.  Once
+  all this is finished, it will create the file
+  <build>/MythTV_Windows.zip that can be copied to a windows system.
+  You do not need to specify the CMAKE_INSTALL_DIRECTORY for an
+  windows build as nothing is installed.
 
-# Building subsets of MythTV
+  Also as with android, the external libraries that are downloaded and
+  compiled will be installed the directory
+  <builddir>/tmp_libinstall_win_qt5 and the mythtv components will be
+  installed into the directory <builddir>/tmp_install_win_qt5.  (There
+  should be no need to modify these directory locations, but they
+  could be change by setting values into the LIBS_INSTALL_PREFIX and
+  CMAKE_INSTALL_PREFIX directories.)  Because these directories are
+  located underneath the build directory, they will both be deleted
+  when the build directory is deleted. If you want the libraries to
+  survive deleting the build directory, you may place the
+  LIBS_INSTALL_DIRECTORY anywhere you want.  The easiest solution is
+  to use one of the presets ending with "-libs" that will place the
+  library directory next to the build directory instead of underneath
+  the build directory.
+
+## Building subsets of MythTV
 
 ### Building just the external libraries
 
@@ -347,7 +335,7 @@
   To run the test suites, use the following command:
 
   ```
-  cmake --build build -t MythTV-tests
+  $ cmake --build build -t MythTV-tests
   ```
 
   Tests are only build for native compiles. Cross compiling for
@@ -356,30 +344,65 @@
   To build the documentation, use the following command:
 
   ```
-  cmake --build build -t MythTV-docs
+  $ cmake --build build -t MythTV-docs
   ```
 
   To build the tags files for ctags/etags/gtags, use the following
   commands:
 
   ```
-  cmake --build build -t ctags
-  cmake --build build -t etags
-  cmake --build build -t gtags
+  $ cmake --build build -t ctags
+  $ cmake --build build -t etags
+  $ cmake --build build -t gtags
   ```
 
   To run clang-tidy or cppcheck over the sources, use the following
   commands:
 
   ```
-  cmake --build build -t clang-tidy
-  cmake --build build -t cppcheck
+  $ cmake --build build -t clang-tidy
+  $ cmake --build build -t cppcheck
   ```
 
   Its also possible to run these two tools as part of the normal build
   process by setting the variables CMAKE_CXX_CPPCHECK
   CMAKE_CXX_CLANG_TIDY, althought this will significantly slow down a
   full build (because some of the clang tidy checks are expensive.)
+
+## Options {#options}
+
+  The file cmake/MythOptions.cmake contains default values for all of
+  the options that can be enabled/disabled/modified as part off the
+  build process.  This is a project wide file and should not be
+  modified locally.  All entries in this file that use the option()
+  command are booleans, and should be set to "ON" or "OFF".  The rest
+  of the entries are strings.
+
+  The build also loads two per-user options files (by default named
+  `.config/MythTV/BuildOverridesPre.cmake` and
+  `.config/MythTV/BuildOverridesPost.cmake`) so that you can
+  permanently disable an option for all your builds, or adjust other
+  aspects of the build.  For example, creating the file
+  `.config/MythTV/BuildOverridesPost.cmake` with the following
+  contents will disable the python bindings for all builds, and set
+  the location of your Android ndk.
+
+  ```
+  set(ENABLE_BINDINGS_PYTHON OFF)
+  set(CMAKE_ANDROID_NDK $ENV{HOME}/Android/Sdk/ndk/26.1.10909125)
+  ```
+
+  These file contain cmake commands, so you can add programming to
+  make changes specific to any variable provided by cmake.  For
+  example, to only disable the plugins when installing in a directory
+  that contains the words "some-string", you would include the
+  following in the BuildOverridesPost file.
+
+  ```
+  if(CMAKE_INSTALL_PREFIX MATCHES "some-string")
+    set(MYTH_BUILD_PLUGINS OFF)
+  endif()
+  ```
 
 ## Notes
 
@@ -403,3 +426,12 @@
 
   * [CMake Documentation](https://cmake.org/cmake/help/latest/index.html)
   * [Professional CMake: A Practical Guide](https://crascit.com/professional-cmake)
+
+## PDF/HTML Versions
+
+  To create pdf and html versions of this file, use the command:
+
+  ```
+  pandoc README.CMake.md -o README.CMake.html
+  pandoc README.CMake.md -o README.CMake.pdf
+  ```
