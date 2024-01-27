@@ -63,6 +63,5 @@ build
 *.bak
 README.CMake.*
 CMakeUserPresets.json
-libsinstall*
 cppcheck.html
 cppcheck.xml
