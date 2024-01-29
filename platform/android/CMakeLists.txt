@@ -273,6 +273,15 @@ if(QT_VERSION_MAJOR EQUAL 5)
   endforeach()
 
   #
+  # Codesigning in Qt5 is done by adding arguments to the command line.
+  #
+  if(QT_ANDROID_SIGN_APK)
+    set(BUNDLESIGN
+        "--sign" ${QT_ANDROID_KEYSTORE_PATH} ${QT_ANDROID_KEYSTORE_ALIAS}
+        "--storepass" ${QT_ANDROID_KEYSTORE_STORE_PASS})
+  endif()
+
+  #
   # This is a copy of the apk target from Qt5AndroidSupport.cmake.  It is here
   # to ensure that the JAVA_HOME environment variable is always set to the value
   # configured in these cmake file.  Otherwise the call to 'cmake --build
@@ -287,13 +296,15 @@ if(QT_VERSION_MAJOR EQUAL 5)
       "${PROJECT_BINARY_DIR}/android_deployment_settings.json" --output
       "${PROJECT_BINARY_DIR}/android-build" --apk
       "${PROJECT_BINARY_DIR}/android-build/${PROJECT_NAME}.apk"
-      ${android_deploy_qt_platform} ${android_deploy_qt_jdk} --verbose
+      ${android_deploy_qt_platform} ${android_deploy_qt_jdk} ${BUNDLESIGN}
+      --verbose
     COMMAND
       ${CMAKE_COMMAND} -E env JAVA_HOME=${MYTH_JAVA_HOME} ${ANDROID_DEPLOY_QT}
       --input "${PROJECT_BINARY_DIR}/android_deployment_settings.json" --output
       "${PROJECT_BINARY_DIR}/android-build" --apk
       "${PROJECT_BINARY_DIR}/android-build/${PROJECT_NAME}.apk"
-      ${android_deploy_qt_platform} ${android_deploy_qt_jdk} --verbose
+      ${android_deploy_qt_platform} ${android_deploy_qt_jdk} ${BUNDLESIGN}
+      --verbose
     DEPENDS ${ANDROID_EXTRA_LIBS}
     VERBATIM USES_TERMINAL)
 
@@ -360,6 +371,16 @@ elseif(QT_VERSION_MAJOR EQUAL 6)
                QT_ANDROID_TARGET_SDK_VERSION ${ANDROID_TARGET_SDK_VERSION}
                QT_ANDROID_PACKAGE_SOURCE_DIR ${ANDROID_PACKAGE_SOURCE_DIR}
                QT_ANDROID_EXTRA_LIBS "${ANDROID_EXTRA_LIBS}")
+
+  #
+  # Codesigning in Qt6 is done by setting environment variables.
+  #
+  if(QT_ANDROID_SIGN_APK)
+    set(ENV{QT_ANDROID_KEYSTORE_PATH} ${QT_ANDROID_KEYSTORE_PATH})
+    set(ENV{QT_ANDROID_KEYSTORE_ALIAS} ${QT_ANDROID_KEYSTORE_ALIAS})
+    set(ENV{QT_ANDROID_KEYSTORE_STORE_PASS} ${QT_ANDROID_KEYSTORE_STORE_PASS})
+    set(ENV{QT_ANDROID_KEYSTORE_KEY_PASS} ${QT_ANDROID_KEYSTORE_KEY_PASS})
+  endif()
 
   #
   # qmake/cmake variables:

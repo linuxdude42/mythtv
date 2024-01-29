@@ -243,6 +243,28 @@ if(ANDROID
       CACHE STRING "Default Android ABI to target")
   option(MYTH_BUILD_ANDROID_PLUGINS
          "Install the plugins as part of the built apk." ON)
+
+  #
+  # Enable or disable signing of the built android package.  The SIGN_APK
+  # variable enables/disables signing.  The rest of the variables are arguments
+  # to the signing process.
+  #
+  option(QT_ANDROID_SIGN_APK "Sign the package." OFF)
+  set(QT_ANDROID_KEYSTORE_PATH
+      ""
+      CACHE PATH "The path to the local android key store.")
+  set(QT_ANDROID_KEYSTORE_ALIAS
+      ""
+      CACHE STRING "The android key to use to sign the package.")
+  set(QT_ANDROID_KEYSTORE_STORE_PASS
+      ""
+      CACHE STRING "The password for the android key store.")
+  set(QT_ANDROID_KEYSTORE_KEY_PASS
+      ""
+      CACHE
+        STRING
+        "The password for the specified key (if it is different from the password for the android key store)."
+  )
 endif()
 
 #
