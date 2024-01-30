@@ -44,41 +44,57 @@ function(find_or_build_exiv2)
       PROPERTY MANUALLY_ADDED_DEPENDENCIES)
   endif()
 
-  # Mon Nov 27 18:19:46 2023 +0000
-  set(EXIV2_VERSION 2a5587785f26f9fc8e9484e73ccfb2762741c137)
-  # ~~~
-  # Tue Sep 26 18:36:32 2023 +0200
-  # set(EXIV2_VERSION da58ec9e479eefd01358ecdfa070722b00e49e2f)
-  #
-  # Rolling version.
-  # set(EXIV2_VERSION "1.0.0.9")
-  # ~~~
+  if(ENABLE_EXIV2_DOWNLOAD)
+    # Mon Nov 27 18:19:46 2023 +0000
+    set(EXIV2_VERSION 2a5587785f26f9fc8e9484e73ccfb2762741c137)
+    # ~~~
+    # Tue Sep 26 18:36:32 2023 +0200
+    # set(EXIV2_VERSION da58ec9e479eefd01358ecdfa070722b00e49e2f)
+    #
+    # Rolling version.
+    # set(EXIV2_VERSION "1.0.0.9")
+    # ~~~
 
-  set(EXIV2_PREFIX "exiv2-${EXIV2_VERSION}")
-  set(EXIV2_2a5587785f26f9fc8e9484e73ccfb2762741c137_SHA256
-      "36d1a386ad923f9d7406fcc29e9598f82c7744ad3fb70c862960a0cbd132b0a4")
-  set(EXIV2_da58ec9e479eefd01358ecdfa070722b00e49e2f_SHA256
-      "6da14f3d96372140e84831c1b330651238edf9a62e7359b078f390f08b831e6f")
-  # For the 2023-10-04 download of nightly (aka 1.0.0.9)
-  set(EXIV2_1.0.0.9_SHA256
-      "509b7c3ad2df2b8e8a76bbf68fa24241012fde246c6a9e75529c75ee433ad142")
+    set(EXIV2_PREFIX "exiv2-${EXIV2_VERSION}")
+    set(EXIV2_2a5587785f26f9fc8e9484e73ccfb2762741c137_SHA256
+        "36d1a386ad923f9d7406fcc29e9598f82c7744ad3fb70c862960a0cbd132b0a4")
+    set(EXIV2_da58ec9e479eefd01358ecdfa070722b00e49e2f_SHA256
+        "6da14f3d96372140e84831c1b330651238edf9a62e7359b078f390f08b831e6f")
+    # For the 2023-10-04 download of nightly (aka 1.0.0.9)
+    set(EXIV2_1.0.0.9_SHA256
+        "509b7c3ad2df2b8e8a76bbf68fa24241012fde246c6a9e75529c75ee433ad142")
 
-  if(NOT EXIV2_VERSION MATCHES "\\.")
-    set(DOWNLOAD_URL
-        https://github.com/Exiv2/exiv2/archive/${EXIV2_VERSION}.tar.gz)
-  else()
-    set(DOWNLOAD_URL
-        https://github.com/Exiv2/exiv2/archive/refs/tags/nightly.tar.gz)
-  endif()
+    if(NOT EXIV2_VERSION MATCHES "\\.")
+      set(DOWNLOAD_URL
+          https://github.com/Exiv2/exiv2/archive/${EXIV2_VERSION}.tar.gz)
+    else()
+      set(DOWNLOAD_URL
+          https://github.com/Exiv2/exiv2/archive/refs/tags/nightly.tar.gz)
+    endif()
+    set(BUILD_INSTRUCTIONS
+        DOWNLOAD_DIR
+        ${TARBALL_DIR}
+        URL
+        ${DOWNLOAD_URL}
+        DOWNLOAD_NAME
+        exiv2-${EXIV2_VERSION}.tar.gz
+        URL_HASH
+        SHA256=${EXIV2_${EXIV2_VERSION}_SHA256}
+        PATCH_COMMAND
+        patch
+        -p1
+        -N
+        -i
+        ${PROJECT_SOURCE_DIR}/patches/${EXIV2_PREFIX}.patch)
+  else(ENABLE_EXIV2_DOWNLOAD)
+    set(EXIV2_VERSION embedded)
+    set(BUILD_INSTRUCTIONS SOURCE_DIR
+                           ${CMAKE_CURRENT_SOURCE_DIR}/mythtv/external/libexiv2)
+  endif(ENABLE_EXIV2_DOWNLOAD)
 
   ExternalProject_Add(
     exiv2
-    DOWNLOAD_DIR ${TARBALL_DIR}
-    URL ${DOWNLOAD_URL}
-    DOWNLOAD_NAME exiv2-${EXIV2_VERSION}.tar.gz
-    URL_HASH SHA256=${EXIV2_${EXIV2_VERSION}_SHA256}
-    PATCH_COMMAND patch -p1 -N -i
-                  ${PROJECT_SOURCE_DIR}/patches/${EXIV2_PREFIX}.patch
+    ${BUILD_INSTRUCTIONS}
     CMAKE_ARGS --no-warn-unused-cli
                -DCMAKE_INSTALL_SO_NO_EXE=OFF
                -DBUILD_SHARED_LIBS:BOOL=ON

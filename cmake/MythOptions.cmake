@@ -162,6 +162,7 @@ option(ENABLE_MHEG "Enable MHEG support." ON)
 option(ENABLE_SDL2 "Enable SDL2 support." ON)
 option(ENABLE_SYSTEMD_JOURNAL "Enable systemd journal support." ON)
 option(ENABLE_SYSTEMD_NOTIFY "Enable systemd notify support." ON)
+option(ENABLE_EXIV2_DOWNLOAD "Build latest exiv2 instead of embedded copy." OFF)
 
 #
 # Miscellaneous compilation options
