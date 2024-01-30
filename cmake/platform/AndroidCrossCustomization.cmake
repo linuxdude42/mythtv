@@ -30,18 +30,6 @@ list(
   "-DCMAKE_ANDROID_ARCH_ABI=${CMAKE_ANDROID_ARCH_ABI}"
   "-DANDROID_PLATFORM=android-${CMAKE_SYSTEM_VERSION}")
 
-# The gradle build code that Qt uses hasn't been updated for the consolidation
-# of multiple <arch>-strip applications into a single llvm-strip application
-# (actually a link to llvm-objcopy).  Add the required links here.  This must
-# come before fixing the toolchain prefix variables, because contrary to what
-# that says, this link needs to be "arm-" not "armv7a-".
-if(NOT EXISTS ${CMAKE_CXX_ANDROID_TOOLCHAIN_PREFIX}strip)
-  execute_process(
-    COMMAND ${CMAKE_COMMAND} -E create_symlink llvm-objcopy
-            ${CMAKE_C_ANDROID_TOOLCHAIN_MACHINE}-strip
-    WORKING_DIRECTORY ${CMAKE_SYSTEM_PROGRAM_PATH} COMMAND_ERROR_IS_FATAL ANY)
-endif()
-
 # Fix the toolchain prefix variables. The android ndk screws them up for 32-bit
 # builds. No, really! It does.
 if(CMAKE_ANDROID_ARCH STREQUAL "arm")
