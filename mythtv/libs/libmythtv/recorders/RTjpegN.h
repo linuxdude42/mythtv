@@ -44,7 +44,7 @@ using RTjpegData32 = std::array<int32_t,64>;
 
 /* Format definitions */
 
-enum RTJFormat {
+enum RTJFormat : std::uint8_t {
     RTJ_YUV420 = 0,
     RTJ_YUV422 = 1,
     RTJ_RGB8   = 2
