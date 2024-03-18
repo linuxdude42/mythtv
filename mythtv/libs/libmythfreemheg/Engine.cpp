@@ -250,7 +250,13 @@ MHGroup *MHEngine::ParseProgram(QByteArray &text)
 }
 
 // Determine protocol for a file
-enum EProtocol { kProtoUnknown, kProtoDSM, kProtoCI, kProtoHTTP, kProtoHybrid };
+enum EProtocol : std::uint8_t {
+    kProtoUnknown,
+    kProtoDSM,
+    kProtoCI,
+    kProtoHTTP,
+    kProtoHybrid
+};
 static EProtocol PathProtocol(const QString& csPath)
 {
     if (csPath.isEmpty() || csPath.startsWith("DSM:") || csPath.startsWith("~"))
