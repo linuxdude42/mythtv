@@ -2139,7 +2139,7 @@ void NuppelVideoRecorder::doWriteThread(void)
 
         CheckForRingBufferSwitch();
 
-        enum
+        enum : std::uint8_t
         { ACTION_NONE,
           ACTION_VIDEO,
           ACTION_AUDIO,
