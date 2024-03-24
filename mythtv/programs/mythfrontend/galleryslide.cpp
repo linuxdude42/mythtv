@@ -194,8 +194,19 @@ void SequentialAnimation::SetSpeed(float speed)
 void SequentialAnimation::Finished()
 {
     // Finish group when last child finishes
-    if ((m_forwards && ++m_current == m_group.size())
-            || (!m_forwards && --m_current < 0))
+    if (m_forwards)
+    {
+        m_current++;
+        if (m_current == m_group.size())
+            AbstractAnimation::Finished();
+        else
+            // Start next child
+            m_group.at(m_current)->Start(m_forwards, m_speed);
+        return;
+    }
+
+    m_current--;
+    if (m_current < 0)
         AbstractAnimation::Finished();
     else
         // Start next child
