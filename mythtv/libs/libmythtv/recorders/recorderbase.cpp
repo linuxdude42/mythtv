@@ -529,10 +529,14 @@ long long RecorderBase::GetKeyframePosition(long long desired) const
     frm_pos_map_t::const_iterator it = m_positionMap.lowerBound(desired);
     if (it == m_positionMap.end())
         ret = *m_positionMap.begin();
-    else if ((it.key() == desired) ||
-             (--it != m_positionMap.end()))
+    else if (it.key() == desired)
         ret = *it;
-
+    else
+    {
+        it--;
+        if (it != m_positionMap.end())
+            ret = *it;
+    }
     return ret;
 }
 
