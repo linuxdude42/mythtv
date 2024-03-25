@@ -135,8 +135,7 @@ long long MythDVDBuffer::SeekInternal(long long Position, int Whence)
     else
     {
         QString cmd = QString("Seek(%1, %2)").arg(Position)
-            .arg((Whence == SEEK_SET) ? "SEEK_SET" :
-                 ((Whence == SEEK_CUR) ? "SEEK_CUR" : "SEEK_END"));
+            .arg(seek2string(Whence));
         LOG(VB_GENERAL, LOG_ERR, LOC + cmd + " Failed" + ENO);
     }
 
@@ -629,11 +628,19 @@ int MythDVDBuffer::SafeRead(void *Buffer, uint Size)
                         QString("---- DVDNAV_CELL_CHANGE - Cell #%1 Menu %2 Length %3")
                           .arg(cell_event->cellN).arg(m_inMenu ? "Yes" : "No")
                           .arg(static_cast<double>(cell_event->cell_length) / 90000.0, 0, 'f', 1));
-                    QString still = stillTimer ? ((stillTimer < 0xff) ?
-                        QString("Stillframe: %1 seconds").arg(stillTimer) :
-                        QString("Infinite stillframe")) :
-                        QString("Length: %1 seconds")
+                    QString still;
+                    if (stillTimer)
+                    {
+                        if (stillTimer < 0xff)
+                            still = QString("Stillframe: %1 seconds").arg(stillTimer);
+                        else
+                            still = QString("Infinite stillframe");
+                    }
+                    else
+                    {
+                        still = QString("Length: %1 seconds")
                             .arg(duration_cast<std::chrono::seconds>(m_pgcLength).count());
+                    }
                     if (m_title == 0)
                     {
                         LOG(VB_PLAYBACK, LOG_INFO, LOC + QString("Menu #%1 %2")
