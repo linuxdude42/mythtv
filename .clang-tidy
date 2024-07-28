@@ -287,6 +287,7 @@ CheckOptions:
 
   - { key: cppcoreguidelines-pro-type-member-init.IgnoreArrays, value: 1 }
   - { key: cppcoreguidelines-narrowing-conversions.PedanticMode, value: 0 } # test 1 at some point
+  - { key: cppcoreguidelines-avoid-non-const-global-variables.AllowInternalLinkage, value: 1 }
 
   - { key: misc-header-include-cycle.IgnoredFilesList, value: 'qglobal.h;mem.h;common.h' }
 
