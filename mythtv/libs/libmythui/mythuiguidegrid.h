@@ -85,7 +85,7 @@ class MUI_PUBLIC MythUIGuideGrid : public MythUIType
     class UIGTCon
     {
       public:
-        UIGTCon() { m_arrow = GridTimeNormal; m_recType = m_recStat = 0; };
+        UIGTCon() : m_arrow(GridTimeNormal) { m_recType = m_recStat = 0; };
         UIGTCon(const QRect drawArea, QString title,
                 const QString &category, int arrow, int recType, int recStat) :
                 m_drawArea(drawArea),               m_title(std::move(title)),

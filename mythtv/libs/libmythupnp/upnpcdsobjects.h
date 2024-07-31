@@ -14,9 +14,10 @@
 #define UPNPCDSOBJECTS_H
 
 #include <QDateTime>
-#include <QString>
 #include <QList>
 #include <QMap>
+#include <QString>
+#include <utility>
 
 #include "libmythbase/referencecounter.h"
 
@@ -54,18 +55,18 @@ class Property
 
     public:
 
-        explicit Property( const QString &sName,
-                           const QString &sNameSpace  = "",
+        explicit Property( QString sName,
+                           QString sNameSpace  = "",
                            bool           bRequired   = false,
                            const QString &sValue      = "",
                            bool           bMultiValue = false
                          )
+          : m_sName(std::move(sName)),
+            m_sNameSpace(std::move(sNameSpace)),
+            m_bRequired(bRequired),
+            m_bMultiValue(bMultiValue)
         {
-            m_sName       = sName;
-            m_sNameSpace  = sNameSpace;
-            m_bRequired   = bRequired;
             m_sValue      = HTTPRequest::Encode(sValue);
-            m_bMultiValue = bMultiValue;
         }
 
         void SetValue(const QString &value)
@@ -111,10 +112,10 @@ class Resource
 
     public:
 
-        Resource( const QString &sProtocolInfo,
+        Resource( QString sProtocolInfo,
                   const QString &sURI )
+          : m_sProtocolInfo(std::move(sProtocolInfo))
         {
-            m_sProtocolInfo = sProtocolInfo;
             m_sURI          = HTTPRequest::Encode(sURI);
         }
 
@@ -141,13 +142,13 @@ class ContainerClass
 
     public:
 
-        ContainerClass( const QString &sClass,
-                        const QString &sName,
+        ContainerClass( QString sClass,
+                        QString sName,
                         bool           bIncludeDerived )
+          : m_sClass(std::move(sClass)),
+            m_sName(std::move(sName)),
+            m_bIncludeDerived(bIncludeDerived)
         {
-            m_sClass          = sClass;
-            m_sName           = sName;
-            m_bIncludeDerived = bIncludeDerived;
         }
 };
 
