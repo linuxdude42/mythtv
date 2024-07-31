@@ -95,20 +95,34 @@ Checks: '-*,
        -clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling,
        -clang-analyzer-security.insecureAPI.strcpy,
 
-    # Explicitly list the tests that arent aliases. ,
-   -cppcoreguidelines-*,
+    cppcoreguidelines-*,
 
-        # Good. ,
-        cppcoreguidelines-init-variables,
-        cppcoreguidelines-interfaces-global-init,
-        cppcoreguidelines-pro-type-member-init,
-        cppcoreguidelines-pro-type-static-cast-downcast,
+        # Skip tests that are redirects to other tests. ,
+       -cppcoreguidelines-avoid-c-arrays,
+       -cppcoreguidelines-avoid-magic-numbers,
+       -cppcoreguidelines-c-copy-assignment-signature,
+       -cppcoreguidelines-explicit-virtual-functions,
+       -cppcoreguidelines-macro-to-enum,
+       -cppcoreguidelines-noexcept-destructor,
+       -cppcoreguidelines-noexcept-move-operations,
+       -cppcoreguidelines-noexcept-swap,
+       -cppcoreguidelines-non-private-member-variables-in-classes,
+       -cppcoreguidelines-use-default-member-init,
+
+        # 2024-08-01: Needs investigation. ,
+       -cppcoreguidelines-avoid-const-or-ref-data-members,
+
+        # 2024-08-01: Needs investigation. ,
+       -cppcoreguidelines-avoid-do-while,
 
         # As of 2022-12-19, there are 142 unique warnings. ,
        -cppcoreguidelines-avoid-goto,
 
         # As of 2023-05-22, there are 1257 unique warnings. ,
        -cppcoreguidelines-avoid-non-const-global-variables,
+
+        # 2024-08-01: Needs investigation. ,
+       -cppcoreguidelines-macro-usage,
 
         # As of 2023-05-22, there are 374 unique warnings. ,
        -cppcoreguidelines-narrowing-conversions,
@@ -150,6 +164,9 @@ Checks: '-*,
 
         # As of 2022-12-19, there are 1283 unique warnings. ,
        -cppcoreguidelines-special-member-functions,
+
+        # 2024-08-01: Needs investigation. ,
+       -cppcoreguidelines-virtual-class-destructor,
 
    -google-explicit-constructor,
    -google-runtime-int,
