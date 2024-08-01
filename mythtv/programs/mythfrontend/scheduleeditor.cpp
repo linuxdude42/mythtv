@@ -43,18 +43,20 @@
 
 // Define the strings inserted into the recordfilter table in the
 // database.  This should make them available to the translators.
-static QString fs0(QT_TRANSLATE_NOOP("SchedFilterEditor", "New episode"));
-static QString fs1(QT_TRANSLATE_NOOP("SchedFilterEditor", "Identifiable episode"));
-static QString fs2(QT_TRANSLATE_NOOP("SchedFilterEditor", "First showing"));
-static QString fs3(QT_TRANSLATE_NOOP("SchedFilterEditor", "Prime time"));
-static QString fs4(QT_TRANSLATE_NOOP("SchedFilterEditor", "Commercial free"));
-static QString fs5(QT_TRANSLATE_NOOP("SchedFilterEditor", "High definition"));
-static QString fs6(QT_TRANSLATE_NOOP("SchedFilterEditor", "This episode"));
-static QString fs7(QT_TRANSLATE_NOOP("SchedFilterEditor", "This series"));
-static QString fs8(QT_TRANSLATE_NOOP("SchedFilterEditor", "This time"));
-static QString fs9(QT_TRANSLATE_NOOP("SchedFilterEditor", "This day and time"));
-static QString fs10(QT_TRANSLATE_NOOP("SchedFilterEditor", "This channel"));
-static QString fs11(QT_TRANSLATE_NOOP("SchedFilterEditor", "No episodes"));
+namespace {
+    QString fs0(QT_TRANSLATE_NOOP("SchedFilterEditor", "New episode"));
+    QString fs1(QT_TRANSLATE_NOOP("SchedFilterEditor", "Identifiable episode"));
+    QString fs2(QT_TRANSLATE_NOOP("SchedFilterEditor", "First showing"));
+    QString fs3(QT_TRANSLATE_NOOP("SchedFilterEditor", "Prime time"));
+    QString fs4(QT_TRANSLATE_NOOP("SchedFilterEditor", "Commercial free"));
+    QString fs5(QT_TRANSLATE_NOOP("SchedFilterEditor", "High definition"));
+    QString fs6(QT_TRANSLATE_NOOP("SchedFilterEditor", "This episode"));
+    QString fs7(QT_TRANSLATE_NOOP("SchedFilterEditor", "This series"));
+    QString fs8(QT_TRANSLATE_NOOP("SchedFilterEditor", "This time"));
+    QString fs9(QT_TRANSLATE_NOOP("SchedFilterEditor", "This day and time"));
+    QString fs10(QT_TRANSLATE_NOOP("SchedFilterEditor", "This channel"));
+    QString fs11(QT_TRANSLATE_NOOP("SchedFilterEditor", "No episodes"));
+}
 
 void *ScheduleEditor::RunScheduleEditor(ProgramInfo *proginfo, void *player)
 {

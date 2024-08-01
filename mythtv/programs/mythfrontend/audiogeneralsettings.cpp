@@ -573,17 +573,18 @@ bool AudioConfigSettings::CheckPassthrough()
 }
 
 #ifdef USING_OSS
-static void fillSelectionsFromDir(HostComboBoxSetting *comboBox,
-                                  const QDir& dir, bool absPath = true)
-
-{
-    QFileInfoList entries = dir.entryInfoList();
-    for (const auto & fi : std::as_const(entries))
+namespace {
+    void fillSelectionsFromDir(HostComboBoxSetting *comboBox,
+                               const QDir& dir, bool absPath = true)
     {
-        if (absPath)
-            comboBox->addSelection( fi.absoluteFilePath() );
-        else
-            comboBox->addSelection( fi.fileName() );
+        QFileInfoList entries = dir.entryInfoList();
+        for (const auto & fi : std::as_const(entries))
+        {
+            if (absPath)
+                comboBox->addSelection( fi.absoluteFilePath() );
+            else
+                comboBox->addSelection( fi.fileName() );
+        }
     }
 }
 #endif
