@@ -18,7 +18,9 @@
 #include "weatherSetup.h"
 #include "weatherdbcheck.h"
 
-SourceManager *srcMan = nullptr;
+namespace {
+    SourceManager *srcMan = nullptr;
+}
 
 static int RunWeather()
 {
