@@ -6,7 +6,8 @@
 // local headers
 #include "eitutils.h"
 
-static int ClearEIT(const MythUtilCommandLineParser &cmdline)
+namespace {
+int ClearEIT(const MythUtilCommandLineParser &cmdline)
 {
     int result = GENERIC_EXIT_OK;
     int sourceid = -1;
@@ -133,6 +134,7 @@ static int ClearEIT(const MythUtilCommandLineParser &cmdline)
 
     return result;
 }
+} //end anonymous namespace
 
 void registerEITUtils(UtilMap &utilMap)
 {
