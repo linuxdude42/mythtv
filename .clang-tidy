@@ -197,11 +197,6 @@ Checks: '-*,
         # Noisy!!!  foo(void) => foo()  ,
        -modernize-redundant-void-arg,
 
-        # As of 2023-09-29, there are 14 unique warnings
-        remaining. These all come from calls to
-        Q_GLOBAL_STATIC_WITH_ARGS and cant be fixed by us. ,
-       -modernize-type-traits,
-
         # Why would anyone want this? ,
        -modernize-use-trailing-return-type,
 
@@ -217,16 +212,13 @@ Checks: '-*,
         # As of 2023-09-19, there are 443 unique warnings. ,
        -performance-avoid-endl,
 
-        # New in clang-18. As of 2024-03-18, there are 349 unique
-        # warnings. These warnings are all in Qt macros like
-        # Q_DECLARE_METATYPE or QStringLiteral. ,
+        # As of 2024-08-01, new filtering reduces this count to 14
+        # unique warnings. ,
        -performance-enum-size,
 
-        # The Q_DECLARE_METATYPE macro triggers a warning from this
-        # new clang12 checker.  As of 2022-12-19, the vast majority
-        # of these (236 of 292) warnings are associated with this
-        # macro; the other 56 are in the MythTV code. ,
-       -performance-no-int-to-ptr,
+        # As of 2024-08-01, new filtering reduces this count to 35
+        # unique warnings. ,
+        performance-no-int-to-ptr,
 
     readability-*,
 
