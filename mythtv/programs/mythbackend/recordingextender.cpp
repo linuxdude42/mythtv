@@ -52,17 +52,19 @@ static constexpr int kExtensionTimeInSec {
 static const QRegularExpression kVersusPattern {R"(\s(at|@|vs\.?)\s)"};
 static const QRegularExpression kSentencePattern {R"(:|\.+\s)"};
 
-/// Does this recording status indicate that the recording is still ongoing.
-///
-/// @param[in] recstatus The status of a single program recording.
-/// @returns true if the program is still being recorded. Returns
-///          false if the recording has failed, stopped, etc.
-static inline bool ValidRecordingStatus(RecStatus::Type recstatus)
-{
-    return (recstatus == RecStatus::Recording ||
-            recstatus == RecStatus::Tuning ||
-            recstatus == RecStatus::WillRecord ||
-            recstatus == RecStatus::Pending);
+namespace {
+    /// Does this recording status indicate that the recording is still ongoing.
+    ///
+    /// @param[in] recstatus The status of a single program recording.
+    /// @returns true if the program is still being recorded. Returns
+    ///          false if the recording has failed, stopped, etc.
+    inline bool ValidRecordingStatus(RecStatus::Type recstatus)
+    {
+        return (recstatus == RecStatus::Recording ||
+                recstatus == RecStatus::Tuning ||
+                recstatus == RecStatus::WillRecord ||
+                recstatus == RecStatus::Pending);
+    }
 }
 
 /// Set the game scheduling information URL. The schedule pages
