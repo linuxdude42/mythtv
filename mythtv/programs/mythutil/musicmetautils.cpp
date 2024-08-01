@@ -25,7 +25,8 @@ extern "C" {
 #include "musicmetautils.h"
 #include "mythutil_commandlineparser.h"
 
-static int UpdateMeta(const MythUtilCommandLineParser &cmdline)
+namespace {
+int UpdateMeta(const MythUtilCommandLineParser &cmdline)
 {
     bool ok = true;
     int result = GENERIC_EXIT_OK;
@@ -91,7 +92,7 @@ static int UpdateMeta(const MythUtilCommandLineParser &cmdline)
     return result;
 }
 
-static int ExtractImage(const MythUtilCommandLineParser &cmdline)
+int ExtractImage(const MythUtilCommandLineParser &cmdline)
 {
     if (cmdline.toString("songid").isEmpty())
     {
@@ -181,7 +182,7 @@ static int ExtractImage(const MythUtilCommandLineParser &cmdline)
     return GENERIC_EXIT_OK;
 }
 
-static int ScanMusic(const MythUtilCommandLineParser &cmdline)
+int ScanMusic(const MythUtilCommandLineParser &cmdline)
 {
     auto *fscan = new MusicFileScanner(cmdline.toBool("musicforce"));
     QStringList dirList;
@@ -199,7 +200,7 @@ static int ScanMusic(const MythUtilCommandLineParser &cmdline)
     return GENERIC_EXIT_OK;
 }
 
-static int UpdateRadioStreams(const MythUtilCommandLineParser &/*cmdline*/)
+int UpdateRadioStreams(const MythUtilCommandLineParser &/*cmdline*/)
 {
     // check we have the correct Music Schema Version (maybe the FE hasn't been run yet)
     if (gCoreContext->GetNumSetting("MusicDBSchemaVer", 0) < 1024)
@@ -214,7 +215,7 @@ static int UpdateRadioStreams(const MythUtilCommandLineParser &/*cmdline*/)
     return GENERIC_EXIT_OK;
 }
 
-static int CalcTrackLength(const MythUtilCommandLineParser &cmdline)
+int CalcTrackLength(const MythUtilCommandLineParser &cmdline)
 {
     if (cmdline.toString("songid").isEmpty())
     {
@@ -349,6 +350,7 @@ static int CalcTrackLength(const MythUtilCommandLineParser &cmdline)
 
     return GENERIC_EXIT_OK;
 }
+} // end anonymous namespace
 
 class LyricsGrabber
 {
@@ -358,7 +360,8 @@ public:
     int     m_priority {99};
 };
 
-static int FindLyrics(const MythUtilCommandLineParser &cmdline)
+namespace {
+int FindLyrics(const MythUtilCommandLineParser &cmdline)
 {
 
     #ifdef Q_OS_DARWIN
@@ -608,6 +611,7 @@ static int FindLyrics(const MythUtilCommandLineParser &cmdline)
 
     return GENERIC_EXIT_OK;
 }
+} //end anonymous namespace
 
 void registerMusicUtils(UtilMap &utilMap)
 {

@@ -24,8 +24,10 @@
 #include <libmythbase/remoteutil.h>
 #include <libmythbase/rssmanager.h>
 
-GrabberDownloadThread *gdt = nullptr;
-RSSManager *rssMan = nullptr;
+namespace {
+    GrabberDownloadThread *gdt = nullptr;
+    RSSManager *rssMan = nullptr;
+}
 
 class MPLUGIN_PUBLIC MythFillNVCommandLineParser : public MythCommandLineParser
 {
