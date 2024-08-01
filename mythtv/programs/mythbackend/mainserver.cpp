@@ -4375,11 +4375,13 @@ void MainServer::HandleFreeTuner(int cardid, PlaybackSock *pbs)
     SendResponse(pbssock, strlist);
 }
 
-static bool comp_livetvorder(const InputInfo &a, const InputInfo &b)
-{
-    if (a.m_liveTvOrder != b.m_liveTvOrder)
-        return a.m_liveTvOrder < b.m_liveTvOrder;
-    return a.m_inputId < b.m_inputId;
+namespace {
+    bool comp_livetvorder(const InputInfo &a, const InputInfo &b)
+    {
+        if (a.m_liveTvOrder != b.m_liveTvOrder)
+            return a.m_liveTvOrder < b.m_liveTvOrder;
+        return a.m_inputId < b.m_inputId;
+    }
 }
 
 void MainServer::HandleGetFreeInputInfo(PlaybackSock *pbs,
