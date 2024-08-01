@@ -11,7 +11,8 @@
 
 #define TR MythWelcomeSettings::tr
 
-static StandardSetting *DailyWakeupStart(const QString& n)
+namespace {
+StandardSetting *DailyWakeupStart(const QString& n)
 {
     auto *gc = new GlobalTimeBoxSetting("DailyWakeupStartPeriod" + n, "00:00");
     gc->setLabel(TR("Period %1 start time").arg(n));
@@ -21,7 +22,7 @@ static StandardSetting *DailyWakeupStart(const QString& n)
     return gc;
 }
 
-static StandardSetting *DailyWakeupEnd(const QString& n)
+StandardSetting *DailyWakeupEnd(const QString& n)
 {
     auto *gc = new GlobalTimeBoxSetting("DailyWakeupEndPeriod" + n, "00:00");
     gc->setLabel(TR("Period %1 end time").arg(n));
@@ -31,7 +32,7 @@ static StandardSetting *DailyWakeupEnd(const QString& n)
     return gc;
 }
 
-static StandardSetting *DailyWakeup(const QString& n)
+StandardSetting *DailyWakeup(const QString& n)
 {
     auto *gc = new GroupSetting();
 
@@ -41,7 +42,7 @@ static StandardSetting *DailyWakeup(const QString& n)
     return gc;
 }
 
-static StandardSetting *AutoStartFrontend()
+StandardSetting *AutoStartFrontend()
 {
     auto *gc = new HostCheckBoxSetting("AutoStartFrontend");
     gc->setLabel(TR("Automatically Start mythfrontend"));
@@ -52,7 +53,7 @@ static StandardSetting *AutoStartFrontend()
     return gc;
 }
 
-static StandardSetting *ShutdownWithBE()
+StandardSetting *ShutdownWithBE()
 {
     auto *gc = new HostCheckBoxSetting("ShutdownWithMasterBE");
     gc->setLabel(TR("Shutdown with Master Backend"));
@@ -62,6 +63,7 @@ static StandardSetting *ShutdownWithBE()
                        "down. Should only be set on frontend only machines"));
     return gc;
 }
+} // end anonymous namespace
 
 MythWelcomeSettings::MythWelcomeSettings()
 {
@@ -84,7 +86,8 @@ MythWelcomeSettings::MythWelcomeSettings()
 #undef TR
 #define TR MythShutdownSettings::tr
 
-static StandardSetting *MythShutdownNvramCmd()
+namespace {
+StandardSetting *MythShutdownNvramCmd()
 {
     auto *gc = new HostTextEditSetting("MythShutdownNvramCmd");
     gc->setLabel(TR("Command to Set Wakeup Time"));
@@ -94,7 +97,7 @@ static StandardSetting *MythShutdownNvramCmd()
     return gc;
 }
 
-static StandardSetting *WakeupTimeFormat()
+StandardSetting *WakeupTimeFormat()
 {
     auto *gc = new HostComboBoxSetting("MythShutdownWakeupTimeFmt", true);
     gc->setLabel(TR("Wakeup time format"));
@@ -108,7 +111,7 @@ static StandardSetting *WakeupTimeFormat()
     return gc;
 }
 
-static StandardSetting *MythShutdownNvramRestartCmd()
+StandardSetting *MythShutdownNvramRestartCmd()
 {
     auto *gc = new HostTextEditSetting("MythShutdownNvramRestartCmd");
     gc->setLabel(TR("nvram-wakeup Restart Command"));
@@ -121,7 +124,7 @@ static StandardSetting *MythShutdownNvramRestartCmd()
     return gc;
 }
 
-static StandardSetting *MythShutdownReboot()
+StandardSetting *MythShutdownReboot()
 {
     auto *gc = new HostTextEditSetting("MythShutdownReboot");
     gc->setLabel(TR("Command to reboot"));
@@ -130,7 +133,7 @@ static StandardSetting *MythShutdownReboot()
     return gc;
 }
 
-static StandardSetting *MythShutdownPowerOff()
+StandardSetting *MythShutdownPowerOff()
 {
     auto *gc = new HostTextEditSetting("MythShutdownPowerOff");
     gc->setLabel(TR("Command to shutdown"));
@@ -139,7 +142,7 @@ static StandardSetting *MythShutdownPowerOff()
     return gc;
 }
 
-static StandardSetting *MythShutdownStartFECmd()
+StandardSetting *MythShutdownStartFECmd()
 {
     auto *gc = new HostTextEditSetting("MythWelcomeStartFECmd");
     gc->setLabel(TR("Command to run to start the Frontend"));
@@ -148,7 +151,7 @@ static StandardSetting *MythShutdownStartFECmd()
     return gc;
 }
 
-static StandardSetting *MythShutdownXTermCmd()
+StandardSetting *MythShutdownXTermCmd()
 {
     auto *gc = new HostTextEditSetting("MythShutdownXTermCmd");
     gc->setLabel(TR("Command to run Xterm"));
@@ -158,6 +161,7 @@ static StandardSetting *MythShutdownXTermCmd()
                        "setting blank."));
     return gc;
 }
+} // end anonymous namespace
 
 MythShutdownSettings::MythShutdownSettings()
 {
