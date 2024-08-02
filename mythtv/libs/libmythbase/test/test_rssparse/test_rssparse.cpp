@@ -21,7 +21,9 @@
 #include <string>
 #include "test_rssparse.h"
 
-Parse *gParse {nullptr};
+namespace {
+    Parse *gParse {nullptr};
+}
 
 void TestRSSParse::initTestCase()
 {

@@ -24,7 +24,9 @@
 #include "requesthandler/fileserverhandler.h"
 #include "requesthandler/fileserverutil.h"
 
-DeleteThread *deletethread = nullptr;
+namespace {
+    DeleteThread *deletethread = nullptr;
+}
 
 void FileServerHandler::connectionClosed(MythSocket *socket)
 {
