@@ -36,8 +36,10 @@
 
 static constexpr char const * const TESTNAME = "test_recordingextender";
 static constexpr char const * const TESTVERSION = "test_recordingextender_1.0";
-bool gSqliteRegexpEnabled = false;
-bool gForceLocalUrl {false};
+namespace {
+    bool gSqliteRegexpEnabled = false;
+    bool gForceLocalUrl {false};
+}
 
 static std::size_t replace_all(std::string& inout, std::string_view what, std::string_view with)
 {
