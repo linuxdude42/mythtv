@@ -24,7 +24,9 @@ static constexpr uint16_t TRY_LOCK_SPINS                 { 2000 };
 static constexpr uint16_t TRY_LOCK_SPINS_BEFORE_WARNING  { 9999 };
 static constexpr std::chrono::milliseconds TRY_LOCK_SPIN_WAIT { 1ms };
 
-int next_dbg_str = 0;
+namespace {
+    int next_dbg_str = 0;
+}
 
 /*! \brief Store AVBufferRef's for later disposal
  *
@@ -1085,7 +1087,9 @@ const std::array<const QString,DBG_STR_ARR_SIZE> dbg_str_arr_short
     "i","j","k","l","m","n","o","p", // 40
 };
 
-std::map<const MythVideoFrame *, int> dbg_str;
+namespace {
+    std::map<const MythVideoFrame *, int> dbg_str;
+}
 
 static int DebugNum(const MythVideoFrame *Frame)
 {

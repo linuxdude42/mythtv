@@ -20,12 +20,14 @@
 #include <iostream>
 #include "test_mheg_dsmcc.h"
 
-Dsmcc *g_dsmcc = nullptr;
+namespace {
+    Dsmcc *g_dsmcc = nullptr;
 
-ObjCarousel *g_obj1a = nullptr;
-ObjCarousel *g_obj1b = nullptr;
-ObjCarousel *g_obj1c = nullptr;
-ObjCarousel *g_obj2a = nullptr;
+    ObjCarousel *g_obj1a = nullptr;
+    ObjCarousel *g_obj1b = nullptr;
+    ObjCarousel *g_obj1c = nullptr;
+    ObjCarousel *g_obj2a = nullptr;
+}
 
 static const uint16_t Car1 = 0x4242;
 static const uint16_t Car2 = 0x4343;
