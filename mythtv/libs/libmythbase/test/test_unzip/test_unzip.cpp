@@ -22,7 +22,9 @@
 #include "test_unzip.h"
 #include <QTemporaryDir>
 
-QTemporaryDir *gTmpDir {nullptr};
+namespace {
+    QTemporaryDir *gTmpDir {nullptr};
+}
 
 void TestUnzip::initTestCase()
 {

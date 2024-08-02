@@ -31,7 +31,9 @@ VideoVisualSpectrum::~VideoVisualSpectrum()
     av_tx_uninit(&m_fftContext);
 }
 
-template<typename T> T sq(T a) { return a*a; };
+namespace {
+    template<typename T> T sq(T a) { return a*a; };
+}
 
 void VideoVisualSpectrum::Draw(const QRect Area, MythPainter* Painter, QPaintDevice* Device)
 {

@@ -1396,19 +1396,21 @@ void MythRenderOpenGL::PopTransformation(void)
     m_transforms.pop();
 }
 
-inline QOpenGLShaderProgram* ShaderError(QOpenGLShaderProgram *Shader, const QString &Source)
-{
-    QString type = Source.isEmpty() ? "Shader link" : "Shader compile";
-    LOG(VB_GENERAL, LOG_ERR, LOC + QString("%1 error").arg(type));
-    LOG(VB_GENERAL, LOG_ERR, LOC + QString("Log:"));
-    LOG(VB_GENERAL, LOG_ERR, "\n" + Shader->log());
-    if (!Source.isEmpty())
+namespace {
+    inline QOpenGLShaderProgram* ShaderError(QOpenGLShaderProgram *Shader, const QString &Source)
     {
-        LOG(VB_GENERAL, LOG_ERR, LOC + QString("Source:"));
-        LOG(VB_GENERAL, LOG_ERR, "\n" + Source);
+        QString type = Source.isEmpty() ? "Shader link" : "Shader compile";
+        LOG(VB_GENERAL, LOG_ERR, LOC + QString("%1 error").arg(type));
+        LOG(VB_GENERAL, LOG_ERR, LOC + QString("Log:"));
+        LOG(VB_GENERAL, LOG_ERR, "\n" + Shader->log());
+        if (!Source.isEmpty())
+            {
+                LOG(VB_GENERAL, LOG_ERR, LOC + QString("Source:"));
+                LOG(VB_GENERAL, LOG_ERR, "\n" + Source);
+            }
+        delete Shader;
+        return nullptr;
     }
-    delete Shader;
-    return nullptr;
 }
 
 QOpenGLShaderProgram *MythRenderOpenGL::CreateShaderProgram(const QString &Vertex, const QString &Fragment)
