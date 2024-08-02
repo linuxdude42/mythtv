@@ -1,6 +1,8 @@
 #include "dummyscheduler.h"
 
-QMap<uint,RecordingInfo*> gFakeRecordings;
+namespace {
+    QMap<uint,RecordingInfo*> gFakeRecordings;
+}
 
 // Dummy functions so we don't have to link against scheduler.o, which
 // pulls in a ton of other requirements.
