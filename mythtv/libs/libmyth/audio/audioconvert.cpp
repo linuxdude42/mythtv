@@ -736,22 +736,24 @@ void AudioConvert::MonoToStereo(void* dst, const void* src, int samples)
     }
 }
 
-template <class AudioDataType>
-void tDeinterleaveSample(AudioDataType* out, const AudioDataType* in, int channels, int frames)
-{
-    std::array<AudioDataType*,8> outp {};
-
-    for (int i = 0; i < channels; i++)
+namespace {
+    template <class AudioDataType>
+    void tDeinterleaveSample(AudioDataType* out, const AudioDataType* in, int channels, int frames)
     {
-        outp[i] = out + (i * frames);
-    }
+        std::array<AudioDataType*,8> outp {};
 
-    for (int i = 0; i < frames; i++)
-    {
-        for (int j = 0; j < channels; j++)
-        {
-            *(outp[j]++) = *(in++);
-        }
+        for (int i = 0; i < channels; i++)
+            {
+                outp[i] = out + (i * frames);
+            }
+
+        for (int i = 0; i < frames; i++)
+            {
+                for (int j = 0; j < channels; j++)
+                    {
+                        *(outp[j]++) = *(in++);
+                    }
+            }
     }
 }
 
@@ -785,41 +787,43 @@ void AudioConvert::DeinterleaveSamples(AudioFormat format, int channels,
     }
 }
 
-template <class AudioDataType>
-void tInterleaveSample(AudioDataType* out, const AudioDataType* in, int channels, int frames,
-                       const AudioDataType*  const* inp = nullptr)
-{
-    std::array<const AudioDataType*,8> my_inp {};
+namespace {
+    template <class AudioDataType>
+    void tInterleaveSample(AudioDataType* out, const AudioDataType* in, int channels, int frames,
+                           const AudioDataType*  const* inp = nullptr)
+    {
+        std::array<const AudioDataType*,8> my_inp {};
 
-    if (channels == 1)
-    {
-        //special case for mono
-        memcpy(out, inp ? inp[0] : in, sizeof(AudioDataType) * frames);
-        return;
-    }
+        if (channels == 1)
+            {
+                //special case for mono
+                memcpy(out, inp ? inp[0] : in, sizeof(AudioDataType) * frames);
+                return;
+            }
 
-    if (!inp)
-    {
-        // We're given an array of int, calculate pointers to each row
-        for (int i = 0; i < channels; i++)
-        {
-            my_inp[i] = in + (i * frames);
-        }
-    }
-    else
-    {
-        for (int i = 0; i < channels; i++)
-        {
-            my_inp[i] = inp[i];
-        }
-    }
+        if (!inp)
+            {
+                // We're given an array of int, calculate pointers to each row
+                for (int i = 0; i < channels; i++)
+                    {
+                        my_inp[i] = in + (i * frames);
+                    }
+            }
+        else
+            {
+                for (int i = 0; i < channels; i++)
+                    {
+                        my_inp[i] = inp[i];
+                    }
+            }
 
-    for (int i = 0; i < frames; i++)
-    {
-        for (int j = 0; j < channels; j++)
-        {
-            *(out++) = *(my_inp[j]++);
-        }
+        for (int i = 0; i < frames; i++)
+            {
+                for (int j = 0; j < channels; j++)
+                    {
+                        *(out++) = *(my_inp[j]++);
+                    }
+            }
     }
 }
 
