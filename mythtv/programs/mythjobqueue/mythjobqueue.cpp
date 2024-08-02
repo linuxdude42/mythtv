@@ -40,7 +40,9 @@
 #define LOC_WARN QString("MythJobQueue, Warning: ")
 #define LOC_ERR  QString("MythJobQueue, Error: ")
 
-JobQueue *jobqueue = nullptr;
+namespace {
+    JobQueue *jobqueue = nullptr;
+}
 
 int main(int argc, char *argv[])
 {

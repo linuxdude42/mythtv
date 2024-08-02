@@ -9,12 +9,14 @@
 
 #include "quickselect.h"
 
-template <typename T>
-void ELEM_SWAP(T& a, T& b)
-{
-    T t = a;
-    a = b;
-    b = t;
+namespace {
+    template <typename T>
+    void ELEM_SWAP(T& a, T& b)
+    {
+        T t = a;
+        a = b;
+        b = t;
+    }
 }
 
 unsigned char
