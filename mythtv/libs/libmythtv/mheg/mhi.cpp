@@ -820,10 +820,12 @@ void MHIContext::AddToDisplay(const QImage &image, const QRect displayRect, bool
     }
 }
 
-inline int Roundup(int n, int r)
-{
-    // NB assumes 2's complement arithmetic
-    return n + (-n & (r - 1));
+namespace {
+    inline int Roundup(int n, int r)
+    {
+        // NB assumes 2's complement arithmetic
+        return n + (-n & (r - 1));
+    }
 }
 
 // The videoRect gives the size and position to which the video must be scaled.
