@@ -38,7 +38,9 @@ static constexpr int8_t EFFECT_DISTORS_SL { 2 };
 extern volatile guint32 resolx;
 extern volatile guint32 c_resoly;
 
-void c_zoom (unsigned int *expix1, unsigned int *expix2, unsigned int prevX, unsigned int prevY, const signed int *brutS, const signed int *brutD);
+namespace {
+    void c_zoom (unsigned int *expix1, unsigned int *expix2, unsigned int prevX, unsigned int prevY, const signed int *brutS, const signed int *brutD);
+}
 
 /* Prototype to keep gcc from spewing warnings */
 static void select_zoom_filter (void);
@@ -79,7 +81,9 @@ static void select_zoom_filter (void) {
 #endif /* MMX */
 
 
-guint32 mmx_zoom_size;
+namespace {
+    guint32 mmx_zoom_size;
+}
 
 #ifdef USE_ASM
 
@@ -96,20 +100,24 @@ extern const void ppc_zoom (unsigned int *frompixmap, unsigned int *topixmap,
 #endif /* ASM */
 
 
-unsigned int *coeffs = nullptr, *freecoeffs = nullptr;
+namespace {
+#if 0
+    unsigned int *coeffs = nullptr, *freecoeffs = nullptr;
+#endif
 
-signed int *brutS = nullptr;				// source
-signed int *brutD = nullptr;				// dest
-signed int *brutT = nullptr;				// temp (en cours de génération)
+    signed int *brutS = nullptr;                      	// source
+    signed int *brutD = nullptr;                      	// dest
+    signed int *brutT = nullptr;                      	// temp (en cours de génération)
 
 // TODO : virer
-guint32 *expix1 = nullptr;				// pointeur exporte vers p1
-guint32 *expix2 = nullptr;				// pointeur exporte vers p2
+    guint32 *expix1 = nullptr;				// pointeur exporte vers p1
+    guint32 *expix2 = nullptr;				// pointeur exporte vers p2
 // fin TODO
 
-guint32 zoom_width;
+    guint32 zoom_width;
 
-unsigned int     prevX = 0, prevY = 0;
+    unsigned int     prevX = 0, prevY = 0;
+}
 
 static std::array<int,0x10000> sintable;
 static int vitesse = 127;
@@ -125,7 +133,9 @@ static int middleX, middleY;
 
 /** modif by jeko : fixedpoint : buffration = (16:16) (donc 0<=buffration<=2^16) */
 //static int buffratio = 0;
-int     buffratio = 0;
+namespace {
+    int     buffratio = 0;
+}
 
 static   constexpr uint8_t BUFFPOINTNB   { 16     };
 static   constexpr int32_t BUFFPOINTMASK { 0xffff };
@@ -144,15 +154,8 @@ static int *firedec = nullptr;
 static inline int ShiftRight(int x,int s) {return (x<0) ? -((-x)>>s) : (x>>s); }
 
 /** modif d'optim by Jeko : precalcul des 4 coefs résultant des 2 pos */
+namespace {
 GoomCoefficients precalCoef = {};
-
-/* Prototypes to keep gcc from spewing warnings */
-void generatePrecalCoef (void);
-void calculatePXandPY (int x, int y, int *px, int *py);
-void setPixelRGB (Uint * buffer, Uint x, Uint y, Color c);
-void setPixelRGB_ (Uint * buffer, Uint x, Color c);
-inline void getPixelRGB (const Uint * buffer, Uint x, Uint y, Color * c);
-void getPixelRGB_ (const Uint * buffer, Uint x, Color * c);
 
 void
 generatePrecalCoef ()
@@ -352,7 +355,7 @@ setPixelRGB_ (Uint * buffer, Uint x, Color c)
 }
 
 
-
+#if 0
 inline void
 getPixelRGB (const Uint * buffer, Uint x, Uint y, Color * c)
 {
@@ -369,6 +372,7 @@ getPixelRGB (const Uint * buffer, Uint x, Uint y, Color * c)
 	c->v = (i >> (VERT * 8)) & 0xff;
 	c->r = (i >> (ROUGE * 8)) & 0xff;
 }
+#endif
 
 
 /*inline*/ void
@@ -467,24 +471,7 @@ void c_zoom (unsigned int *lexpix1, unsigned int *lexpix2,
 		setPixelRGB_ (lexpix2, myPos >> 1, couleur);
 	}
 }
-
-#ifdef USE_ASM
-void setAsmUse (int useIt);
-int getAsmUse (void);
-
-static int use_asm = 1;
-void
-setAsmUse (int useIt)
-{
-	use_asm = useIt;
 }
-
-int
-getAsmUse ()
-{
-	return use_asm;
-}
-#endif
 
 /*===============================================================*/
 void
