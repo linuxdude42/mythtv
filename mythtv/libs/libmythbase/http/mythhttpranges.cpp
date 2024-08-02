@@ -7,7 +7,9 @@
 
 #define LOC QString("HTTPRange: ")
 
-auto sumrange = [](uint64_t Cum, HTTPRange Range) { return ((Range.second + 1) - Range.first) + Cum; };
+namespace {
+    auto sumrange = [](uint64_t Cum, HTTPRange Range) { return ((Range.second + 1) - Range.first) + Cum; };
+}
 
 void MythHTTPRanges::HandleRangeRequest(MythHTTPResponse* Response, const QString& Request)
 {
