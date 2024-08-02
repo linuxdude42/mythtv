@@ -389,7 +389,9 @@ static std::array<const std::string,6> cplm_info
     "CPLM_UPDATE"
 };
 
-cCiCaPmt CreateCAPMT(const ProgramMapTable& /*pmt*/, const dvbca_vector &/*casids*/, uint /*cplm*/);
+namespace {
+    cCiCaPmt CreateCAPMT(const ProgramMapTable& /*pmt*/, const dvbca_vector &/*casids*/, uint /*cplm*/);
+}
 
 /*
  * Send a CA_PMT object to the CAM (see EN50221, section 8.4.3.4)
@@ -456,34 +458,36 @@ static void process_desc(cCiCaPmt &capmt,
 
 }
 
-cCiCaPmt CreateCAPMT(const ProgramMapTable &pmt,
-                     const dvbca_vector &casids,
-                     uint cplm)
-{
-    cCiCaPmt capmt(pmt.ProgramNumber(), cplm);
-
-    // Add CA descriptors for the service
-    desc_list_t gdesc = MPEGDescriptor::ParseOnlyInclude(
-        pmt.ProgramInfo(), pmt.ProgramInfoLength(),
-        DescriptorID::conditional_access);
-
-    process_desc(capmt, casids, gdesc);
-
-    // Add elementary streams + CA descriptors
-    for (uint i = 0; i < pmt.StreamCount(); i++)
+namespace {
+    cCiCaPmt CreateCAPMT(const ProgramMapTable &pmt,
+                         const dvbca_vector &casids,
+                         uint cplm)
     {
-        LOG(VB_DVBCAM, LOG_INFO,
-            QString("DVBCam: Adding elementary stream: %1, pid(0x%2)")
-                .arg(pmt.StreamDescription(i, "dvb"))
-                .arg(pmt.StreamPID(i),0,16));
+        cCiCaPmt capmt(pmt.ProgramNumber(), cplm);
 
-        capmt.AddElementaryStream(pmt.StreamType(i), pmt.StreamPID(i));
-
-        desc_list_t desc = MPEGDescriptor::ParseOnlyInclude(
-            pmt.StreamInfo(i), pmt.StreamInfoLength(i),
+        // Add CA descriptors for the service
+        desc_list_t gdesc = MPEGDescriptor::ParseOnlyInclude(
+            pmt.ProgramInfo(), pmt.ProgramInfoLength(),
             DescriptorID::conditional_access);
 
-        process_desc(capmt, casids, desc);
+        process_desc(capmt, casids, gdesc);
+
+        // Add elementary streams + CA descriptors
+        for (uint i = 0; i < pmt.StreamCount(); i++)
+            {
+                LOG(VB_DVBCAM, LOG_INFO,
+                    QString("DVBCam: Adding elementary stream: %1, pid(0x%2)")
+                    .arg(pmt.StreamDescription(i, "dvb"))
+                    .arg(pmt.StreamPID(i),0,16));
+
+                capmt.AddElementaryStream(pmt.StreamType(i), pmt.StreamPID(i));
+
+                desc_list_t desc = MPEGDescriptor::ParseOnlyInclude(
+                    pmt.StreamInfo(i), pmt.StreamInfoLength(i),
+                    DescriptorID::conditional_access);
+
+                process_desc(capmt, casids, desc);
+            }
+        return capmt;
     }
-    return capmt;
 }
