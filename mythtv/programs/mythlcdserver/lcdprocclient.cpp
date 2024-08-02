@@ -43,7 +43,9 @@ static constexpr uint8_t LCD_VERSION_5 { 2 };
 static constexpr std::chrono::milliseconds LCD_TIME_TIME       { 3s };
 static constexpr std::chrono::milliseconds LCD_SCROLLLIST_TIME { 2s };
 
-uint8_t lcdStartCol = LCD_START_COL;
+namespace {
+    uint8_t lcdStartCol = LCD_START_COL;
+}
 
 LCDProcClient::LCDProcClient(LCDServer *lparent)
               : QObject(nullptr),
