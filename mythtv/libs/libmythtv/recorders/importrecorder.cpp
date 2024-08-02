@@ -66,11 +66,13 @@ void ImportRecorder::SetOptionsFromProfile([[maybe_unused]] RecordingProfile *pr
     SetOption("vbiformat",   gCoreContext->GetSetting("VbiFormat"));
 }
 
-void UpdateFS(int pc, void* ir);
-void UpdateFS(int /*pc*/, void* ir)
-{
-    if(ir)
-        static_cast<ImportRecorder*>(ir)->UpdateRecSize();
+namespace {
+    void UpdateFS(int pc, void* ir);
+    void UpdateFS(int /*pc*/, void* ir)
+    {
+        if(ir)
+            static_cast<ImportRecorder*>(ir)->UpdateRecSize();
+    }
 }
 
 void ImportRecorder::UpdateRecSize()

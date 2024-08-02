@@ -59,7 +59,9 @@ extern "C" {
 static QMutex                      loggerMapMutex;
 static QMap<QString, LoggerBase *> loggerMap;
 
-LogForwardThread                   *logForwardThread = nullptr;
+namespace {
+    LogForwardThread                   *logForwardThread = nullptr;
+}
 
 using LoggerList = QList<LoggerBase *>;
 
