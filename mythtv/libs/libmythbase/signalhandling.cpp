@@ -44,10 +44,12 @@ static const std::array<const int, 6
 #endif // _WIN32
 };
 
-// We may need to write out signal info using just the write() function
-// so we create an array of C strings + measure their lengths.
-static constexpr size_t SIG_STR_COUNT { 256 };
-std::array<std::string,SIG_STR_COUNT> sig_str;
+namespace {
+    // We may need to write out signal info using just the write() function
+    // so we create an array of C strings + measure their lengths.
+    constexpr size_t SIG_STR_COUNT { 256 };
+    std::array<std::string,SIG_STR_COUNT> sig_str;
+}
 
 static void sig_str_init(size_t sig, const char *name)
 {
