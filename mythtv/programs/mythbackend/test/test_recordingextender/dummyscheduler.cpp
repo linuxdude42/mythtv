@@ -2,7 +2,9 @@
 #include "libmythbase/mythscheduler.h"
 #include "libmythtv/recordinginfo.h"
 
-QMap<uint,RecordingInfo*> gFakeRecordings;
+namespace {
+    QMap<uint,RecordingInfo*> gFakeRecordings;
+}
 
 class Scheduler : public MThread, public MythScheduler
 {

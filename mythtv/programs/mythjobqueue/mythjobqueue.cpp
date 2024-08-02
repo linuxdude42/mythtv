@@ -40,9 +40,11 @@
 #define LOC_WARN QString("MythJobQueue, Warning: ")
 #define LOC_ERR  QString("MythJobQueue, Error: ")
 
-JobQueue *jobqueue = nullptr;
-QString   pidfile;
-QString   logfile;
+namespace {
+    JobQueue *jobqueue = nullptr;
+    QString   pidfile;
+    QString   logfile;
+}
 
 static void cleanup(void)
 {
