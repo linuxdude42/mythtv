@@ -56,10 +56,12 @@ extern "C" int InternalUDFReadBlocksRaw(dvd_reader_t *device, uint32_t lb_number
                                         size_t block_count, unsigned char *data,
                                         int encrypted);
 
-/// \brief Roundup bytes to DVD blocks
-inline uint32_t Len2Blocks(uint32_t Length)
-{
-    return (Length + (DVD_VIDEO_LB_LEN - 1)) / DVD_VIDEO_LB_LEN;
+namespace {
+    /// \brief Roundup bytes to DVD blocks
+    inline uint32_t Len2Blocks(uint32_t Length)
+    {
+        return (Length + (DVD_VIDEO_LB_LEN - 1)) / DVD_VIDEO_LB_LEN;
+    }
 }
 
 /// \class DVDStream Stream content from a DVD image file
