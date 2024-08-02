@@ -44,8 +44,10 @@ static inline void ms_sd_notify(const char */*str*/) {};
 #define LOC_WARN QString("MythMediaServer, Warning: ")
 #define LOC_ERR  QString("MythMediaServer, Error: ")
 
-QString   pidfile;
-QString   logfile  = "";
+namespace {
+    QString   pidfile;
+    QString   logfile  = "";
+}
 
 static void cleanup(void)
 {
