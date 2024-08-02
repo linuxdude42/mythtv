@@ -102,7 +102,9 @@ struct Fractal_Struct
 static FRACTAL *Root = (FRACTAL *) nullptr, *Cur_F;
 
 /* Used by the Trace recursive method */
-IFSPoint *Buf;
+namespace {
+    IFSPoint *Buf;
+}
 static int Cur_Pt;
 
 /*****************************************************/

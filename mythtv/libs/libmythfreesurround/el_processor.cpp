@@ -37,8 +37,10 @@ static const float PI = 3.141592654;
 static const float epsilon = 0.000001;
 static const float center_level = 0.5*sqrt(0.5);
 
-template <class T>
-T sqr(T x) { return x*x; }
+namespace {
+    template <class T>
+    T sqr(T x) { return x*x; }
+}
 
 // private implementation of the surround decoder
 class fsurround_decoder::Impl {

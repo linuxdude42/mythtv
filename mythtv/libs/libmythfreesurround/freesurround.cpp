@@ -45,7 +45,9 @@ static const float m3db = 0.7071067811865476F;           // 3dB  = SQRT(2)
 static const float m6db = 0.5;                           // 6dB  = SQRT(4)
 //static const float m7db = 0.44721359549996;            // 7dB  = SQRT(5)
 
-unsigned int block_size = default_block_size;
+namespace {
+    const unsigned int block_size = default_block_size;
+}
 
 struct buffers
 {

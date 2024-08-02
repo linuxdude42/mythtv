@@ -92,7 +92,9 @@ static constexpr double EPS     { 1E-4 };
 
 #define LOC      QString("DiSEqCDevTree: ")
 
-bool diseqc_bus_already_reset = false;
+namespace {
+    bool diseqc_bus_already_reset = false;
+}
 
 QString DiSEqCDevDevice::TableToString(uint type, const TypeTableVec &table)
 {

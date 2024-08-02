@@ -34,8 +34,10 @@
 #define LOC      QString("DownloadManager: ")
 static constexpr int CACHE_REDIRECTION_LIMIT { 10 };
 
-MythDownloadManager *downloadManager = nullptr;
-QMutex               dmCreateLock;
+namespace {
+    MythDownloadManager *downloadManager = nullptr;
+    QMutex               dmCreateLock;
+}
 
 /**
 * \class MythDownloadInfo
