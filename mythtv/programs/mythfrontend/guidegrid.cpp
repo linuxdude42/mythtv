@@ -46,7 +46,9 @@
 #include "guidegrid.h"
 #include "progfind.h"
 
-QWaitCondition epgIsVisibleCond;
+namespace {
+    QWaitCondition epgIsVisibleCond;
+}
 
 #define LOC      QString("GuideGrid: ")
 #define LOC_ERR  QString("GuideGrid, Error: ")
