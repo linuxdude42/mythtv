@@ -40,7 +40,9 @@ static int init_tr(void);
 int pginfo_init_statics() { return ProgramInfo::InitStatics(); }
 QMutex ProgramInfo::s_staticDataLock;
 ProgramInfoUpdater *ProgramInfo::s_updater;
-int force_init = pginfo_init_statics();
+namespace {
+    int force_init = pginfo_init_statics();
+}
 bool ProgramInfo::s_usingProgIDAuth = true;
 
 static constexpr uint    kInvalidDateTime  { UINT_MAX  };
@@ -1028,16 +1030,17 @@ void ProgramInfo::clear(void)
  *  Compare two QStrings when they can either be initialized to
  *  "Default" or to the empty string.
  */
-bool qstringEqualOrDefault(const QString& a, const QString& b);
-bool qstringEqualOrDefault(const QString& a, const QString& b)
-{
-    if (a == b)
-        return true;
-    if (a.isEmpty() and (b == "Default"))
-        return true;
-    if ((a == "Default") and b.isEmpty())
-        return true;
-    return false;
+namespace {
+    bool qstringEqualOrDefault(const QString& a, const QString& b)
+    {
+        if (a == b)
+            return true;
+        if (a.isEmpty() and (b == "Default"))
+            return true;
+        if ((a == "Default") and b.isEmpty())
+            return true;
+        return false;
+    }
 }
 
 /*!
@@ -1454,56 +1457,58 @@ bool ProgramInfo::FromStringList(QStringList::const_iterator &it,
     return true;
 }
 
-template <typename T>
-QString propsValueToString (const QString& name, QMap<T,QString> propNames,
-                            T props)
-{
-    if (props == 0)
-        return propNames[0];
-
-    QStringList result;
-    for (uint i = 0; i < sizeof(T)*8 - 1; ++i)
+namespace {
+    template <typename T>
+    QString propsValueToString (const QString& name, QMap<T,QString> propNames,
+                                T props)
     {
-        uint bit = 1<<i;
-        if ((props & bit) == 0)
-            continue;
-        if (propNames.contains(bit))
-        {
-            result += propNames[bit];
-            continue;
-        }
-        QString tmp = QString("0x%1").arg(bit, sizeof(T)*2,16,QChar('0'));
-        LOG(VB_GENERAL, LOG_ERR, QString("Unknown name for %1 flag 0x%2.")
-            .arg(name, tmp));
-        result += tmp;
+        if (props == 0)
+            return propNames[0];
+
+        QStringList result;
+        for (uint i = 0; i < sizeof(T)*8 - 1; ++i)
+            {
+                uint bit = 1<<i;
+                if ((props & bit) == 0)
+                    continue;
+                if (propNames.contains(bit))
+                    {
+                        result += propNames[bit];
+                        continue;
+                    }
+                QString tmp = QString("0x%1").arg(bit, sizeof(T)*2,16,QChar('0'));
+                LOG(VB_GENERAL, LOG_ERR, QString("Unknown name for %1 flag 0x%2.")
+                    .arg(name, tmp));
+                result += tmp;
+            }
+        return result.join('|');
     }
-    return result.join('|');
-}
 
-template <typename T>
-uint propsValueFromString (const QString& name, const QMap<T,QString>& propNames,
-                           const QString& props)
-{
-    if (props.isEmpty())
-        return 0;
-
-    uint result = 0;
-
-    QStringList names = props.split('|');
-    for ( const auto& n : std::as_const(names)  )
+    template <typename T>
+    uint propsValueFromString (const QString& name, const QMap<T,QString>& propNames,
+                               const QString& props)
     {
-        uint bit = propNames.key(n, 0);
-        if (bit == 0)
-        {
-            LOG(VB_GENERAL, LOG_ERR, QString("Unknown flag for %1 %2")
-                .arg(name, n));
-        }
-        else
-        {
-            result |= bit;
-        }
+        if (props.isEmpty())
+            return 0;
+
+        uint result = 0;
+
+        QStringList names = props.split('|');
+        for ( const auto& n : std::as_const(names)  )
+            {
+                uint bit = propNames.key(n, 0);
+                if (bit == 0)
+                    {
+                        LOG(VB_GENERAL, LOG_ERR, QString("Unknown flag for %1 %2")
+                            .arg(name, n));
+                    }
+                else
+                {
+                    result |= bit;
+                }
+            }
+        return result;
     }
-    return result;
 }
 
 QString ProgramInfo::GetProgramFlagNames(void) const
