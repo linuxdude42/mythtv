@@ -383,12 +383,14 @@ void AudioPlayer::SetStretchFactor(float factor)
 // thread will trigger a deletion/recreation of the AudioOutput device, hence
 // they should be safe.
 
-inline bool TestDigitalFeature(AudioOutput *ao, DigitalFeature feature)
-{
-    if (!ao)
-        return false;
+namespace {
+    inline bool TestDigitalFeature(AudioOutput *ao, DigitalFeature feature)
+    {
+        if (!ao)
+            return false;
 
-    return ao->GetOutputSettingsUsers(true)->canFeature(feature);
+        return ao->GetOutputSettingsUsers(true)->canFeature(feature);
+    }
 }
 
 bool AudioPlayer::CanAC3(void)
