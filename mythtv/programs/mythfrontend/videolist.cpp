@@ -1078,29 +1078,32 @@ static void copy_filtered_tree(meta_dir_node &dst, meta_dir_node &src,
     }
 }
 
-void tree_view_to_flat(meta_dir_node &tree,
-                       VideoListImp::metadata_view_list &flat);
-struct call_tree_flat
-{
-    explicit call_tree_flat(VideoListImp::metadata_view_list &list) : m_list(list) {}
+namespace {
+    void tree_view_to_flat(meta_dir_node &tree,
+                           VideoListImp::metadata_view_list &flat);
 
-    void operator()(smart_dir_node &sdn)
+    struct call_tree_flat
     {
-        tree_view_to_flat(*(sdn.get()), m_list);
+        explicit call_tree_flat(VideoListImp::metadata_view_list &list) : m_list(list) {}
+
+        void operator()(smart_dir_node &sdn)
+        {
+            tree_view_to_flat(*(sdn.get()), m_list);
+        }
+
+        VideoListImp::metadata_view_list &m_list;
+    };
+
+    // Fills a flat view with pointers to all entries in a tree.
+    void tree_view_to_flat(meta_dir_node &tree,
+                           VideoListImp::metadata_view_list &flat)
+    {
+        std::back_insert_iterator<VideoListImp::metadata_view_list> bip(flat);
+        transform(tree.entries_begin(), tree.entries_end(), bip,
+                  to_metadata_ptr());
+
+        for_each(tree.dirs_begin(), tree.dirs_end(), call_tree_flat(flat));
     }
-
-    VideoListImp::metadata_view_list &m_list;
-};
-
-// Fills a flat view with pointers to all entries in a tree.
-void tree_view_to_flat(meta_dir_node &tree,
-                       VideoListImp::metadata_view_list &flat)
-{
-    std::back_insert_iterator<VideoListImp::metadata_view_list> bip(flat);
-    transform(tree.entries_begin(), tree.entries_end(), bip,
-              to_metadata_ptr());
-
-    for_each(tree.dirs_begin(), tree.dirs_end(), call_tree_flat(flat));
 }
 
 void VideoListImp::update_meta_view(bool flat_list)
