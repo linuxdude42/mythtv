@@ -666,7 +666,9 @@ void MythDownloadManager::downloadQNetworkRequest(MythDownloadInfo *dlInfo)
         dlInfo->m_request = nullptr;
     }
     else
+    {
         request.setUrl(qurl);
+    }
 
     if (dlInfo->m_reload)
     {
@@ -856,7 +858,9 @@ bool MythDownloadManager::downloadNow(MythDownloadInfo *dlInfo, bool deleteInfo)
         }
     }
     else if (deleteInfo)
+    {
         delete dlInfo;
+    }
 
     m_infoLock->unlock();
 

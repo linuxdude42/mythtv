@@ -1497,7 +1497,9 @@ namespace {
                             .arg(name, n));
                     }
                 else
+                {
                     result |= bit;
+                }
             }
         return result;
     }
