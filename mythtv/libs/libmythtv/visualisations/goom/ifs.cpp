@@ -470,7 +470,9 @@ draw_ifs ( /* ModeInfo * mi */ int *nbPoints)
 		F->m_count = 0;
 	}
 	else
+	{
 		F->m_count++;
+	}
 
 	F->m_col++;
 

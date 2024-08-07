@@ -1585,7 +1585,9 @@ bool DiSEqCDevSwitch::ShouldSwitch(const DiSEqCDevSettings &settings,
     }
     else if (kTypeVoltage == m_type ||
              kTypeTone == m_type)
+    {
         return true;
+    }
 
     return m_lastPos != (uint)pos;
 }
