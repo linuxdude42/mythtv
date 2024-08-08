@@ -170,7 +170,9 @@ int64_t PTSOffsetQueue::Get(int idx, AVPacket *pkt)
             value = m_offset[idx].first().newPTS;
         }
         else
+        {
             done = true;
+        }
     }
     return value;
 }
@@ -296,7 +298,9 @@ MPEG2fixup::MPEG2fixup(const QString &inf, const QString &outf,
             m_updateStatus(0);
         }
         else
+        {
             m_statusUpdateTime = 5;
+        }
         m_statusTime = MythDate::current();
         m_statusTime = m_statusTime.addSecs(m_statusUpdateTime);
 
@@ -434,7 +438,9 @@ int MPEG2fixup::cmp2x33(int64_t pts1, int64_t pts2)
             ret = 1;
     }
     else if (pts1 == pts2)
+    {
         ret = 0; 
+    }
     else
     {
         if ((uint64_t)(pts2 - pts1) > MAX_PTS/2ULL)
@@ -1369,7 +1375,9 @@ MPEG2frame *MPEG2fixup::GetPoolFrame(AVPacket *pkt)
         s_frameCount++;
     }
     else
+    {
         f = m_framePool.dequeue();
+    }
 
     f->set_pkt(pkt);
 
@@ -1963,7 +1971,9 @@ void MPEG2fixup::AddRangeList(const QStringList& rangelist, int type)
         m_discard = false;
     }
     else
+    {
         mapPtr = &m_saveMap;
+    }
 
     mapPtr->clear();
 
@@ -1986,7 +1996,9 @@ void MPEG2fixup::AddRangeList(const QStringList& rangelist, int type)
                     m_discard = true;
             }
             else
+            {
                 mapPtr->insert(start - 1, MARK_CUT_START);
+            }
 
             mapPtr->insert(end, MARK_CUT_END);
         }
@@ -2658,7 +2670,9 @@ int MPEG2fixup::Start()
                             af_dlta_cnt[it.key()] = 0;
                         }
                         else
+                        {
                             af_dlta_cnt[it.key()]++;
+                        }
                     }
                     af->first()->m_pkt->pts = origaPTS[it.key()] / 300;
                 }

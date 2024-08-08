@@ -1400,7 +1400,9 @@ void LCDProcClient::beginScrollingMenuText()
             curItem->setScroll(true);
         }
         else
+        {
             curItem->setScroll(false);
+        }
     }
 
     // Can get segfaults if we try to start a timer thats already running. . .
@@ -1892,10 +1894,14 @@ void LCDProcClient::dostdclock()
             m_timeFlash = false;
         }
         else
+        {
             m_timeFlash = true;
+        }
     }
     else
+    {
         aString += " \"";
+    }
     sendToServer(aString);
 }
 
@@ -2016,7 +2022,9 @@ void LCDProcClient::outputRecStatus(void)
             sendToServer(aString);
         }
         else
+        {
             sendToServer("widget_set RecStatus progressBar 1 1 0");
+        }
 
         listTime = list.count() * LCD_SCROLLLIST_TIME * 2;
     }
@@ -2128,7 +2136,9 @@ void LCDProcClient::outputMusic()
             outputLeftText("Music", aString, "infoWidget", m_lcdHeight );
         }
         else
+        {
             outputLeftText("Music", "        ", "infoWidget", m_lcdHeight );
+        }
 
         aString = "widget_set Music progressBar ";
         aString += QString::number(info_width + 1);
@@ -2156,7 +2166,9 @@ void LCDProcClient::outputChannel()
             outputCenteredText("Channel", m_channelTime, "timeWidget", 3);
     }
     else
+    {
         sendToServer("widget_set Channel progressBar 1 1 0");
+    }
 }
 
 void LCDProcClient::outputGeneric()
@@ -2172,8 +2184,11 @@ void LCDProcClient::outputGeneric()
     aString += QString::number((int)std::rint( m_genericProgress * m_lcdWidth *
                                      m_cellWidth ));
     sendToServer(aString);
-}
-    else sendToServer("widget_set Generic progressBar 1 1 0");
+    }
+    else
+    {
+        sendToServer("widget_set Generic progressBar 1 1 0");
+    }
 }
 
 void LCDProcClient::outputVolume()

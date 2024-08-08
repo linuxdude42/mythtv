@@ -288,7 +288,9 @@ bool Commands::ProcessCommand(const QString & cmd)
             SendStatus(cmd, tokens[0], QString("OK:%1").arg(m_apiVersion));
         }
         else
+        {
             SendStatus(cmd, tokens[0], "ERR:Missing API Version number");
+        }
     }
     else if (tokens[1].startsWith("Version?"))
     {
@@ -347,7 +349,9 @@ bool Commands::ProcessCommand(const QString & cmd)
             m_parent->m_flowCond.notify_all();
         }
         else
+        {
             SendStatus(cmd, tokens[0], "WARN:Not streaming");
+        }
     }
     else if (tokens[1].startsWith("XOFF"))
     {
@@ -359,7 +363,9 @@ bool Commands::ProcessCommand(const QString & cmd)
             m_parent->m_flowCond.notify_all();
         }
         else
+        {
             SendStatus(cmd, tokens[0], "WARN:Not streaming");
+        }
     }
     else if (tokens[1].startsWith("TuneChannel"))
     {
@@ -425,8 +431,10 @@ bool Commands::ProcessCommand(const QString & cmd)
         StopStreaming(tokens[0], false);
     }
     else
+    {
         SendStatus(cmd, tokens[0],
                    QString("ERR:Unrecognized command '%1'").arg(tokens[1]));
+    }
 
     return true;
 }
@@ -627,7 +635,9 @@ void Buffer::Run(void)
                 }
             }
             else
+            {
                 wait = true;
+            }
         }
         else
         {

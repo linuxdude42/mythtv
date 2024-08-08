@@ -954,9 +954,13 @@ void AudioTest::toggle()
             channel = 6;
     }
     else if (this->sender() == m_surroundright)
+    {
         channel = 3;
+    }
     else if (this->sender() == m_center)
+    {
         channel = 1;
+    }
 
     m_at->setChannel(channel);
 
