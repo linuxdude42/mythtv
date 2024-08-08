@@ -129,7 +129,9 @@ void XmlSerializer::AddProperty( const QString       &sName,
         RenderEnum ( sName, vValue, pMetaProp );
     }
     else
+    {
         RenderValue( GetContentName( sName, pMetaParent, pMetaProp ), vValue );
+    }
 
     m_pXmlWriter->writeEndElement();
 }

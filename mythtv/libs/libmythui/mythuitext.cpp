@@ -600,7 +600,9 @@ bool MythUIText::Layout(QString & paragraph, QTextLayout *layout, bool final,
                 overflow = true;
             }
             else
+            {
                 m_drawRect.setHeight(height);
+            }
             if (!m_multiLine)
                 overflow = true;
         }
@@ -939,7 +941,9 @@ void MythUIText::FillCutMessage(void)
             min_rect.setWidth(m_minSize.x());
         }
         else
+        {
             m_drawRect.moveLeft(m_area.x());
+        }
 
         min_rect.moveLeft(m_area.x());
     }
@@ -955,7 +959,9 @@ void MythUIText::FillCutMessage(void)
             min_rect.setWidth(m_minSize.x());
         }
         else
+        {
             m_drawRect.moveRight(m_area.x() + m_area.width());
+        }
 
         min_rect.moveRight(m_area.x() + m_area.width());
     }
@@ -972,7 +978,9 @@ void MythUIText::FillCutMessage(void)
             min_rect.setHeight(m_minSize.y());
         }
         else
+        {
             m_drawRect.moveTop(m_area.y());
+        }
 
         min_rect.moveTop(m_area.y());
     }
@@ -987,7 +995,9 @@ void MythUIText::FillCutMessage(void)
             min_rect.setHeight(m_minSize.y());
         }
         else
+        {
             m_drawRect.moveBottom(m_area.y() + m_area.height());
+        }
 
         min_rect.moveBottom(m_area.y() + m_area.height());
     }
@@ -1261,7 +1271,9 @@ void MythUIText::Pulse(void)
                         m_scrollPos = m_scrollPosWhole = 0;
                     }
                     else
+                    {
                         ShiftCanvas(shift, 0);
+                    }
                 }
                 else // scroll left
                 {
@@ -1273,7 +1285,9 @@ void MythUIText::Pulse(void)
                         m_scrollPos = m_scrollPosWhole = 0;
                     }
                     else
+                    {
                         ShiftCanvas(-shift, 0);
+                    }
                 }
                 break;
               case ScrollUp :
@@ -1310,7 +1324,9 @@ void MythUIText::Pulse(void)
                         m_scrollPos = m_scrollPosWhole = 0;
                     }
                     else
+                    {
                         ShiftCanvas(0, shift);
+                    }
                 }
                 else // scroll up
                 {
@@ -1322,7 +1338,9 @@ void MythUIText::Pulse(void)
                         m_scrollPos = m_scrollPosWhole = 0;
                     }
                     else
+                    {
                         ShiftCanvas(0, -shift);
+                    }
                 }
                 break;
               case ScrollNone:
@@ -1471,7 +1489,9 @@ bool MythUIText::ParseElement(
             CycleColor(m_startColor, m_endColor, m_numSteps);
         }
         else
+        {
             m_colorCycling = false;
+        }
 
         m_colorCycling = parseBool(element.attribute("disable"));
     }
@@ -1544,7 +1564,9 @@ bool MythUIText::ParseElement(
             m_scrolling = true;
         }
         else
+        {
             m_scrolling = false;
+        }
     }
     else if (element.tagName() == "case")
     {
