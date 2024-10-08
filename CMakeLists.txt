@@ -67,20 +67,21 @@ if(NOT DEFINED CMAKE_INSTALL_PREFIX)
 endif()
 
 #
-# Read user options (part 1).  On android, several of these options affect the
-# initialization performed by the project function.
-#
-include(MythOptions)
-message(STATUS "Including user overrides ${MYTH_USER_OVERRIDES1}")
-include(${MYTH_USER_OVERRIDES1} OPTIONAL)
-
-#
 # Initial platform customization before declaring project. (CMAKE_CROSSCOMPILING
 # isn't set yet. Nor is ANDROID or WIN32. The former is set by the call to
 # project, and the latter two are set by the next two includes.)
 #
 include(platform/AndroidCrossEarlyInitialization)
 include(platform/WindowsCrossEarlyInitialization)
+
+#
+# Read user options (part 1).  On android, several of these options affect the
+# initialization performed by the project function.
+#
+message(STATUS "Including default MythTV options")
+include(MythOptions)
+message(STATUS "Including user overrides ${MYTH_USER_OVERRIDES1}")
+include(${MYTH_USER_OVERRIDES1} OPTIONAL)
 
 #
 # Declare the superbuild.

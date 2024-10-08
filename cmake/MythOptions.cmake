@@ -331,6 +331,7 @@ if(ANDROID)
   foreach(DIR "jbr" "jre")
     set(FILENAME "$ENV{HOME}/Android/android-studio/${DIR}")
     if(EXISTS ${FILENAME})
+      message(STATUS "Defaulting MYTH_JAVA_HOME to ${FILENAME}")
       set(MYTH_JAVA_HOME
           ${FILENAME}
           CACHE PATH "Path to JDK home directory")
