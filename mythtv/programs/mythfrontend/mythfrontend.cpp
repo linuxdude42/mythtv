@@ -2088,6 +2088,12 @@ Q_DECL_EXPORT int main(int argc, char **argv)
     if (maxImageSize >=0)
         QImageReader::setAllocationLimit(maxImageSize);
 #endif
+    QList<QByteArray> formats = QImageReader::supportedImageFormats();
+    QString format_str = formats.takeFirst();
+    for (auto format : formats)
+        format_str += ", " + format;
+    LOG(VB_GENERAL, LOG_INFO, QString("Supported image formats: %1").arg(format_str));
+
     QCoreApplication::setSetuidAllowed(true);
 
     if (revokeRoot() != 0)
