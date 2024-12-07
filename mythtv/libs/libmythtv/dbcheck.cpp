@@ -465,8 +465,6 @@ static bool tryUpgradeTVDatabaseSchema(bool upgradeAllowed, bool upgradeIfNoUI, 
  */
 static bool doUpgradeTVDatabaseSchema(void)
 {
-    QString order;
-
     QString dbver = gCoreContext->GetSetting("DBSchemaVer");
     if (dbver == currentDatabaseVersion)
     {
