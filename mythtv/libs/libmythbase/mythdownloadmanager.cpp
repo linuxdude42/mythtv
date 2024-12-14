@@ -8,6 +8,7 @@
 #include <QNetworkCookie>
 #include <QAuthenticator>
 #include <QTextStream>
+#include <QTimeZone>
 #include <QNetworkProxy>
 #include <QMutexLocker>
 #include <QUrl>
@@ -713,7 +714,11 @@ void MythDownloadManager::downloadQNetworkRequest(MythDownloadInfo *dlInfo)
             {
                 QDateTime loadDate =
                     MythDate::fromString(dateString, kDateFormat);
+#if QT_VERSION < QT_VERSION_CHECK(6,5,0)
                 loadDate.setTimeSpec(Qt::UTC);
+#else
+                loadDate.setTimeZone(QTimeZone(QTimeZone::UTC));
+#endif
                 if (loadDate.secsTo(now) <= 720)
                 {
                     dlInfo->m_preferCache = true;
@@ -1590,7 +1595,11 @@ QDateTime MythDownloadManager::GetLastModified(const QString &url)
             {
                 QDateTime loadDate =
                     MythDate::fromString(date, kDateFormat);
+#if QT_VERSION < QT_VERSION_CHECK(6,5,0)
                 loadDate.setTimeSpec(Qt::UTC);
+#else
+                loadDate.setTimeZone(QTimeZone(QTimeZone::UTC));
+#endif
                 if (loadDate.secsTo(now) <= 1200) // 20 Minutes
                 {
                     result = urlData.lastModified().toUTC();
