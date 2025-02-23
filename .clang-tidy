@@ -247,10 +247,6 @@ Checks: '-*,
         # unique warnings. ,
        -performance-enum-size,
 
-        # As of 2024-08-01, new filtering reduces this count to 35
-        # unique warnings. ,
-       -performance-no-int-to-ptr,
-
     readability-*,
 
         # As of 2023-09-19, there are 315 unique warnings. ,
