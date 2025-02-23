@@ -18,6 +18,7 @@
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 
 #include "filters.h"
 #include "goom_tools.h"
@@ -97,9 +98,9 @@ extern const void ppc_zoom (unsigned int *frompixmap, unsigned int *topixmap,
 
 unsigned int *coeffs = nullptr, *freecoeffs = nullptr;
 
-signed int *brutS = nullptr, *freebrutS = nullptr;	// source
-signed int *brutD = nullptr, *freebrutD = nullptr;	// dest
-signed int *brutT = nullptr, *freebrutT = nullptr;	// temp (en cours de génération)
+signed int *brutS = nullptr;				// source
+signed int *brutD = nullptr;				// dest
+signed int *brutT = nullptr;				// temp (en cours de génération)
 
 // TODO : virer
 guint32 *expix1 = nullptr;				// pointeur exporte vers p1
@@ -505,14 +506,11 @@ zoomFilterFastRGB (Uint * pix1, Uint * pix2, ZoomFilterData * zf, Uint resx, Uin
 		prevX = resx;
 		prevY = resy;
 
-		if (brutS)
-			free (freebrutS);
+		free (brutS);
 		brutS = nullptr;
-		if (brutD)
-			free (freebrutD);
+		free (brutD);
 		brutD = nullptr;
-		if (brutT)
-			free (freebrutT);
+		free (brutT);
 		brutT = nullptr;
 
 		middleX = resx / 2;
@@ -553,14 +551,14 @@ zoomFilterFastRGB (Uint * pix1, Uint * pix2, ZoomFilterData * zf, Uint resx, Uin
 			generatePrecalCoef ();
 			select_zoom_filter ();
 
-			freebrutS = (signed int *) calloc ((resx * resy * 2) + 128, sizeof(signed int));
-			brutS = (signed int *) ((1 + ((uintptr_t) (freebrutS)) / 128) * 128);
+			brutS = (signed int *) aligned_alloc(128, (resx * resy * 2) * sizeof(signed int));
+			memset (brutS, 0, (resx * resy * 2) * sizeof(signed int));
 
-			freebrutD = (signed int *) calloc ((resx * resy * 2) + 128, sizeof(signed int));
-			brutD = (signed int *) ((1 + ((uintptr_t) (freebrutD)) / 128) * 128);
+			brutD = (signed int *) aligned_alloc(128, (resx * resy * 2) * sizeof(signed int));
+			memset (brutD, 0, (resx * resy * 2) * sizeof(signed int));
 
-			freebrutT = (signed int *) calloc ((resx * resy * 2) + 128, sizeof(signed int));
-			brutT = (signed int *) ((1 + ((uintptr_t) (freebrutT)) / 128) * 128);
+			brutT = (signed int *) aligned_alloc(128, (resx * resy * 2) * sizeof(signed int));
+			memset (brutT, 0, (resx * resy * 2) * sizeof(signed int));
 
 			/** modif here by jeko : plus de multiplications **/
 			{
@@ -655,9 +653,6 @@ zoomFilterFastRGB (Uint * pix1, Uint * pix2, ZoomFilterData * zf, Uint resx, Uin
             signed int * tmp = brutD;
             brutD=brutT;
             brutT=tmp;
-            tmp = freebrutD;
-            freebrutD=freebrutT;
-            freebrutT=tmp;
             s_interlaceStart = -2;
         }
 
