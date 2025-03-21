@@ -98,10 +98,12 @@
        long    f_bavail;   /* free blocks avail to non-superuser */
     //   long    f_files;    /* total file nodes in file system */
     //   long    f_ffree;    /* free file nodes in fs */
-    //   long    f_fsid;     /* file system id */
+    //   long    f_fsid;     /* file system idqt6-declarative-dev */
     //   long    f_namelen;  /* maximum length of filenames */
     //   long    f_spare[6]; /* spare for later */
     };
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wshadow"
     inline int statfs(const char* path, struct statfs* buffer)
     {
         DWORD spc = 0, bps = 0, fc = 0, c = 0;
@@ -116,6 +118,7 @@
 
         return -1;
     }
+#pragma GCC diagnostic pop
 #   endif
 
 #define lstat stat
