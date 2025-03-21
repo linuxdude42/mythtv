@@ -48,8 +48,7 @@ function(find_or_build_qt)
     endif()
   endif()
 
-  # Find where packages store their cmake modules.  This varies by
-  # distro.
+  # Find where packages store their cmake modules.  This varies by distro.
   foreach(DIR ${QT6_HOST_PATH}/lib64/cmake ${QT6_HOST_PATH}/lib/cmake
               ${QT6_HOST_PATH}/lib/x86_64-linux-gnu/cmake)
     if(EXISTS ${DIR})
@@ -68,7 +67,8 @@ function(find_or_build_qt)
   # qt6-qtbase-devel package installed, but far less likely to know they also
   # need the various other qt6 tools devel packages installed.
   if(NOT EXISTS ${QT6_HOST_PATH_CMAKE_DIR}/Qt6ShaderTools)
-    message("Directory ${QT6_HOST_PATH_CMAKE_DIR}/Qt6ShaderTools doesn't exist.")
+    message(
+      "Directory ${QT6_HOST_PATH_CMAKE_DIR}/Qt6ShaderTools doesn't exist.")
     message(
       FATAL_ERROR "You must install the qt6 qtshadertools development package.")
   endif()
@@ -106,8 +106,8 @@ function(find_or_build_qt)
   # Centos 10
   set(QT_6.8.1_SHA256
       "45e3a9f6d33c92ffe65a1fde1a8eba5b228112df675f7f9026eaa332b2e2edff")
-  # Arch, Debian Unstable, Fedora 40/41/42/Rawhide, Gentoo Suse
-  # Tumbleweed, Ubuntu Rolling Rhino
+  # Arch, Debian Unstable, Fedora 40/41/42/Rawhide, Gentoo Suse Tumbleweed,
+  # Ubuntu Rolling Rhino
   set(QT_6.8.2_SHA256
       "659d8bb5931afac9ed5d89a78e868e6bd00465a58ab566e2123db02d674be559")
 
