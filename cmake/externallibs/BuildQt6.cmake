@@ -48,21 +48,32 @@ function(find_or_build_qt)
     endif()
   endif()
 
-  # Fedora stuffs things into lib64 instead of lib.
-  if(EXISTS ${QT6_HOST_PATH}/lib64/cmake/Qt6Core)
-    set(QT6_HOST_PATH_CMAKE_DIR ${QT6_HOST_PATH}/lib64/cmake)
-  else()
-    set(QT6_HOST_PATH_CMAKE_DIR ${QT6_HOST_PATH}/lib/cmake)
+  # Find where packages store their cmake modules.  This varies by
+  # distro.
+  foreach(DIR ${QT6_HOST_PATH}/lib64/cmake ${QT6_HOST_PATH}/lib/cmake
+              ${QT6_HOST_PATH}/lib/x86_64-linux-gnu/cmake)
+    if(EXISTS ${DIR})
+      set(QT6_HOST_PATH_CMAKE_DIR ${DIR})
+      break()
+    endif()
+  endforeach()
+  if(NOT EXISTS ${QT6_HOST_PATH_CMAKE_DIR})
+    message(
+      FATAL_ERROR
+        "Cannot find the cmake install directory. Should be something like /usr/lib/cmake."
+    )
   endif()
 
   # Check specific package availability. A user is likely to have the
   # qt6-qtbase-devel package installed, but far less likely to know they also
   # need the various other qt6 tools devel packages installed.
   if(NOT EXISTS ${QT6_HOST_PATH_CMAKE_DIR}/Qt6ShaderTools)
+    message("Directory ${QT6_HOST_PATH_CMAKE_DIR}/Qt6ShaderTools doesn't exist.")
     message(
       FATAL_ERROR "You must install the qt6 qtshadertools development package.")
   endif()
   if(NOT EXISTS ${QT6_HOST_PATH_CMAKE_DIR}/Qt6QmlTools)
+    message("Directory ${QT6_HOST_PATH_CMAKE_DIR}/Qt6QmlTools doesn't exist.")
     message(
       FATAL_ERROR "You must install the qt6 qtdeclarative development package.")
   endif()
