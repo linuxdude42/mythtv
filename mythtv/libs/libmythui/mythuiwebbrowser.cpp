@@ -88,10 +88,9 @@ static const std::vector<MimeType> SupportedMimeTypes
  * \note allows us to intercept keypresses
  */
 MythWebEngineView::MythWebEngineView(QWidget *parent, MythUIWebBrowser *parentBrowser)
-            : QWebEngineView(parent)
+            : QWebEngineView(parent),
+              m_parentBrowser(parentBrowser)
 {
-    m_parentBrowser = parentBrowser;
-
     m_profile = new QWebEngineProfile("MythTV", this);
     //m_profile->setHttpUserAgent("Mozilla/5.0 (SMART-TV; Linux; Tizen 5.0) AppleWebKit/538.1 (KHTML, like Gecko) Version/5.0 NativeTVAds Safari/538.1");
     m_profile->setPersistentCookiesPolicy(QWebEngineProfile::AllowPersistentCookies);
