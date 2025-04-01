@@ -495,9 +495,7 @@ QWebEngineView *MythWebEngineView::createWindow(QWebEnginePage::WebWindowType /*
  */
 MythUIWebBrowser::MythUIWebBrowser(MythUIType *parent, const QString &name)
                  : MythUIType(parent, name),
-      m_parentScreen(nullptr), m_webEngine(nullptr),
-      m_image(nullptr), m_active(false), m_wasActive(false),
-      m_initialized(false), m_updateInterval(500), m_zoom(1.0),
+      m_updateInterval(500),
       m_bgColor("Red"),  m_userCssFile(""),
       m_defaultSaveDir(GetConfDir() + "/MythBrowser/"),
       m_defaultSaveFilename(""),
