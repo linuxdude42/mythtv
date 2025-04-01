@@ -18,9 +18,11 @@
 #include <QDebug>
 #include <QDBusArgument>
 
+#include "libmythbase/mythcorecontext.h"
 #include "libmythbase/mythlogging.h"
 
 #include "mythnetworkdbus.h"
+#include "mythbackend_main_helpers.h"
 
 static const QString nmService    { QStringLiteral(u"org.freedesktop.NetworkManager") };
 static const QString nmPath       { QStringLiteral(u"/org/freedesktop/NetworkManager") };
@@ -67,16 +69,25 @@ QMap<quint32,QString> MythNetworkDevice::NMDeviceStateReason = {
 };
 
 
-MythNetworkDevice::MythNetworkDevice(uint32_t index, QString path, QObject *parent)
-    : QObject(parent), m_path(std::move(path)), m_index(index)
+
+static uint32_t pathToIndex(const QString& path)
+{
+    int slash = path.lastIndexOf('/');
+    return path.mid(slash+1).toInt();
+}
+
+
+MythNetworkDevice::MythNetworkDevice(const QString& path, QObject *parent)
+    : QObject(parent),
+      m_path(path),
+      m_index(pathToIndex(path))
 {
     auto sysBus = QDBusConnection::systemBus();
     QDBusInterface device(nmService, m_path, nmDInterface, sysBus);
     m_name = device.property("Interface").toString();
     m_state = device.property("State").toInt();
-    QString stateStr = NMDeviceStateName.contains(m_state)
-        ? NMDeviceStateName[m_state]
-        : QString("%1").arg(m_state);
+
+    QString stateStr = NMDeviceStateName.value(m_state, QString::number(m_state));
     LOG(VB_GENERAL, LOG_INFO, LOC + QString("Interface %1:%2, state %3)")
         .arg(m_index).arg(m_name, stateStr));
 
@@ -90,11 +101,9 @@ MythNetworkDevice::MythNetworkDevice(uint32_t index, QString path, QObject *pare
 
 QString MythNetworkDevice::getInfo(void)
 {
-    QString stateStr = NMDeviceStateName.contains(m_state)
-        ? NMDeviceStateName[m_state]
-        : QString("%1").arg(m_state);
-    return QString("Interface %1:%2, state %3)")
-        .arg(m_index).arg(m_name, stateStr);
+    QString stateStr = NMDeviceStateName.value(m_state, QString::number(m_state));
+    return QString("Interface %%2, state %3)")
+        .arg(m_name, stateStr);
 }
 
 /// Process a notification that a network device has changed state. If
@@ -106,15 +115,13 @@ QString MythNetworkDevice::getInfo(void)
 ///
 /// @param newState[in] The new state of the interface device.
 /// @param oldState[in] The old state of the interface device.
-/// @param reason[in] The reason for the chang of state.
+/// @param reason[in] The reason for the change of state.
 void MythNetworkDevice::StateChanged(quint32 newState, quint32 oldState, quint32 reason)
 {
     QString reasonStr = NMDeviceStateReason.contains(reason)
         ? NMDeviceStateReason[reason]
-        : QString("%1").arg(reason);
-    if ((newState != NM_DEVICE_STATE_UNMANAGED) &&
-        (newState != NM_DEVICE_STATE_ACTIVATED))
-        return;
+        : QString::number(reason);
+    // Eventually make this LOG_DEBUG
     LOG(VB_GENERAL, LOG_INFO,
         QString(LOC + "Network %1/%2 changed state (%3 -> %4), reason %5.")
         .arg(m_index)
@@ -122,6 +129,14 @@ void MythNetworkDevice::StateChanged(quint32 newState, quint32 oldState, quint32
              NMDeviceStateName[oldState],
              NMDeviceStateName[newState],
              reasonStr));
+
+    if ((newState != NM_DEVICE_STATE_UNMANAGED) &&
+        (newState != NM_DEVICE_STATE_ACTIVATED))
+        return;
+
+    // DO SOMETHING BASED ON THE STATE CHANGE
+    bool ismaster = gCoreContext->IsMasterHost();
+    createTVRecorders(ismaster, true);
 }
 
 //////////////////////////////////////////////////
@@ -137,6 +152,11 @@ MythNetworkDevice *MythNetworkDBus::findByIndex (uint32_t index)
     if (iter == children().cend())
         return nullptr;
     return qobject_cast<MythNetworkDevice*>(*iter);
+}
+
+MythNetworkDevice *MythNetworkDBus::findByPath (const QString& path)
+{
+    return(findByIndex(pathToIndex(path)));
 }
 
 void MythNetworkDBus::printChildList (void)
@@ -178,8 +198,7 @@ MythNetworkDBus::MythNetworkDBus(QObject *parent)
     }
     auto pathsLst = qdbus_cast<QList<QDBusObjectPath>>(arg);
     foreach(QDBusObjectPath p, pathsLst)
-        new MythNetworkDevice(pathToIndex(p.path()), p.path(),
-                              qobject_cast<QObject*>(this));
+        new MythNetworkDevice(p.path(), qobject_cast<QObject*>(this));
 
     // Set up to track added/removed interfaces.
     if (!sysBus.connect(QString(), nmPath, nmInterface, "DeviceAdded",
@@ -204,8 +223,7 @@ void MythNetworkDBus::DeviceAdded(const QDBusObjectPath& dPath)
             QString("Device %1 already exists.").arg(path));
         return;
     }
-    new MythNetworkDevice(pathToIndex(path), path,
-                          qobject_cast<QObject*>(this));
+    new MythNetworkDevice(path, qobject_cast<QObject*>(this));
 }
 
 /// Process a notification that a network device has removed from the
