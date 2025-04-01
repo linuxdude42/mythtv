@@ -123,11 +123,9 @@ bool MythWebEngineView::eventFilter(QObject *obj, QEvent *event)
 
         return false;
     }
-    else
-    {
-        // standard event processing
-        return QWebEngineView::eventFilter(obj, event);
-    }
+
+    // standard event processing
+    return QWebEngineView::eventFilter(obj, event);
 }
 
 void MythWebEngineView::sendKeyPress(QKeyEvent *event)
