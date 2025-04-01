@@ -20,7 +20,7 @@ class MythNetworkDevice : public QObject
     Q_OBJECT;
 
   public:
-    MythNetworkDevice(uint32_t index, QString path, QObject *parent = nullptr);
+    MythNetworkDevice(const QString& path, QObject *parent = nullptr);
     uint32_t getIndex() const { return m_index; };
     QString getInfo();
 
@@ -63,15 +63,7 @@ class MythNetworkDBus : public QObject
     MythNetworkDBus(QObject *parent = nullptr);
 
   private:
-    static uint32_t pathToIndex(const QString& path)
-    {
-        int slash = path.lastIndexOf('/');
-        return path.mid(slash+1).toInt();
-    }
-    MythNetworkDevice *findByPath (const QString& path)
-    {
-        return(findByIndex(pathToIndex(path)));
-    }
+    MythNetworkDevice *findByPath (const QString& path);
     MythNetworkDevice *findByIndex (uint32_t index);
     void printChildList (void);
 
