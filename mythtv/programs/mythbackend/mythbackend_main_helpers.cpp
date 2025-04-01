@@ -86,15 +86,10 @@ static MythSystemEventHandler *gSysEventHandler { nullptr };
 static MediaServer            *g_pUPnp          { nullptr };
 static MainServer             *mainServer       { nullptr };
 
-bool setupTVs(bool ismaster, bool &error)
+void doDatabaseHacks()
 {
-    error = false;
-    QString localhostname = gCoreContext->GetHostName();
-
     MSqlQuery query(MSqlQuery::InitCon());
 
-    if (ismaster)
-    {
         // Hack to make sure recorded.basename gets set if the user
         // downgrades to a prior version and creates new entries
         // without it.
@@ -145,7 +140,13 @@ bool setupTVs(bool ismaster, bool &error)
                 }
             } while (records_without_station.next());
         }
-    }
+}
+
+bool createTVRecorders(bool ismaster, bool retry)
+{
+    QString localhostname = gCoreContext->GetHostName();
+
+    MSqlQuery query(MSqlQuery::InitCon());
 
     if (!query.exec(
             "SELECT cardid, parentid, videodevice, hostname, sourceid "
@@ -183,6 +184,12 @@ bool setupTVs(bool ismaster, bool &error)
                 LOG(VB_GENERAL, LOG_WARNING, cidmsg +
                     " does not have a video source");
             }
+            continue;
+        }
+
+        if (retry && (TVRec::GetTVRec(cardid) != nullptr))
+        {
+            // We're retrying, so ignore exiting encoders
             continue;
         }
 
@@ -254,7 +261,7 @@ bool setupTVs(bool ismaster, bool &error)
         }
     }
 
-    if (gTVList.empty())
+    if (!retry && gTVList.empty())
     {
         LOG(VB_GENERAL, LOG_WARNING, LOC +
                 "No valid capture cards are defined in the database.");
@@ -594,10 +601,9 @@ int run_backend(MythBackendCommandLineParser &cmdline)
 
     print_warnings(cmdline);
 
-    bool fatal_error = false;
-    bool runsched = setupTVs(ismaster, fatal_error);
-    if (fatal_error)
-        return GENERIC_EXIT_SETUP_ERROR;
+    if (ismaster)
+        doDatabaseHacks();
+    bool runsched = createTVRecorders(ismaster);
 
 #ifdef CONFIG_DBUS
     new MythNetworkDBus(QCoreApplication::instance());
