@@ -1134,12 +1134,12 @@ void MythUIWebBrowser::slotIconUrlChanged(const QUrl &url)
     emit iconUrlChanged(url);
 }
 
-void MythUIWebBrowser::slotScrollPositionChanged(const QPointF & position)
+void MythUIWebBrowser::slotScrollPositionChanged(const QPointF &/*position*/)
 {
     UpdateScrollBars();
 }
 
-void MythUIWebBrowser::slotContentsSizeChanged(const QSizeF &size)
+void MythUIWebBrowser::slotContentsSizeChanged(const QSizeF &/*size*/)
 {
     UpdateScrollBars();
 }
