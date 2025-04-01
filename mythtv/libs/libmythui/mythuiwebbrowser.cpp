@@ -205,13 +205,21 @@ bool MythWebEngineView::handleKeyPress(QKeyEvent *event)
             }
         }
         else if (action == "ZOOMIN")
+        {
             m_parentBrowser->ZoomIn();
+        }
         else if (action == "ZOOMOUT")
+        {
             m_parentBrowser->ZoomOut();
+        }
         else if (action == "RELOAD")
+        {
             m_parentBrowser->Reload(true);
+        }
         else if (action == "FULLRELOAD")
+        {
             m_parentBrowser->Reload(false);
+        }
         else if (action == "MOUSEUP" || action == "MOUSEDOWN" ||
                 action == "MOUSELEFT" || action == "MOUSERIGHT" ||
                 action == "MOUSELEFTBUTTON")
@@ -227,7 +235,9 @@ bool MythWebEngineView::handleKeyPress(QKeyEvent *event)
             m_parentBrowser->Forward();
         }
         else
+        {
             handled = false;
+        }
     }
 
     return handled;
