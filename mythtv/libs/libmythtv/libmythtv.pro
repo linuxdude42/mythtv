@@ -539,7 +539,6 @@ using_frontend {
     SOURCES += decoders/mythdrmprimecontext.cpp
 
     using_vulkan {
-        DEFINES += USING_VULKAN
         HEADERS += vulkan/mythvideovulkan.h
         HEADERS += vulkan/mythvideooutputvulkan.h
         HEADERS += vulkan/mythvideotexturevulkan.h
@@ -547,7 +546,6 @@ using_frontend {
         SOURCES += vulkan/mythvideovulkan.cpp
         SOURCES += vulkan/mythvideooutputvulkan.cpp
         SOURCES += vulkan/mythvideotexturevulkan.cpp
-        using_libglslang: DEFINES += USING_GLSLANG
     }
 
     using_vulkan|using_opengl {

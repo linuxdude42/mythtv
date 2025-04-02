@@ -17,7 +17,7 @@
 #include "opengl/mythpainteropengl.h"
 #endif
 
-#ifdef USING_VULKAN
+#if CONFIG_VULKAN
 #include "vulkan/mythpainterwindowvulkan.h"
 #include "vulkan/mythpaintervulkan.h"
 #endif
@@ -34,7 +34,7 @@ QString MythPainterWindow::GetDefaultPainter()
 {
 #if CONFIG_OPENGL
     return MYTH_PAINTER_OPENGL;
-#elif USING_VULKAN
+#elif CONFIG_VULKAN
     return MYTH_PAINTER_VULKAN;
 #else
     return MYTH_PAINTER_QT;
@@ -47,7 +47,7 @@ QStringList MythPainterWindow::GetPainters()
 #if CONFIG_OPENGL
     result.append(MYTH_PAINTER_OPENGL);
 #endif
-#ifdef USING_VULKAN
+#if CONFIG_VULKAN
     result.append(MYTH_PAINTER_VULKAN);
 #endif
     return result;
@@ -85,7 +85,7 @@ QString MythPainterWindow::CreatePainters(MythMainWindow *MainWin,
         painterstotry.append(TryOpenGL);
 #endif
 
-#ifdef USING_VULKAN
+#if CONFIG_VULKAN
     auto TryVulkan = [](MythMainWindow *MainWindow, MythPainterWindow *&PaintWindow,
                         MythPainter *&Painter, bool& /*unused*/)
     {

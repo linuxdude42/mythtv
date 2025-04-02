@@ -302,7 +302,6 @@ mingw | win32-msvc*{
 }
 
 using_vulkan {
-    DEFINES += USING_VULKAN
     HEADERS += vulkan/mythpainterwindowvulkan.h
     HEADERS += vulkan/mythpaintervulkan.h
     HEADERS += vulkan/mythrendervulkan.h
@@ -324,7 +323,6 @@ using_vulkan {
     SOURCES += vulkan/mythcombobuffervulkan.cpp
     SOURCES += vulkan/mythdebugvulkan.cpp
     SOURCES += vulkan/mythvertexbuffervulkan.cpp
-    using_libglslang: DEFINES += USING_GLSLANG
 }
 
 using_opengl {

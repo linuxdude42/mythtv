@@ -17,7 +17,7 @@
 #include "libmythui/opengl/mythpainteropengl.h"
 #include "opengl/mythvideooutopengl.h"
 #endif
-#ifdef USING_VULKAN
+#if CONFIG_VULKAN
 #include "libmythui/vulkan/mythpaintervulkan.h"
 #include "vulkan/mythvideooutputvulkan.h"
 #endif
@@ -31,7 +31,7 @@ void MythVideoOutputGPU::GetRenderOptions(RenderOptions& Options, MythRender* Re
         MythVideoOutputOpenGL::GetRenderOptions(Options);
 #endif
 
-#ifdef USING_VULKAN
+#if CONFIG_VULKAN
     if (dynamic_cast<MythRenderVulkan*>(Render) != nullptr)
         MythVideoOutputVulkan::GetRenderOptions(Options);
 #endif
@@ -74,7 +74,7 @@ MythVideoOutputGPU *MythVideoOutputGPU::Create(MythMainWindow* MainWindow, MythR
         renderers += MythVideoOutputOpenGL::GetAllowedRenderers(openglrender, CodecID, VideoDispDim);
 #endif
 
-#ifdef USING_VULKAN
+#if CONFIG_VULKAN
     auto * vulkanrender = dynamic_cast<MythRenderVulkan*>(Render);
     auto * vulkanpainter = dynamic_cast<MythPainterVulkan*>(Painter);
     if (vulkanrender && vulkanpainter && (Render->Type() == kRenderVulkan))
@@ -120,7 +120,7 @@ MythVideoOutputGPU *MythVideoOutputGPU::Create(MythMainWindow* MainWindow, MythR
         if (Render->Type() == kRenderOpenGL)
             fallback = "opengl";
 #endif
-#ifdef USING_VULKAN
+#if CONFIG_VULKAN
         if (Render->Type() == kRenderVulkan)
             fallback = VULKAN_RENDERER;
 #endif
@@ -155,7 +155,7 @@ MythVideoOutputGPU *MythVideoOutputGPU::Create(MythMainWindow* MainWindow, MythR
                                               videoprofile, renderer);
         }
 #endif
-#ifdef USING_VULKAN
+#if CONFIG_VULKAN
         if (!video && renderer.contains(VULKAN_RENDERER))
         {
             video = new MythVideoOutputVulkan(MainWindow, vulkanrender,

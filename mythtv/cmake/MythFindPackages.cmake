@@ -275,7 +275,7 @@ if(ENABLE_VULKAN)
   find_package(Vulkan)
   add_build_config(Vulkan::Vulkan "vulkan")
   if(TARGET Vulkan::Vulkan)
-    target_compile_definitions(Vulkan::Vulkan INTERFACE USING_VULKAN)
+    set(CONFIG_VULKAN TRUE)
     get_property(
       _guiprops
       TARGET Qt${QT_VERSION_MAJOR}::Gui
@@ -287,9 +287,9 @@ if(ENABLE_VULKAN)
       pkg_check_modules(GLSLANG IMPORTED_TARGET glslang)
       add_build_config(PkgConfig::GLSLANG "libglslang")
       if(TARGET PkgConfig::GLSLANG)
+        set(CONFIG_LIBGLSLANG TRUE)
         pkg_check_modules(Spirv spirv REQUIRED IMPORTED_TARGET)
         pkg_check_modules(SpirvTools SPIRV-Tools REQUIRED IMPORTED_TARGET)
-        target_compile_definitions(Vulkan::Vulkan INTERFACE USING_GLSLANG)
         target_link_libraries(
           Vulkan::Vulkan INTERFACE PkgConfig::GLSLANG PkgConfig::Spirv
                                    PkgConfig::SpirvTools)
