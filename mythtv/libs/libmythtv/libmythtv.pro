@@ -498,7 +498,6 @@ using_frontend {
     }
 
     using_vdpau:using_x11 {
-        DEFINES += USING_VDPAU
         HEADERS += decoders/mythvdpaucontext.h   decoders/mythvdpauhelper.h
         SOURCES += decoders/mythvdpaucontext.cpp decoders/mythvdpauhelper.cpp
         LIBS += -lvdpau

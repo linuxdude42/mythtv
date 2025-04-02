@@ -1128,7 +1128,7 @@ void MythVideoProfile::CreateProfiles(const QString &HostName)
     }
 #endif
 
-#ifdef USING_VDPAU
+#if CONFIG_VDPAU
     if (!profiles.contains("VDPAU Normal"))
     {
         (void)tr("VDPAU Normal", "Sample: VDPAU medium quality");

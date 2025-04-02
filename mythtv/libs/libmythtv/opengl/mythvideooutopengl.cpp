@@ -58,7 +58,7 @@ void MythVideoOutputOpenGL::GetRenderOptions(RenderOptions& Options)
     Options.renderers->append("opengl-yv12");
     Options.priorities->insert("opengl-yv12", 65);
 
-#if defined(USING_VAAPI) || defined (USING_VTB) || defined (USING_MEDIACODEC) || defined (USING_VDPAU) || defined (USING_NVDEC) || defined (USING_MMAL) || defined (USING_V4L2PRIME) || defined (USING_EGL)
+#if defined(USING_VAAPI) || defined (USING_VTB) || defined (USING_MEDIACODEC) || CONFIG_VDPAU || defined (USING_NVDEC) || defined (USING_MMAL) || defined (USING_V4L2PRIME) || defined (USING_EGL)
     Options.renderers->append("opengl-hw");
     (*Options.safe_renderers)["dummy"].append("opengl-hw");
     Options.priorities->insert("opengl-hw", 110);
@@ -75,7 +75,7 @@ void MythVideoOutputOpenGL::GetRenderOptions(RenderOptions& Options)
     if (Options.decoders->contains("mediacodec"))
         (*Options.safe_renderers)["mediacodec"].append("opengl-hw");
 #endif
-#ifdef USING_VDPAU
+#if CONFIG_VDPAU
     if (Options.decoders->contains("vdpau"))
         (*Options.safe_renderers)["vdpau"].append("opengl-hw");
 #endif

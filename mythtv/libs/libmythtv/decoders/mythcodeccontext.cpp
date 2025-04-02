@@ -33,7 +33,7 @@
 #ifdef USING_VAAPI
 #include "mythvaapicontext.h"
 #endif
-#ifdef USING_VDPAU
+#if CONFIG_VDPAU
 #include "mythvdpauhelper.h"
 #include "mythvdpaucontext.h"
 #endif
@@ -82,7 +82,7 @@ MythCodecContext *MythCodecContext::CreateContext(DecoderBase *Parent,
     if (codec_is_vaapi(Codec) || codec_is_vaapi_dec(Codec))
         mctx = new MythVAAPIContext(Parent, Codec);
 #endif
-#ifdef USING_VDPAU
+#if CONFIG_VDPAU
     if (codec_is_vdpau_hw(Codec) || codec_is_vdpau_dechw(Codec))
         mctx = new MythVDPAUContext(Parent, Codec);
 #endif
@@ -120,7 +120,7 @@ QStringList MythCodecContext::GetDecoderDescription(void)
 {
     QStringList decoders;
 
-#ifdef USING_VDPAU
+#if CONFIG_VDPAU
     MythVDPAUHelper::GetDecoderList(decoders);
 #endif
 #ifdef USING_VAAPI
@@ -161,7 +161,7 @@ void MythCodecContext::GetDecoders(RenderOptions &Opts, bool Reinit /*=false*/)
     Opts.decoders->append("ffmpeg");
     (*Opts.equiv_decoders)["ffmpeg"].append("dummy");
 
-#ifdef USING_VDPAU
+#if CONFIG_VDPAU
     // Only enable VDPAU support if it is actually present
     if (MythVDPAUHelper::HaveVDPAU(Reinit))
     {
@@ -255,7 +255,7 @@ MythCodecID MythCodecContext::FindDecoder(const QString &Decoder,
     MythCodecID result = kCodec_NONE;
     uint streamtype = mpeg_version((*Context)->codec_id);
 
-#ifdef USING_VDPAU
+#if CONFIG_VDPAU
     result = MythVDPAUContext::GetSupportedCodec(Context, Codec, Decoder, streamtype);
     if (codec_is_vdpau_hw(result) || codec_is_vdpau_dechw(result))
         return result;

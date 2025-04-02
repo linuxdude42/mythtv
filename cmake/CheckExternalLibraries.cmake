@@ -97,9 +97,7 @@ if(ENABLE_VDPAU)
   # vdp_device_create_x11
   pkg_check_modules(VDPAU "vdpau>=0.2" IMPORTED_TARGET)
   add_build_config(PkgConfig::VDPAU "vdpau")
-  if(TARGET PkgConfig::VDPAU)
-    target_compile_definitions(PkgConfig::VDPAU INTERFACE USING_VDPAU)
-  endif()
+  set(CONFIG_VDPAU ${VDPAU_FOUND})
 endif()
 
 # vaapi: fedora:libva-devel debian:libva-dev

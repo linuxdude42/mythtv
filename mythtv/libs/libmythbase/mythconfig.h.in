@@ -44,6 +44,8 @@
 #cmakedefine01 CONFIG_SYSTEMD_JOURNAL
 #cmakedefine01 CONFIG_SYSTEMD_NOTIFY
 #cmakedefine01 CONFIG_V4L2
+#cmakedefine01 CONFIG_VAAPI
+#cmakedefine01 CONFIG_VDPAU
 #cmakedefine01 CONFIG_X11
 
 /* For MythTV */

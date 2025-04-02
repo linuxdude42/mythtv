@@ -22,7 +22,7 @@ void MythVideoOutputNull::GetRenderOptions(RenderOptions& Options)
     if (Options.decoders->contains("vtb-dec"))
         (*Options.safe_renderers)["vtb-dec"].append("null");
 #endif
-#ifdef USING_VDPAU
+#if CONFIG_VDPAU
     if (Options.decoders->contains("vdpau-dec"))
         (*Options.safe_renderers)["vdpau-dec"].append("null");
 #endif

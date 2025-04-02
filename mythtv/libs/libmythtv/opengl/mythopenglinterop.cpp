@@ -15,7 +15,7 @@
 #ifdef USING_MEDIACODEC
 #include "decoders/mythmediacodeccontext.h"
 #endif
-#ifdef USING_VDPAU
+#if CONFIG_VDPAU
 #include "mythvdpauinterop.h"
 #endif
 #ifdef USING_NVDEC
@@ -40,7 +40,7 @@ void MythOpenGLInterop::GetTypes(MythRender* Render, InteropMap& Types)
     Types[FMT_MEDIACODEC] = { GL_MEDIACODEC };
 #endif
 
-#ifdef USING_VDPAU
+#if CONFIG_VDPAU
     MythVDPAUInterop::GetVDPAUTypes(openglrender, Types);
 #endif
 
