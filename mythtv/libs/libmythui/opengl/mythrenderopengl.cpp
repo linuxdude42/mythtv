@@ -18,7 +18,7 @@
 #include "mythrenderopengl.h"
 #include "mythrenderopenglshaders.h"
 #include "mythuitype.h"
-#ifdef USING_X11
+#if CONFIG_X11
 #include "platforms/mythxdisplay.h"
 #endif
 
@@ -84,7 +84,7 @@ MythRenderOpenGL* MythRenderOpenGL::Create(QWidget *Widget)
     if (!Widget)
         return nullptr;
 
-#ifdef USING_X11
+#if CONFIG_X11
     if (MythXDisplay::DisplayIsRemote())
     {
         LOG(VB_GENERAL, LOG_WARNING, LOC + "OpenGL is disabled for Remote X Session");

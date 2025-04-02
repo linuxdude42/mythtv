@@ -142,7 +142,6 @@ INSTALLS += inc
 #
 
 using_x11 {
-    DEFINES += USING_X11
     HEADERS += platforms/mythxdisplay.h
     HEADERS += platforms/mythdisplayx11.h
     HEADERS += platforms/mythscreensaverx11.h

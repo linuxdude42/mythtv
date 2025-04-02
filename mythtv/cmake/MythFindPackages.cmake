@@ -237,7 +237,7 @@ if(ENABLE_X11
         message(FATAL_ERROR "X11 is missing Xxf86vm support.")
       endif()
     endif()
-    target_compile_definitions(X11::X11 INTERFACE USING_X11)
+    set(CONFIG_X11 ON)
     add_build_config(X11_FOUND "x11")
   endif()
 endif()

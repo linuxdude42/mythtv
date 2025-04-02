@@ -121,7 +121,6 @@ win32 : !debug {
     DEFINES += WINDOWS_CLOSE_CONSOLE
 }
 
-using_x11:DEFINES += USING_X11
 using_opengl:DEFINES += USING_OPENGL
 using_vdpau:DEFINES += USING_VDPAU
 using_vaapi:using_opengl:DEFINES += USING_VAAPI
