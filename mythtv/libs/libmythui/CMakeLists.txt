@@ -291,7 +291,7 @@ if(TARGET Qt${QT_VERSION_MAJOR}::DBus)
             platforms/mythscreensaverdbus.cpp platforms/mythscreensaverdbus.h)
 endif()
 
-if(_HAVE_GL_OR_GLES)
+if(CONFIG_OPENGL)
   if(TARGET OpenGL::GL)
     target_link_libraries(mythui PRIVATE Qt${QT_VERSION_MAJOR}::OpenGL
                                          OpenGL::GL)
@@ -317,7 +317,7 @@ if(_HAVE_GL_OR_GLES)
             opengl/mythpainterwindowopengl.h
             opengl/mythrenderopengl.cpp
             opengl/mythrenderopengl.h)
-endif(_HAVE_GL_OR_GLES)
+endif(CONFIG_OPENGL)
 
 if(TARGET Vulkan::Vulkan)
   target_link_libraries(mythui PUBLIC Vulkan::Vulkan)

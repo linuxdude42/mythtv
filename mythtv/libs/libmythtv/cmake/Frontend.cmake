@@ -220,12 +220,12 @@ if(TARGET Vulkan::Vulkan)
             visualisations/vulkan/mythvisualmonoscopevulkan.h)
 endif()
 
-if(TARGET Vulkan::Vulkan OR _HAVE_GL_OR_GLES)
+if(TARGET Vulkan::Vulkan OR CONFIG_OPENGL)
   target_sources(mythtv PRIVATE visualisations/videovisualmonoscope.cpp
                                 visualisations/videovisualmonoscope.h)
 endif()
 
-if(_HAVE_GL_OR_GLES)
+if(CONFIG_OPENGL)
   if(TARGET OpenGL::GL)
     target_link_libraries(mythtv PUBLIC Qt${QT_VERSION_MAJOR}::OpenGL
                                         OpenGL::GL)
@@ -323,7 +323,7 @@ if(_HAVE_GL_OR_GLES)
             visualisations/goom/zoom_filter_mmx.cpp
             visualisations/goom/zoom_filter_xmmx.cpp
             visualisations/videovisualgoom.cpp)
-endif(_HAVE_GL_OR_GLES)
+endif(CONFIG_OPENGL)
 
 if(TARGET PkgConfig::LIBDNS_SD)
   target_link_libraries(mythtv PUBLIC PkgConfig::LIBDNS_SD)
