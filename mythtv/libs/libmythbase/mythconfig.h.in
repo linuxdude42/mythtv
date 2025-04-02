@@ -24,6 +24,7 @@
 #cmakedefine01 ARCH_X86
 
 /* For MythTV */
+#cmakedefine01 CONFIG_AIRPLAY
 #cmakedefine01 CONFIG_AUDIO_ALSA
 #cmakedefine01 CONFIG_AUDIO_OSS
 #cmakedefine01 CONFIG_BINDINGS_PYTHON
