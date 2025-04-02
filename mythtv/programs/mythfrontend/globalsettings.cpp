@@ -42,7 +42,7 @@
 #include "libmythui/mythpainterwindow.h"
 #include "libmythui/mythuihelper.h"
 #include "libmythui/themeinfo.h"
-#ifdef USING_OPENGL
+#if CONFIG_OPENGL
 #include "libmythui/opengl/mythrenderopengl.h"
 #endif
 #ifdef USING_AIRPLAY

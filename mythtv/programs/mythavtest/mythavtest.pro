@@ -23,7 +23,6 @@ macx {
     }
 }
 
-using_opengl:DEFINES += USING_OPENGL
 using_mmal:DEFINES += USING_MMAL
 
 macx:      DEFINES += USING_COREAUDIO

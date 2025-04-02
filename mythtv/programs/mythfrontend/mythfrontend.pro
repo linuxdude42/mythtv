@@ -121,7 +121,6 @@ win32 : !debug {
     DEFINES += WINDOWS_CLOSE_CONSOLE
 }
 
-using_opengl:DEFINES += USING_OPENGL
 using_mmal:DEFINES += USING_MMAL
 
 using_libcec: DEFINES += USING_LIBCEC

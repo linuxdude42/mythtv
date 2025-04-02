@@ -1,4 +1,5 @@
 // MythTV
+#include "libmythbase/mythconfig.h"
 #include "libmythbase/mythcorecontext.h"
 #include "libmythbase/mythlogging.h"
 #include "libmythui/mythmainwindow.h"
@@ -12,7 +13,7 @@
 #include "libmythui/mythpainter_d3d9.h"
 #include "videoout_d3d.h"
 #endif
-#ifdef USING_OPENGL
+#if CONFIG_OPENGL
 #include "libmythui/opengl/mythpainteropengl.h"
 #include "opengl/mythvideooutopengl.h"
 #endif
@@ -25,7 +26,7 @@
 
 void MythVideoOutputGPU::GetRenderOptions(RenderOptions& Options, MythRender* Render)
 {
-#ifdef USING_OPENGL
+#if CONFIG_OPENGL
     if (dynamic_cast<MythRenderOpenGL*>(Render) != nullptr)
         MythVideoOutputOpenGL::GetRenderOptions(Options);
 #endif
@@ -66,7 +67,7 @@ MythVideoOutputGPU *MythVideoOutputGPU::Create(MythMainWindow* MainWindow, MythR
 //        renderers += VideoOutputD3D::GetAllowedRenderers(CodecID, VideoDispDim);
 #endif
 
-#ifdef USING_OPENGL
+#if CONFIG_OPENGL
     auto * openglrender = dynamic_cast<MythRenderOpenGL*>(Render);
     auto * openglpainter = dynamic_cast<MythOpenGLPainter*>(Painter);
     if (openglrender && openglpainter && (Render->Type() == kRenderOpenGL))
@@ -115,7 +116,7 @@ MythVideoOutputGPU *MythVideoOutputGPU::Create(MythMainWindow* MainWindow, MythR
     if (renderer.isEmpty())
     {
         QString fallback;
-#ifdef USING_OPENGL
+#if CONFIG_OPENGL
         if (Render->Type() == kRenderOpenGL)
             fallback = "opengl";
 #endif
@@ -145,7 +146,7 @@ MythVideoOutputGPU *MythVideoOutputGPU::Create(MythMainWindow* MainWindow, MythR
 //                                       d3dpainter, MDisplay,
 //                                       videoprofile, renderer);
 #endif
-#ifdef USING_OPENGL
+#if CONFIG_OPENGL
         // cppcheck-suppress knownConditionTrueFalse
         if (!video && renderer.contains("opengl") && openglrender)
         {

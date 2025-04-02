@@ -1217,7 +1217,7 @@ void MythDisplay::ConfigureQtGUI(int SwapInterval, const MythCommandLineParser& 
     }
 #endif
 
-#if defined (Q_OS_LINUX) && defined (USING_EGL) && CONFIG_X11
+#if defined (Q_OS_LINUX) && CONFIG_EGL && CONFIG_X11
     // We want to use EGL for VAAPI/MMAL/DRMPRIME rendering to ensure we
     // can use zero copy video buffers for the best performance.
     // To force Qt to use EGL we must set 'QT_XCB_GL_INTEGRATION' to 'xcb_egl'

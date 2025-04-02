@@ -1,10 +1,11 @@
 #include <algorithm>
 
 // MythTV
+#include "libmythbase/mythconfig.h"
 #include "libmythbase/mythchrono.h"
 #include "videovisualmonoscope.h"
 
-#ifdef USING_OPENGL
+#if CONFIG_OPENGL
 #include "visualisations/opengl/mythvisualmonoscopeopengl.h"
 #endif
 #ifdef USING_VULKAN
@@ -93,7 +94,7 @@ static class VideoVisualMonoScopeFactory : public VideoVisualFactory
 
     VideoVisual* Create(AudioPlayer* Audio, MythRender* Render) const override
     {
-#ifdef USING_OPENGL
+#if CONFIG_OPENGL
         auto * render1 = dynamic_cast<MythRenderOpenGL*>(Render);
         if (render1)
             return new MythVisualMonoScopeOpenGL(Audio, Render, true);
@@ -125,7 +126,7 @@ static class VideoVisualSimpleScopeFactory : public VideoVisualFactory
 
     VideoVisual* Create(AudioPlayer* Audio, MythRender* Render) const override
     {
-#ifdef USING_OPENGL
+#if CONFIG_OPENGL
         auto * render1 = dynamic_cast<MythRenderOpenGL*>(Render);
         if (render1)
             return new MythVisualMonoScopeOpenGL(Audio, Render, false);

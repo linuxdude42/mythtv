@@ -52,7 +52,7 @@
 #ifdef USING_MMAL
 #include "mythmmalcontext.h"
 #endif
-#ifdef USING_EGL
+#if CONFIG_EGL
 #include "mythdrmprimecontext.h"
 #endif
 #ifdef USING_DXVA2
@@ -106,7 +106,7 @@ MythCodecContext *MythCodecContext::CreateContext(DecoderBase *Parent,
     if (codec_is_mmal_dec(Codec) || codec_is_mmal(Codec))
         mctx = new MythMMALContext(Parent, Codec);
 #endif
-#ifdef USING_EGL
+#if CONFIG_EGL
     if (codec_is_drmprime(Codec))
         mctx = new MythDRMPRIMEContext(Parent, Codec);
 #endif
@@ -225,7 +225,7 @@ void MythCodecContext::GetDecoders(RenderOptions &Opts, bool Reinit /*=false*/)
         (*Opts.equiv_decoders)["v4l2-dec"].append("dummy");
     }
 #endif
-#ifdef USING_EGL
+#if CONFIG_EGL
     if (MythDRMPRIMEContext::HavePrimeDecoders(Reinit))
     {
         Opts.decoders->append("drmprime");
@@ -295,7 +295,7 @@ MythCodecID MythCodecContext::FindDecoder(const QString &Decoder,
     if (codec_is_mmal_dec(result) || codec_is_mmal(result))
         return result;
 #endif
-#ifdef USING_EGL
+#if CONFIG_EGL
     result = MythDRMPRIMEContext::GetSupportedCodec(Context, Codec, Decoder, Stream, streamtype);
     if (codec_is_drmprime(result))
         return result;

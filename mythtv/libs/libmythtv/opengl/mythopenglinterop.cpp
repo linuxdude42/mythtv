@@ -24,7 +24,7 @@
 #ifdef USING_MMAL
 #include "mythmmalinterop.h"
 #endif
-#ifdef USING_EGL
+#if CONFIG_EGL
 #include "mythdrmprimeinterop.h"
 #endif
 
@@ -48,7 +48,7 @@ void MythOpenGLInterop::GetTypes(MythRender* Render, InteropMap& Types)
     MythVAAPIInterop::GetVAAPITypes(openglrender, Types);
 #endif
 
-#ifdef USING_EGL
+#if CONFIG_EGL
     MythDRMPRIMEInterop::GetDRMTypes(openglrender, Types);
 #endif
 

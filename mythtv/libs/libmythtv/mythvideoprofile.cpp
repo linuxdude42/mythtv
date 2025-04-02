@@ -1084,7 +1084,7 @@ void MythVideoProfile::CreateProfiles(const QString &HostName)
 {
     QStringList profiles = GetProfiles(HostName);
 
-#ifdef USING_OPENGL
+#if CONFIG_OPENGL
     if (!profiles.contains("OpenGL High Quality"))
     {
         (void)tr("OpenGL High Quality",
@@ -1158,7 +1158,7 @@ void MythVideoProfile::CreateProfiles(const QString &HostName)
     }
 #endif
 
-#if CONFIG_NVDEC && defined(USING_OPENGL)
+#if CONFIG_NVDEC && CONFIG_OPENGL
     if (!profiles.contains("NVDEC Normal"))
     {
         (void)tr("NVDEC Normal", "Sample: NVDEC Normal");
@@ -1172,7 +1172,7 @@ void MythVideoProfile::CreateProfiles(const QString &HostName)
     }
 #endif
 
-#if defined(USING_VTB) && defined(USING_OPENGL)
+#if defined(USING_VTB) && CONFIG_OPENGL
     if (!profiles.contains("VideoToolBox Normal")) {
         (void)tr("VideoToolBox Normal", "Sample: VideoToolBox Normal");
         uint groupid = CreateProfileGroup("VideoToolBox Normal", HostName);
@@ -1185,7 +1185,7 @@ void MythVideoProfile::CreateProfiles(const QString &HostName)
     }
 #endif
 
-#if defined(USING_MMAL) && defined(USING_OPENGL)
+#if defined(USING_MMAL) && CONFIG_OPENGL
     if (!profiles.contains("MMAL"))
     {
         (void)tr("MMAL", "Sample: MMAL");

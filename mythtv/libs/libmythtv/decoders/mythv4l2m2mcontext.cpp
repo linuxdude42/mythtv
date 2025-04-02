@@ -5,6 +5,7 @@
 #include <QDir>
 
 // MythTV
+#include "libmythbase/mythconfig.h"
 #include "libmythbase/mythcorecontext.h"
 #include "libmythbase/mythlogging.h"
 #include "libmythui/opengl/mythrenderopengl.h"
@@ -14,7 +15,7 @@
 #include "mythplayerui.h"
 #include "v4l2util.h"
 
-#ifdef USING_EGL
+#if CONFIG_EGL
 #include "opengl/mythdrmprimeinterop.h"
 #endif
 #include "decoders/mythv4l2m2mcontext.h"

@@ -328,7 +328,6 @@ using_vulkan {
 }
 
 using_opengl {
-    DEFINES += USING_OPENGL
     HEADERS += opengl/mythpainterwindowopengl.h
     HEADERS += opengl/mythpainteropengl.h
     HEADERS += opengl/mythrenderopengl.h
@@ -344,7 +343,6 @@ using_opengl {
 
     using_egl {
         LIBS    += -lEGL
-        DEFINES += USING_EGL
     }
 
     mingw|win32-msvc*:LIBS += -lopengl32

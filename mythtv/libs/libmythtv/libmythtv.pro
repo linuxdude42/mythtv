@@ -570,7 +570,6 @@ using_frontend {
     }
 
     using_opengl {
-        DEFINES += USING_OPENGL
         HEADERS += opengl/mythopenglvideo.h
         HEADERS += opengl/mythvideooutopengl.h
         HEADERS += opengl/mythopenglvideoshaders.h
@@ -614,7 +613,6 @@ using_frontend {
         }
 
         using_egl {
-            DEFINES += USING_EGL
             HEADERS += opengl/mythegldefs.h
             HEADERS += opengl/mythegldmabuf.h
             HEADERS += opengl/mythdrmprimeinterop.h
