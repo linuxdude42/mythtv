@@ -48,7 +48,7 @@
 #ifdef USING_AIRPLAY
 #include "libmythtv/AirPlay/mythraopconnection.h"
 #endif
-#ifdef USING_VAAPI
+#if CONFIG_VAAPI
 #include "libmythtv/decoders/mythvaapicontext.h"
 #endif
 
@@ -103,7 +103,7 @@ static HostCheckBoxSetting *ChromaUpsampling()
     return gc;
 }
 
-#ifdef USING_VAAPI
+#if CONFIG_VAAPI
 static HostTextEditSetting *VAAPIDevice()
 {
     auto *ge = new HostTextEditSetting("VAAPIDevice");
@@ -4499,7 +4499,7 @@ void PlaybackSettings::Load(void)
     advanced->addChild(AudioReadAhead());
     advanced->addChild(ColourPrimaries());
     advanced->addChild(ChromaUpsampling());
-#ifdef USING_VAAPI
+#if CONFIG_VAAPI
     advanced->addChild(VAAPIDevice());
 #endif
 

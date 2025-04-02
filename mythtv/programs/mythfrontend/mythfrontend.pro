@@ -122,7 +122,6 @@ win32 : !debug {
 }
 
 using_opengl:DEFINES += USING_OPENGL
-using_vaapi:using_opengl:DEFINES += USING_VAAPI
 using_mmal:DEFINES += USING_MMAL
 
 using_libcec: DEFINES += USING_LIBCEC

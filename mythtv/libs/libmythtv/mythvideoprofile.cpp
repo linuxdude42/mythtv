@@ -1114,7 +1114,7 @@ void MythVideoProfile::CreateProfiles(const QString &HostName)
     }
 #endif
 
-#ifdef USING_VAAPI
+#if CONFIG_VAAPI
     if (!profiles.contains("VAAPI Normal"))
     {
         (void)tr("VAAPI Normal", "Sample: VAAPI average quality");

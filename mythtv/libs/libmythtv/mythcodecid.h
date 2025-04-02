@@ -393,7 +393,7 @@ static inline bool CODEC_IS_VDPAU(const struct AVCodec */*codec*/)
     { return false; };
 #endif
 
-#ifdef USING_VAAPI
+#if CONFIG_VAAPI
 static inline bool CODEC_IS_VAAPI(const struct AVCodec *codec, const AVCodecContext *enc)
     { return (codec != nullptr) && (enc->pix_fmt == AV_PIX_FMT_VAAPI); };
 #else

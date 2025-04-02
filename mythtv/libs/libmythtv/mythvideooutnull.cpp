@@ -30,7 +30,7 @@ void MythVideoOutputNull::GetRenderOptions(RenderOptions& Options)
     if (Options.decoders->contains("nvdec-dec"))
         (*Options.safe_renderers)["nvdec-dec"].append("null");
 #endif
-#ifdef USING_VAAPI
+#if CONFIG_VAAPI
     if (Options.decoders->contains("vaapi-dec"))
         (*Options.safe_renderers)["vaapi-dec"].append("null");
 #endif

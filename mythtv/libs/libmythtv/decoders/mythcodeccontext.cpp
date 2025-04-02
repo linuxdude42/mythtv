@@ -30,7 +30,7 @@
 #include "avformatdecoder.h"
 #include "mythplayerui.h"
 
-#ifdef USING_VAAPI
+#if CONFIG_VAAPI
 #include "mythvaapicontext.h"
 #endif
 #if CONFIG_VDPAU
@@ -78,7 +78,7 @@ MythCodecContext *MythCodecContext::CreateContext(DecoderBase *Parent,
                                                   [[maybe_unused]] MythCodecID Codec)
 {
     MythCodecContext *mctx = nullptr;
-#ifdef USING_VAAPI
+#if CONFIG_VAAPI
     if (codec_is_vaapi(Codec) || codec_is_vaapi_dec(Codec))
         mctx = new MythVAAPIContext(Parent, Codec);
 #endif
@@ -123,7 +123,7 @@ QStringList MythCodecContext::GetDecoderDescription(void)
 #if CONFIG_VDPAU
     MythVDPAUHelper::GetDecoderList(decoders);
 #endif
-#ifdef USING_VAAPI
+#if CONFIG_VAAPI
     MythVAAPIContext::GetDecoderList(decoders);
 #endif
 #ifdef USING_MEDIACODEC
@@ -176,7 +176,7 @@ void MythCodecContext::GetDecoders(RenderOptions &Opts, bool Reinit /*=false*/)
     (*Opts.equiv_decoders)["dxva2"].append("dummy");
 #endif
 
-#ifdef USING_VAAPI
+#if CONFIG_VAAPI
     // Only enable VAAPI if it is actually present and isn't actually VDPAU
     if (!MythVAAPIContext::HaveVAAPI(Reinit).isEmpty())
     {
@@ -260,7 +260,7 @@ MythCodecID MythCodecContext::FindDecoder(const QString &Decoder,
     if (codec_is_vdpau_hw(result) || codec_is_vdpau_dechw(result))
         return result;
 #endif
-#ifdef USING_VAAPI
+#if CONFIG_VAAPI
     result = MythVAAPIContext::GetSupportedCodec(Context, Codec, Decoder, streamtype);
     if (codec_is_vaapi(result) || codec_is_vaapi_dec(result))
         return result;

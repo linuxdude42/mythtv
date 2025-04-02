@@ -518,7 +518,6 @@ using_frontend {
     }
 
     using_vaapi {
-        DEFINES += USING_VAAPI
         HEADERS += decoders/mythvaapicontext.h
         SOURCES += decoders/mythvaapicontext.cpp
         LIBS    += -lva -lva-x11 -lva-glx -lva-drm

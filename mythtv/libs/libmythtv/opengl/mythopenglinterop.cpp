@@ -6,7 +6,7 @@
 #include "mythvideocolourspace.h"
 #include "opengl/mythopenglinterop.h"
 
-#ifdef USING_VAAPI
+#if CONFIG_VAAPI
 #include "mythvaapiinterop.h"
 #endif
 #ifdef USING_VTB
@@ -44,7 +44,7 @@ void MythOpenGLInterop::GetTypes(MythRender* Render, InteropMap& Types)
     MythVDPAUInterop::GetVDPAUTypes(openglrender, Types);
 #endif
 
-#ifdef USING_VAAPI
+#if CONFIG_VAAPI
     MythVAAPIInterop::GetVAAPITypes(openglrender, Types);
 #endif
 
