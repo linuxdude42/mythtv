@@ -37,7 +37,7 @@
 #include "mythvdpauhelper.h"
 #include "mythvdpaucontext.h"
 #endif
-#ifdef USING_NVDEC
+#if CONFIG_NVDEC
 #include "mythnvdeccontext.h"
 #endif
 #ifdef USING_VTB
@@ -86,7 +86,7 @@ MythCodecContext *MythCodecContext::CreateContext(DecoderBase *Parent,
     if (codec_is_vdpau_hw(Codec) || codec_is_vdpau_dechw(Codec))
         mctx = new MythVDPAUContext(Parent, Codec);
 #endif
-#ifdef USING_NVDEC
+#if CONFIG_NVDEC
     if (codec_is_nvdec_dec(Codec) || codec_is_nvdec(Codec))
         mctx = new MythNVDECContext(Parent, Codec);
 #endif
@@ -129,7 +129,7 @@ QStringList MythCodecContext::GetDecoderDescription(void)
 #ifdef USING_MEDIACODEC
     MythMediaCodecContext::GetDecoderList(decoders);
 #endif
-#ifdef USING_NVDEC
+#if CONFIG_NVDEC
     MythNVDECContext::GetDecoderList(decoders);
 #endif
 #ifdef USING_MMAL
@@ -186,7 +186,7 @@ void MythCodecContext::GetDecoders(RenderOptions &Opts, bool Reinit /*=false*/)
         (*Opts.equiv_decoders)["vaapi-dec"].append("dummy");
     }
 #endif
-#ifdef USING_NVDEC
+#if CONFIG_NVDEC
     // Only enable NVDec support if it is actually present
     if (MythNVDECContext::HaveNVDEC(Reinit))
     {
@@ -280,7 +280,7 @@ MythCodecID MythCodecContext::FindDecoder(const QString &Decoder,
     if (codec_is_mediacodec(result) || codec_is_mediacodec_dec(result))
         return result;
 #endif
-#ifdef USING_NVDEC
+#if CONFIG_NVDEC
     result = MythNVDECContext::GetSupportedCodec(Context, Codec, Decoder, Stream, streamtype);
     if (codec_is_nvdec(result) || codec_is_nvdec_dec(result))
         return result;

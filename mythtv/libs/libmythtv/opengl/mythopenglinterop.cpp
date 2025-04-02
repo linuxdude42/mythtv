@@ -18,7 +18,7 @@
 #if CONFIG_VDPAU
 #include "mythvdpauinterop.h"
 #endif
-#ifdef USING_NVDEC
+#if CONFIG_NVDEC
 #include "mythnvdecinterop.h"
 #endif
 #ifdef USING_MMAL
@@ -60,7 +60,7 @@ void MythOpenGLInterop::GetTypes(MythRender* Render, InteropMap& Types)
     MythVTBInterop::GetVTBTypes(openglrender, Types);
 #endif
 
-#ifdef USING_NVDEC
+#if CONFIG_NVDEC
     MythNVDECInterop::GetNVDECTypes(openglrender, Types);
 #endif
 }

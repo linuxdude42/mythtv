@@ -26,7 +26,7 @@ void MythVideoOutputNull::GetRenderOptions(RenderOptions& Options)
     if (Options.decoders->contains("vdpau-dec"))
         (*Options.safe_renderers)["vdpau-dec"].append("null");
 #endif
-#ifdef USING_NVDEC
+#if CONFIG_NVDEC
     if (Options.decoders->contains("nvdec-dec"))
         (*Options.safe_renderers)["nvdec-dec"].append("null");
 #endif

@@ -524,7 +524,6 @@ using_frontend {
     }
 
     using_nvdec {
-        DEFINES += USING_NVDEC
         HEADERS += decoders/mythnvdeccontext.h
         SOURCES += decoders/mythnvdeccontext.cpp
         INCLUDEPATH += ../../external/nv-codec-headers/include

@@ -1158,7 +1158,7 @@ void MythVideoProfile::CreateProfiles(const QString &HostName)
     }
 #endif
 
-#if defined(USING_NVDEC) && defined(USING_OPENGL)
+#if CONFIG_NVDEC && defined(USING_OPENGL)
     if (!profiles.contains("NVDEC Normal"))
     {
         (void)tr("NVDEC Normal", "Sample: NVDEC Normal");

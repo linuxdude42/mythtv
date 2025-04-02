@@ -49,7 +49,7 @@ if(NOT CMAKE_CROSSCOMPILING
     string(FIND ${_output} cuvid CUVID_OFFSET)
     if(NOT CUVID_OFFSET EQUAL -1)
       message(STATUS "FFmpeg supports NVDEC.  Enabling support in MythTV.")
-      target_compile_definitions(PkgConfig::FFNVCODEC INTERFACE USING_NVDEC)
+      set(CONFIG_NVDEC TRUE)
     endif()
   endif()
 endif()
