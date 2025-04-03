@@ -38,7 +38,7 @@ void MythVideoOutputNull::GetRenderOptions(RenderOptions& Options)
     if (Options.decoders->contains("mediacodec-dec"))
         (*Options.safe_renderers)["mediacodec-dec"].append("null");
 #endif
-#ifdef USING_V4L2
+#if CONFIG_V4L2
     if (Options.decoders->contains("v4l2-dec"))
         (*Options.safe_renderers)["v4l2-dec"].append("null");
 #endif

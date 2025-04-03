@@ -1199,7 +1199,7 @@ void MythVideoProfile::CreateProfiles(const QString &HostName)
     }
 #endif
 
-#if defined(USING_V4L2)
+#if CONFIG_V4L2
     if (!profiles.contains("V4L2 Codecs"))
     {
         (void)tr("V4L2 Codecs", "Sample: V4L2");

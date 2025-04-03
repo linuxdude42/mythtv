@@ -366,12 +366,11 @@ if(ENABLE_V4L2)
     add_build_config(PkgConfig::V4L2 "v4l2")
     if(TARGET PkgConfig::V4L2)
       set(CONFIG_V4L2 TRUE)
-      target_compile_definitions(PkgConfig::V4L2 INTERFACE USING_V4L2)
       if(TARGET PkgConfig::DRM
          AND NOT APPLE
          AND NOT WIN32)
         add_build_config(TRUE "v4l2prime")
-        target_compile_definitions(PkgConfig::V4L2 INTERFACE USING_V4L2PRIME)
+        set(CONFIG_V4L2PRIME TRUE)
       endif()
     endif()
   endif()

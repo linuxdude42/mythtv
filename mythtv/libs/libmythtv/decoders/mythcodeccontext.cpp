@@ -46,7 +46,7 @@
 #ifdef USING_MEDIACODEC
 #include "mythmediacodeccontext.h"
 #endif
-#ifdef USING_V4L2
+#if CONFIG_V4L2
 #include "mythv4l2m2mcontext.h"
 #endif
 #ifdef USING_MMAL
@@ -98,7 +98,7 @@ MythCodecContext *MythCodecContext::CreateContext(DecoderBase *Parent,
     if (codec_is_mediacodec(Codec) || codec_is_mediacodec_dec(Codec))
         mctx = new MythMediaCodecContext(Parent, Codec);
 #endif
-#ifdef USING_V4L2
+#if CONFIG_V4L2
     if (codec_is_v4l2_dec(Codec) || codec_is_v4l2(Codec))
         mctx = new MythV4L2M2MContext(Parent, Codec);
 #endif
@@ -135,7 +135,7 @@ QStringList MythCodecContext::GetDecoderDescription(void)
 #ifdef USING_MMAL
     MythMMALContext::GetDecoderList(decoders);
 #endif
-#ifdef USING_V4L2
+#if CONFIG_V4L2
     MythV4L2M2MContext::GetDecoderList(decoders);
 #endif
 #ifdef USING_VTB
@@ -214,10 +214,10 @@ void MythCodecContext::GetDecoders(RenderOptions &Opts, bool Reinit /*=false*/)
         (*Opts.equiv_decoders)["vtb-dec"].append("dummy");
     }
 #endif
-#ifdef USING_V4L2
+#if CONFIG_V4L2
     if (MythV4L2M2MContext::HaveV4L2Codecs(Reinit))
     {
-#ifdef USING_V4L2PRIME
+#if CONFIG_V4L2PRIME
         Opts.decoders->append("v4l2");
         (*Opts.equiv_decoders)["v4l2"].append("dummy");
 #endif
@@ -285,7 +285,7 @@ MythCodecID MythCodecContext::FindDecoder(const QString &Decoder,
     if (codec_is_nvdec(result) || codec_is_nvdec_dec(result))
         return result;
 #endif
-#ifdef USING_V4L2
+#if CONFIG_V4L2
     result = MythV4L2M2MContext::GetSupportedCodec(Context, Codec, Decoder, Stream, streamtype);
     if (codec_is_v4l2_dec(result) || codec_is_v4l2(result))
         return result;

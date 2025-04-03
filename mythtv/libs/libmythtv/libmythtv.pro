@@ -493,10 +493,6 @@ using_frontend {
         QMAKE_CXXFLAGS += -isystem /opt/vc/include
     }
 
-    using_v4l2prime {
-        DEFINES += USING_V4L2PRIME
-    }
-
     using_vdpau:using_x11 {
         HEADERS += decoders/mythvdpaucontext.h   decoders/mythvdpauhelper.h
         SOURCES += decoders/mythvdpaucontext.cpp decoders/mythvdpauhelper.cpp
@@ -704,7 +700,6 @@ using_frontend {
 if(using_backend|using_frontend):using_v4l2 {
     HEADERS += v4l2util.h
     SOURCES += v4l2util.cpp
-    DEFINES += USING_V4L2
 }
 
 using_backend {
