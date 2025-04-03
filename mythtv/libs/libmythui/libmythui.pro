@@ -205,7 +205,6 @@ using_qtprivateheaders {
 
 # Use MMAL as a proxy for Raspberry Pi support
 using_mmal {
-    DEFINES += USING_MMAL
     HEADERS += platforms/mythdisplayrpi.h
     SOURCES += platforms/mythdisplayrpi.cpp
     LIBS    += -L/opt/vc/lib -lvchostif -lvchiq_arm

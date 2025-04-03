@@ -42,7 +42,7 @@ void MythVideoOutputNull::GetRenderOptions(RenderOptions& Options)
     if (Options.decoders->contains("v4l2-dec"))
         (*Options.safe_renderers)["v4l2-dec"].append("null");
 #endif
-#ifdef USING_MMAL
+#if CONFIG_MMAL
     if (Options.decoders->contains("mmal-dec"))
         (*Options.safe_renderers)["mmal-dec"].append("null");
 #endif

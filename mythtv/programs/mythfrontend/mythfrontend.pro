@@ -121,8 +121,6 @@ win32 : !debug {
     DEFINES += WINDOWS_CLOSE_CONSOLE
 }
 
-using_mmal:DEFINES += USING_MMAL
-
 using_libcec: DEFINES += USING_LIBCEC
 macx:      DEFINES += USING_COREAUDIO
 using_libdns_sd {

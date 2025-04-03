@@ -21,7 +21,7 @@
 #if CONFIG_NVDEC
 #include "mythnvdecinterop.h"
 #endif
-#ifdef USING_MMAL
+#if CONFIG_MMAL
 #include "mythmmalinterop.h"
 #endif
 #if CONFIG_EGL
@@ -52,7 +52,7 @@ void MythOpenGLInterop::GetTypes(MythRender* Render, InteropMap& Types)
     MythDRMPRIMEInterop::GetDRMTypes(openglrender, Types);
 #endif
 
-#ifdef USING_MMAL
+#if CONFIG_MMAL
     MythMMALInterop::GetMMALTypes(openglrender, Types);
 #endif
 

@@ -23,6 +23,4 @@ macx {
     }
 }
 
-using_mmal:DEFINES += USING_MMAL
-
 macx:      DEFINES += USING_COREAUDIO

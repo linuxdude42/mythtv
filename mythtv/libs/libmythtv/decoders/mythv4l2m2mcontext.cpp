@@ -20,7 +20,7 @@
 #endif
 #include "decoders/mythv4l2m2mcontext.h"
 
-#ifdef USING_MMAL
+#if CONFIG_MMAL
 #include "decoders/mythmmalcontext.h"
 #endif
 
@@ -95,7 +95,7 @@ MythCodecID MythV4L2M2MContext::GetSupportedCodec(AVCodecContext **Context,
         request = true;
     }
 
-#ifdef USING_MMAL
+#if CONFIG_MMAL
     // If MMAL is available, assume this is a Raspberry Pi and check the supported
     // video sizes
     if (!MythMMALContext::CheckCodecSize((*Context)->width, (*Context)->height, mythprofile))

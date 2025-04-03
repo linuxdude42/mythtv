@@ -46,7 +46,7 @@
 #if defined(Q_OS_WIN)
 #include "platforms/mythdisplaywindows.h"
 #endif
-#ifdef USING_MMAL
+#if CONFIG_MMAL
 #include "platforms/mythdisplayrpi.h"
 #endif
 
@@ -109,7 +109,7 @@ MythDisplay* MythDisplay::Create([[maybe_unused]] MythMainWindow* MainWindow)
     {
         result = new MythDisplayDRM(MainWindow);
         // On the Pi, use MythDisplayRPI if mode switching is not available via DRM
-#ifdef USING_MMAL
+#if CONFIG_MMAL
         if (!result->VideoModesAvailable())
         {
             delete result;
@@ -118,7 +118,7 @@ MythDisplay* MythDisplay::Create([[maybe_unused]] MythMainWindow* MainWindow)
 #endif
     }
 #endif
-#ifdef USING_MMAL
+#if CONFIG_MMAL
     if (!result)
         result = new MythDisplayRPI();
 #endif

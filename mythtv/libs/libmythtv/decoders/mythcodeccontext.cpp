@@ -49,7 +49,7 @@
 #if CONFIG_V4L2
 #include "mythv4l2m2mcontext.h"
 #endif
-#ifdef USING_MMAL
+#if CONFIG_MMAL
 #include "mythmmalcontext.h"
 #endif
 #if CONFIG_EGL
@@ -102,7 +102,7 @@ MythCodecContext *MythCodecContext::CreateContext(DecoderBase *Parent,
     if (codec_is_v4l2_dec(Codec) || codec_is_v4l2(Codec))
         mctx = new MythV4L2M2MContext(Parent, Codec);
 #endif
-#ifdef USING_MMAL
+#if CONFIG_MMAL
     if (codec_is_mmal_dec(Codec) || codec_is_mmal(Codec))
         mctx = new MythMMALContext(Parent, Codec);
 #endif
@@ -132,7 +132,7 @@ QStringList MythCodecContext::GetDecoderDescription(void)
 #if CONFIG_NVDEC
     MythNVDECContext::GetDecoderList(decoders);
 #endif
-#ifdef USING_MMAL
+#if CONFIG_MMAL
     MythMMALContext::GetDecoderList(decoders);
 #endif
 #if CONFIG_V4L2
@@ -232,7 +232,7 @@ void MythCodecContext::GetDecoders(RenderOptions &Opts, bool Reinit /*=false*/)
         (*Opts.equiv_decoders)["drmprime"].append("dummy");
     }
 #endif
-#ifdef USING_MMAL
+#if CONFIG_MMAL
     if (MythMMALContext::HaveMMAL(Reinit))
     {
         Opts.decoders->append("mmal-dec");
@@ -290,7 +290,8 @@ MythCodecID MythCodecContext::FindDecoder(const QString &Decoder,
     if (codec_is_v4l2_dec(result) || codec_is_v4l2(result))
         return result;
 #endif
-#ifdef USING_MMAL
+#if CONFIG_MMAL
+    xxx
     result = MythMMALContext::GetSupportedCodec(Context, Codec, Decoder, Stream, streamtype);
     if (codec_is_mmal_dec(result) || codec_is_mmal(result))
         return result;

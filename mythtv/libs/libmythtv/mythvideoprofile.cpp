@@ -1185,7 +1185,7 @@ void MythVideoProfile::CreateProfiles(const QString &HostName)
     }
 #endif
 
-#if defined(USING_MMAL) && CONFIG_OPENGL
+#if CONFIG_MMAL && CONFIG_OPENGL
     if (!profiles.contains("MMAL"))
     {
         (void)tr("MMAL", "Sample: MMAL");
