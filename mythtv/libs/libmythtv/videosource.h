@@ -5,6 +5,7 @@
 #include <vector>
 
 // MythTV headers
+#include "libmythbase/mythconfig.h"
 #include "libmythui/standardsettings.h"
 #include "libmythbase/mthread.h"
 
@@ -329,7 +330,7 @@ public:
     static void fillSelections(MythUIComboBoxSetting* setting);
 };
 
-#ifdef USING_HDHOMERUN
+#if CONFIG_HDHOMERUN
 
 class UseHDHomeRunDevice;
 class HDHomeRunDevice
@@ -377,7 +378,7 @@ class HDHomeRunDeviceID : public MythUITextEditSetting
   private:
     HDHomeRunConfigurationGroup &m_group;
 };
-#endif  // USING_HDHOMERUN
+#endif  // CONFIG_HDHOMERUN
 
 #ifdef USING_SATIP
 

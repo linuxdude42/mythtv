@@ -729,7 +729,7 @@ ChannelBase *ChannelBase::CreateChannel(
         channel = new FirewireChannel(tvrec, genOpt.m_videoDev, fwOpt);
 #endif
     }
-#ifdef USING_HDHOMERUN
+#if CONFIG_HDHOMERUN
     else if (genOpt.m_inputType == "HDHOMERUN")
     {
         channel = new HDHRChannel(tvrec, genOpt.m_videoDev);

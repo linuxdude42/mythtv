@@ -57,7 +57,7 @@
 #include "recorders/vboxutils.h"
 #endif
 
-#ifdef USING_HDHOMERUN
+#if CONFIG_HDHOMERUN
 #include HDHOMERUN_HEADERFILE
 #endif
 
@@ -1397,7 +1397,7 @@ static void FirewireConfigurationGroup(CaptureCard& parent, CardType& cardtype)
 }
 #endif
 
-#ifdef USING_HDHOMERUN
+#if CONFIG_HDHOMERUN
 
 // -----------------------
 // HDHomeRun Configuration
@@ -2531,10 +2531,10 @@ CaptureCardGroup::CaptureCardGroup(CaptureCard &parent)
                                new HDPVRConfigurationGroup(parent, *cardtype));
 #endif // CONFIG_V4L2
 
-#ifdef USING_HDHOMERUN
+#if CONFIG_HDHOMERUN
     cardtype->addTargetedChild("HDHOMERUN",
                                new HDHomeRunConfigurationGroup(parent, *cardtype));
-#endif // USING_HDHOMERUN
+#endif // CONFIG_HDHOMERUN
 
 #ifdef USING_VBOX
     cardtype->addTargetedChild("VBOX",
@@ -2731,10 +2731,10 @@ void CardType::fillSelections(MythUIComboBoxSetting* setting)
         QObject::tr("HD-PVR H.264 encoder"), "HDPVR");
 #endif // CONFIG_V4L2
 
-#ifdef USING_HDHOMERUN
+#if CONFIG_HDHOMERUN
     setting->addSelection(
         QObject::tr("HDHomeRun networked tuner"), "HDHOMERUN");
-#endif // USING_HDHOMERUN
+#endif // CONFIG_HDHOMERUN
 
 #ifdef USING_SATIP
     setting->addSelection(

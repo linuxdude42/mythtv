@@ -34,6 +34,8 @@
 #include <QCoreApplication>
 
 // MythTV headers
+#include "libmythbase/mythconfig.h"
+
 #include "libmythtv/cardutil.h"
 #include "libmythtv/dtvconfparser.h"
 #include "libmythtv/mythtvexp.h"
@@ -50,7 +52,7 @@
 #include "externrecscanner.h"
 #endif
 
-#ifdef USING_HDHOMERUN
+#if CONFIG_HDHOMERUN
 #include "hdhrchannelfetcher.h"
 #endif
 
@@ -144,7 +146,7 @@ class MTV_PUBLIC ChannelScanner
     ExternRecChannelScanner *m_externRecScanner    {nullptr};
 #endif
     // HDHomeRun channel list import
-#ifdef USING_HDHOMERUN
+#if CONFIG_HDHOMERUN
     HDHRChannelFetcher      *m_hdhrScanner         {nullptr};
 #endif
 

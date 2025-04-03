@@ -908,7 +908,6 @@ using_backend {
         HEADERS *= recorders/streamhandler.h
         SOURCES *= recorders/streamhandler.cpp
 
-        DEFINES += USING_HDHOMERUN
         DEFINES += HDHOMERUN_HEADERFILE=\\\"$${HDHOMERUN_PREFIX}hdhomerun.h\\\"
         DEFINES += HDHOMERUN_VERSION=$${HDHOMERUN_VERSION}
     }

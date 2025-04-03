@@ -430,7 +430,7 @@ bool ChannelScanner::ImportHDHR([[maybe_unused]] uint cardid,
                                 [[maybe_unused]] ServiceRequirements serviceType)
 {
     m_sourceid = sourceid;
-#ifdef USING_HDHOMERUN
+#if CONFIG_HDHOMERUN
     if (!m_scanMonitor)
         m_scanMonitor = new ScanMonitor(this);
 
@@ -507,13 +507,13 @@ void ChannelScanner::PreScanCommon(
         m_channel = new V4LChannel(nullptr, device);
 #endif
 
-#ifdef USING_HDHOMERUN
+#if CONFIG_HDHOMERUN
     if ("HDHOMERUN" == card_type)
     {
         m_channel = new HDHRChannel(nullptr, device);
         monitor_snr = true;
     }
-#endif // USING_HDHOMERUN
+#endif // CONFIG_HDHOMERUN
 
 #ifdef USING_SATIP
     if ("SATIP" == card_type)

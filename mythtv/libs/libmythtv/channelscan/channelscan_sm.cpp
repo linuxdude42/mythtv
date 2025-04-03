@@ -1954,7 +1954,7 @@ const DTVChannel *ChannelScanSM::GetDTVChannel(void) const
 
 HDHRChannel *ChannelScanSM::GetHDHRChannel(void)
 {
-#ifdef USING_HDHOMERUN
+#if CONFIG_HDHOMERUN
     return dynamic_cast<HDHRChannel*>(m_channel);
 #else
     return nullptr;

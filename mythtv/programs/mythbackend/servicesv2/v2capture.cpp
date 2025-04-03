@@ -287,14 +287,14 @@ V2CardSubType* V2Capture::GetCardSubType     ( int CardId     )
     bool HDHRdoesDVBC = false;
     bool HDHRdoesDVB = false;
 
-#ifdef USING_HDHOMERUN
+#if CONFIG_HDHOMERUN
     if (cardType == CardUtil::INPUT_TYPES::HDHOMERUN)
     {
         QString device = CardUtil::GetVideoDevice(CardId);
         HDHRdoesDVBC = CardUtil::HDHRdoesDVBC(device);
         HDHRdoesDVB = CardUtil::HDHRdoesDVB(device);
     }
-#endif // USING_HDHOMERUN
+#endif // CONFIG_HDHOMERUN
 
     pCardType->setCardId(CardId);
     pCardType->setSubType (subtype);
@@ -462,10 +462,10 @@ V2CardTypeList*  V2Capture::GetCardTypeList ( )
         QObject::tr("HD-PVR H.264 encoder"), "HDPVR");
 #endif // CONFIG_V4L2
 
-#ifdef USING_HDHOMERUN
+#if CONFIG_HDHOMERUN
     pCardTypeList->AddCardType(
         QObject::tr("HDHomeRun networked tuner"), "HDHOMERUN");
-#endif // USING_HDHOMERUN
+#endif // CONFIG_HDHOMERUN
 
 #ifdef USING_SATIP
     pCardTypeList->AddCardType(

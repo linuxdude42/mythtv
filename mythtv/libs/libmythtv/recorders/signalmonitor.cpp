@@ -34,7 +34,7 @@ extern "C" {
 #   include "v4lchannel.h"
 #endif
 
-#ifdef USING_HDHOMERUN
+#if CONFIG_HDHOMERUN
 #   include "hdhrsignalmonitor.h"
 #   include "hdhrchannel.h"
 #endif
@@ -128,7 +128,7 @@ SignalMonitor *SignalMonitor::Init([[maybe_unused]] const QString& cardtype,
     }
 #endif
 
-#ifdef USING_HDHOMERUN
+#if CONFIG_HDHOMERUN
     else if (cardtype.toUpper() == "HDHOMERUN")
     {
         auto *hdhrc = dynamic_cast<HDHRChannel*>(channel);

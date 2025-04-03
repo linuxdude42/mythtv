@@ -39,7 +39,7 @@
 #include "v4l2util.h"
 #endif
 
-#ifdef USING_HDHOMERUN
+#if CONFIG_HDHOMERUN
 #include HDHOMERUN_HEADERFILE
 #endif
 
@@ -81,9 +81,9 @@ QString CardUtil::GetScanableInputTypes(void)
     inputTypes += "'VBOX'";
 #endif // USING_VBOX
 
-#ifdef USING_HDHOMERUN
+#if CONFIG_HDHOMERUN
     inputTypes += "'HDHOMERUN'";
-#endif // USING_HDHOMERUN
+#endif // CONFIG_HDHOMERUN
 
 #ifdef USING_SATIP
     inputTypes += "'SATIP'";
@@ -112,7 +112,7 @@ bool CardUtil::IsCableCardPresent([[maybe_unused]] uint inputid,
 {
     if (inputType == "HDHOMERUN")
     {
-#ifdef USING_HDHOMERUN
+#if CONFIG_HDHOMERUN
         hdhomerun_tuner_status_t status {};
         QString device = GetVideoDevice(inputid);
         hdhomerun_device_t *hdhr =
@@ -483,7 +483,7 @@ QStringList CardUtil::ProbeVideoDevices(const QString &rawtype)
             break;
         }
     }
-#ifdef USING_HDHOMERUN
+#if CONFIG_HDHOMERUN
     else if (rawtype.toUpper() == "HDHOMERUN")
     {
 #if HDHOMERUN_VERSION >= 20221010
@@ -600,7 +600,7 @@ QStringList CardUtil::ProbeVideoDevices(const QString &rawtype)
         }
 #endif // HDHOMERUN_VERSION >= 20221010
     }
-#endif // USING_HDHOMERUN
+#endif // CONFIG_HDHOMERUN
 #ifdef USING_SATIP
     else if (rawtype.toUpper() == "SATIP")
     {
@@ -3080,7 +3080,7 @@ QString CardUtil::GetDeviceName(dvb_dev_type_t type, const QString &device)
 
 bool CardUtil::HDHRdoesDVB([[maybe_unused]] const QString &device)
 {
-#ifdef USING_HDHOMERUN
+#if CONFIG_HDHOMERUN
     hdhomerun_device_t *hdhr =
         hdhomerun_device_create_from_str(device.toLatin1(), nullptr);
     if (!hdhr)
@@ -3106,7 +3106,7 @@ bool CardUtil::HDHRdoesDVB([[maybe_unused]] const QString &device)
 
 bool CardUtil::HDHRdoesDVBC([[maybe_unused]] const QString &device)
 {
-#ifdef USING_HDHOMERUN
+#if CONFIG_HDHOMERUN
     hdhomerun_device_t *hdhr =
         hdhomerun_device_create_from_str(device.toLatin1(), nullptr);
     if (!hdhr)
@@ -3134,7 +3134,7 @@ QString CardUtil::GetHDHRdesc([[maybe_unused]] const QString &device)
 {
     QString connectErr = QObject::tr("Unable to connect to device.");
 
-#ifdef USING_HDHOMERUN
+#if CONFIG_HDHOMERUN
     [[maybe_unused]] bool deviceIsIP = false;
 
     if (device.contains('.'))  // Simplistic check, but also allows DNS names

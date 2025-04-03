@@ -88,7 +88,7 @@ void ChannelScannerGUI::HandleEvent(const ScannerEvent *scanEvent)
 #if !defined( USING_MINGW ) && !defined( _MSC_VER )
         success |= (m_externRecScanner != nullptr);
 #endif
-#ifdef USING_HDHOMERUN
+#if CONFIG_HDHOMERUN
         success |= (m_hdhrScanner != nullptr);
 #endif
 

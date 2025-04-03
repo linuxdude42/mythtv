@@ -909,7 +909,7 @@ RecorderBase *RecorderBase::CreateRecorder(
             recorder = new FirewireRecorder(tvrec, dynamic_cast<FirewireChannel*>(channel));
     }
 #endif // CONFIG_FIREWIRE
-#ifdef USING_HDHOMERUN
+#if CONFIG_HDHOMERUN
     else if (genOpt.m_inputType == "HDHOMERUN")
     {
         if (dynamic_cast<HDHRChannel*>(channel))
@@ -918,7 +918,7 @@ RecorderBase *RecorderBase::CreateRecorder(
             recorder->SetBoolOption("wait_for_seqstart", genOpt.m_waitForSeqstart);
         }
     }
-#endif // USING_HDHOMERUN
+#endif // CONFIG_HDHOMERUN
 #ifdef USING_CETON
     else if (genOpt.m_inputType == "CETON")
     {
