@@ -37,6 +37,7 @@
 #cmakedefine01 CONFIG_EGL
 #cmakedefine01 CONFIG_FORCE_LOGLONG
 #cmakedefine01 CONFIG_LIBCEC
+#cmakedefine01 CONFIG_LIBCRYPTO
 #cmakedefine01 CONFIG_LIBDNS_SD
 #cmakedefine01 CONFIG_LIBGLSLANG
 #cmakedefine01 CONFIG_LIBMP3LAME
