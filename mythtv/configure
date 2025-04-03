@@ -7056,7 +7056,7 @@ if enabled dvb && non_standard_header $dvb_path; then
 fi
 
 if enabled libcec; then
-  append CONFIG_DEFINES "using_libcec"
+  append CONFIG_DEFINES "config_libcec"
   if non_standard_header $libcec_path; then
     append CONFIG_INCLUDEPATH "$libcec_path"
   fi
