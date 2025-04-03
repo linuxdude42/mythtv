@@ -109,8 +109,7 @@ if(TARGET ${QT_PKG_NAME}::DBus)
 endif()
 
 if(TARGET ${QT_PKG_NAME}::GuiPrivate)
-  target_compile_definitions(${QT_PKG_NAME}::GuiPrivate
-                             INTERFACE USING_QTPRIVATEHEADERS)
+  set(CONFIG_QTPRIVATEHEADERS TRUE)
 endif()
 
 if(TARGET ${QT_PKG_NAME}::Script)

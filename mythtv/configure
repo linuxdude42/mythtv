@@ -1740,6 +1740,7 @@ MYTHTV_CONFIG_LIST='
     mmal
     opengl
     egl
+    qtprivateheaders
     qtwebengine
     qtscript
     qtdbus

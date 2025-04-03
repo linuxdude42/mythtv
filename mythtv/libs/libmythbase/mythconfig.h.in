@@ -48,6 +48,7 @@
 #cmakedefine01 CONFIG_NVDEC
 #cmakedefine01 CONFIG_OPENGL
 #cmakedefine01 CONFIG_QTDBUS
+#cmakedefine01 CONFIG_QTPRIVATEHEADERS
 #cmakedefine01 CONFIG_QTSCRIPT
 #cmakedefine01 CONFIG_QTWEBENGINE
 #cmakedefine01 CONFIG_SQLITE3
