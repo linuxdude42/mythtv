@@ -32,6 +32,7 @@
 #cmakedefine01 CONFIG_AUDIO_PULSEOUTPUT
 #cmakedefine01 CONFIG_BINDINGS_PYTHON
 #cmakedefine01 CONFIG_DARWIN
+#cmakedefine01 CONFIG_DXVA2
 #cmakedefine01 CONFIG_EGL
 #cmakedefine01 CONFIG_FORCE_LOGLONG
 #cmakedefine01 CONFIG_LIBDNS_SD
