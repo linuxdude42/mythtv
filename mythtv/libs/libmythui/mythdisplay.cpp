@@ -1200,7 +1200,7 @@ void MythDisplay::ConfigureQtGUI(int SwapInterval, const MythCommandLineParser& 
     QApplication::setDesktopSettingsAware(false);
 #endif
 
-#if defined (USING_DRM) && defined (USING_QTPRIVATEHEADERS)
+#if defined (USING_DRM) && CONFIG_QTPRIVATEHEADERS
     // Avoid trying to setup DRM if we are definitely not going to use it.
 #if CONFIG_X11
     if (!MythDisplayX11::IsAvailable())

@@ -189,7 +189,6 @@ using_drm {
 
 using_qtprivateheaders {
     QT += gui-private
-    DEFINES += USING_QTPRIVATEHEADERS
 
     using_waylandextras {
         DEFINES += USING_WAYLANDEXTRAS
