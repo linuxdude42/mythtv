@@ -929,7 +929,7 @@ RecorderBase *RecorderBase::CreateRecorder(
         }
     }
 #endif // USING_CETON
-#ifdef USING_DVB
+#if CONFIG_DVB
     else if (genOpt.m_inputType == "DVB")
     {
         if (dynamic_cast<DVBChannel*>(channel))
@@ -938,7 +938,7 @@ RecorderBase *RecorderBase::CreateRecorder(
             recorder->SetBoolOption("wait_for_seqstart", genOpt.m_waitForSeqstart);
         }
     }
-#endif // USING_DVB
+#endif // CONFIG_DVB
 #ifdef USING_IPTV
     else if (genOpt.m_inputType == "FREEBOX")
     {

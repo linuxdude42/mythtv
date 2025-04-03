@@ -1002,8 +1002,6 @@ using_backend {
         # Misc
         HEADERS += recorders/dvbdev/dvbci.h
         SOURCES += recorders/dvbdev/dvbci.cpp
-
-        DEFINES += USING_DVB
     }
 
     using_asi {

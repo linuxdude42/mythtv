@@ -49,7 +49,7 @@
 #include "v4l2util.h"
 #include "videosource.h"
 
-#ifdef USING_DVB
+#if CONFIG_DVB
 #include "recorders/dvbtypes.h"
 #endif
 
@@ -2521,10 +2521,10 @@ CaptureCardGroup::CaptureCardGroup(CaptureCard &parent)
     auto* cardtype = new CardType(parent);
     parent.addChild(cardtype);
 
-#ifdef USING_DVB
+#if CONFIG_DVB
     cardtype->addTargetedChild("DVB",
                                new DVBConfigurationGroup(parent, *cardtype));
-#endif // USING_DVB
+#endif // CONFIG_DVB
 
 #if CONFIG_V4L2
     cardtype->addTargetedChild("HDPVR",
@@ -2719,10 +2719,10 @@ CardType::CardType(const CaptureCard &parent) :
 
 void CardType::fillSelections(MythUIComboBoxSetting* setting)
 {
-#ifdef USING_DVB
+#if CONFIG_DVB
     setting->addSelection(
         QObject::tr("DVB-T/S/C, ATSC or ISDB-T tuner card"), "DVB");
-#endif // USING_DVB
+#endif // CONFIG_DVB
 
 #if CONFIG_V4L2
     setting->addSelection(
@@ -3734,7 +3734,7 @@ void CardInputEditor::Load(void)
     GroupSetting::Load();
 }
 
-#ifdef USING_DVB
+#if CONFIG_DVB
 static QString remove_chaff(const QString &name)
 {
     // Trim off some of the chaff.
@@ -3775,7 +3775,7 @@ static QString remove_chaff(const QString &name)
 
     return short_name;
 }
-#endif // USING_DVB
+#endif // CONFIG_DVB
 
 void DVBConfigurationGroup::reloadDiseqcTree(const QString &videodevice)
 {
@@ -3810,7 +3810,7 @@ void DVBConfigurationGroup::probeCard(const QString &videodevice)
         return;
     }
 
-#ifdef USING_DVB
+#if CONFIG_DVB
     QString frontend_name = CardUtil::ProbeDVBFrontendName(videodevice);
     QString subtype = CardUtil::ProbeDVBType(videodevice);
 

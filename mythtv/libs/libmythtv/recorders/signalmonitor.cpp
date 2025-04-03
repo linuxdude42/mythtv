@@ -21,7 +21,7 @@ extern "C" {
 #include "libavcodec/avcodec.h"
 }
 
-#ifdef USING_DVB
+#if CONFIG_DVB
 #   include "dvbsignalmonitor.h"
 #   include "dvbchannel.h"
 #endif
@@ -101,7 +101,7 @@ SignalMonitor *SignalMonitor::Init([[maybe_unused]] const QString& cardtype,
         // This lets all the conditionally compiled tests be set up as
         // 'else if' statements
     }
-#ifdef USING_DVB
+#if CONFIG_DVB
     else if (CardUtil::IsDVBInputType(cardtype))
     {
         auto *dvbc = dynamic_cast<DVBChannel*>(channel);

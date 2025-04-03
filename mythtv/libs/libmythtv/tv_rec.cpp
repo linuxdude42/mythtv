@@ -4936,7 +4936,7 @@ QString TuningRequest::toString(void) const
              TVRec::FlagToString(m_flags));
 }
 
-#ifdef USING_DVB
+#if CONFIG_DVB
 #include "recorders/dvbchannel.h"
 static void apply_broken_dvb_driver_crc_hack(ChannelBase *c, MPEGStreamData *s)
 {
@@ -4949,6 +4949,6 @@ static void apply_broken_dvb_driver_crc_hack(ChannelBase *c, MPEGStreamData *s)
 }
 #else
 static void apply_broken_dvb_driver_crc_hack(ChannelBase*, MPEGStreamData*) {}
-#endif // USING_DVB
+#endif // CONFIG_DVB
 
 /* vim: set expandtab tabstop=4 shiftwidth=4: */

@@ -39,7 +39,7 @@
 #include "recorders/ExternalChannel.h"
 #include "recorders/analogsignalmonitor.h"
 #include "recorders/asichannel.h"
-#ifdef USING_DVB        // for bug in gcc 8.3
+#if CONFIG_DVB        // for bug in gcc 8.3
 #include "recorders/dvbchannel.h"
 #endif
 #include "recorders/dvbsignalmonitor.h"
@@ -473,7 +473,7 @@ void ChannelScanner::PreScanCommon(
 
     QString card_type = CardUtil::GetRawInputType(cardid);
 
-#ifdef USING_DVB
+#if CONFIG_DVB
     if ("DVB" == card_type)
     {
         QString sub_type = CardUtil::ProbeDVBType(device).toUpper();
@@ -617,14 +617,14 @@ void ChannelScanner::PreScanCommon(
 
     bool using_rotor = false;
 
-#ifdef USING_DVB
+#if CONFIG_DVB
     DVBSignalMonitor *dvbm = m_sigmonScanner->GetDVBSignalMonitor();
     if (dvbm && mon)
     {
         monitor_snr = true;
         using_rotor = mon->HasFlags(SignalMonitor::kDVBSigMon_WaitForPos);
     }
-#endif // USING_DVB
+#endif // CONFIG_DVB
 
     bool monitor_lock = mon != nullptr;
     bool monitor_strength = mon != nullptr;

@@ -29,6 +29,8 @@
 #include <QMutex>
 
 // MythTV
+#include "libmythbase/mythconfig.h"
+
 #include "libmythui/standardsettings.h"
 #include "libmythbase/compat.h"
 #include "libmythbase/http/mythhttpmetaservice.h"
@@ -448,10 +450,10 @@ V2CardTypeList*  V2Capture::GetCardTypeList ( )
 {
     auto* pCardTypeList = new V2CardTypeList();
 
-#ifdef USING_DVB
+#if CONFIG_DVB
     pCardTypeList->AddCardType(
         QObject::tr("DVB-T/S/C, ATSC or ISDB-T tuner card"), "DVB");
-#endif // USING_DVB
+#endif // CONFIG_DVB
 
 #if CONFIG_V4L2
     pCardTypeList->AddCardType(
@@ -588,7 +590,7 @@ bool V2Capture::SetInputMaxRecordings( const uint InputId,
 }
 
 
-#ifdef USING_DVB
+#if CONFIG_DVB
 static QString remove_chaff(const QString &name)
 {
     // Trim off some of the chaff.
@@ -629,7 +631,7 @@ static QString remove_chaff(const QString &name)
 
     return short_name;
 }
-#endif // USING_DVB
+#endif // CONFIG_DVB
 
 
 
@@ -657,7 +659,7 @@ V2CaptureDeviceList* V2Capture::GetCaptureDeviceList  ( const QString  &CardType
         auto* pDev = pList->AddCaptureDevice();
         pDev->setCardType (CardType);
         pDev->setVideoDevice (it);
-#ifdef USING_DVB
+#if CONFIG_DVB
         // From DVBConfigurationGroup::probeCard in Videosource.cpp
         if (CardType == "DVB")
         {
@@ -752,7 +754,7 @@ V2CaptureDeviceList* V2Capture::GetCaptureDeviceList  ( const QString  &CardType
             pDev->setChannelTimeout ( channelTimeout );
             pDev->setTuningDelay ( tuningDelay );
         } // endif (CardType == "DVB")
-#endif // USING_DVB
+#endif // CONFIG_DVB
         if (CardType == "HDHOMERUN")
         {
             pDev->setSignalTimeout ( 3000 );

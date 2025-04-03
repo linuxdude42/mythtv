@@ -716,7 +716,7 @@ ChannelBase *ChannelBase::CreateChannel(
     ChannelBase *channel = nullptr;
     if (genOpt.m_inputType == "DVB")
     {
-#ifdef USING_DVB
+#if CONFIG_DVB
         channel = new DVBChannel(genOpt.m_videoDev, tvrec);
         auto *dvbchannel = dynamic_cast<DVBChannel*>(channel);
         if (dvbchannel != nullptr)

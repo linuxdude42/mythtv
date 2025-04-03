@@ -36,6 +36,7 @@
 #cmakedefine01 CONFIG_DXVA2
 #cmakedefine01 CONFIG_DRM
 #cmakedefine01 CONFIG_DRM_VIDEO
+#cmakedefine01 CONFIG_DVB
 #cmakedefine01 CONFIG_EGL
 #cmakedefine01 CONFIG_FIREWIRE
 #cmakedefine01 CONFIG_FIREWIRE_LINUX
