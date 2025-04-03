@@ -37,6 +37,9 @@
 #cmakedefine01 CONFIG_DRM
 #cmakedefine01 CONFIG_DRM_VIDEO
 #cmakedefine01 CONFIG_EGL
+#cmakedefine01 CONFIG_FIREWIRE
+#cmakedefine01 CONFIG_FIREWIRE_LINUX
+#cmakedefine01 CONFIG_FIREWIRE_OSX
 #cmakedefine01 CONFIG_FORCE_LOGLONG
 #cmakedefine01 CONFIG_LIBCEC
 #cmakedefine01 CONFIG_LIBCRYPTO
