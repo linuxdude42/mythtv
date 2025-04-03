@@ -8,7 +8,7 @@
 #include "mythmainwindow.h"
 #include "mythscreensaver.h"
 
-#ifdef USING_DRM
+#if CONFIG_DRM
 #include "platforms/mythscreensaverdrm.h"
 #endif
 
@@ -58,7 +58,7 @@ MythScreenSaverControl::MythScreenSaverControl([[maybe_unused]] MythMainWindow* 
 #if defined(ANDROID)
     m_screenSavers.push_back(new MythScreenSaverAndroid(this));
 #endif
-#ifdef USING_DRM
+#if CONFIG_DRM
     MythScreenSaverDRM* drmsaver = MythScreenSaverDRM::Create(this, mDisplay);
     if (drmsaver)
         m_screenSavers.push_back(drmsaver);
