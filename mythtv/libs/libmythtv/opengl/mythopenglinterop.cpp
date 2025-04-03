@@ -12,7 +12,7 @@
 #ifdef USING_VTB
 #include "mythvtbinterop.h"
 #endif
-#ifdef USING_MEDIACODEC
+#if CONFIG_MEDIACODEC
 #include "decoders/mythmediacodeccontext.h"
 #endif
 #if CONFIG_VDPAU
@@ -36,7 +36,7 @@ void MythOpenGLInterop::GetTypes(MythRender* Render, InteropMap& Types)
     if (!openglrender)
         return;
 
-#ifdef USING_MEDIACODEC
+#if CONFIG_MEDIACODEC
     Types[FMT_MEDIACODEC] = { GL_MEDIACODEC };
 #endif
 

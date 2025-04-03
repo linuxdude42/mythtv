@@ -525,7 +525,6 @@ using_frontend {
     }
 
     using_mediacodec {
-        DEFINES += USING_MEDIACODEC
         HEADERS += decoders/mythmediacodeccontext.h
         SOURCES += decoders/mythmediacodeccontext.cpp
     }

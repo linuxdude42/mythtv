@@ -34,7 +34,7 @@ void MythVideoOutputNull::GetRenderOptions(RenderOptions& Options)
     if (Options.decoders->contains("vaapi-dec"))
         (*Options.safe_renderers)["vaapi-dec"].append("null");
 #endif
-#ifdef USING_MEDIACODEC
+#if CONFIG_MEDIACODEC
     if (Options.decoders->contains("mediacodec-dec"))
         (*Options.safe_renderers)["mediacodec-dec"].append("null");
 #endif

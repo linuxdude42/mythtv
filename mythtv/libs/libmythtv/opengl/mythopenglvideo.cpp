@@ -321,7 +321,7 @@ bool MythOpenGLVideo::CreateVideoShader(VideoShaderType Type, MythDeintType Dein
             glsldefines += QString("#define MYTHTV_%1\n").arg(define);
         fragment = glsldefines + YUVFragmentExtensions + ((BicubicUpsize == Type) ? BicubicShader : RGBFragmentShader);
 
-#ifdef USING_MEDIACODEC
+#if CONFIG_MEDIACODEC
         if (FMT_MEDIACODEC == m_inputType)
             vertex = MediaCodecVertexShader;
 #endif
@@ -722,7 +722,7 @@ void MythOpenGLVideo::RenderFrame(MythVideoFrame* Frame, bool TopFieldFirst, Fra
                 SetupFrameFormat(newsourcetype, newtargettype, newsize, newtargettexture);
             }
 
-#ifdef USING_MEDIACODEC
+#if CONFIG_MEDIACODEC
             // Set the texture transform for mediacodec
             if (FMT_MEDIACODEC == m_inputType)
             {

@@ -409,7 +409,7 @@ static inline bool CODEC_IS_DXVA2(const struct AVCodec */*codec*/, const AVCodec
     { return false; };
 #endif
 
-#ifdef USING_MEDIACODEC
+#if CONFIG_MEDIACODEC
 static inline bool CODEC_IS_MEDIACODEC(const struct AVCodec *codec)
     { return (codec != nullptr) && (QString("mediacodec") == codec->wrapper_name); };
 #else

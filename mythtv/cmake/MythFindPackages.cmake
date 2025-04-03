@@ -608,7 +608,7 @@ endif()
 if(ENABLE_MEDIACODEC AND ANDROID)
   message(STATUS "Adding mediacodec support")
   add_library(mediacodec INTERFACE)
-  target_compile_definitions(mediacodec INTERFACE USING_MEDIACODEC)
+  set(CONFIG_MEDIACODEC TRUE)
 endif()
 
 if(ENABLE_MHEG)

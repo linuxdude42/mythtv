@@ -43,7 +43,7 @@
 #ifdef USING_VTB
 #include "mythvtbcontext.h"
 #endif
-#ifdef USING_MEDIACODEC
+#if CONFIG_MEDIACODEC
 #include "mythmediacodeccontext.h"
 #endif
 #if CONFIG_V4L2
@@ -94,7 +94,7 @@ MythCodecContext *MythCodecContext::CreateContext(DecoderBase *Parent,
     if (codec_is_vtb_dec(Codec) || codec_is_vtb(Codec))
         mctx = new MythVTBContext(Parent, Codec);
 #endif
-#ifdef USING_MEDIACODEC
+#if CONFIG_MEDIACODEC
     if (codec_is_mediacodec(Codec) || codec_is_mediacodec_dec(Codec))
         mctx = new MythMediaCodecContext(Parent, Codec);
 #endif
@@ -126,7 +126,7 @@ QStringList MythCodecContext::GetDecoderDescription(void)
 #if CONFIG_VAAPI
     MythVAAPIContext::GetDecoderList(decoders);
 #endif
-#ifdef USING_MEDIACODEC
+#if CONFIG_MEDIACODEC
     MythMediaCodecContext::GetDecoderList(decoders);
 #endif
 #if CONFIG_NVDEC
@@ -196,7 +196,7 @@ void MythCodecContext::GetDecoders(RenderOptions &Opts, bool Reinit /*=false*/)
         (*Opts.equiv_decoders)["nvdec-dec"].append("dummy");
     }
 #endif
-#ifdef USING_MEDIACODEC
+#if CONFIG_MEDIACODEC
     if (MythMediaCodecContext::HaveMediaCodec(Reinit))
     {
         Opts.decoders->append("mediacodec");
@@ -275,7 +275,7 @@ MythCodecID MythCodecContext::FindDecoder(const QString &Decoder,
     if (codec_is_dxva2(result))
         return result;
 #endif
-#ifdef USING_MEDIACODEC
+#if CONFIG_MEDIACODEC
     result = MythMediaCodecContext::GetBestSupportedCodec(Context, Codec, Decoder, Stream, streamtype);
     if (codec_is_mediacodec(result) || codec_is_mediacodec_dec(result))
         return result;

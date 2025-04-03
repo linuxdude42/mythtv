@@ -1142,7 +1142,7 @@ void MythVideoProfile::CreateProfiles(const QString &HostName)
     }
 #endif
 
-#ifdef USING_MEDIACODEC
+#if CONFIG_MEDIACODEC
     if (!profiles.contains("MediaCodec Normal"))
     {
         (void)tr("MediaCodec Normal",
