@@ -39,7 +39,7 @@
 #include "platforms/mythdisplayx11.h"
 #include "platforms/mythnvcontrol.h"
 #endif
-#ifdef USING_DRM
+#if CONFIG_DRM
 #include "platforms/mythdisplaydrm.h"
 #include "platforms/drm/mythdrmvrr.h"
 #endif
@@ -104,7 +104,7 @@ MythDisplay* MythDisplay::Create([[maybe_unused]] MythMainWindow* MainWindow)
     //        result = MythDisplayMutter::Create();
     //}
 #endif
-#ifdef USING_DRM
+#if CONFIG_DRM
     if (!result)
     {
         result = new MythDisplayDRM(MainWindow);
@@ -1200,7 +1200,7 @@ void MythDisplay::ConfigureQtGUI(int SwapInterval, const MythCommandLineParser& 
     QApplication::setDesktopSettingsAware(false);
 #endif
 
-#if defined (USING_DRM) && CONFIG_QTPRIVATEHEADERS
+#if CONFIG_DRM && CONFIG_QTPRIVATEHEADERS
     // Avoid trying to setup DRM if we are definitely not going to use it.
 #if CONFIG_X11
     if (!MythDisplayX11::IsAvailable())

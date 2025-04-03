@@ -154,7 +154,6 @@ using_x11 {
 }
 
 using_drm {
-    DEFINES += USING_DRM
     HEADERS += platforms/mythdisplaydrm.h
     HEADERS += platforms/mythscreensaverdrm.h
     HEADERS += platforms/mythdrmdevice.h
