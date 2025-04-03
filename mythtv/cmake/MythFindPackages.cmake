@@ -390,11 +390,8 @@ if(ENABLE_LIBDNS_SD)
   endif()
   add_build_config(PkgConfig::LIBDNS_SD "libdns_sd")
   if(LIBDNS_SD_FOUND)
-    if(LIBCRYPTO_FOUND)
-      target_compile_definitions(PkgConfig::LIBDNS_SD INTERFACE USING_AIRPLAY)
-      set(CONFIG_AIRPLAY TRUE)
-    endif()
     set(CONFIG_LIBDNS_SD TRUE)
+    set(CONFIG_AIRPLAY ${LIBCRYPTO_FOUND})
   endif()
 endif()
 
@@ -483,11 +480,6 @@ if(ENABLE_LIBCEC)
 endif()
 
 if(APPLE)
-  # So far, only OS X 10.4 has this as a non-private framework
-  if(EXISTS /System/Library/Frameworks/DiskArbitration.framework/Headers)
-    set(DARWIN_DA TRUE)
-  endif()
-
   find_library(APPLE_APPLICATIONSERVICES_LIBRARY ApplicationServices)
   find_library(APPLE_AUDIOTOOLBOX_LIBRARY AudioToolbox)
   find_library(APPLE_AUDIOUNIT_LIBRARY AudioUnit)
@@ -498,6 +490,7 @@ if(APPLE)
   find_library(APPLE_COREFOUNDATION_LIBRARY CoreFoundation)
   find_library(APPLE_CORESERVICES_LIBRARY CoreServices)
   find_library(APPLE_COREVIDEO_LIBRARY CoreVideo)
+  # So far, only OS X 10.4 has this as a non-private framework
   find_library(APPLE_DISKARBITRATION_LIBRARY DiskArbitration)
   find_library(APPLE_IOKIT_LIBRARY IOKit)
   find_library(APPLE_IOSURFACE_LIBRARY IOSurface)
@@ -510,6 +503,8 @@ if(APPLE)
     message(STATUS "Firewire being disabled. FireWire SDK missing.")
     set(ENABLE_FIREWIRE OFF)
   endif()
+
+  set(CONFIG_DARWIN_DA ${APPLE_DISKARBITRATION_LIBRARY})
 
   # Take our cue on videotolbox from ffmpeg
   find_program(_ffmpeg mythffmpeg)

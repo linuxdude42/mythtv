@@ -5978,6 +5978,8 @@ if enabled x11; then
 fi
 
 if test $target_os = darwin; then
+    enabled libdns_sd && enabled libdns_sd && enable airplay
+
     # So far, only OS X 10.4 has this as a non-private framework
     if test -d /System/Library/Frameworks/DiskArbitration.framework/Headers ; then
         darwin_da="yes"
