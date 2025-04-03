@@ -190,7 +190,6 @@ using_qtprivateheaders {
     QT += gui-private
 
     using_waylandextras {
-        DEFINES += USING_WAYLANDEXTRAS
         HEADERS += platforms/mythscreensaverwayland.h
         HEADERS += platforms/mythwaylandextras.h
         HEADERS += platforms/waylandprotocols/idle_inhibit_unstable_v1.h
