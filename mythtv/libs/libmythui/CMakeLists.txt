@@ -390,7 +390,6 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
             devices/AppleRemote.h
             devices/AppleRemoteListener.cpp
             devices/AppleRemoteListener.h)
-  target_compile_definitions(mythui PRIVATE USING_APPLEREMOTE)
   if(NOT ENABLE_LIRC)
     target_sources(mythui PRIVATE devices/lircevent.cpp devices/lircevent.h)
   endif()

@@ -1709,6 +1709,7 @@ CONFIG_EXTRA="
 "
 
 MYTHTV_CONFIG_LIST='
+    appleremote
     backend
     bdjava
     bindings_perl
@@ -7045,7 +7046,7 @@ if enabled libass; then
 fi
 
 if enabled appleremote; then
-  append CONFIG_DEFINES "USING_APPLEREMOTE"
+  append CONFIG_DEFINES "CONFIG_APPLEREMOTE"
 fi
 
 if enabled dvb && non_standard_header $dvb_path; then
