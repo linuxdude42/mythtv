@@ -362,7 +362,7 @@ bool MythOpenGLVideo::CreateVideoShader(VideoShaderType Type, MythDeintType Dein
             defines << "YUY2";
         }
 
-#ifdef USING_VTB
+#if CONFIG_VIDEOTOOLBOX
         // N.B. Rectangular texture support is only currently used for VideoToolBox
         // video frames which are NV12. Do not use rectangular textures for the 'default'
         // shaders as it breaks video resizing and would require changes to our

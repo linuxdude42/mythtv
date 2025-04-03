@@ -9,7 +9,7 @@
 #if CONFIG_VAAPI
 #include "mythvaapiinterop.h"
 #endif
-#ifdef USING_VTB
+#if CONFIG_VIDEOTOOLBOX
 #include "mythvtbinterop.h"
 #endif
 #if CONFIG_MEDIACODEC
@@ -56,7 +56,7 @@ void MythOpenGLInterop::GetTypes(MythRender* Render, InteropMap& Types)
     MythMMALInterop::GetMMALTypes(openglrender, Types);
 #endif
 
-#ifdef USING_VTB
+#if CONFIG_VIDEOTOOLBOX
     MythVTBInterop::GetVTBTypes(openglrender, Types);
 #endif
 

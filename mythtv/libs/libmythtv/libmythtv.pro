@@ -50,7 +50,6 @@ macx {
     LIBS += -framework IOKit
 
     using_videotoolbox {
-        DEFINES += USING_VTB
         LIBS += -framework CoreVideo
         LIBS += -framework VideoToolbox
         LIBS += -framework IOSurface

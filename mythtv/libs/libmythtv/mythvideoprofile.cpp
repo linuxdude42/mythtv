@@ -1172,7 +1172,7 @@ void MythVideoProfile::CreateProfiles(const QString &HostName)
     }
 #endif
 
-#if defined(USING_VTB) && CONFIG_OPENGL
+#if CONFIG_VIDEOTOOLBOX && CONFIG_OPENGL
     if (!profiles.contains("VideoToolBox Normal")) {
         (void)tr("VideoToolBox Normal", "Sample: VideoToolBox Normal");
         uint groupid = CreateProfileGroup("VideoToolBox Normal", HostName);
