@@ -26,7 +26,7 @@
 #if CONFIG_QTDBUS
 #include "platforms/mythdisplaymutter.h"
 #endif
-#ifdef USING_WAYLANDEXTRAS
+#if CONFIG_WAYLANDEXTRAS
 #include "platforms/mythwaylandextras.h"
 #endif
 #ifdef Q_OS_ANDROID
@@ -96,7 +96,7 @@ MythDisplay* MythDisplay::Create([[maybe_unused]] MythMainWindow* MainWindow)
 #if CONFIG_QTDBUS
     // Disabled for now as org.gnome.Mutter.DisplayConfig.ApplyConfiguration does
     // not seem to be actually implemented by anyone.
-#ifdef USING_WAYLANDEXTRAS
+#if CONFIG_WAYLANDEXTRAS
     //if (MythWaylandDevice::IsAvailable())
 #endif
     //{
@@ -1206,7 +1206,7 @@ void MythDisplay::ConfigureQtGUI(int SwapInterval, const MythCommandLineParser& 
     if (!MythDisplayX11::IsAvailable())
 #endif
     {
-#ifdef USING_WAYLANDEXTRAS
+#if CONFIG_WAYLANDEXTRAS
         // When vt switching this still detects wayland servers, so disabled for now
         //if (!MythWaylandDevice::IsAvailable())
 #endif

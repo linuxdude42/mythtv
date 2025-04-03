@@ -1751,6 +1751,7 @@ MYTHTV_CONFIG_LIST='
     valgrind
     videotoolbox
     vulkan
+    waylandextras
     x11
     system_libexiv2
     system_libbluray

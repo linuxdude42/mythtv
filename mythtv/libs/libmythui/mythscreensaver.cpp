@@ -24,7 +24,7 @@
 #include "platforms/mythscreensaverandroid.h"
 #endif
 
-#ifdef USING_WAYLANDEXTRAS
+#if CONFIG_WAYLANDEXTRAS
 #include "platforms/mythscreensaverwayland.h"
 #endif
 
@@ -63,7 +63,7 @@ MythScreenSaverControl::MythScreenSaverControl([[maybe_unused]] MythMainWindow* 
     if (drmsaver)
         m_screenSavers.push_back(drmsaver);
 #endif
-#ifdef USING_WAYLANDEXTRAS
+#if CONFIG_WAYLANDEXTRAS
     if (QGuiApplication::platformName().toLower().contains("wayland"))
         m_screenSavers.push_back(new MythScreenSaverWayland(this, MainWin));
 #endif
