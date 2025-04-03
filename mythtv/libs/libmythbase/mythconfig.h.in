@@ -49,6 +49,7 @@
 #cmakedefine01 CONFIG_LIBMPEG2EXTERNAL
 #cmakedefine01 CONFIG_LIBX264
 #cmakedefine01 CONFIG_MEDIACODEC
+#cmakedefine01 CONFIG_MHEG
 #cmakedefine01 CONFIG_MMAL
 #cmakedefine01 CONFIG_NVDEC
 #cmakedefine01 CONFIG_OPENGL
