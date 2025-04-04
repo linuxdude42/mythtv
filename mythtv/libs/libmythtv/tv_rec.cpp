@@ -125,7 +125,7 @@ bool TVRec::CreateChannel(const QString &startchannel,
     }
 #endif
 
-#ifdef USING_SATIP
+#if CONFIG_SATIP
     if (m_genOpt.m_inputType == "SATIP")
     {
         if (!CardUtil::IsSatIPPresent(m_inputId))

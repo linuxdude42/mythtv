@@ -735,7 +735,7 @@ ChannelBase *ChannelBase::CreateChannel(
         channel = new HDHRChannel(tvrec, genOpt.m_videoDev);
     }
 #endif
-#ifdef USING_SATIP
+#if CONFIG_SATIP
     else if (genOpt.m_inputType == "SATIP")
     {
         channel = new SatIPChannel(tvrec, genOpt.m_videoDev);

@@ -515,7 +515,7 @@ void ChannelScanner::PreScanCommon(
     }
 #endif // CONFIG_HDHOMERUN
 
-#ifdef USING_SATIP
+#if CONFIG_SATIP
     if ("SATIP" == card_type)
     {
         m_channel = new SatIPChannel(nullptr, device);

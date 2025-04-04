@@ -380,7 +380,7 @@ class HDHomeRunDeviceID : public MythUITextEditSetting
 };
 #endif  // CONFIG_HDHOMERUN
 
-#ifdef USING_SATIP
+#if CONFIG_SATIP
 
 class SatIPDevice
 {
@@ -475,7 +475,7 @@ class SatIPDeviceAttribute : public GroupSetting
     SatIPDeviceAttribute(const QString& label,
                          const QString& helpText);
 };
-#endif // USING_SATIP
+#endif // CONFIG_SATIP
 
 class VBoxDevice
 {

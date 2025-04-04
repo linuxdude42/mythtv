@@ -47,7 +47,7 @@
 #include "recorders/vboxutils.h"
 #endif
 
-#ifdef USING_SATIP
+#if CONFIG_SATIP
 #include "recorders/satiputils.h"
 #endif
 
@@ -85,9 +85,9 @@ QString CardUtil::GetScanableInputTypes(void)
     inputTypes += "'HDHOMERUN'";
 #endif // CONFIG_HDHOMERUN
 
-#ifdef USING_SATIP
+#if CONFIG_SATIP
     inputTypes += "'SATIP'";
-#endif // USING_SATIP
+#endif // CONFIG_SATIP
 
 #ifdef USING_ASI
     inputTypes += "'ASI'";
@@ -601,12 +601,12 @@ QStringList CardUtil::ProbeVideoDevices(const QString &rawtype)
 #endif // HDHOMERUN_VERSION >= 20221010
     }
 #endif // CONFIG_HDHOMERUN
-#ifdef USING_SATIP
+#if CONFIG_SATIP
     else if (rawtype.toUpper() == "SATIP")
     {
         devs = SatIP::probeDevices();
     }
-#endif // USING_SATIP
+#endif // CONFIG_SATIP
 #ifdef USING_VBOX
     else if (rawtype.toUpper() == "VBOX")
     {
@@ -3467,7 +3467,7 @@ bool CardUtil::IsVBoxPresent(uint inputid)
 }
 #endif
 
-#ifdef USING_SATIP
+#if CONFIG_SATIP
 /** \fn CardUtil::IsSatIPPresent(uint inputid)
  *  \brief Returns true if the SatIP box responds to a ping
  *  \param inputid  As used in DB capturecard table field cardid

@@ -39,7 +39,7 @@ extern "C" {
 #   include "hdhrchannel.h"
 #endif
 
-#ifdef USING_SATIP
+#if CONFIG_SATIP
 #   include "satipsignalmonitor.h"
 #   include "satipchannel.h"
 #endif
@@ -138,7 +138,7 @@ SignalMonitor *SignalMonitor::Init([[maybe_unused]] const QString& cardtype,
     }
 #endif
 
-#ifdef USING_SATIP
+#if CONFIG_SATIP
     else if (cardtype.toUpper() == "SATIP")
     {
         auto *satipchan = dynamic_cast<SatIPChannel*>(channel);

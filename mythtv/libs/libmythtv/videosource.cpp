@@ -2541,10 +2541,10 @@ CaptureCardGroup::CaptureCardGroup(CaptureCard &parent)
                                new VBoxConfigurationGroup(parent, *cardtype));
 #endif // USING_VBOX
 
-#ifdef USING_SATIP
+#if CONFIG_SATIP
     cardtype->addTargetedChild("SATIP",
                                new SatIPConfigurationGroup(parent, *cardtype));
-#endif // USING_SATIP
+#endif // CONFIG_SATIP
 
 #if CONFIG_FIREWIRE
     FirewireConfigurationGroup(parent, *cardtype);
@@ -2736,10 +2736,10 @@ void CardType::fillSelections(MythUIComboBoxSetting* setting)
         QObject::tr("HDHomeRun networked tuner"), "HDHOMERUN");
 #endif // CONFIG_HDHOMERUN
 
-#ifdef USING_SATIP
+#if CONFIG_SATIP
     setting->addSelection(
         QObject::tr("Sat>IP networked tuner"), "SATIP");
-#endif // USING_SATIP
+#endif // CONFIG_SATIP
 
 #ifdef USING_VBOX
     setting->addSelection(
@@ -4053,7 +4053,7 @@ void DVBConfigurationGroup::Save(void)
 // -----------------------
 // SAT>IP configuration
 // -----------------------
-#ifdef USING_SATIP
+#if CONFIG_SATIP
 
 class DiSEqCPosition : public MythUISpinBoxSetting
 {
@@ -4254,4 +4254,4 @@ SatIPDeviceAttribute::SatIPDeviceAttribute(const QString& label, const QString& 
     setLabel(label);
     setHelpText(helptext);
 };
-#endif // USING_SATIP
+#endif // CONFIG_SATIP

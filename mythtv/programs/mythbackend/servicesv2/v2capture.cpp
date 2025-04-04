@@ -279,10 +279,10 @@ V2CardSubType* V2Capture::GetCardSubType     ( int CardId     )
     QString subtype = CardUtil::ProbeSubTypeName(CardId);
     CardUtil::INPUT_TYPES cardType = CardUtil::toInputType(subtype);
 
-#ifdef USING_SATIP
+#if CONFIG_SATIP
     if (cardType == CardUtil::INPUT_TYPES::SATIP)
         cardType = SatIP::toDVBInputType(CardUtil::GetVideoDevice(CardId));
-#endif // USING_SATIP
+#endif // CONFIG_SATIP
 
     bool HDHRdoesDVBC = false;
     bool HDHRdoesDVB = false;
@@ -467,10 +467,10 @@ V2CardTypeList*  V2Capture::GetCardTypeList ( )
         QObject::tr("HDHomeRun networked tuner"), "HDHOMERUN");
 #endif // CONFIG_HDHOMERUN
 
-#ifdef USING_SATIP
+#if CONFIG_SATIP
     pCardTypeList->AddCardType(
         QObject::tr("Sat>IP networked tuner"), "SATIP");
-#endif // USING_SATIP
+#endif // CONFIG_SATIP
 
 #ifdef USING_VBOX
     pCardTypeList->AddCardType(
@@ -760,7 +760,7 @@ V2CaptureDeviceList* V2Capture::GetCaptureDeviceList  ( const QString  &CardType
             pDev->setSignalTimeout ( 3000 );
             pDev->setChannelTimeout ( 6000 );
         }
-#ifdef USING_SATIP
+#if CONFIG_SATIP
         if (CardType == "SATIP")
         {
             pDev->setSignalTimeout ( 7000 );
@@ -778,7 +778,7 @@ V2CaptureDeviceList* V2Capture::GetCaptureDeviceList  ( const QString  &CardType
                 pDev->setTunerNumber(word[3].toUInt());
             }
         }
-#endif // USING_SATIP
+#endif // CONFIG_SATIP
 #ifdef USING_VBOX
         if (CardType == "VBOX")
         {

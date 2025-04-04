@@ -929,8 +929,6 @@ using_backend {
         SOURCES += recorders/satiprtsp.cpp
         SOURCES += recorders/satiprecorder.cpp
         SOURCES += recorders/satiprtcppacket.cpp
-
-        DEFINES += USING_SATIP
     }
 
     # Support for VBox

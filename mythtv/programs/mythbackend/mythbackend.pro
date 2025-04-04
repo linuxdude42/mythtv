@@ -103,7 +103,6 @@ SOURCES += servicesv2/v2config.cpp
 
 DEFINES +=    USING_IPTV
 
-using_satip      : DEFINES +=    USING_SATIP
 using_vbox       : DEFINES +=    USING_VBOX
 using_ceton      : DEFINES +=    USING_CETON
 using_asi        : DEFINES +=    USING_ASI
