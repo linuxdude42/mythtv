@@ -919,7 +919,7 @@ RecorderBase *RecorderBase::CreateRecorder(
         }
     }
 #endif // CONFIG_HDHOMERUN
-#ifdef USING_CETON
+#if CONFIG_CETON
     else if (genOpt.m_inputType == "CETON")
     {
         if (dynamic_cast<CetonChannel*>(channel))
@@ -928,7 +928,7 @@ RecorderBase *RecorderBase::CreateRecorder(
             recorder->SetBoolOption("wait_for_seqstart", genOpt.m_waitForSeqstart);
         }
     }
-#endif // USING_CETON
+#endif // CONFIG_CETON
 #if CONFIG_DVB
     else if (genOpt.m_inputType == "DVB")
     {

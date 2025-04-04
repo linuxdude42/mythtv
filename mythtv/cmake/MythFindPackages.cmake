@@ -427,7 +427,7 @@ if(ENABLE_CETON)
   message(STATUS "Adding ceton support")
   add_library(mythtv_ceton INTERFACE)
   add_build_config(TRUE "ceton")
-  target_compile_definitions(mythtv_ceton INTERFACE USING_CETON)
+  set(CONFIG_CETON TRUE)
 endif()
 
 if(ENABLE_SATIP)

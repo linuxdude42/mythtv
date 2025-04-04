@@ -482,10 +482,10 @@ V2CardTypeList*  V2Capture::GetCardTypeList ( )
         QObject::tr("FireWire cable box"), "FIREWIRE");
 #endif // CONFIG_FIREWIRE
 
-#ifdef USING_CETON
+#if CONFIG_CETON
     pCardTypeList->AddCardType(
         QObject::tr("Ceton Cablecard tuner"), "CETON");
-#endif // USING_CETON
+#endif // CONFIG_CETON
 
 #ifdef USING_IPTV
     pCardTypeList->AddCardType(QObject::tr("IPTV recorder"), "FREEBOX");

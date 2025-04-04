@@ -1028,7 +1028,7 @@ class VBoxDeviceID : public MythUITextEditSetting
     QString m_overrideDeviceId;
 };
 
-#ifdef USING_CETON
+#if CONFIG_CETON
 class CetonSetting : public TransTextEditSetting
 {
     Q_OBJECT
@@ -1070,6 +1070,6 @@ class CetonDeviceID : public MythUITextEditSetting
     QString m_tuner;
     const CaptureCard &m_parent;
 };
-#endif // USING_CETON
+#endif // CONFIG_CETON
 
 #endif

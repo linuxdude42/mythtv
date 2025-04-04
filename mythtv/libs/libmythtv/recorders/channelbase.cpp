@@ -762,7 +762,7 @@ ChannelBase *ChannelBase::CreateChannel(
         channel = new ASIChannel(tvrec, genOpt.m_videoDev);
     }
 #endif
-#ifdef USING_CETON
+#if CONFIG_CETON
     else if (genOpt.m_inputType == "CETON")
     {
         channel = new CetonChannel(tvrec, genOpt.m_videoDev);

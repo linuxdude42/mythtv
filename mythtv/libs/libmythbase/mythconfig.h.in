@@ -32,6 +32,7 @@
 #cmakedefine01 CONFIG_AUDIO_PULSE
 #cmakedefine01 CONFIG_AUDIO_PULSEOUTPUT
 #cmakedefine01 CONFIG_BINDINGS_PYTHON
+#cmakedefine01 CONFIG_CETON
 #cmakedefine01 CONFIG_DARWIN
 #cmakedefine01 CONFIG_DXVA2
 #cmakedefine01 CONFIG_DRM

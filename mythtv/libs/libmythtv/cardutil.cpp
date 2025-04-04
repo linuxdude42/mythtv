@@ -93,9 +93,9 @@ QString CardUtil::GetScanableInputTypes(void)
     inputTypes += "'ASI'";
 #endif
 
-#ifdef USING_CETON
+#if CONFIG_CETON
     inputTypes += "'CETON'";
-#endif // USING_CETON
+#endif // CONFIG_CETON
 
 #if !defined( USING_MINGW ) && !defined( _MSC_VER )
     inputTypes += "'EXTERNAL'";
@@ -138,7 +138,7 @@ bool CardUtil::IsCableCardPresent([[maybe_unused]] uint inputid,
     }
     if (inputType == "CETON")
     {
-#ifdef USING_CETON
+#if CONFIG_CETON
         QString device = GetVideoDevice(inputid);
 
         QStringList parts = device.split("-");
@@ -613,14 +613,14 @@ QStringList CardUtil::ProbeVideoDevices(const QString &rawtype)
         devs = VBox::probeDevices();
     }
 #endif // CONFIG_VBOX
-#ifdef USING_CETON
+#if CONFIG_CETON
     else if (rawtype.toUpper() == "CETON")
     {
         // TODO implement CETON probing.
         LOG(VB_GENERAL, LOG_INFO, "CardUtil::ProbeVideoDevices: "
             "TODO Probe Ceton devices");
     }
-#endif // USING_CETON
+#endif // CONFIG_CETON
     else
     {
         LOG(VB_GENERAL, LOG_ERR, QString("Raw Type: '%1' is not supported")

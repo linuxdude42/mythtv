@@ -2066,7 +2066,7 @@ void VBoxConfigurationGroup::FillDeviceList(void)
 // -----------------------
 // Ceton Configuration
 // -----------------------
-#ifdef USING_CETON
+#if CONFIG_CETON
 CetonSetting::CetonSetting(QString label, const QString& helptext)
 {
     setLabel(std::move(label));
@@ -2550,9 +2550,9 @@ CaptureCardGroup::CaptureCardGroup(CaptureCard &parent)
     FirewireConfigurationGroup(parent, *cardtype);
 #endif // CONFIG_FIREWIRE
 
-#ifdef USING_CETON
+#if CONFIG_CETON
     CetonSetting::CetonConfigurationGroup(parent, *cardtype);
-#endif // USING_CETON
+#endif // CONFIG_CETON
 
 #ifdef USING_IPTV
     IPTVConfigurationGroup(parent, *cardtype);
@@ -2751,10 +2751,10 @@ void CardType::fillSelections(MythUIComboBoxSetting* setting)
         QObject::tr("FireWire cable box"), "FIREWIRE");
 #endif // CONFIG_FIREWIRE
 
-#ifdef USING_CETON
+#if CONFIG_CETON
     setting->addSelection(
         QObject::tr("Ceton Cablecard tuner"), "CETON");
-#endif // USING_CETON
+#endif // CONFIG_CETON
 
 #ifdef USING_IPTV
     setting->addSelection(QObject::tr("IPTV recorder"), "FREEBOX");

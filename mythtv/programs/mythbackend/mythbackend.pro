@@ -103,7 +103,6 @@ SOURCES += servicesv2/v2config.cpp
 
 DEFINES +=    USING_IPTV
 
-using_ceton      : DEFINES +=    USING_CETON
 using_asi        : DEFINES +=    USING_ASI
 
 xml_conf.path = $${PREFIX}/share/mythtv/backend-config/

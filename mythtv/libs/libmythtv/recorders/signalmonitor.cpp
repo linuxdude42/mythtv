@@ -59,7 +59,7 @@ extern "C" {
 #   include "asichannel.h"
 #endif
 
-#ifdef USING_CETON
+#if CONFIG_CETON
 #   include "cetonsignalmonitor.h"
 #   include "cetonchannel.h"
 #endif
@@ -147,7 +147,7 @@ SignalMonitor *SignalMonitor::Init([[maybe_unused]] const QString& cardtype,
     }
 #endif
 
-#ifdef USING_CETON
+#if CONFIG_CETON
     else if (cardtype.toUpper() == "CETON")
     {
         auto *cetonchan = dynamic_cast<CetonChannel*>(channel);
