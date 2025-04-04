@@ -43,7 +43,7 @@
 #include HDHOMERUN_HEADERFILE
 #endif
 
-#ifdef USING_VBOX
+#if CONFIG_VBOX
 #include "recorders/vboxutils.h"
 #endif
 
@@ -77,9 +77,9 @@ QString CardUtil::GetScanableInputTypes(void)
     inputTypes += "'FREEBOX'";
 #endif // USING_IPTV
 
-#ifdef USING_VBOX
+#if CONFIG_VBOX
     inputTypes += "'VBOX'";
-#endif // USING_VBOX
+#endif // CONFIG_VBOX
 
 #if CONFIG_HDHOMERUN
     inputTypes += "'HDHOMERUN'";
@@ -607,12 +607,12 @@ QStringList CardUtil::ProbeVideoDevices(const QString &rawtype)
         devs = SatIP::probeDevices();
     }
 #endif // CONFIG_SATIP
-#ifdef USING_VBOX
+#if CONFIG_VBOX
     else if (rawtype.toUpper() == "VBOX")
     {
         devs = VBox::probeDevices();
     }
-#endif // USING_VBOX
+#endif // CONFIG_VBOX
 #ifdef USING_CETON
     else if (rawtype.toUpper() == "CETON")
     {
@@ -3190,7 +3190,7 @@ QString CardUtil::GetVBoxdesc([[maybe_unused]] const QString &id,
 {
     QString connectErr = QObject::tr("Unable to connect to device.");
 
-#ifdef USING_VBOX
+#if CONFIG_VBOX
     VBox *vbox = new VBox(ip);
 
     if (!vbox->checkConnection())
@@ -3402,7 +3402,7 @@ bool CardUtil::SetASIMode([[maybe_unused]] uint device_num,
 #endif
 }
 
-#ifdef USING_VBOX
+#if CONFIG_VBOX
 /** \fn CardUtil::IsVBoxPresent(uint inputid)
  *  \brief Returns true if the VBox responds to a ping
  *  \param inputid  Inputid  as used in DB capturecard table

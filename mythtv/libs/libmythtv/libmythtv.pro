@@ -938,8 +938,6 @@ using_backend {
 
         SOURCES += recorders/vboxutils.cpp
         SOURCES += channelscan/vboxchannelfetcher.cpp
-
-        DEFINES += USING_VBOX
     }
 
     # Support for Ceton

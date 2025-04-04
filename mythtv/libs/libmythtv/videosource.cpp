@@ -53,7 +53,7 @@
 #include "recorders/dvbtypes.h"
 #endif
 
-#ifdef USING_VBOX
+#if CONFIG_VBOX
 #include "recorders/vboxutils.h"
 #endif
 
@@ -2536,10 +2536,10 @@ CaptureCardGroup::CaptureCardGroup(CaptureCard &parent)
                                new HDHomeRunConfigurationGroup(parent, *cardtype));
 #endif // CONFIG_HDHOMERUN
 
-#ifdef USING_VBOX
+#if CONFIG_VBOX
     cardtype->addTargetedChild("VBOX",
                                new VBoxConfigurationGroup(parent, *cardtype));
-#endif // USING_VBOX
+#endif // CONFIG_VBOX
 
 #if CONFIG_SATIP
     cardtype->addTargetedChild("SATIP",
@@ -2741,10 +2741,10 @@ void CardType::fillSelections(MythUIComboBoxSetting* setting)
         QObject::tr("Sat>IP networked tuner"), "SATIP");
 #endif // CONFIG_SATIP
 
-#ifdef USING_VBOX
+#if CONFIG_VBOX
     setting->addSelection(
         QObject::tr("V@Box TV Gateway networked tuner"), "VBOX");
-#endif // USING_VBOX
+#endif // CONFIG_VBOX
 
 #if CONFIG_FIREWIRE
     setting->addSelection(

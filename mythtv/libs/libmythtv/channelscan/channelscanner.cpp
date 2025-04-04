@@ -84,7 +84,7 @@ void ChannelScanner::Teardown(void)
         m_iptvScanner = nullptr;
     }
 
-#ifdef USING_VBOX
+#if CONFIG_VBOX
     if (m_vboxScanner)
     {
         m_vboxScanner->Stop();
@@ -382,7 +382,7 @@ bool ChannelScanner::ImportVBox([[maybe_unused]] uint cardid,
                                 [[maybe_unused]] ServiceRequirements serviceType)
 {
     m_sourceid = sourceid;
-#ifdef USING_VBOX
+#if CONFIG_VBOX
     if (!m_scanMonitor)
         m_scanMonitor = new ScanMonitor(this);
 
@@ -536,7 +536,7 @@ void ChannelScanner::PreScanCommon(
     }
 #endif
 
-#ifdef USING_VBOX
+#if CONFIG_VBOX
     if ("VBOX" == card_type)
     {
         m_channel = new IPTVChannel(nullptr, device);

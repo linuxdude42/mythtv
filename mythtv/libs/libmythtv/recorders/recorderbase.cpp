@@ -949,13 +949,13 @@ RecorderBase *RecorderBase::CreateRecorder(
         }
     }
 #endif // USING_IPTV
-#ifdef USING_VBOX
+#if CONFIG_VBOX
     else if (genOpt.m_inputType == "VBOX")
     {
         if (dynamic_cast<IPTVChannel*>(channel))
             recorder = new IPTVRecorder(tvrec, dynamic_cast<IPTVChannel*>(channel));
     }
-#endif // USING_VBOX
+#endif // CONFIG_VBOX
 #if CONFIG_SATIP
     else if (genOpt.m_inputType == "SATIP")
     {

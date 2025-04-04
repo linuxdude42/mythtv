@@ -472,10 +472,10 @@ V2CardTypeList*  V2Capture::GetCardTypeList ( )
         QObject::tr("Sat>IP networked tuner"), "SATIP");
 #endif // CONFIG_SATIP
 
-#ifdef USING_VBOX
+#if CONFIG_VBOX
     pCardTypeList->AddCardType(
         QObject::tr("V@Box TV Gateway networked tuner"), "VBOX");
-#endif // USING_VBOX
+#endif // CONFIG_VBOX
 
 #if CONFIG_FIREWIRE
     pCardTypeList->AddCardType(
@@ -779,7 +779,7 @@ V2CaptureDeviceList* V2Capture::GetCaptureDeviceList  ( const QString  &CardType
             }
         }
 #endif // CONFIG_SATIP
-#ifdef USING_VBOX
+#if CONFIG_VBOX
         if (CardType == "VBOX")
         {
             pDev->setSignalTimeout ( 7000 );
@@ -798,7 +798,7 @@ V2CaptureDeviceList* V2Capture::GetCaptureDeviceList  ( const QString  &CardType
                 pDev->setTunerNumber(word[2].toUInt());
             }
         }
-#endif // USING_VBOX
+#endif // CONFIG_VBOX
     } // endfor (const auto & it : std::as_const(sdevs))
     return pList;
 }

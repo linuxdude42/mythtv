@@ -110,7 +110,7 @@ bool TVRec::CreateChannel(const QString &startchannel,
         this, m_genOpt, m_dvbOpt, m_fwOpt,
         startchannel, enter_power_save_mode, m_rbFileExt, setchan);
 
-#ifdef USING_VBOX
+#if CONFIG_VBOX
     if (m_genOpt.m_inputType == "VBOX")
     {
         if (!CardUtil::IsVBoxPresent(m_inputId))

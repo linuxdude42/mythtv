@@ -44,7 +44,7 @@
 #include "scanmonitor.h"
 #include "channelscantypes.h"
 
-#ifdef USING_VBOX
+#if CONFIG_VBOX
 #include "vboxchannelfetcher.h"
 #endif
 
@@ -139,7 +139,7 @@ class MTV_PUBLIC ChannelScanner
     fbox_chan_map_t          m_iptvChannels;
 
     // vbox support
-#ifdef USING_VBOX
+#if CONFIG_VBOX
     VBoxChannelFetcher      *m_vboxScanner         {nullptr};
 #endif
 #if !defined( USING_MINGW ) && !defined( _MSC_VER )

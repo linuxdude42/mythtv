@@ -483,7 +483,7 @@ void ChannelScannerWeb::HandleEvent(const ScannerEvent *scanEvent)
         }
 
         bool success = (m_iptvScanner != nullptr);
-#ifdef USING_VBOX
+#if CONFIG_VBOX
         success |= (m_vboxScanner != nullptr);
 #endif
 #if !defined( USING_MINGW ) && !defined( _MSC_VER )

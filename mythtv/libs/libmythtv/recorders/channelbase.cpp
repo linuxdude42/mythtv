@@ -749,7 +749,7 @@ ChannelBase *ChannelBase::CreateChannel(
         channel = new DummyChannel(tvrec);
         rbFileExt = "mpg";
     }
-#if defined(USING_IPTV) || defined(USING_VBOX)
+#if defined(USING_IPTV) || CONFIG_VBOX
     else if ((genOpt.m_inputType == "FREEBOX") || // IPTV
              (genOpt.m_inputType == "VBOX"))
     {

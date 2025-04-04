@@ -167,7 +167,7 @@ SignalMonitor *SignalMonitor::Init([[maybe_unused]] const QString& cardtype,
     }
 #endif
 
-#ifdef USING_VBOX
+#if CONFIG_VBOX
     else if (cardtype.toUpper() == "VBOX")
     {
         auto *fbc = dynamic_cast<IPTVChannel*>(channel);

@@ -70,6 +70,7 @@
 #cmakedefine01 CONFIG_VAAPI
 #cmakedefine01 CONFIG_VDPAU
 #cmakedefine01 CONFIG_VIDEOTOOLBOX
+#cmakedefine01 CONFIG_VBOX
 #cmakedefine01 CONFIG_VULKAN
 #cmakedefine01 CONFIG_WAYLANDEXTRAS
 #cmakedefine01 CONFIG_X11
