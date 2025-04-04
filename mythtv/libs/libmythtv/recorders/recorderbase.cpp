@@ -963,7 +963,7 @@ RecorderBase *RecorderBase::CreateRecorder(
             recorder = new SatIPRecorder(tvrec, dynamic_cast<SatIPChannel*>(channel));
     }
 #endif // CONFIG_SATIP
-#ifdef USING_ASI
+#if CONFIG_ASI
     else if (genOpt.m_inputType == "ASI")
     {
         if (dynamic_cast<ASIChannel*>(channel))
@@ -972,7 +972,7 @@ RecorderBase *RecorderBase::CreateRecorder(
             recorder->SetBoolOption("wait_for_seqstart", genOpt.m_waitForSeqstart);
         }
     }
-#endif // USING_ASI
+#endif // CONFIG_ASI
 
     if (recorder)
     {

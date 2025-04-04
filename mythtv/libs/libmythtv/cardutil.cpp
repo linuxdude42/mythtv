@@ -51,7 +51,7 @@
 #include "recorders/satiputils.h"
 #endif
 
-#ifdef USING_ASI
+#if CONFIG_ASI
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <dveo/asi.h>
@@ -89,7 +89,7 @@ QString CardUtil::GetScanableInputTypes(void)
     inputTypes += "'SATIP'";
 #endif // CONFIG_SATIP
 
-#ifdef USING_ASI
+#if CONFIG_ASI
     inputTypes += "'ASI'";
 #endif
 
@@ -3220,7 +3220,7 @@ QString CardUtil::GetVBoxdesc([[maybe_unused]] const QString &id,
 #endif
 }
 
-#ifdef USING_ASI
+#if CONFIG_ASI
 static QString sys_dev(uint device_num, const QString& dev)
 {
     return QString("/sys/class/asi/asirx%1/%2").arg(device_num).arg(dev);
@@ -3254,7 +3254,7 @@ static bool write_sys(const QString& sys_dev, const QString& str)
 
 int CardUtil::GetASIDeviceNumber([[maybe_unused]] const QString &device, QString *error)
 {
-#ifdef USING_ASI
+#if CONFIG_ASI
     // basic confirmation
     struct stat statbuf {};
     if (stat(device.toLocal8Bit().constData(), &statbuf) < 0)
@@ -3309,7 +3309,7 @@ int CardUtil::GetASIDeviceNumber([[maybe_unused]] const QString &device, QString
 
 uint CardUtil::GetASIBufferSize([[maybe_unused]] uint device_num, QString *error)
 {
-#ifdef USING_ASI
+#if CONFIG_ASI
     // get the buffer size
     QString sys_bufsize_contents = read_sys(sys_dev(device_num, "bufsize"));
     bool ok = false;
@@ -3333,7 +3333,7 @@ uint CardUtil::GetASIBufferSize([[maybe_unused]] uint device_num, QString *error
 
 uint CardUtil::GetASINumBuffers([[maybe_unused]] uint device_num, QString *error)
 {
-#ifdef USING_ASI
+#if CONFIG_ASI
     // get the buffer size
     QString sys_numbuffers_contents = read_sys(sys_dev(device_num, "buffers"));
     bool ok = false;
@@ -3357,7 +3357,7 @@ uint CardUtil::GetASINumBuffers([[maybe_unused]] uint device_num, QString *error
 
 int CardUtil::GetASIMode([[maybe_unused]] uint device_num, QString *error)
 {
-#ifdef USING_ASI
+#if CONFIG_ASI
     QString sys_bufsize_contents = read_sys(sys_dev(device_num, "mode"));
     bool ok = false;
     uint mode = sys_bufsize_contents.toUInt(&ok);
@@ -3382,7 +3382,7 @@ bool CardUtil::SetASIMode([[maybe_unused]] uint device_num,
                           [[maybe_unused]] uint mode,
                           QString *error)
 {
-#ifdef USING_ASI
+#if CONFIG_ASI
     QString sys_bufsize_contents = read_sys(sys_dev(device_num, "mode"));
     bool ok = false;
     uint old_mode = sys_bufsize_contents.toUInt(&ok);

@@ -54,7 +54,7 @@ extern "C" {
 #   include "firewirechannel.h"
 #endif
 
-#ifdef USING_ASI
+#if CONFIG_ASI
 #   include "asisignalmonitor.h"
 #   include "asichannel.h"
 #endif
@@ -187,7 +187,7 @@ SignalMonitor *SignalMonitor::Init([[maybe_unused]] const QString& cardtype,
     }
 #endif
 
-#ifdef USING_ASI
+#if CONFIG_ASI
     else if (cardtype.toUpper() == "ASI")
     {
         auto *fc = dynamic_cast<ASIChannel*>(channel);

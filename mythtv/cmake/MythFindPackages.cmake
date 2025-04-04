@@ -467,7 +467,7 @@ if(ENABLE_ASI)
   if(_ASI_H AND _MASTER_H)
     add_library(mythtv_asi INTERFACE)
     add_build_config(TRUE "dvb")
-    target_compile_definitions(mythtv_asi INTERFACE USING_ASI)
+    set(CONFIG_ASI TRUE)
   endif()
 endif()
 

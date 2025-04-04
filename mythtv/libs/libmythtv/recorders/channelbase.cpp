@@ -756,7 +756,7 @@ ChannelBase *ChannelBase::CreateChannel(
         channel = new IPTVChannel(tvrec, genOpt.m_videoDev);
     }
 #endif
-#ifdef USING_ASI
+#if CONFIG_ASI
     else if (genOpt.m_inputType == "ASI")
     {
         channel = new ASIChannel(tvrec, genOpt.m_videoDev);

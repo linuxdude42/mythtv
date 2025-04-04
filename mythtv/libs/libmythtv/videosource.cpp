@@ -1897,7 +1897,7 @@ ASIConfigurationGroup::ASIConfigurationGroup(CaptureCard& a_parent,
 
 void ASIConfigurationGroup::probeCard([[maybe_unused]] const QString &device)
 {
-#ifdef USING_ASI
+#if CONFIG_ASI
     if (device.isEmpty())
     {
         m_cardInfo->setValue("");
@@ -2570,10 +2570,10 @@ CaptureCardGroup::CaptureCardGroup(CaptureCard &parent)
                                new MPEGConfigurationGroup(parent, *cardtype));
 #endif // CONFIG_V4L2
 
-#ifdef USING_ASI
+#if CONFIG_ASI
     cardtype->addTargetedChild("ASI",
                                new ASIConfigurationGroup(parent, *cardtype));
-#endif // USING_ASI
+#endif // CONFIG_ASI
 
     // for testing without any actual tuner hardware:
     cardtype->addTargetedChild("IMPORT",
@@ -2772,7 +2772,7 @@ void CardType::fillSelections(MythUIComboBoxSetting* setting)
         QObject::tr("Analog capture card"), "V4L");
 #endif // CONFIG_V4L2
 
-#ifdef USING_ASI
+#if CONFIG_ASI
     setting->addSelection(QObject::tr("DVEO ASI recorder"), "ASI");
 #endif
 

@@ -1012,8 +1012,6 @@ using_backend {
 
         HEADERS *= recorders/streamhandler.h
         SOURCES *= recorders/streamhandler.cpp
-
-        DEFINES += USING_ASI
     }
 
     DEFINES += USING_BACKEND

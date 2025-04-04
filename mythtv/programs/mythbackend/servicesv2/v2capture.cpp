@@ -503,7 +503,7 @@ V2CardTypeList*  V2Capture::GetCardTypeList ( )
         QObject::tr("Analog capture card"), "V4L");
 #endif // CONFIG_V4L2
 
-#ifdef USING_ASI
+#if CONFIG_ASI
     pCardTypeList->AddCardType(QObject::tr("DVEO ASI recorder"), "ASI");
 #endif
 
