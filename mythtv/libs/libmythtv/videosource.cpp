@@ -2554,9 +2554,9 @@ CaptureCardGroup::CaptureCardGroup(CaptureCard &parent)
     CetonSetting::CetonConfigurationGroup(parent, *cardtype);
 #endif // CONFIG_CETON
 
-#ifdef USING_IPTV
+#if CONFIG_IPTV
     IPTVConfigurationGroup(parent, *cardtype);
-#endif // USING_IPTV
+#endif // CONFIG_IPTV
 
 #if CONFIG_V4L2
     cardtype->addTargetedChild("V4L2ENC", new V4L2encGroup(parent, *cardtype));
@@ -2756,9 +2756,9 @@ void CardType::fillSelections(MythUIComboBoxSetting* setting)
         QObject::tr("Ceton Cablecard tuner"), "CETON");
 #endif // CONFIG_CETON
 
-#ifdef USING_IPTV
+#if CONFIG_IPTV
     setting->addSelection(QObject::tr("IPTV recorder"), "FREEBOX");
-#endif // USING_IPTV
+#endif // CONFIG_IPTV
 
 #if CONFIG_V4L2
     setting->addSelection(

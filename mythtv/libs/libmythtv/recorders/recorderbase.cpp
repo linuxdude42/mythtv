@@ -939,7 +939,7 @@ RecorderBase *RecorderBase::CreateRecorder(
         }
     }
 #endif // CONFIG_DVB
-#ifdef USING_IPTV
+#if CONFIG_IPTV
     else if (genOpt.m_inputType == "FREEBOX")
     {
         if (dynamic_cast<IPTVChannel*>(channel))
@@ -948,7 +948,7 @@ RecorderBase *RecorderBase::CreateRecorder(
             recorder->SetOption("mrl", genOpt.m_videoDev);
         }
     }
-#endif // USING_IPTV
+#endif // CONFIG_IPTV
 #if CONFIG_VBOX
     else if (genOpt.m_inputType == "VBOX")
     {

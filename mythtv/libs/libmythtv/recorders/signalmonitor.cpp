@@ -44,7 +44,7 @@ extern "C" {
 #   include "satipchannel.h"
 #endif
 
-#ifdef USING_IPTV
+#if CONFIG_IPTV
 #   include "iptvsignalmonitor.h"
 #   include "iptvchannel.h"
 #endif
@@ -157,7 +157,7 @@ SignalMonitor *SignalMonitor::Init([[maybe_unused]] const QString& cardtype,
     }
 #endif
 
-#ifdef USING_IPTV
+#if CONFIG_IPTV
     else if (cardtype.toUpper() == "FREEBOX")
     {
         auto *fbc = dynamic_cast<IPTVChannel*>(channel);

@@ -884,8 +884,6 @@ using_backend {
     SOURCES += recorders/HLS/HLSStream.cpp
     SOURCES += recorders/HLS/HLSStreamWorker.cpp
 
-    DEFINES += USING_IPTV
-
 
     # Support for HDHomeRun box
     using_hdhomerun {

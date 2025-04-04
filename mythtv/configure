@@ -1725,6 +1725,7 @@ MYTHTV_CONFIG_LIST='
     firewire_osx
     frontend
     hdhomerun
+    iptv
     satip
     vbox
     ceton
@@ -4376,6 +4377,8 @@ case $target_os in
         die "Unknown OS '$target_os'."
         ;;
 esac
+
+enabled backend && enable iptv
 
 # test if creating links works
 link_dest=$(mktemp -u $TMPDIR/dest_XXXXXXXX)

@@ -487,9 +487,9 @@ V2CardTypeList*  V2Capture::GetCardTypeList ( )
         QObject::tr("Ceton Cablecard tuner"), "CETON");
 #endif // CONFIG_CETON
 
-#ifdef USING_IPTV
+#if CONFIG_IPTV
     pCardTypeList->AddCardType(QObject::tr("IPTV recorder"), "FREEBOX");
-#endif // USING_IPTV
+#endif // CONFIG_IPTV
 
 #if CONFIG_V4L2
     pCardTypeList->AddCardType(

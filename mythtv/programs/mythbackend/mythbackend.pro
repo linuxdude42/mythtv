@@ -101,8 +101,6 @@ SOURCES += servicesv2/v2music.cpp
 SOURCES += servicesv2/v2serviceUtil.cpp
 SOURCES += servicesv2/v2config.cpp
 
-DEFINES +=    USING_IPTV
-
 xml_conf.path = $${PREFIX}/share/mythtv/backend-config/
 xml_conf.files = config_backend_general.xml config_backend_database.xml
 

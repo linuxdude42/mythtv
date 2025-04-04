@@ -44,6 +44,7 @@
 #cmakedefine01 CONFIG_FIREWIRE_LINUX
 #cmakedefine01 CONFIG_FIREWIRE_OSX
 #cmakedefine01 CONFIG_FORCE_LOGLONG
+#cmakedefine01 CONFIG_IPTV
 #cmakedefine01 CONFIG_HDHOMERUN
 #cmakedefine01 CONFIG_LIBASS
 #cmakedefine01 CONFIG_LIBCEC

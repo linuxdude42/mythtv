@@ -73,9 +73,9 @@ QString CardUtil::GetScanableInputTypes(void)
     inputTypes += "'MPEG'";
 #endif // CONFIG_V4L2
 
-#ifdef USING_IPTV
+#if CONFIG_IPTV
     inputTypes += "'FREEBOX'";
-#endif // USING_IPTV
+#endif // CONFIG_IPTV
 
 #if CONFIG_VBOX
     inputTypes += "'VBOX'";

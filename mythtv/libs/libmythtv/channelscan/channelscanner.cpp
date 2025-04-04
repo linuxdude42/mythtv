@@ -529,7 +529,7 @@ void ChannelScanner::PreScanCommon(
     }
 #endif // CONFIG_ASI
 
-#ifdef USING_IPTV
+#if CONFIG_IPTV
     if ("FREEBOX" == card_type)
     {
         m_channel = new IPTVChannel(nullptr, device);
