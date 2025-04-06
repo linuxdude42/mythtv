@@ -32,6 +32,7 @@
 #cmakedefine01 CONFIG_AUDIO_OSS
 #cmakedefine01 CONFIG_AUDIO_PULSE
 #cmakedefine01 CONFIG_AUDIO_PULSEOUTPUT
+#cmakedefine01 CONFIG_BACKEND
 #cmakedefine01 CONFIG_BINDINGS_PYTHON
 #cmakedefine01 CONFIG_CETON
 #cmakedefine01 CONFIG_DARWIN
@@ -44,6 +45,7 @@
 #cmakedefine01 CONFIG_FIREWIRE_LINUX
 #cmakedefine01 CONFIG_FIREWIRE_OSX
 #cmakedefine01 CONFIG_FORCE_LOGLONG
+#cmakedefine01 CONFIG_FRONTEND
 #cmakedefine01 CONFIG_IPTV
 #cmakedefine01 CONFIG_HDHOMERUN
 #cmakedefine01 CONFIG_LIBASS
