@@ -101,27 +101,8 @@ SOURCES += servicesv2/v2music.cpp
 SOURCES += servicesv2/v2serviceUtil.cpp
 SOURCES += servicesv2/v2config.cpp
 
-using_oss:DEFINES += USING_OSS
-
-DEFINES +=    USING_IPTV
-
-using_dvb        : DEFINES +=    USING_DVB
-using_v4l2       : DEFINES +=    USING_V4L2
-using_hdhomerun  : DEFINES +=    USING_HDHOMERUN
-using_satip      : DEFINES +=    USING_SATIP
-using_vbox       : DEFINES +=    USING_VBOX
-using_firewire   : DEFINES +=    USING_FIREWIRE
-using_ceton      : DEFINES +=    USING_CETON
-using_v4l2       : DEFINES +=    USING_V4L2
-using_asi        : DEFINES +=    USING_ASI
-
-using_valgrind:DEFINES += USING_VALGRIND
-
-using_libdns_sd:DEFINES += USING_LIBDNS_SD
-
 using_qtdbus {
     QT      += dbus
-    DEFINES += USING_DBUS
     HEADERS += platforms/mythnetworkdbus.h
     SOURCES += platforms/mythnetworkdbus.cpp
 }

@@ -63,6 +63,8 @@
 #include <utility>
 
 // MythTV headers
+#include "mythconfig.h"
+
 #include "mythcommandlineparser.h"
 #include "mythcorecontext.h"
 #include "exitcodes.h"
@@ -2762,7 +2764,7 @@ void MythCommandLineParser::addInFile(bool addOutFile)
  */
 void MythCommandLineParser::addDisplay(void)
 {
-#ifdef USING_X11
+#if CONFIG_X11
     add(QStringList{"-display", "--display"}, "display", "",
         "Qt (QPA) X11 connection name when using xcb (X11) platform plugin", "")
         ->SetGroup("Qt");

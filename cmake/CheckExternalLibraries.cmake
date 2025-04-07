@@ -18,6 +18,11 @@ include(BuildConfigString)
 #
 find_package(PkgConfig REQUIRED)
 
+macro(set_if_target_exists var target)
+  if(TARGET $target)
+    set(var TRUE)
+  endif()
+endmacro()
 #
 # Does the system have threads?
 #
@@ -97,9 +102,7 @@ if(ENABLE_VDPAU)
   # vdp_device_create_x11
   pkg_check_modules(VDPAU "vdpau>=0.2" IMPORTED_TARGET)
   add_build_config(PkgConfig::VDPAU "vdpau")
-  if(TARGET PkgConfig::VDPAU)
-    target_compile_definitions(PkgConfig::VDPAU INTERFACE USING_VDPAU)
-  endif()
+  set(CONFIG_VDPAU ${VDPAU_FOUND})
 endif()
 
 # vaapi: fedora:libva-devel debian:libva-dev
@@ -115,7 +118,7 @@ if(ENABLE_VAAPI)
   pkg_check_modules(VAAPI "libva>=1.2" IMPORTED_TARGET)
   add_build_config(PkgConfig::VDPAU "vaapi")
   if(TARGET PkgConfig::VAAPI)
-    target_compile_definitions(PkgConfig::VAAPI INTERFACE USING_VAAPI)
+    set(CONFIG_VAAPI TRUE)
     pkg_check_modules(VA-DRM "libva-drm" REQUIRED IMPORTED_TARGET)
     pkg_check_modules(VA-GLX "libva-glx" REQUIRED IMPORTED_TARGET)
     pkg_check_modules(VA-X11 "libva-x11" REQUIRED IMPORTED_TARGET)
@@ -129,9 +132,7 @@ endif()
 if(ENABLE_LIBASS)
   pkg_check_modules(LIBASS "libass>=0.9.10" IMPORTED_TARGET)
   add_build_config(PkgConfig::LIBASS "libass")
-  if(TARGET PkgConfig::LIBASS)
-    target_compile_definitions(PkgConfig::LIBASS INTERFACE USING_LIBASS)
-  endif()
+  set(CONFIG_LIBASS ${LIBASS_FOUND})
 endif()
 
 # udev: fedora:libdav1d-devel debian:libdav1d-dev
@@ -183,10 +184,8 @@ if(ENABLE_DRM)
   pkg_check_modules(DRM "libdrm>=2.4.104" IMPORTED_TARGET)
   add_build_config(PkgConfig::DRM "drm")
   if(DRM_FOUND)
-    target_compile_definitions(PkgConfig::DRM INTERFACE USING_DRM)
-    if(TARGET Qt${QT_VERSION_MAJOR}::GuiPrivate)
-      target_compile_definitions(PkgConfig::DRM INTERFACE USING_DRM_VIDEO)
-    endif()
+    set(CONFIG_DRM TRUE)
+    set_if_target_exists(CONFIG_DRM_VIDEO Qt${QT_VERSION_MAJOR}::GuiPrivate)
     set(HAVE_STRUCT_HDR_METADATA_INFOFRAME TRUE)
   endif()
 endif()
@@ -200,4 +199,10 @@ add_build_config(PkgConfig::SYSTEM_LIBBLURAY "system_libbluray")
 if(SYSTEM_LIBBLURAY_FOUND)
   target_compile_definitions(PkgConfig::SYSTEM_LIBBLURAY
                              INTERFACE HAVE_LIBBLURAY)
+endif()
+
+# valgrind - needs valgrind-tools-devel
+if(ENABLE_VALGRIND)
+  pkg_check_modules(VALGRIND "valgrind" IMPORTED_TARGET)
+  set(CONFIG_VALGRIND ${VALGRIND_FOUND})
 endif()

@@ -366,9 +366,6 @@ if(WIN32)
                                 platforms/mythdisplaywindows.cpp)
   target_compile_definitions(mythui PRIVATE NODRAWTEXT)
   target_link_libraries(mythui PUBLIC user32 gdi32)
-  if(HAVE_DXVA2)
-    target_compile_definitions(mythui PRIVATE USING_DXVA2)
-  endif()
 endif()
 
 if(MINGW OR win32-msvc)
@@ -393,7 +390,6 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
             devices/AppleRemote.h
             devices/AppleRemoteListener.cpp
             devices/AppleRemoteListener.h)
-  target_compile_definitions(mythui PRIVATE USING_APPLEREMOTE)
   if(NOT ENABLE_LIRC)
     target_sources(mythui PRIVATE devices/lircevent.cpp devices/lircevent.h)
   endif()

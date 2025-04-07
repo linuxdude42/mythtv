@@ -1,11 +1,13 @@
 #ifndef MYTHINPUTDEVICEHANDLER_H
 #define MYTHINPUTDEVICEHANDLER_H
 
+#include "libmythbase/mythconfig.h"
+
 // Qt
 #include <QObject>
 
 // MythTV
-#ifdef USING_LIBCEC
+#if CONFIG_LIBCEC
 #include "devices/mythcecadapter.h"
 #endif
 
@@ -44,7 +46,7 @@ class MythInputDeviceHandler : public QObject
     LIRC           *m_lircThread { nullptr };
 #endif
 
-#ifdef USING_LIBCEC
+#if CONFIG_LIBCEC
     MythCECAdapter  m_cecAdapter;
 #endif
 
@@ -52,7 +54,7 @@ class MythInputDeviceHandler : public QObject
     JoystickMenuThread  *m_joystickThread { nullptr };
 #endif
 
-#ifdef USING_APPLEREMOTE
+#if CONFIG_APPLEREMOTE
     AppleRemoteListener *m_appleRemoteListener  { nullptr };
     AppleRemote         *m_appleRemote          { nullptr };
 #endif
