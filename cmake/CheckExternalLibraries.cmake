@@ -75,6 +75,7 @@ if(ENABLE_XVID AND LibX2vid_VERSION)
 endif()
 
 # vpx: fedora:libvpx-devel debian:libvpx-dev
+# Not used by MythTV code, only by FFmpeg.
 if(ENABLE_VPX)
   pkg_check_modules(LIBVPX "vpx" IMPORTED_TARGET)
   add_build_config(PkgConfig::LIBVPX "vpx")
