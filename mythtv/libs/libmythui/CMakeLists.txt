@@ -291,7 +291,7 @@ if(TARGET Qt${QT_VERSION_MAJOR}::DBus)
             platforms/mythscreensaverdbus.cpp platforms/mythscreensaverdbus.h)
 endif()
 
-if(_HAVE_GL_OR_GLES)
+if(CONFIG_OPENGL)
   if(TARGET OpenGL::GL)
     target_link_libraries(mythui PRIVATE Qt${QT_VERSION_MAJOR}::OpenGL
                                          OpenGL::GL)
@@ -317,7 +317,7 @@ if(_HAVE_GL_OR_GLES)
             opengl/mythpainterwindowopengl.h
             opengl/mythrenderopengl.cpp
             opengl/mythrenderopengl.h)
-endif(_HAVE_GL_OR_GLES)
+endif(CONFIG_OPENGL)
 
 if(TARGET Vulkan::Vulkan)
   target_link_libraries(mythui PUBLIC Vulkan::Vulkan)
@@ -366,9 +366,6 @@ if(WIN32)
                                 platforms/mythdisplaywindows.cpp)
   target_compile_definitions(mythui PRIVATE NODRAWTEXT)
   target_link_libraries(mythui PUBLIC user32 gdi32)
-  if(HAVE_DXVA2)
-    target_compile_definitions(mythui PRIVATE USING_DXVA2)
-  endif()
 endif()
 
 if(MINGW OR win32-msvc)
@@ -393,12 +390,10 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
             devices/AppleRemote.h
             devices/AppleRemoteListener.cpp
             devices/AppleRemoteListener.h)
-  target_compile_definitions(mythui PRIVATE USING_APPLEREMOTE)
   if(NOT ENABLE_LIRC)
     target_sources(mythui PRIVATE devices/lircevent.cpp devices/lircevent.h)
   endif()
-  if(DARWIN_DA)
-    set_target_properties(mythui PROPERTIES COMPILE_DEFINITIONS USING_DARWIN_DA)
+  if(APPLE_DISKARBITRATION_LIBRARY)
     target_sources(mythui PRIVATE mediamonitor-darwin.cpp mediamonitor-darwin.h)
     target_link_libraries(mythui PRIVATE ${APPLE_DISKARBITRATION_LIBRARY})
   endif()
