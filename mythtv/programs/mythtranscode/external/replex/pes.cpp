@@ -327,7 +327,7 @@ void get_pes (pes_in_t *p, uint8_t *buf, int count, void (*func)(pes_in_t *p))
 					if (c == count) return;
 				}
 
-				if (((p->flag2 & PTS_DTS) == 0xC0) && p->found < 19){
+				if (((p->flag2 & PTS_DTS) == 0xC0) && p->found >= 14 && p->found < 19){
 					while (c < count && p->found < 19){
 						p->dts[p->found-14] = buf[c];
 						if (p->withbuf)
