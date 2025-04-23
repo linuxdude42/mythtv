@@ -196,10 +196,7 @@ int  get_avf_buffer(struct AVCodecContext *c, AVFrame *pic, int flags);
 //    return 0;
 //}
 
-#define FAIL(errmsg) do {                       \
-    LOG(VB_PLAYBACK, LOG_INFO, LOC + (errmsg)); \
-    return false;                                   \
-} while (false)
+#define FAIL(errmsg) LOG(VB_PLAYBACK, LOG_INFO, LOC + (errmsg))
 
 /** @brief Determine if we have enough live TV data to initialize hardware decoders.
 
