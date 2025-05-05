@@ -4245,173 +4245,173 @@ void TVRec::TuningNewRecorder(MPEGStreamData *streamData)
     RecordingProfile profile;
     m_recProfileName = LoadProfile(m_tvChain, rec, profile);
 
-    if (m_tvChain)
-    {
-        bool ok = false;
+        if (m_tvChain)
+        {
+            bool ok = false;
+            if (!m_buffer)
+            {
+                ok = CreateLiveTVRingBuffer(m_channel->GetChannelName());
+                SetFlags(kFlagRingBufferReady, __FILE__, __LINE__);
+            }
+            else
+            {
+                ok = SwitchLiveTVRingBuffer(m_channel->GetChannelName(),
+                                            true, !had_dummyrec && m_recorder);
+            }
+            if (!ok)
+            {
+                LOG(VB_GENERAL, LOG_ERR, LOC + "Failed to create RingBuffer 2");
+                goto err_ret;
+            }
+            rec = m_curRecording;  // new'd in Create/SwitchLiveTVRingBuffer()
+        }
+
+        if (m_lastTuningRequest.m_flags & kFlagRecording)
+        {
+            bool write = m_genOpt.m_inputType != "IMPORT";
+            LOG(VB_GENERAL, LOG_INFO, LOC + QString("rec->GetPathname(): '%1'")
+                    .arg(rec->GetPathname()));
+            SetRingBuffer(MythMediaBuffer::Create(rec->GetPathname(), write));
+            if (!m_buffer->IsOpen() && write)
+            {
+                LOG(VB_GENERAL, LOG_ERR, LOC +
+                    QString("RingBuffer '%1' not open...")
+                        .arg(rec->GetPathname()));
+                SetRingBuffer(nullptr);
+                ClearFlags(kFlagPendingActions, __FILE__, __LINE__);
+                goto err_ret;
+            }
+        }
+
         if (!m_buffer)
         {
-            ok = CreateLiveTVRingBuffer(m_channel->GetChannelName());
-            SetFlags(kFlagRingBufferReady, __FILE__, __LINE__);
-        }
-        else
-        {
-            ok = SwitchLiveTVRingBuffer(m_channel->GetChannelName(),
-                                        true, !had_dummyrec && m_recorder);
-        }
-        if (!ok)
-        {
-            LOG(VB_GENERAL, LOG_ERR, LOC + "Failed to create RingBuffer 2");
+            LOG(VB_GENERAL, LOG_ERR, LOC +
+                QString("Failed to start recorder!  ringBuffer is NULL\n"
+                        "\t\t\t\t  Tuning request was %1\n")
+                    .arg(m_lastTuningRequest.toString()));
+
+            if (HasFlags(kFlagLiveTV))
+            {
+                QString message = QString("QUIT_LIVETV %1").arg(m_inputId);
+                MythEvent me(message);
+                gCoreContext->dispatch(me);
+            }
             goto err_ret;
         }
-        rec = m_curRecording;  // new'd in Create/SwitchLiveTVRingBuffer()
-    }
 
-    if (m_lastTuningRequest.m_flags & kFlagRecording)
-    {
-        bool write = m_genOpt.m_inputType != "IMPORT";
-        LOG(VB_GENERAL, LOG_INFO, LOC + QString("rec->GetPathname(): '%1'")
-                .arg(rec->GetPathname()));
-        SetRingBuffer(MythMediaBuffer::Create(rec->GetPathname(), write));
-        if (!m_buffer->IsOpen() && write)
+        if (m_channel && m_genOpt.m_inputType == "MJPEG")
+            m_channel->Close(); // Needed because of NVR::MJPEGInit()
+
+        LOG(VB_GENERAL, LOG_INFO, LOC + "TuningNewRecorder - CreateRecorder()");
+        m_recorder = RecorderBase::CreateRecorder(this, m_channel, profile, m_genOpt);
+
+        if (m_recorder)
+        {
+            m_recorder->SetRingBuffer(m_buffer);
+            m_recorder->Initialize();
+            if (m_recorder->IsErrored())
+            {
+                LOG(VB_GENERAL, LOG_ERR, LOC + "Failed to initialize recorder!");
+                delete m_recorder;
+                m_recorder = nullptr;
+            }
+        }
+
+        if (!m_recorder)
         {
             LOG(VB_GENERAL, LOG_ERR, LOC +
-                QString("RingBuffer '%1' not open...")
-                    .arg(rec->GetPathname()));
-            SetRingBuffer(nullptr);
-            ClearFlags(kFlagPendingActions, __FILE__, __LINE__);
+                QString("Failed to start recorder!\n"
+                        "\t\t\t\t  Tuning request was %1\n")
+                    .arg(m_lastTuningRequest.toString()));
+
+            if (HasFlags(kFlagLiveTV))
+            {
+                QString message = QString("QUIT_LIVETV %1").arg(m_inputId);
+                MythEvent me(message);
+                gCoreContext->dispatch(me);
+            }
+            TeardownRecorder(kFlagKillRec);
+            if (m_tvChain)
+                rec = nullptr;
             goto err_ret;
         }
-    }
 
-    if (!m_buffer)
-    {
-        LOG(VB_GENERAL, LOG_ERR, LOC +
-            QString("Failed to start recorder!  ringBuffer is NULL\n"
-                    "\t\t\t\t  Tuning request was %1\n")
-                .arg(m_lastTuningRequest.toString()));
+        if (rec)
+            m_recorder->SetRecording(rec);
 
-        if (HasFlags(kFlagLiveTV))
+        if (GetDTVRecorder() && streamData)
         {
-            QString message = QString("QUIT_LIVETV %1").arg(m_inputId);
-            MythEvent me(message);
-            gCoreContext->dispatch(me);
+            const StandardSetting *setting = profile.byName("recordingtype");
+            if (setting)
+                streamData->SetRecordingType(setting->getValue());
+            GetDTVRecorder()->SetStreamData(streamData);
         }
-        goto err_ret;
-    }
 
-    if (m_channel && m_genOpt.m_inputType == "MJPEG")
-        m_channel->Close(); // Needed because of NVR::MJPEGInit()
+        if (m_channel && m_genOpt.m_inputType == "MJPEG")
+            m_channel->Open(); // Needed because of NVR::MJPEGInit()
 
-    LOG(VB_GENERAL, LOG_INFO, LOC + "TuningNewRecorder - CreateRecorder()");
-    m_recorder = RecorderBase::CreateRecorder(this, m_channel, profile, m_genOpt);
-
-    if (m_recorder)
-    {
-        m_recorder->SetRingBuffer(m_buffer);
-        m_recorder->Initialize();
-        if (m_recorder->IsErrored())
+        // Setup for framebuffer capture devices..
+        if (m_channel)
         {
-            LOG(VB_GENERAL, LOG_ERR, LOC + "Failed to initialize recorder!");
-            delete m_recorder;
-            m_recorder = nullptr;
+            SetVideoFiltersForChannel(m_channel->GetSourceID(),
+                                      m_channel->GetChannelName());
         }
-    }
 
-    if (!m_recorder)
-    {
-        LOG(VB_GENERAL, LOG_ERR, LOC +
-            QString("Failed to start recorder!\n"
-                    "\t\t\t\t  Tuning request was %1\n")
-                .arg(m_lastTuningRequest.toString()));
-
-        if (HasFlags(kFlagLiveTV))
+        if (GetV4LChannel())
         {
-            QString message = QString("QUIT_LIVETV %1").arg(m_inputId);
-            MythEvent me(message);
-            gCoreContext->dispatch(me);
+            m_channel->InitPictureAttributes();
+            CloseChannel();
         }
-        TeardownRecorder(kFlagKillRec);
-        if (m_tvChain)
-            rec = nullptr;
-        goto err_ret;
-    }
 
-    if (rec)
-        m_recorder->SetRecording(rec);
+        m_recorderThread = new MThread("RecThread", m_recorder);
+        m_recorderThread->start();
 
-    if (GetDTVRecorder() && streamData)
-    {
-        const StandardSetting *setting = profile.byName("recordingtype");
-        if (setting)
-            streamData->SetRecordingType(setting->getValue());
-        GetDTVRecorder()->SetStreamData(streamData);
-    }
+        // Wait for recorder to start.
+        m_stateChangeLock.unlock();
+        while (!m_recorder->IsRecording() && !m_recorder->IsErrored())
+            std::this_thread::sleep_for(5us);
+        m_stateChangeLock.lock();
 
-    if (m_channel && m_genOpt.m_inputType == "MJPEG")
-        m_channel->Open(); // Needed because of NVR::MJPEGInit()
+        if (GetV4LChannel())
+            m_channel->SetFd(m_recorder->GetVideoFd());
 
-    // Setup for framebuffer capture devices..
-    if (m_channel)
-    {
-        SetVideoFiltersForChannel(m_channel->GetSourceID(),
-                                  m_channel->GetChannelName());
-    }
+        SetFlags(kFlagRecorderRunning | kFlagRingBufferReady, __FILE__, __LINE__);
 
-    if (GetV4LChannel())
-    {
-        m_channel->InitPictureAttributes();
-        CloseChannel();
-    }
+        ClearFlags(kFlagNeedToStartRecorder, __FILE__, __LINE__);
 
-    m_recorderThread = new MThread("RecThread", m_recorder);
-    m_recorderThread->start();
-
-    // Wait for recorder to start.
-    m_stateChangeLock.unlock();
-    while (!m_recorder->IsRecording() && !m_recorder->IsErrored())
-        std::this_thread::sleep_for(5us);
-    m_stateChangeLock.lock();
-
-    if (GetV4LChannel())
-        m_channel->SetFd(m_recorder->GetVideoFd());
-
-    SetFlags(kFlagRecorderRunning | kFlagRingBufferReady, __FILE__, __LINE__);
-
-    ClearFlags(kFlagNeedToStartRecorder, __FILE__, __LINE__);
-
-    //workaround for failed import recordings, no signal monitor means we never
-    //go to recording state and the status here seems to override the status
-    //set in the importrecorder and backend via setrecordingstatus
-    if (m_genOpt.m_inputType == "IMPORT")
-    {
-        SetRecordingStatus(RecStatus::Recording, __LINE__);
-        if (m_curRecording)
-            m_curRecording->SetRecordingStatus(RecStatus::Recording);
-    }
-    return;
+        //workaround for failed import recordings, no signal monitor means we never
+        //go to recording state and the status here seems to override the status
+        //set in the importrecorder and backend via setrecordingstatus
+        if (m_genOpt.m_inputType == "IMPORT")
+        {
+            SetRecordingStatus(RecStatus::Recording, __LINE__);
+            if (m_curRecording)
+                m_curRecording->SetRecordingStatus(RecStatus::Recording);
+        }
+        return;
 
   err_ret:
-    SetRecordingStatus(RecStatus::Failed, __LINE__, true);
-    ChangeState(kState_None);
+        SetRecordingStatus(RecStatus::Failed, __LINE__, true);
+        ChangeState(kState_None);
 
-    if (rec)
-    {
-        // Make sure the scheduler knows...
-        rec->SetRecordingStatus(RecStatus::Failed);
-        LOG(VB_RECORD, LOG_INFO, LOC +
-            QString("TuningNewRecorder -- UPDATE_RECORDING_STATUS: %1")
-            .arg(RecStatus::toString(RecStatus::Failed, kSingleRecord)));
-        MythEvent me(QString("UPDATE_RECORDING_STATUS %1 %2 %3 %4 %5")
-                     .arg(rec->GetInputID())
-                     .arg(rec->GetChanID())
-                     .arg(rec->GetScheduledStartTime(MythDate::ISODate))
-                     .arg(RecStatus::Failed)
-                     .arg(rec->GetRecordingEndTime(MythDate::ISODate)));
-        gCoreContext->dispatch(me);
-    }
+        if (rec)
+        {
+            // Make sure the scheduler knows...
+            rec->SetRecordingStatus(RecStatus::Failed);
+            LOG(VB_RECORD, LOG_INFO, LOC +
+                QString("TuningNewRecorder -- UPDATE_RECORDING_STATUS: %1")
+                .arg(RecStatus::toString(RecStatus::Failed, kSingleRecord)));
+            MythEvent me(QString("UPDATE_RECORDING_STATUS %1 %2 %3 %4 %5")
+                         .arg(rec->GetInputID())
+                         .arg(rec->GetChanID())
+                         .arg(rec->GetScheduledStartTime(MythDate::ISODate))
+                         .arg(RecStatus::Failed)
+                         .arg(rec->GetRecordingEndTime(MythDate::ISODate)));
+            gCoreContext->dispatch(me);
+        }
 
-    if (m_tvChain)
-        delete rec;
+        if (m_tvChain)
+            delete rec;
 }
 
 /** \fn TVRec::TuningRestartRecorder(void)

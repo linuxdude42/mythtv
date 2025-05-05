@@ -451,98 +451,98 @@ bool MythContext::Impl::FindDatabase(bool prompt, bool noAutodetect)
     // valid XmlConfiguration::k_default_filename
     bool autoSelect = !manualSelect && !loaded && !noAutodetect;
 
-    // 2. If the user isn't forcing up the chooser UI, look for a default
-    //    backend in XmlConfiguration::k_default_filename, then test DB settings we've got so far:
-    if (!manualSelect)
-    {
-        // XmlConfiguration::k_default_filename may contain a backend host UUID and PIN.
-        // If so, try to AutoDiscover UPnP server, and use its DB settings:
-
-        if (DefaultUPnP(failure))                // Probably a valid backend,
-            autoSelect = manualSelect = false;   // so disable any further UPnP
-        else
-            if (!failure.isEmpty())
-                LOG(VB_GENERAL, LOG_ALERT, failure);
-
-        failure = TestDBconnection(loaded);
-        if (failure.isEmpty())
-            goto DBfound;
-        if (m_guiStartup && m_guiStartup->m_Exit)
-            return false;
-        if (m_guiStartup && m_guiStartup->m_Search)
-            autoSelect=true;
-    }
-
-    // 3. Try to automatically find the single backend:
-    if (autoSelect)
-    {
-        int count = UPnPautoconf();
-
-        if (count == 0)
-            failure = QObject::tr("No UPnP backends found", "Backend Setup");
-
-        if (count == 1)
+        // 2. If the user isn't forcing up the chooser UI, look for a default
+        //    backend in XmlConfiguration::k_default_filename, then test DB settings we've got so far:
+        if (!manualSelect)
         {
-            failure = TestDBconnection();
+            // XmlConfiguration::k_default_filename may contain a backend host UUID and PIN.
+            // If so, try to AutoDiscover UPnP server, and use its DB settings:
+
+            if (DefaultUPnP(failure))                // Probably a valid backend,
+                autoSelect = manualSelect = false;   // so disable any further UPnP
+            else
+                if (!failure.isEmpty())
+                    LOG(VB_GENERAL, LOG_ALERT, failure);
+
+            failure = TestDBconnection(loaded);
             if (failure.isEmpty())
                 goto DBfound;
             if (m_guiStartup && m_guiStartup->m_Exit)
                 return false;
+            if (m_guiStartup && m_guiStartup->m_Search)
+                autoSelect=true;
         }
 
-        // Multiple BEs, or needs PIN.
-        manualSelect |= (count > 1 || count == -1);
-        // Search requested
-        if (m_guiStartup && m_guiStartup->m_Search)
-            manualSelect=true;
-    }
-
-    manualSelect &= m_gui;  // no interactive command-line chooser yet
-
-    // Queries the user for the DB info
-    do
-    {
-        if (manualSelect)
+        // 3. Try to automatically find the single backend:
+        if (autoSelect)
         {
-            // Get the user to select a backend from a possible list:
-            switch (ChooseBackend(failure))
+            int count = UPnPautoconf();
+
+            if (count == 0)
+                failure = QObject::tr("No UPnP backends found", "Backend Setup");
+
+            if (count == 1)
             {
-                case BackendSelection::kAcceptConfigure:
-                    break;
-                case BackendSelection::kManualConfigure:
-                    manualSelect = false;
-                    break;
-                case BackendSelection::kCancelConfigure:
+                failure = TestDBconnection();
+                if (failure.isEmpty())
+                    goto DBfound;
+                if (m_guiStartup && m_guiStartup->m_Exit)
+                    return false;
+            }
+
+            // Multiple BEs, or needs PIN.
+            manualSelect |= (count > 1 || count == -1);
+            // Search requested
+            if (m_guiStartup && m_guiStartup->m_Search)
+                manualSelect=true;
+        }
+
+        manualSelect &= m_gui;  // no interactive command-line chooser yet
+
+        // Queries the user for the DB info
+        do
+        {
+            if (manualSelect)
+            {
+                // Get the user to select a backend from a possible list:
+                switch (ChooseBackend(failure))
+                {
+                    case BackendSelection::kAcceptConfigure:
+                        break;
+                    case BackendSelection::kManualConfigure:
+                        manualSelect = false;
+                        break;
+                    case BackendSelection::kCancelConfigure:
+                    {
+                        LOG(VB_GENERAL, LOG_DEBUG, "FindDatabase() - failed");
+                        return false;
+                    }
+                }
+            }
+
+            if (!manualSelect)
+            {
+                // If this is a backend, No longer prompt for database.
+                // Instead allow the web server to start so that the
+                // database can be set up there
+                if (gCoreContext->IsBackend()
+                    || !PromptForDatabaseParams(failure))
                 {
                     LOG(VB_GENERAL, LOG_DEBUG, "FindDatabase() - failed");
                     return false;
                 }
             }
-        }
-
-        if (!manualSelect)
-        {
-            // If this is a backend, No longer prompt for database.
-            // Instead allow the web server to start so that the
-            // database can be set up there
-            if (gCoreContext->IsBackend()
-                || !PromptForDatabaseParams(failure))
-            {
-                LOG(VB_GENERAL, LOG_DEBUG, "FindDatabase() - failed");
+            failure = TestDBconnection();
+            if (!failure.isEmpty())
+                LOG(VB_GENERAL, LOG_ALERT, failure);
+            if (m_guiStartup && m_guiStartup->m_Exit)
                 return false;
-            }
+            if (m_guiStartup && m_guiStartup->m_Search)
+                manualSelect=true;
+            if (m_guiStartup && m_guiStartup->m_Setup)
+                manualSelect=false;
         }
-        failure = TestDBconnection();
-        if (!failure.isEmpty())
-            LOG(VB_GENERAL, LOG_ALERT, failure);
-        if (m_guiStartup && m_guiStartup->m_Exit)
-            return false;
-        if (m_guiStartup && m_guiStartup->m_Search)
-            manualSelect=true;
-        if (m_guiStartup && m_guiStartup->m_Setup)
-            manualSelect=false;
-    }
-    while (!failure.isEmpty());
+        while (!failure.isEmpty());
 
 DBfound:
     LOG(VB_GENERAL, LOG_DEBUG, "FindDatabase() - Success!");

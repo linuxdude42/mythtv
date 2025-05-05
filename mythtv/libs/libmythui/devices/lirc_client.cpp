@@ -1906,72 +1906,76 @@ static const char *lirc_read_string(const struct lirc_state *state, int fd)
 	fd_set fds;
 	struct timeval tv {};
 	
-	if(s_head>0)
 	{
-		memmove(s_buffer.data(),s_buffer.data()+s_head,s_tail-s_head+1);
-		s_tail-=s_head;
-		s_head=0;
-		end=strchr(s_buffer.data(),'\n');
-	}
-	else
-	{
-		end=nullptr;
-	}
-	if(strlen(s_buffer.data())!=s_tail)
-	{
-		lirc_printf(state, "%s: protocol error\n", state->lirc_prog);
-		goto lirc_read_string_error;
-	}
-	
-	while(end==nullptr)
-	{
-		if(LIRC_PACKET_SIZE<=s_tail)
+		if(s_head>0)
 		{
-			lirc_printf(state, "%s: bad packet\n", state->lirc_prog);
+			memmove(s_buffer.data(),s_buffer.data()+s_head,s_tail-s_head+1);
+			s_tail-=s_head;
+			s_head=0;
+			end=strchr(s_buffer.data(),'\n');
+		}
+		else
+		{
+			end=nullptr;
+		}
+		if(strlen(s_buffer.data())!=s_tail)
+		{
+			lirc_printf(state, "%s: protocol error\n", state->lirc_prog);
 			goto lirc_read_string_error;
 		}
 		
-		FD_ZERO(&fds); // NOLINT(readability-isolate-declaration)
-		FD_SET(fd,&fds);
-		tv.tv_sec=LIRC_TIMEOUT;
-		tv.tv_usec=0;
-		do
+		while(end==nullptr)
 		{
-			ret=select(fd+1,&fds,nullptr,nullptr,&tv);
+			if(LIRC_PACKET_SIZE<=s_tail)
+			{
+				lirc_printf(state, "%s: bad packet\n", state->lirc_prog);
+				goto lirc_read_string_error;
+			}
+
+			FD_ZERO(&fds); // NOLINT(readability-isolate-declaration)
+			FD_SET(fd,&fds);
+			tv.tv_sec=LIRC_TIMEOUT;
+			tv.tv_usec=0;
+			do
+			{
+				ret=select(fd+1,&fds,nullptr,nullptr,&tv);
+			}
+			while(ret==-1 && errno==EINTR);
+			if(ret==-1)
+			{
+				lirc_printf(state, "%s: select() failed\n", state->lirc_prog);
+				lirc_perror(state, state->lirc_prog);
+				goto lirc_read_string_error;
+			}
+			else if(ret==0)
+			{
+				lirc_printf(state, "%s: timeout\n", state->lirc_prog);
+				goto lirc_read_string_error;
+			}
+
+			n=read(fd, s_buffer.data()+s_tail, LIRC_PACKET_SIZE-s_tail);
+			if(n<=0)
+			{
+				lirc_printf(state, "%s: read() failed\n", state->lirc_prog);
+				lirc_perror(state, state->lirc_prog);
+				goto lirc_read_string_error;
+			}
+			s_buffer[s_tail+n]=0;
+			s_tail+=n;
+			end=strchr(s_buffer.data(),'\n');
 		}
-		while(ret==-1 && errno==EINTR);
-		if(ret==-1)
-		{
-			lirc_printf(state, "%s: select() failed\n", state->lirc_prog);
-			lirc_perror(state, state->lirc_prog);
-			goto lirc_read_string_error;
-		}
-		else if(ret==0)
-		{
-			lirc_printf(state, "%s: timeout\n", state->lirc_prog);
-			goto lirc_read_string_error;
-		}
-		
-		n=read(fd, s_buffer.data()+s_tail, LIRC_PACKET_SIZE-s_tail);
-		if(n<=0)
-		{
-			lirc_printf(state, "%s: read() failed\n", state->lirc_prog);
-			lirc_perror(state, state->lirc_prog);			
-			goto lirc_read_string_error;
-		}
-		s_buffer[s_tail+n]=0;
-		s_tail+=n;
-		end=strchr(s_buffer.data(),'\n');
+
+		end[0]=0;
+		s_head=strlen(s_buffer.data())+1;
+		return(s_buffer.data());
 	}
-	
-	end[0]=0;
-	s_head=strlen(s_buffer.data())+1;
-	return(s_buffer.data());
 
  lirc_read_string_error:
-	s_head=s_tail=0;
-	s_buffer[0]=0;
-	return nullptr;
+	{
+		s_head=s_tail=0;
+		s_buffer[0]=0;
+		return nullptr;
+	}
 }
 
 int lirc_send_command(const struct lirc_state *lstate, int sockfd, const char *command, char *buf, size_t *buf_len, int *ret_status)
@@ -2007,102 +2011,105 @@ int lirc_send_command(const struct lirc_state *lstate, int sockfd, const char *c
 	int status=LIRC_RET_SUCCESS;
 	enum packet_state state=P_BEGIN;
 	n=0;
-	while(true)
 	{
-		const char *string=lirc_read_string(lstate, sockfd);
-		if(string==nullptr) return(-1);
-		switch(state)
+		while(true)
 		{
-		case P_BEGIN:
-			if(strcasecmp(string,"BEGIN")!=0)
+			const char *string=lirc_read_string(lstate, sockfd);
+			if(string==nullptr) return(-1);
+			switch(state)
 			{
-				continue;
-			}
-			state=P_MESSAGE;
-			break;
-		case P_MESSAGE:
-			if(strncasecmp(string,command,strlen(string))!=0 ||
-			   strlen(string)+1!=strlen(command))
-			{
-				state=P_BEGIN;
-				continue;
-			}
-			state=P_STATUS;
-			break;
-		case P_STATUS:
-			if(strcasecmp(string,"SUCCESS")==0)
-			{
-				status=LIRC_RET_SUCCESS;
-			}
-			else if(strcasecmp(string,"END")==0)
-			{
-				status=LIRC_RET_SUCCESS;
-				goto good_packet;
-			}
-			else if(strcasecmp(string,"ERROR")==0)
-			{
-				lirc_printf(lstate, "%s: command failed: %s",
-					    lstate->lirc_prog, command);
-				status=LIRC_RET_ERROR;
-			}
-			else
-			{
+			case P_BEGIN:
+				if(strcasecmp(string,"BEGIN")!=0)
+				{
+					continue;
+				}
+				state=P_MESSAGE;
+				break;
+			case P_MESSAGE:
+				if(strncasecmp(string,command,strlen(string))!=0 ||
+				   strlen(string)+1!=strlen(command))
+				{
+					state=P_BEGIN;
+					continue;
+				}
+				state=P_STATUS;
+				break;
+			case P_STATUS:
+				if(strcasecmp(string,"SUCCESS")==0)
+				{
+					status=LIRC_RET_SUCCESS;
+				}
+				else if(strcasecmp(string,"END")==0)
+				{
+					status=LIRC_RET_SUCCESS;
+					goto good_packet;
+				}
+				else if(strcasecmp(string,"ERROR")==0)
+				{
+					lirc_printf(lstate, "%s: command failed: %s",
+						    lstate->lirc_prog, command);
+					status=LIRC_RET_ERROR;
+				}
+				else
+				{
+					goto bad_packet;
+				}
+				state=P_DATA;
+				break;
+			case P_DATA:
+				if(strcasecmp(string,"END")==0)
+				{
+					goto good_packet;
+				}
+				else if(strcasecmp(string,"DATA")==0)
+				{
+					state=P_N;
+					break;
+				}
 				goto bad_packet;
-			}
-			state=P_DATA;
-			break;
-		case P_DATA:
-			if(strcasecmp(string,"END")==0)
-			{
-				goto good_packet;
-			}
-			else if(strcasecmp(string,"DATA")==0)
-			{
-				state=P_N;
+			case P_N:
+				errno=0;
+				data_n=strtoul(string,&endptr,0);
+				if(!*string || *endptr)
+				{
+					goto bad_packet;
+				}
+				if(data_n==0)
+				{
+					state=P_END;
+				}
+				else
+				{
+					state=P_DATA_N;
+				}
+				break;
+			case P_DATA_N:
+				len=strlen(string);
+				if(buf!=nullptr && written+len+1<max)
+				{
+					memcpy(buf+written, string, len+1);
+				}
+				written+=len+1;
+				n++;
+				if(n==data_n) state=P_END;
+				break;
+			case P_END:
+				if(strcasecmp(string,"END")==0)
+				{
+					goto good_packet;
+				}
+				goto bad_packet;
 				break;
 			}
-			goto bad_packet;
-		case P_N:
-			errno=0;
-			data_n=strtoul(string,&endptr,0);
-			if(!*string || *endptr)
-			{
-				goto bad_packet;
-			}
-			if(data_n==0)
-			{
-				state=P_END;
-			}
-			else
-			{
-				state=P_DATA_N;
-			}
-			break;
-		case P_DATA_N:
-			len=strlen(string);
-			if(buf!=nullptr && written+len+1<max)
-			{
-				memcpy(buf+written, string, len+1);
-			}
-			written+=len+1;
-			n++;
-			if(n==data_n) state=P_END;
-			break;
-		case P_END:
-			if(strcasecmp(string,"END")==0)
-			{
-				goto good_packet;
-			}
-			goto bad_packet;
-			break;
 		}
 	}
-	
 	/* never reached */
 	
+	{
  bad_packet:
-	lirc_printf(lstate, "%s: bad return packet\n", lstate->lirc_prog);
-	return(-1);
+		lirc_printf(lstate, "%s: bad return packet\n", lstate->lirc_prog);
+		return(-1);
+	}
 	
  good_packet:
 	if(ret_status!=nullptr)
