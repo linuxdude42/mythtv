@@ -1882,82 +1882,82 @@ void MHIBitmap::CreateFromMPEG(const unsigned char *data, int length)
 
     c = avcodec_alloc_context3(nullptr);
 
-    if (avcodec_open2(c, codec, nullptr) < 0)
-        goto Close;
-
-    // Copy the data into AVPacket
-    if (av_new_packet(&pkt, length) < 0)
-        goto Close;
-
-    memcpy(pkt.data, data, length);
-    buff = pkt.data;
-
-    // Get a picture from the packet. Allow 9 loops for
-    // packet to be decoded. It should take only 2-3 loops
-    for (int limit=0; limit<10 && !gotPicture; limit++)
-    {
-        int len = avcodec_receive_frame(c, picture);
-        if (len == 0)
-            gotPicture = true;
-        if (len == AVERROR(EAGAIN))
-            len = 0;
-        if (len == 0)
-            len = avcodec_send_packet(c, &pkt);
-        if (len == AVERROR(EAGAIN) || len == AVERROR_EOF)
-            len = 0;
-        if (len < 0) // Error
-        {
-            std::string error;
-            LOG(VB_GENERAL, LOG_ERR,
-                QString("[mhi] video decode error: %1 (%2)")
-                .arg(av_make_error_stdstring(error, len))
-                .arg(gotPicture));
+        if (avcodec_open2(c, codec, nullptr) < 0)
             goto Close;
-        }
-        else
+
+        // Copy the data into AVPacket
+        if (av_new_packet(&pkt, length) < 0)
+            goto Close;
+
+        memcpy(pkt.data, data, length);
+        buff = pkt.data;
+
+        // Get a picture from the packet. Allow 9 loops for
+        // packet to be decoded. It should take only 2-3 loops
+        for (int limit=0; limit<10 && !gotPicture; limit++)
         {
-            pkt.data = nullptr;
-            pkt.size = 0;
-        }
-    }
-
-    if (gotPicture)
-    {
-        int nContentWidth = c->width;
-        int nContentHeight = c->height;
-        m_image = QImage(nContentWidth, nContentHeight, QImage::Format_ARGB32);
-        m_opaque = true; // MPEG images are always opaque.
-
-        AVFrame retbuf;
-        memset(&retbuf, 0, sizeof(AVFrame));
-
-        int bufflen = nContentWidth * nContentHeight * 3;
-        auto *outputbuf = (unsigned char*)av_malloc(bufflen);
-
-        av_image_fill_arrays(retbuf.data, retbuf.linesize,
-            outputbuf, AV_PIX_FMT_RGB24,
-            nContentWidth, nContentHeight,IMAGE_ALIGN);
-
-        AVFrame *tmp = picture;
-        m_copyCtx->Copy(&retbuf, AV_PIX_FMT_RGB24, tmp, c->pix_fmt,
-                     nContentWidth, nContentHeight);
-
-        uint8_t * buf = outputbuf;
-
-        // Copy the data a pixel at a time.
-        // This should handle endianness correctly.
-        for (int i = 0; i < nContentHeight; i++)
-        {
-            for (int j = 0; j < nContentWidth; j++)
+            int len = avcodec_receive_frame(c, picture);
+            if (len == 0)
+                gotPicture = true;
+            if (len == AVERROR(EAGAIN))
+                len = 0;
+            if (len == 0)
+                len = avcodec_send_packet(c, &pkt);
+            if (len == AVERROR(EAGAIN) || len == AVERROR_EOF)
+                len = 0;
+            if (len < 0) // Error
             {
-                int red = *buf++;
-                int green = *buf++;
-                int blue = *buf++;
-                m_image.setPixel(j, i, qRgb(red, green, blue));
+                std::string error;
+                LOG(VB_GENERAL, LOG_ERR,
+                    QString("[mhi] video decode error: %1 (%2)")
+                    .arg(av_make_error_stdstring(error, len))
+                    .arg(gotPicture));
+                goto Close;
+            }
+            else
+            {
+                pkt.data = nullptr;
+                pkt.size = 0;
             }
         }
-        av_freep(reinterpret_cast<void*>(&outputbuf));
-    }
+
+        if (gotPicture)
+        {
+            int nContentWidth = c->width;
+            int nContentHeight = c->height;
+            m_image = QImage(nContentWidth, nContentHeight, QImage::Format_ARGB32);
+            m_opaque = true; // MPEG images are always opaque.
+
+            AVFrame retbuf;
+            memset(&retbuf, 0, sizeof(AVFrame));
+
+            int bufflen = nContentWidth * nContentHeight * 3;
+            auto *outputbuf = (unsigned char*)av_malloc(bufflen);
+
+            av_image_fill_arrays(retbuf.data, retbuf.linesize,
+                outputbuf, AV_PIX_FMT_RGB24,
+                nContentWidth, nContentHeight,IMAGE_ALIGN);
+
+            AVFrame *tmp = picture;
+            m_copyCtx->Copy(&retbuf, AV_PIX_FMT_RGB24, tmp, c->pix_fmt,
+                         nContentWidth, nContentHeight);
+
+            uint8_t * buf = outputbuf;
+
+            // Copy the data a pixel at a time.
+            // This should handle endianness correctly.
+            for (int i = 0; i < nContentHeight; i++)
+            {
+                for (int j = 0; j < nContentWidth; j++)
+                {
+                    int red = *buf++;
+                    int green = *buf++;
+                    int blue = *buf++;
+                    m_image.setPixel(j, i, qRgb(red, green, blue));
+                }
+            }
+            av_freep(reinterpret_cast<void*>(&outputbuf));
+        }
 
 Close:
     pkt.data = buff;

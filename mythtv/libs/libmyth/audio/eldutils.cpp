@@ -234,62 +234,64 @@ void eld::update_sad(int index,
 
 int eld::update_eld(const char *buf, int size)
 {
-    int mnl = 0;
-
-    m_e.eld_ver = GRAB_BITS(buf, 0, 3, 5);
-    if (m_e.eld_ver != ELD_VER_CEA_861D &&
-        m_e.eld_ver != ELD_VER_PARTIAL)
     {
-        LOG(VB_AUDIO, LOG_INFO, LOC + QString("Unknown ELD version %1").arg(m_e.eld_ver));
-        goto out_fail;
-    }
+        int mnl = 0;
 
-    m_e.eld_size = size;
-    m_e.baseline_len    = GRAB_BITS(buf, 2, 0, 8);
-    mnl                = GRAB_BITS(buf, 4, 0, 5);
-    m_e.cea_edid_ver    = GRAB_BITS(buf, 4, 5, 3);
-
-    m_e.support_hdcp    = GRAB_BITS(buf, 5, 0, 1);
-    m_e.support_ai      = GRAB_BITS(buf, 5, 1, 1);
-    m_e.conn_type       = GRAB_BITS(buf, 5, 2, 2);
-    m_e.sad_count       = GRAB_BITS(buf, 5, 4, 4);
-
-    m_e.aud_synch_delay = GRAB_BITS(buf, 6, 0, 8) * 2;
-    m_e.spk_alloc       = GRAB_BITS(buf, 7, 0, 7);
-
-    m_e.port_id         = qFromLittleEndian<quint64>(buf + 8);
-
-    /* not specified, but the spec's tendency is little endian */
-    m_e.manufacture_id  = qFromLittleEndian<quint16>(buf + 16);
-    m_e.product_id      = qFromLittleEndian<quint16>(buf + 18);
-
-    if (ELD_FIXED_BYTES + mnl > size)
-    {
-        LOG(VB_AUDIO, LOG_INFO, LOC + QString("out of range MNL %1").arg(mnl));
-        goto out_fail;
-    }
-    else
-    {
-        std::string tmp(buf + ELD_FIXED_BYTES, mnl);
-        m_e.monitor_name = QString::fromStdString(tmp);
-    }
-
-    for (int i = 0; i < m_e.sad_count; i++)
-    {
-        if (ELD_FIXED_BYTES + mnl + 3 * (i + 1) > size)
+        m_e.eld_ver = GRAB_BITS(buf, 0, 3, 5);
+        if (m_e.eld_ver != ELD_VER_CEA_861D &&
+            m_e.eld_ver != ELD_VER_PARTIAL)
         {
-            LOG(VB_AUDIO, LOG_INFO, LOC + QString("out of range SAD %1").arg(i));
+            LOG(VB_AUDIO, LOG_INFO, LOC + QString("Unknown ELD version %1").arg(m_e.eld_ver));
             goto out_fail;
         }
-        update_sad(i, buf + ELD_FIXED_BYTES + mnl + (3 * static_cast<ptrdiff_t>(i)));
+
+        m_e.eld_size = size;
+        m_e.baseline_len    = GRAB_BITS(buf, 2, 0, 8);
+        mnl                = GRAB_BITS(buf, 4, 0, 5);
+        m_e.cea_edid_ver    = GRAB_BITS(buf, 4, 5, 3);
+
+        m_e.support_hdcp    = GRAB_BITS(buf, 5, 0, 1);
+        m_e.support_ai      = GRAB_BITS(buf, 5, 1, 1);
+        m_e.conn_type       = GRAB_BITS(buf, 5, 2, 2);
+        m_e.sad_count       = GRAB_BITS(buf, 5, 4, 4);
+
+        m_e.aud_synch_delay = GRAB_BITS(buf, 6, 0, 8) * 2;
+        m_e.spk_alloc       = GRAB_BITS(buf, 7, 0, 7);
+
+        m_e.port_id         = qFromLittleEndian<quint64>(buf + 8);
+
+        /* not specified, but the spec's tendency is little endian */
+        m_e.manufacture_id  = qFromLittleEndian<quint16>(buf + 16);
+        m_e.product_id      = qFromLittleEndian<quint16>(buf + 18);
+
+        if (ELD_FIXED_BYTES + mnl > size)
+        {
+            LOG(VB_AUDIO, LOG_INFO, LOC + QString("out of range MNL %1").arg(mnl));
+            goto out_fail;
+        }
+        else
+        {
+            std::string tmp(buf + ELD_FIXED_BYTES, mnl);
+            m_e.monitor_name = QString::fromStdString(tmp);
+        }
+
+        for (int i = 0; i < m_e.sad_count; i++)
+        {
+            if (ELD_FIXED_BYTES + mnl + 3 * (i + 1) > size)
+            {
+                LOG(VB_AUDIO, LOG_INFO, LOC + QString("out of range SAD %1").arg(i));
+                goto out_fail;
+            }
+            update_sad(i, buf + ELD_FIXED_BYTES + mnl + (3 * static_cast<ptrdiff_t>(i)));
+        }
+
+        /*
+         * Assume the highest speakers configuration
+         */
+        if (!m_e.spk_alloc)
+            m_e.spk_alloc = 0xffff;
     }
-
-    /*
-     * Assume the highest speakers configuration
-     */
-    if (!m_e.spk_alloc)
-        m_e.spk_alloc = 0xffff;
-
+    
     m_e.eld_valid = true;
     return 0;
 

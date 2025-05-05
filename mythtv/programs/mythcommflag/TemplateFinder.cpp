@@ -477,89 +477,91 @@ template_alloc(const unsigned int *scores, int width, int height,
     memcpy(sortedscores, scores, nn * sizeof(*sortedscores));
     qsort(sortedscores, nn, sizeof(*sortedscores), sort_ascending);
 
-    if (sortedscores[0] == sortedscores[nn - 1])
     {
-        /* All pixels in the template area look the same; no template. */
-        LOG(VB_COMMFLAG, LOG_ERR,
-            QString("template_alloc: %1x%2 pixels all identical!")
-                .arg(width).arg(height));
-        goto free_thresh;
-    }
-
-    /* Threshold the edge frequences. */
-
-    ii = (int)roundf(nn * kMinScorePctile);
-    threshscore = sortedscores[ii];
-    for (first = ii; first > 0 && sortedscores[first] == threshscore; first--)
-        ;
-    if (sortedscores[first] != threshscore)
-        first++;
-    for (last = ii; last < nn - 1 && sortedscores[last] == threshscore; last++)
-        ;
-    if (sortedscores[last] != threshscore)
-        last--;
-
-    LOG(VB_COMMFLAG, LOG_INFO, QString("template_alloc wanted %1, got %2-%3")
-            .arg(kMinScorePctile, 0, 'f', 6)
-            .arg((float)first / nn, 0, 'f', 6)
-            .arg((float)last / nn, 0, 'f', 6));
-
-    for (ii = 0; ii < nn; ii++)
-        thresh.data[0][ii] = scores[ii] >= threshscore ? UCHAR_MAX : 0;
-
-    if (debug_edgecounts)
-    {
-        /* Scores, rescaled to [0..UCHAR_MAX]. */
-        AVFrame scored;
-        if (av_image_alloc(scored.data, scored.linesize,
-            width, height, AV_PIX_FMT_GRAY8, IMAGE_ALIGN) < 0)
+        if (sortedscores[0] == sortedscores[nn - 1])
         {
+            /* All pixels in the template area look the same; no template. */
             LOG(VB_COMMFLAG, LOG_ERR,
-                QString("template_alloc av_image_alloc scored (%1x%2) failed")
+                QString("template_alloc: %1x%2 pixels all identical!")
                     .arg(width).arg(height));
             goto free_thresh;
         }
-        unsigned int maxscore = sortedscores[nn - 1];
+
+        /* Threshold the edge frequences. */
+
+        ii = (int)roundf(nn * kMinScorePctile);
+        threshscore = sortedscores[ii];
+        for (first = ii; first > 0 && sortedscores[first] == threshscore; first--)
+            ;
+        if (sortedscores[first] != threshscore)
+            first++;
+        for (last = ii; last < nn - 1 && sortedscores[last] == threshscore; last++)
+            ;
+        if (sortedscores[last] != threshscore)
+            last--;
+
+        LOG(VB_COMMFLAG, LOG_INFO, QString("template_alloc wanted %1, got %2-%3")
+                .arg(kMinScorePctile, 0, 'f', 6)
+                .arg((float)first / nn, 0, 'f', 6)
+                .arg((float)last / nn, 0, 'f', 6));
+
         for (ii = 0; ii < nn; ii++)
-            scored.data[0][ii] = scores[ii] * UCHAR_MAX / maxscore;
-        bool success = writeJPG(debugdir + "/TemplateFinder-scores", &scored,
-                height);
-        av_freep(reinterpret_cast<void*>(&scored.data[0]));
-        if (!success)
+            thresh.data[0][ii] = scores[ii] >= threshscore ? UCHAR_MAX : 0;
+
+        if (debug_edgecounts)
+        {
+            /* Scores, rescaled to [0..UCHAR_MAX]. */
+            AVFrame scored;
+            if (av_image_alloc(scored.data, scored.linesize,
+                width, height, AV_PIX_FMT_GRAY8, IMAGE_ALIGN) < 0)
+            {
+                LOG(VB_COMMFLAG, LOG_ERR,
+                    QString("template_alloc av_image_alloc scored (%1x%2) failed")
+                        .arg(width).arg(height));
+                goto free_thresh;
+            }
+            unsigned int maxscore = sortedscores[nn - 1];
+            for (ii = 0; ii < nn; ii++)
+                scored.data[0][ii] = scores[ii] * UCHAR_MAX / maxscore;
+            bool success = writeJPG(debugdir + "/TemplateFinder-scores", &scored,
+                    height);
+            av_freep(reinterpret_cast<void*>(&scored.data[0]));
+            if (!success)
+                goto free_thresh;
+
+            /* Thresholded scores. */
+            if (!writeJPG(debugdir + "/TemplateFinder-edgecounts", &thresh, height))
+                goto free_thresh;
+        }
+
+        /* Crop to a minimal bounding box. */
+
+        if (bounding_box(&thresh, height, minrow, mincol, maxrow1, maxcol1,
+                    ptmplrow, ptmplcol, ptmplwidth, ptmplheight))
             goto free_thresh;
 
-        /* Thresholded scores. */
-        if (!writeJPG(debugdir + "/TemplateFinder-edgecounts", &thresh, height))
+        if ((uint)(*ptmplwidth * *ptmplheight) > USHRT_MAX)
+        {
+            /* Max value of data type of TemplateMatcher::edgematch */
+            LOG(VB_COMMFLAG, LOG_ERR,
+                QString("template_alloc bounding_box too big (%1x%2)")
+                    .arg(*ptmplwidth).arg(*ptmplheight));
+            goto free_thresh;
+        }
+
+        if (av_image_alloc(tmpl->data, tmpl->linesize,
+            *ptmplwidth, *ptmplheight, AV_PIX_FMT_GRAY8, IMAGE_ALIGN) < 0)
+        {
+            LOG(VB_COMMFLAG, LOG_ERR,
+                QString("template_alloc av_image_alloc tmpl (%1x%2) failed")
+                    .arg(*ptmplwidth).arg(*ptmplheight));
+            goto free_thresh;
+        }
+
+        if (pgm_crop(tmpl, &thresh, height, *ptmplrow, *ptmplcol,
+                    *ptmplwidth, *ptmplheight))
             goto free_thresh;
     }
-
-    /* Crop to a minimal bounding box. */
-
-    if (bounding_box(&thresh, height, minrow, mincol, maxrow1, maxcol1,
-                ptmplrow, ptmplcol, ptmplwidth, ptmplheight))
-        goto free_thresh;
-
-    if ((uint)(*ptmplwidth * *ptmplheight) > USHRT_MAX)
-    {
-        /* Max value of data type of TemplateMatcher::edgematch */
-        LOG(VB_COMMFLAG, LOG_ERR,
-            QString("template_alloc bounding_box too big (%1x%2)")
-                .arg(*ptmplwidth).arg(*ptmplheight));
-        goto free_thresh;
-    }
-
-    if (av_image_alloc(tmpl->data, tmpl->linesize,
-        *ptmplwidth, *ptmplheight, AV_PIX_FMT_GRAY8, IMAGE_ALIGN) < 0)
-    {
-        LOG(VB_COMMFLAG, LOG_ERR,
-            QString("template_alloc av_image_alloc tmpl (%1x%2) failed")
-                .arg(*ptmplwidth).arg(*ptmplheight));
-        goto free_thresh;
-    }
-
-    if (pgm_crop(tmpl, &thresh, height, *ptmplrow, *ptmplcol,
-                *ptmplwidth, *ptmplheight))
-        goto free_thresh;
 
     delete []sortedscores;
     av_freep(reinterpret_cast<void*>(&thresh.data[0]));
@@ -809,29 +811,31 @@ TemplateFinder::MythPlayerInited(MythPlayer *player,
         }
     }
 
-    if (m_pgmConverter->MythPlayerInited(player))
-        goto free_tmpl;
-
-    if (m_borderDetector->MythPlayerInited(player))
-        goto free_tmpl;
-
-    if (m_tmplDone)
     {
-        if (m_tmplValid)
+        if (m_pgmConverter->MythPlayerInited(player))
+            goto free_tmpl;
+
+        if (m_borderDetector->MythPlayerInited(player))
+            goto free_tmpl;
+
+        if (m_tmplDone)
         {
-            LOG(VB_COMMFLAG, LOG_INFO,
-                QString("TemplateFinder::MythPlayerInited %1 of %2 (%3)")
-                    .arg(tmpldims, playerdims, m_debugTmpl));
+            if (m_tmplValid)
+            {
+                LOG(VB_COMMFLAG, LOG_INFO,
+                    QString("TemplateFinder::MythPlayerInited %1 of %2 (%3)")
+                        .arg(tmpldims, playerdims, m_debugTmpl));
+            }
+            return ANALYZE_FINISHED;
         }
-        return ANALYZE_FINISHED;
+
+        LOG(VB_COMMFLAG, LOG_INFO,
+            QString("TemplateFinder::MythPlayerInited framesize %1")
+                .arg(playerdims));
+        m_scores = new unsigned int[m_width * m_height];
+
+        return ANALYZE_OK;
     }
-
-    LOG(VB_COMMFLAG, LOG_INFO,
-        QString("TemplateFinder::MythPlayerInited framesize %1")
-            .arg(playerdims));
-    m_scores = new unsigned int[m_width * m_height];
-
-    return ANALYZE_OK;
 
 free_tmpl:
     av_freep(reinterpret_cast<void*>(&m_tmpl.data[0]));
@@ -911,74 +915,78 @@ TemplateFinder::analyzeFrame(const MythVideoFrame *frame, long long frameno,
     m_nextFrame = frameno + m_frameInterval;
     *pNextFrame = std::min(m_endFrame, m_nextFrame);
 
-    const AVFrame *pgm = m_pgmConverter->getImage(frame, frameno, &pgmwidth, &pgmheight);
-    if (pgm == nullptr)
-        goto error;
-
-    if (!m_borderDetector->getDimensions(pgm, pgmheight, frameno,
-                &croprow, &cropcol, &cropwidth, &cropheight))
     {
-        /* Not a blank frame. */
-
-        auto start = nowAsDuration<std::chrono::microseconds>();
-
-        m_minContentRow = std::min(croprow, m_minContentRow);
-        m_minContentCol = std::min(cropcol, m_minContentCol);
-        m_maxContentCol1 = std::max(cropcol + cropwidth, m_maxContentCol1);
-        m_maxContentRow1 = std::max(croprow + cropheight, m_maxContentRow1);
-
-        if (resetBuffers(cropwidth, cropheight))
+        const AVFrame *pgm = m_pgmConverter->getImage(frame, frameno, &pgmwidth, &pgmheight);
+        if (pgm == nullptr)
             goto error;
 
-        if (pgm_crop(&m_cropped, pgm, pgmheight, croprow, cropcol,
-                    cropwidth, cropheight))
-            goto error;
-
-        /*
-         * Translate the excluded area of the screen into "cropped"
-         * coordinates.
-         */
-        int excludewidth  = (int)(pgmwidth * kExcludeWidth);
-        int excludeheight = (int)(pgmheight * kExcludeHeight);
-        int excluderow = ((pgmheight - excludeheight) / 2) - croprow;
-        int excludecol = ((pgmwidth - excludewidth) / 2) - cropcol;
-        (void)m_edgeDetector->setExcludeArea(excluderow, excludecol,
-                excludewidth, excludeheight);
-
-        const AVFrame *edges =
-            m_edgeDetector->detectEdges(&m_cropped, cropheight, FRAMESGMPCTILE);
-        if (edges == nullptr)
-            goto error;
-
-        if (pgm_scorepixels(m_scores, pgmwidth, croprow, cropcol,
-                    edges, cropheight))
-            goto error;
-
-        if (m_debugLevel >= 2)
+        if (!m_borderDetector->getDimensions(pgm, pgmheight, frameno,
+                    &croprow, &cropcol, &cropwidth, &cropheight))
         {
-            if (!analyzeFrameDebug(frameno, pgm, pgmheight, &m_cropped, edges,
-                        cropheight, croprow, cropcol, m_debugFrames, m_debugDir))
+            /* Not a blank frame. */
+
+            auto start = nowAsDuration<std::chrono::microseconds>();
+
+            m_minContentRow = std::min(croprow, m_minContentRow);
+            m_minContentCol = std::min(cropcol, m_minContentCol);
+            m_maxContentCol1 = std::max(cropcol + cropwidth, m_maxContentCol1);
+            m_maxContentRow1 = std::max(croprow + cropheight, m_maxContentRow1);
+
+            if (resetBuffers(cropwidth, cropheight))
                 goto error;
+
+            if (pgm_crop(&m_cropped, pgm, pgmheight, croprow, cropcol,
+                        cropwidth, cropheight))
+                goto error;
+
+            /*
+             * Translate the excluded area of the screen into "cropped"
+             * coordinates.
+             */
+            int excludewidth  = (int)(pgmwidth * kExcludeWidth);
+            int excludeheight = (int)(pgmheight * kExcludeHeight);
+            int excluderow = ((pgmheight - excludeheight) / 2) - croprow;
+            int excludecol = ((pgmwidth - excludewidth) / 2) - cropcol;
+            (void)m_edgeDetector->setExcludeArea(excluderow, excludecol,
+                    excludewidth, excludeheight);
+
+            const AVFrame *edges =
+                m_edgeDetector->detectEdges(&m_cropped, cropheight, FRAMESGMPCTILE);
+            if (edges == nullptr)
+                goto error;
+
+            if (pgm_scorepixels(m_scores, pgmwidth, croprow, cropcol,
+                        edges, cropheight))
+                goto error;
+
+            if (m_debugLevel >= 2)
+            {
+                if (!analyzeFrameDebug(frameno, pgm, pgmheight, &m_cropped, edges,
+                            cropheight, croprow, cropcol, m_debugFrames, m_debugDir))
+                    goto error;
+            }
+
+            auto end = nowAsDuration<std::chrono::microseconds>();
+            m_analyzeTime += (end - start);
         }
 
-        auto end = nowAsDuration<std::chrono::microseconds>();
-        m_analyzeTime += (end - start);
+        if (m_nextFrame > m_endFrame)
+            return ANALYZE_FINISHED;
+
+        return ANALYZE_OK;
     }
 
-    if (m_nextFrame > m_endFrame)
-        return ANALYZE_FINISHED;
-
-    return ANALYZE_OK;
-
 error:
-    LOG(VB_COMMFLAG, LOG_ERR,
-        QString("TemplateFinder::analyzeFrame error at frame %1")
-            .arg(frameno));
+    {
+        LOG(VB_COMMFLAG, LOG_ERR,
+            QString("TemplateFinder::analyzeFrame error at frame %1")
+                .arg(frameno));
 
-    if (m_nextFrame > m_endFrame)
-        return ANALYZE_FINISHED;
+        if (m_nextFrame > m_endFrame)
+            return ANALYZE_FINISHED;
 
-    return ANALYZE_ERROR;
+        return ANALYZE_ERROR;
+    }
 }
 
 int

@@ -226,91 +226,91 @@ bool MythVAAPIInterop::SetupDeinterlacer(MythDeintType Deinterlacer, bool Double
     AVFilterInOut *inputs  = avfilter_inout_alloc();
     AVBufferSrcParameters* params = nullptr;
 
-    Graph = avfilter_graph_alloc();
-    if (!outputs || !inputs || !Graph)
-    {
-        ret = AVERROR(ENOMEM);
-        goto end;
-    }
+        Graph = avfilter_graph_alloc();
+        if (!outputs || !inputs || !Graph)
+        {
+            ret = AVERROR(ENOMEM);
+            goto end;
+        }
 
-    /* buffer video source: the decoded frames from the decoder will be inserted here. */
-    args = QString("video_size=%1x%2:pix_fmt=%3:time_base=1/1")
-                .arg(Width).arg(Height).arg(AV_PIX_FMT_VAAPI);
+        /* buffer video source: the decoded frames from the decoder will be inserted here. */
+        args = QString("video_size=%1x%2:pix_fmt=%3:time_base=1/1")
+                    .arg(Width).arg(Height).arg(AV_PIX_FMT_VAAPI);
 
-    ret = avfilter_graph_create_filter(&Source, buffersrc, "in",
-                                       args.toLocal8Bit().constData(), nullptr, Graph);
-    if (ret < 0)
-    {
-        LOG(VB_GENERAL, LOG_ERR, LOC + "avfilter_graph_create_filter failed for buffer source");
-        goto end;
-    }
+        ret = avfilter_graph_create_filter(&Source, buffersrc, "in",
+                                           args.toLocal8Bit().constData(), nullptr, Graph);
+        if (ret < 0)
+        {
+            LOG(VB_GENERAL, LOG_ERR, LOC + "avfilter_graph_create_filter failed for buffer source");
+            goto end;
+        }
 
-    params = av_buffersrc_parameters_alloc();
-    params->hw_frames_ctx = FramesContext;
-    ret = av_buffersrc_parameters_set(Source, params);
+        params = av_buffersrc_parameters_alloc();
+        params->hw_frames_ctx = FramesContext;
+        ret = av_buffersrc_parameters_set(Source, params);
 
-    if (ret < 0)
-    {
-        LOG(VB_GENERAL, LOG_ERR, LOC + "av_buffersrc_parameters_set failed");
-        goto end;
-    }
-    av_freep(reinterpret_cast<void*>(&params));
+        if (ret < 0)
+        {
+            LOG(VB_GENERAL, LOG_ERR, LOC + "av_buffersrc_parameters_set failed");
+            goto end;
+        }
+        av_freep(reinterpret_cast<void*>(&params));
 
-    /* buffer video sink: to terminate the filter chain. */
-    ret = avfilter_graph_create_filter(&Sink, buffersink, "out",
-                                       nullptr, nullptr, Graph);
-    if (ret < 0)
-    {
-        LOG(VB_GENERAL, LOG_ERR, LOC + "avfilter_graph_create_filter failed for buffer sink");
-        goto end;
-    }
+        /* buffer video sink: to terminate the filter chain. */
+        ret = avfilter_graph_create_filter(&Sink, buffersink, "out",
+                                           nullptr, nullptr, Graph);
+        if (ret < 0)
+        {
+            LOG(VB_GENERAL, LOG_ERR, LOC + "avfilter_graph_create_filter failed for buffer sink");
+            goto end;
+        }
 
-    /*
-     * Set the endpoints for the filter graph. The filter_graph will
-     * be linked to the graph described by filters_descr.
-     */
+        /*
+         * Set the endpoints for the filter graph. The filter_graph will
+         * be linked to the graph described by filters_descr.
+         */
 
-    /*
-     * The buffer source output must be connected to the input pad of
-     * the first filter described by filters_descr; since the first
-     * filter input label is not specified, it is set to "in" by
-     * default.
-     */
-    outputs->name       = av_strdup("in");
-    outputs->filter_ctx = Source;
-    outputs->pad_idx    = 0;
-    outputs->next       = nullptr;
+        /*
+         * The buffer source output must be connected to the input pad of
+         * the first filter described by filters_descr; since the first
+         * filter input label is not specified, it is set to "in" by
+         * default.
+         */
+        outputs->name       = av_strdup("in");
+        outputs->filter_ctx = Source;
+        outputs->pad_idx    = 0;
+        outputs->next       = nullptr;
 
-    /*
-     * The buffer sink input must be connected to the output pad of
-     * the last filter described by filters_descr; since the last
-     * filter output label is not specified, it is set to "out" by
-     * default.
-     */
-    inputs->name       = av_strdup("out");
-    inputs->filter_ctx = Sink;
-    inputs->pad_idx    = 0;
-    inputs->next       = nullptr;
+        /*
+         * The buffer sink input must be connected to the output pad of
+         * the last filter described by filters_descr; since the last
+         * filter output label is not specified, it is set to "out" by
+         * default.
+         */
+        inputs->name       = av_strdup("out");
+        inputs->filter_ctx = Sink;
+        inputs->pad_idx    = 0;
+        inputs->next       = nullptr;
 
-    ret = avfilter_graph_parse_ptr(Graph, filters.toLocal8Bit(),
-                                   &inputs, &outputs, nullptr);
-    if (ret < 0)
-    {
-        LOG(VB_GENERAL, LOG_ERR, LOC + QString("avfilter_graph_parse_ptr failed for %1")
-            .arg(filters));
-        goto end;
-    }
+        ret = avfilter_graph_parse_ptr(Graph, filters.toLocal8Bit(),
+                                       &inputs, &outputs, nullptr);
+        if (ret < 0)
+        {
+            LOG(VB_GENERAL, LOG_ERR, LOC + QString("avfilter_graph_parse_ptr failed for %1")
+                .arg(filters));
+            goto end;
+        }
 
-    ret = avfilter_graph_config(Graph, nullptr);
-    if (ret < 0)
-    {
-        LOG(VB_GENERAL, LOG_ERR, LOC +
-            QString("VAAPI deinterlacer config failed - '%1' unsupported?").arg(deinterlacer));
-        goto end;
-    }
+        ret = avfilter_graph_config(Graph, nullptr);
+        if (ret < 0)
+        {
+            LOG(VB_GENERAL, LOG_ERR, LOC +
+                QString("VAAPI deinterlacer config failed - '%1' unsupported?").arg(deinterlacer));
+            goto end;
+        }
 
-    LOG(VB_GENERAL, LOG_INFO, LOC + QString("Created deinterlacer '%1'")
-        .arg(MythVideoFrame::DeinterlacerName(Deinterlacer | DEINT_DRIVER, DoubleRate, FMT_VAAPI)));
+        LOG(VB_GENERAL, LOG_INFO, LOC + QString("Created deinterlacer '%1'")
+            .arg(MythVideoFrame::DeinterlacerName(Deinterlacer | DEINT_DRIVER, DoubleRate, FMT_VAAPI)));
 
 end:
     if (ret < 0)

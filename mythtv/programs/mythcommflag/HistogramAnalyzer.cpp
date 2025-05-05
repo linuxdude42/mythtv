@@ -35,66 +35,68 @@ readData(const QString& filename, float *mean, unsigned char *median, float *std
     if (fp == nullptr)
         return false;
 
-    for (long long frameno = 0; frameno < nframes; frameno++)
     {
-        int monochromaticval = 0;
-        int medianval = 0;
-        int widthval = 0;
-        int heightval = 0;
-        int colval = 0;
-        int rowval = 0;
-        float meanval = NAN;
-        float stddevval = NAN;
-        int nitems = fscanf(fp, "%20d %20f %20d %20f %20d %20d %20d %20d",
-                &monochromaticval, &meanval, &medianval, &stddevval,
-                &widthval, &heightval, &colval, &rowval);
-        if (nitems != 8)
+        for (long long frameno = 0; frameno < nframes; frameno++)
         {
-            LOG(VB_COMMFLAG, LOG_ERR,
-                QString("Not enough data in %1: frame %2")
-                    .arg(filename).arg(frameno));
-            goto error;
-        }
-        if (monochromaticval < 0 || monochromaticval > 1 ||
-                medianval < 0 || (uint)medianval > UCHAR_MAX ||
-                widthval < 0 || heightval < 0 || colval < 0 || rowval < 0)
-        {
-            LOG(VB_COMMFLAG, LOG_ERR,
-                QString("Data out of range in %1: frame %2")
-                    .arg(filename).arg(frameno));
-            goto error;
-        }
-        for (uint & ctr : counter)
-        {
-            if (fscanf(fp, "%20x", &ctr) != 1)
+            int monochromaticval = 0;
+            int medianval = 0;
+            int widthval = 0;
+            int heightval = 0;
+            int colval = 0;
+            int rowval = 0;
+            float meanval = NAN;
+            float stddevval = NAN;
+            int nitems = fscanf(fp, "%20d %20f %20d %20f %20d %20d %20d %20d",
+                    &monochromaticval, &meanval, &medianval, &stddevval,
+                    &widthval, &heightval, &colval, &rowval);
+            if (nitems != 8)
             {
                 LOG(VB_COMMFLAG, LOG_ERR,
                     QString("Not enough data in %1: frame %2")
                         .arg(filename).arg(frameno));
                 goto error;
             }
-            if (ctr > UCHAR_MAX)
+            if (monochromaticval < 0 || monochromaticval > 1 ||
+                    medianval < 0 || (uint)medianval > UCHAR_MAX ||
+                    widthval < 0 || heightval < 0 || colval < 0 || rowval < 0)
             {
                 LOG(VB_COMMFLAG, LOG_ERR,
                     QString("Data out of range in %1: frame %2")
                         .arg(filename).arg(frameno));
                 goto error;
             }
+            for (uint & ctr : counter)
+            {
+                if (fscanf(fp, "%20x", &ctr) != 1)
+                {
+                    LOG(VB_COMMFLAG, LOG_ERR,
+                        QString("Not enough data in %1: frame %2")
+                            .arg(filename).arg(frameno));
+                    goto error;
+                }
+                if (ctr > UCHAR_MAX)
+                {
+                    LOG(VB_COMMFLAG, LOG_ERR,
+                        QString("Data out of range in %1: frame %2")
+                            .arg(filename).arg(frameno));
+                    goto error;
+                }
+            }
+            mean[frameno] = meanval;
+            median[frameno] = medianval;
+            stddev[frameno] = stddevval;
+            frow[frameno] = rowval;
+            fcol[frameno] = colval;
+            fwidth[frameno] = widthval;
+            fheight[frameno] = heightval;
+            for (size_t ii = 0; ii < counter.size(); ii++)
+                histogram[frameno][ii] = counter[ii];
+            monochromatic[frameno] = !widthval || !heightval ? 1 : 0;
+            /*
+             * monochromaticval not used; it's written to file for debugging
+             * convenience
+             */
         }
-        mean[frameno] = meanval;
-        median[frameno] = medianval;
-        stddev[frameno] = stddevval;
-        frow[frameno] = rowval;
-        fcol[frameno] = colval;
-        fwidth[frameno] = widthval;
-        fheight[frameno] = heightval;
-        for (size_t ii = 0; ii < counter.size(); ii++)
-            histogram[frameno][ii] = counter[ii];
-        monochromatic[frameno] = !widthval || !heightval ? 1 : 0;
-        /*
-         * monochromaticval not used; it's written to file for debugging
-         * convenience
-         */
     }
     if (fclose(fp))
         LOG(VB_COMMFLAG, LOG_ERR, QString("Error closing %1: %2")
