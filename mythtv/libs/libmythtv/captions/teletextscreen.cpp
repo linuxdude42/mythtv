@@ -383,83 +383,85 @@ void TeletextScreen::DrawLine(const tt_line_array& page, uint row, int lang)
         SetBackgroundColor(bgcolor);
 
         unsigned char ch = page[x] & 0x7F;
-        switch (ch)
         {
-            case 0x00: case 0x01: case 0x02: case 0x03:
-            case 0x04: case 0x05: case 0x06: case 0x07: // alpha + foreground color
-                fgcolor = ch & 7;
-                mosaic = false;
-                conceal = false;
-                // increment FLOF/FastText count if menu item detected
-                flof_link_count += (row == 25) ? 1 : 0;
-                goto ctrl;
-            case 0x08: // flash
-                // XXX
-                goto ctrl;
-            case 0x09: // steady
-                flash = false;
-                goto ctrl;
-            case 0x0a: // end box
-                endbox = true;
-                goto ctrl;
-            case 0x0b: // start box
-                if (x < kTeletextColumns - 1 && ((page[x + 1] & 0x7F) == 0x0b))
-                    startbox = true;
-                goto ctrl;
-            case 0x0c: // normal height
-                doubleheight = false;
-                goto ctrl;
-            case 0x0d: // double height
-                doubleheight = (row < (kTeletextRows-1)) && (x < (kTeletextColumns - 1));
-                goto ctrl;
-
-            case 0x10: case 0x11: case 0x12: case 0x13:
-            case 0x14: case 0x15: case 0x16: case 0x17: // graphics + foreground color
-                fgcolor = ch & 7;
-                mosaic = true;
-                conceal = false;
-                goto ctrl;
-            case 0x18: // conceal display
-                conceal = true;
-                goto ctrl;
-            case 0x19: // contiguous graphics
-                seperation = false;
-                goto ctrl;
-            case 0x1a: // separate graphics
-                seperation = true;
-                goto ctrl;
-            case 0x1c: // black background
-                bgcolor = kTTColorBlack;
-                goto ctrl;
-            case 0x1d: // new background
-                bgcolor = fgcolor;
-                goto ctrl;
-            case 0x1e: // hold graphics
-                hold = true;
-                goto ctrl;
-            case 0x1f: // release graphics
-                hold = false;
-                goto ctrl;
-            case 0x0e: // SO (reserved, double width)
-            case 0x0f: // SI (reserved, double size)
-            case 0x1b: // ESC (reserved)
-                ch = ' ';
-                break;
+            switch (ch)
+            {
+                case 0x00: case 0x01: case 0x02: case 0x03:
+                case 0x04: case 0x05: case 0x06: case 0x07: // alpha + foreground color
+                    fgcolor = ch & 7;
+                    mosaic = false;
+                    conceal = false;
+                    // increment FLOF/FastText count if menu item detected
+                    flof_link_count += (row == 25) ? 1 : 0;
+                    goto ctrl;
+                case 0x08: // flash
+                    // XXX
+                    goto ctrl;
+                case 0x09: // steady
+                    flash = false;
+                    goto ctrl;
+                case 0x0a: // end box
+                    endbox = true;
+                    goto ctrl;
+                case 0x0b: // start box
+                    if (x < kTeletextColumns - 1 && ((page[x + 1] & 0x7F) == 0x0b))
+                        startbox = true;
+                    goto ctrl;
+                case 0x0c: // normal height
+                    doubleheight = false;
+                    goto ctrl;
+                case 0x0d: // double height
+                    doubleheight = (row < (kTeletextRows-1)) && (x < (kTeletextColumns - 1));
+                    goto ctrl;
+    
+                case 0x10: case 0x11: case 0x12: case 0x13:
+                case 0x14: case 0x15: case 0x16: case 0x17: // graphics + foreground color
+                    fgcolor = ch & 7;
+                    mosaic = true;
+                    conceal = false;
+                    goto ctrl;
+                case 0x18: // conceal display
+                    conceal = true;
+                    goto ctrl;
+                case 0x19: // contiguous graphics
+                    seperation = false;
+                    goto ctrl;
+                case 0x1a: // separate graphics
+                    seperation = true;
+                    goto ctrl;
+                case 0x1c: // black background
+                    bgcolor = kTTColorBlack;
+                    goto ctrl;
+                case 0x1d: // new background
+                    bgcolor = fgcolor;
+                    goto ctrl;
+                case 0x1e: // hold graphics
+                    hold = true;
+                    goto ctrl;
+                case 0x1f: // release graphics
+                    hold = false;
+                    goto ctrl;
+                case 0x0e: // SO (reserved, double width)
+                case 0x0f: // SI (reserved, double size)
+                case 0x1b: // ESC (reserved)
+                    ch = ' ';
+                    break;
             ctrl:
                 ch = ' ';
                 if (hold && mosaic)
                     ch = last_ch;
-            break;
-
-            default:
-                if ((ch >= 0x80) && (ch <=0x9f)) // these aren't used
-                    ch = ' '; // BAD_CHAR;
-                else
-                {
-                    if (conceal && !m_teletextReader->RevealHidden())
-                        ch = ' ';
-                }
                 break;
+
+                default:
+                    if ((ch >= 0x80) && (ch <=0x9f)) // these aren't used
+                        ch = ' '; // BAD_CHAR;
+                    else
+                    {
+                        if (conceal && !m_teletextReader->RevealHidden())
+                            ch = ' ';
+                    }
+                    break;
+            }
         }
 
         // Hide FastText/FLOF menu characters if not available

@@ -42,33 +42,35 @@ int pgm_read(unsigned char *buf, int width, int height, const char *filename)
         return -1;
     }
 
-    int fwidth = 0;
-    int fheight = 0;
-    int maxgray = 0;
-    int nn = fscanf(fp, "P5\n%20d %20d\n%20d\n", &fwidth, &fheight, &maxgray);
-    if (nn != 3)
     {
-        LOG(VB_COMMFLAG, LOG_ERR, QString("pgm_read fscanf %1 failed: %2")
-                .arg(filename, strerror(errno)));
-        goto error;
-    }
-
-    if (fwidth != width || fheight != height || maxgray != UCHAR_MAX)
-    {
-        LOG(VB_COMMFLAG, LOG_ERR,
-            QString("pgm_read header (%1x%2,%3) != (%4x%5,%6)")
-                .arg(fwidth).arg(fheight).arg(maxgray)
-                .arg(width).arg(height).arg(UCHAR_MAX));
-        goto error;
-    }
-
-    for (ptrdiff_t rr = 0; rr < height; rr++)
-    {
-        if (fread(buf + (rr * width), 1, width, fp) != (size_t)width)
+        int fwidth = 0;
+        int fheight = 0;
+        int maxgray = 0;
+        int nn = fscanf(fp, "P5\n%20d %20d\n%20d\n", &fwidth, &fheight, &maxgray);
+        if (nn != 3)
         {
-            LOG(VB_COMMFLAG, LOG_ERR, QString("pgm_read fread %1 failed: %2")
+            LOG(VB_COMMFLAG, LOG_ERR, QString("pgm_read fscanf %1 failed: %2")
                     .arg(filename, strerror(errno)));
             goto error;
+        }
+
+        if (fwidth != width || fheight != height || maxgray != UCHAR_MAX)
+        {
+            LOG(VB_COMMFLAG, LOG_ERR,
+                QString("pgm_read header (%1x%2,%3) != (%4x%5,%6)")
+                    .arg(fwidth).arg(fheight).arg(maxgray)
+                    .arg(width).arg(height).arg(UCHAR_MAX));
+            goto error;
+        }
+
+        for (ptrdiff_t rr = 0; rr < height; rr++)
+        {
+            if (fread(buf + (rr * width), 1, width, fp) != (size_t)width)
+            {
+                LOG(VB_COMMFLAG, LOG_ERR, QString("pgm_read fread %1 failed: %2")
+                        .arg(filename, strerror(errno)));
+                goto error;
+            }
         }
     }
 
@@ -93,14 +95,16 @@ int pgm_write(const unsigned char *buf, int width, int height,
         return -1;
     }
 
-    (void)fprintf(fp, "P5\n%d %d\n%d\n", width, height, UCHAR_MAX);
-    for (ptrdiff_t rr = 0; rr < height; rr++)
     {
-        if (fwrite(buf + (rr * width), 1, width, fp) != (size_t)width)
+        (void)fprintf(fp, "P5\n%d %d\n%d\n", width, height, UCHAR_MAX);
+        for (ptrdiff_t rr = 0; rr < height; rr++)
         {
-            LOG(VB_COMMFLAG, LOG_ERR, QString("pgm_write fwrite %1 failed: %2")
-                    .arg(filename, strerror(errno)));
-            goto error;
+            if (fwrite(buf + (rr * width), 1, width, fp) != (size_t)width)
+            {
+                LOG(VB_COMMFLAG, LOG_ERR, QString("pgm_write fwrite %1 failed: %2")
+                        .arg(filename, strerror(errno)));
+                goto error;
+            }
         }
     }
 

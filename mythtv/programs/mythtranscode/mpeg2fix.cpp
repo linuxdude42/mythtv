@@ -1091,33 +1091,33 @@ void MPEG2fixup::WriteYUV(const QString& filename, const mpeg2_info_t *info)
         return;
     }
 
-    ssize_t ret = write(fh, info->display_fbuf->buf[0],
-		       static_cast<size_t>(info->sequence->width) *
-		       static_cast<size_t>(info->sequence->height));
-    if (ret < 0)
-    {
-        LOG(VB_GENERAL, LOG_ERR, QString("write failed %1: ").arg(filename) +
-                ENO);
-        goto closefd;
-    }
-    ret = write(fh, info->display_fbuf->buf[1],
-                static_cast<size_t>(info->sequence->chroma_width) *
-                static_cast<size_t>(info->sequence->chroma_height));
-    if (ret < 0)
-    {
-        LOG(VB_GENERAL, LOG_ERR, QString("write failed %1: ").arg(filename) +
-                ENO);
-        goto closefd;
-    }
-    ret = write(fh, info->display_fbuf->buf[2],
-                static_cast<size_t>(info->sequence->chroma_width) *
-                static_cast<size_t>(info->sequence->chroma_height));
-    if (ret < 0)
-    {
-        LOG(VB_GENERAL, LOG_ERR, QString("write failed %1: ").arg(filename) +
-                ENO);
-        goto closefd;
-    }
+        ssize_t ret = write(fh, info->display_fbuf->buf[0],
+    		       static_cast<size_t>(info->sequence->width) *
+    		       static_cast<size_t>(info->sequence->height));
+        if (ret < 0)
+        {
+            LOG(VB_GENERAL, LOG_ERR, QString("write failed %1: ").arg(filename) +
+                    ENO);
+            goto closefd;
+        }
+        ret = write(fh, info->display_fbuf->buf[1],
+                    static_cast<size_t>(info->sequence->chroma_width) *
+                    static_cast<size_t>(info->sequence->chroma_height));
+        if (ret < 0)
+        {
+            LOG(VB_GENERAL, LOG_ERR, QString("write failed %1: ").arg(filename) +
+                    ENO);
+            goto closefd;
+        }
+        ret = write(fh, info->display_fbuf->buf[2],
+                    static_cast<size_t>(info->sequence->chroma_width) *
+                    static_cast<size_t>(info->sequence->chroma_height));
+        if (ret < 0)
+        {
+            LOG(VB_GENERAL, LOG_ERR, QString("write failed %1: ").arg(filename) +
+                    ENO);
+            goto closefd;
+        }
 closefd:
     close(fh);
 }

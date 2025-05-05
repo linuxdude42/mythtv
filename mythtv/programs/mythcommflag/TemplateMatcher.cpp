@@ -99,15 +99,17 @@ bool readMatches(const QString& filename, unsigned short *matches, long long nfr
     if (fp == nullptr)
         return false;
 
-    for (long long frameno = 0; frameno < nframes; frameno++)
     {
-        int nitems = fscanf(fp, "%20hu", &matches[frameno]);
-        if (nitems != 1)
+        for (long long frameno = 0; frameno < nframes; frameno++)
         {
-            LOG(VB_COMMFLAG, LOG_ERR,
-                QString("Not enough data in %1: frame %2")
-                    .arg(filename).arg(frameno));
-            goto error;
+            int nitems = fscanf(fp, "%20hu", &matches[frameno]);
+            if (nitems != 1)
+            {
+                LOG(VB_COMMFLAG, LOG_ERR,
+                    QString("Not enough data in %1: frame %2")
+                        .arg(filename).arg(frameno));
+                goto error;
+            }
         }
     }
 
@@ -444,27 +446,29 @@ TemplateMatcher::analyzeFrame(const MythVideoFrame *frame, long long frameno,
 
     *pNextFrame = kNextFrame;
 
-    const AVFrame *pgm = m_pgmConverter->getImage(frame, frameno, &pgmwidth, &pgmheight);
-    if (pgm == nullptr)
-        goto error;
+    {
+        const AVFrame *pgm = m_pgmConverter->getImage(frame, frameno, &pgmwidth, &pgmheight);
+        if (pgm == nullptr)
+            goto error;
 
-    start = nowAsDuration<std::chrono::microseconds>();
+        start = nowAsDuration<std::chrono::microseconds>();
 
-    if (pgm_crop(&m_cropped, pgm, pgmheight, m_tmplRow, m_tmplCol,
-                m_tmplWidth, m_tmplHeight))
-        goto error;
+        if (pgm_crop(&m_cropped, pgm, pgmheight, m_tmplRow, m_tmplCol,
+                    m_tmplWidth, m_tmplHeight))
+            goto error;
 
-    edges = m_edgeDetector->detectEdges(&m_cropped, m_tmplHeight, FRAMESGMPCTILE);
-    if (edges == nullptr)
-        goto error;
+        edges = m_edgeDetector->detectEdges(&m_cropped, m_tmplHeight, FRAMESGMPCTILE);
+        if (edges == nullptr)
+            goto error;
 
-    if (pgm_match(m_tmpl, edges, m_tmplHeight, JITTER_RADIUS, &m_matches[frameno]))
-        goto error;
+        if (pgm_match(m_tmpl, edges, m_tmplHeight, JITTER_RADIUS, &m_matches[frameno]))
+            goto error;
 
-    end = nowAsDuration<std::chrono::microseconds>();
-    m_analyzeTime += (end - start);
+        end = nowAsDuration<std::chrono::microseconds>();
+        m_analyzeTime += (end - start);
 
-    return ANALYZE_OK;
+        return ANALYZE_OK;
+    }
 
 error:
     LOG(VB_COMMFLAG, LOG_ERR,
