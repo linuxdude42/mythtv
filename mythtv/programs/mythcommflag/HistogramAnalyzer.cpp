@@ -35,6 +35,8 @@ readData(const QString& filename, float *mean, unsigned char *median, float *std
     if (fp == nullptr)
         return false;
 
+    bool success { true };
+    try
     {
         for (long long frameno = 0; frameno < nframes; frameno++)
         {
@@ -54,7 +56,7 @@ readData(const QString& filename, float *mean, unsigned char *median, float *std
                 LOG(VB_COMMFLAG, LOG_ERR,
                     QString("Not enough data in %1: frame %2")
                         .arg(filename).arg(frameno));
-                goto error;
+                throw -1;
             }
             if (monochromaticval < 0 || monochromaticval > 1 ||
                     medianval < 0 || (uint)medianval > UCHAR_MAX ||
@@ -63,7 +65,7 @@ readData(const QString& filename, float *mean, unsigned char *median, float *std
                 LOG(VB_COMMFLAG, LOG_ERR,
                     QString("Data out of range in %1: frame %2")
                         .arg(filename).arg(frameno));
-                goto error;
+                throw -1;
             }
             for (uint & ctr : counter)
             {
@@ -72,14 +74,14 @@ readData(const QString& filename, float *mean, unsigned char *median, float *std
                     LOG(VB_COMMFLAG, LOG_ERR,
                         QString("Not enough data in %1: frame %2")
                             .arg(filename).arg(frameno));
-                    goto error;
+                    throw -1;
                 }
                 if (ctr > UCHAR_MAX)
                 {
                     LOG(VB_COMMFLAG, LOG_ERR,
                         QString("Data out of range in %1: frame %2")
                             .arg(filename).arg(frameno));
-                    goto error;
+                    throw -1;
                 }
             }
             mean[frameno] = meanval;
@@ -98,16 +100,15 @@ readData(const QString& filename, float *mean, unsigned char *median, float *std
              */
         }
     }
-    if (fclose(fp))
-        LOG(VB_COMMFLAG, LOG_ERR, QString("Error closing %1: %2")
-                .arg(filename, strerror(errno)));
-    return true;
+    catch (int e)
+    {
+        success = false;
+    }
 
-error:
     if (fclose(fp))
         LOG(VB_COMMFLAG, LOG_ERR, QString("Error closing %1: %2")
                 .arg(filename, strerror(errno)));
-    return false;
+    return success;
 }
 
 bool
@@ -313,7 +314,13 @@ HistogramAnalyzer::analyzeFrame(const MythVideoFrame *frame, long long frameno)
 
     const AVFrame *pgm = m_pgmConverter->getImage(frame, frameno, &pgmwidth, &pgmheight);
     if (pgm == nullptr)
-        goto error;
+    {
+        LOG(VB_COMMFLAG, LOG_ERR,
+            QString("HistogramAnalyzer::analyzeFrame error at frame %1")
+                .arg(frameno));
+
+        return FrameAnalyzer::ANALYZE_ERROR;
+    }
 
     ismonochromatic = m_borderDetector->getDimensions(pgm, pgmheight, frameno,
             &croprow, &cropcol, &cropwidth, &cropheight) != 0;
@@ -401,13 +408,6 @@ HistogramAnalyzer::analyzeFrame(const MythVideoFrame *frame, long long frameno)
     m_lastFrameNo = frameno;
 
     return FrameAnalyzer::ANALYZE_OK;
-
-error:
-    LOG(VB_COMMFLAG, LOG_ERR,
-        QString("HistogramAnalyzer::analyzeFrame error at frame %1")
-            .arg(frameno));
-
-    return FrameAnalyzer::ANALYZE_ERROR;
 }
 
 int
