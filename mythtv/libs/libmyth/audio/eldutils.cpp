@@ -234,6 +234,8 @@ void eld::update_sad(int index,
 
 int eld::update_eld(const char *buf, int size)
 {
+    bool success { true };
+    try
     {
         int mnl = 0;
 
@@ -242,7 +244,7 @@ int eld::update_eld(const char *buf, int size)
             m_e.eld_ver != ELD_VER_PARTIAL)
         {
             LOG(VB_AUDIO, LOG_INFO, LOC + QString("Unknown ELD version %1").arg(m_e.eld_ver));
-            goto out_fail;
+            throw false;
         }
 
         m_e.eld_size = size;
@@ -267,20 +269,17 @@ int eld::update_eld(const char *buf, int size)
         if (ELD_FIXED_BYTES + mnl > size)
         {
             LOG(VB_AUDIO, LOG_INFO, LOC + QString("out of range MNL %1").arg(mnl));
-            goto out_fail;
+            throw false;
         }
-        else
-        {
-            std::string tmp(buf + ELD_FIXED_BYTES, mnl);
-            m_e.monitor_name = QString::fromStdString(tmp);
-        }
+        std::string tmp(buf + ELD_FIXED_BYTES, mnl);
+        m_e.monitor_name = QString::fromStdString(tmp);
 
         for (int i = 0; i < m_e.sad_count; i++)
         {
             if (ELD_FIXED_BYTES + mnl + 3 * (i + 1) > size)
             {
                 LOG(VB_AUDIO, LOG_INFO, LOC + QString("out of range SAD %1").arg(i));
-                goto out_fail;
+                throw false;
             }
             update_sad(i, buf + ELD_FIXED_BYTES + mnl + (3 * static_cast<ptrdiff_t>(i)));
         }
@@ -291,13 +290,13 @@ int eld::update_eld(const char *buf, int size)
         if (!m_e.spk_alloc)
             m_e.spk_alloc = 0xffff;
     }
-    
-    m_e.eld_valid = true;
-    return 0;
+    catch (bool e)
+    {
+        success = e;
+    }
 
-  out_fail:
-    m_e.eld_valid = false;
-    return -1;
+    m_e.eld_valid = success;
+    return success ? 0 : -1;
 }
 
 /**
