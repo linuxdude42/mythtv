@@ -42,6 +42,8 @@ int pgm_read(unsigned char *buf, int width, int height, const char *filename)
         return -1;
     }
 
+    int ret { 0 };
+    try
     {
         int fwidth = 0;
         int fheight = 0;
@@ -51,7 +53,7 @@ int pgm_read(unsigned char *buf, int width, int height, const char *filename)
         {
             LOG(VB_COMMFLAG, LOG_ERR, QString("pgm_read fscanf %1 failed: %2")
                     .arg(filename, strerror(errno)));
-            goto error;
+            throw -1;
         }
 
         if (fwidth != width || fheight != height || maxgray != UCHAR_MAX)
@@ -60,7 +62,7 @@ int pgm_read(unsigned char *buf, int width, int height, const char *filename)
                 QString("pgm_read header (%1x%2,%3) != (%4x%5,%6)")
                     .arg(fwidth).arg(fheight).arg(maxgray)
                     .arg(width).arg(height).arg(UCHAR_MAX));
-            goto error;
+            throw -1;
         }
 
         for (ptrdiff_t rr = 0; rr < height; rr++)
@@ -69,17 +71,17 @@ int pgm_read(unsigned char *buf, int width, int height, const char *filename)
             {
                 LOG(VB_COMMFLAG, LOG_ERR, QString("pgm_read fread %1 failed: %2")
                         .arg(filename, strerror(errno)));
-                goto error;
+                throw -1;
             }
         }
     }
+    catch (int e)
+    {
+        ret = e;
+    }
 
     (void)fclose(fp);
-    return 0;
-
-error:
-    (void)fclose(fp);
-    return -1;
+    return ret;
 }
 
 int pgm_write(const unsigned char *buf, int width, int height,
@@ -95,6 +97,8 @@ int pgm_write(const unsigned char *buf, int width, int height,
         return -1;
     }
 
+    int ret {0};
+    try
     {
         (void)fprintf(fp, "P5\n%d %d\n%d\n", width, height, UCHAR_MAX);
         for (ptrdiff_t rr = 0; rr < height; rr++)
@@ -103,17 +107,17 @@ int pgm_write(const unsigned char *buf, int width, int height,
             {
                 LOG(VB_COMMFLAG, LOG_ERR, QString("pgm_write fwrite %1 failed: %2")
                         .arg(filename, strerror(errno)));
-                goto error;
+                throw -1;
             }
         }
     }
+    catch (int e)
+    {
+        ret = e;
+    }
 
     (void)fclose(fp);
-    return 0;
-
-error:
-    (void)fclose(fp);
-    return -1;
+    return ret;
 }
 
 static int pgm_expand(AVFrame *dst, const AVFrame *src, int srcheight,

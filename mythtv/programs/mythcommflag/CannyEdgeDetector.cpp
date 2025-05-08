@@ -91,13 +91,14 @@ CannyEdgeDetector::resetBuffers(int newwidth, int newheight)
         return -1;
     }
 
+    try
     {
         if (av_image_alloc(m_s2.data, m_s2.linesize,
             padded_width, padded_height, AV_PIX_FMT_GRAY8, IMAGE_ALIGN) < 0)
         {
             LOG(VB_COMMFLAG, LOG_ERR, "CannyEdgeDetector::resetBuffers "
                                       "av_image_alloc s2 failed");
-            goto free_s1;
+            throw 1;
         }
 
         if (av_image_alloc(m_convolved.data, m_convolved.linesize,
@@ -105,7 +106,7 @@ CannyEdgeDetector::resetBuffers(int newwidth, int newheight)
         {
             LOG(VB_COMMFLAG, LOG_ERR, "CannyEdgeDetector::resetBuffers "
                                       "av_image_alloc convolved failed");
-            goto free_s2;
+            throw 2;
         }
 
         if (av_image_alloc(m_edges.data, m_edges.linesize,
@@ -113,7 +114,7 @@ CannyEdgeDetector::resetBuffers(int newwidth, int newheight)
         {
             LOG(VB_COMMFLAG, LOG_ERR, "CannyEdgeDetector::resetBuffers "
                                       "av_image_alloc edges failed");
-            goto free_convolved;
+            throw 3;
         }
 
         m_sgm = new unsigned int[1_UZ * padded_width * padded_height];
@@ -124,14 +125,21 @@ CannyEdgeDetector::resetBuffers(int newwidth, int newheight)
 
         return 0;
     }
-
-free_convolved:
-    av_freep(reinterpret_cast<void*>(&m_convolved.data[0]));
-free_s2:
-    av_freep(reinterpret_cast<void*>(&m_s2.data[0]));
-free_s1:
-    av_freep(reinterpret_cast<void*>(&m_s1.data[0]));
-    return -1;
+    catch (int e)
+    {
+        switch (e)
+        {
+          case 3:
+            av_freep(reinterpret_cast<void*>(&m_convolved.data[0]));
+            [[fallthrough]];
+          case 2:
+            av_freep(reinterpret_cast<void*>(&m_s2.data[0]));
+            [[fallthrough]];
+          case 1:
+            av_freep(reinterpret_cast<void*>(&m_s1.data[0]));
+        }
+        return -1;
+    }
 }
 
 int

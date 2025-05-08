@@ -69,20 +69,18 @@ const AVFrame *
 PGMConverter::getImage(const MythVideoFrame *frame, long long _frameno,
         int *pwidth, int *pheight)
 {
-    if (m_frameNo == _frameno)
-        goto out;
-
+    if (m_frameNo != _frameno)
     {
         if (!frame->m_buffer)
         {
             LOG(VB_COMMFLAG, LOG_ERR, "PGMConverter::getImage no buf");
-            goto error;
+            return nullptr;
         }
 
 #ifdef PGM_CONVERT_GREYSCALE
         auto start = nowAsDuration<std::chrono::microseconds>();
         if (m_copy->Copy(&m_pgm, frame, m_pgm.data[0], AV_PIX_FMT_GRAY8) < 0)
-            goto error;
+            return nullptr;
         auto end = nowAsDuration<std::chrono::microseconds>();
         m_convertTime += (end - start);
 #else  /* !PGM_CONVERT_GREYSCALE */
@@ -92,20 +90,16 @@ PGMConverter::getImage(const MythVideoFrame *frame, long long _frameno,
             LOG(VB_COMMFLAG, LOG_ERR,
                 QString("PGMConverter::getImage error at frame %1 (%2x%3)")
                     .arg(_frameno).arg(m_width).arg(m_height));
-            goto error;
+            return nullptr;
         }
 #endif /* !PGM_CONVERT_GREYSCALE */
 
         m_frameNo = _frameno;
     }
 
-out:
     *pwidth = m_width;
     *pheight = m_height;
     return &m_pgm;
-
-error:
-    return nullptr;
 }
 
 int
