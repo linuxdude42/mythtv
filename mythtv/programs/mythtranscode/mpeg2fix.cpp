@@ -1091,6 +1091,8 @@ void MPEG2fixup::WriteYUV(const QString& filename, const mpeg2_info_t *info)
         return;
     }
 
+    try
+    {
         ssize_t ret = write(fh, info->display_fbuf->buf[0],
     		       static_cast<size_t>(info->sequence->width) *
     		       static_cast<size_t>(info->sequence->height));
@@ -1098,7 +1100,7 @@ void MPEG2fixup::WriteYUV(const QString& filename, const mpeg2_info_t *info)
         {
             LOG(VB_GENERAL, LOG_ERR, QString("write failed %1: ").arg(filename) +
                     ENO);
-            goto closefd;
+            throw -1;
         }
         ret = write(fh, info->display_fbuf->buf[1],
                     static_cast<size_t>(info->sequence->chroma_width) *
@@ -1107,7 +1109,7 @@ void MPEG2fixup::WriteYUV(const QString& filename, const mpeg2_info_t *info)
         {
             LOG(VB_GENERAL, LOG_ERR, QString("write failed %1: ").arg(filename) +
                     ENO);
-            goto closefd;
+            throw -1;
         }
         ret = write(fh, info->display_fbuf->buf[2],
                     static_cast<size_t>(info->sequence->chroma_width) *
@@ -1116,9 +1118,12 @@ void MPEG2fixup::WriteYUV(const QString& filename, const mpeg2_info_t *info)
         {
             LOG(VB_GENERAL, LOG_ERR, QString("write failed %1: ").arg(filename) +
                     ENO);
-            goto closefd;
+            throw -1;
         }
-closefd:
+    }
+    catch (int e) {
+        // Do nothing
+    }
     close(fh);
 }
 
