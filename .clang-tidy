@@ -156,9 +156,6 @@ Checks: '-*,
         # As of 2024-08-01, there are 12256 unique warnings. ,
        -cppcoreguidelines-avoid-do-while,
 
-        # As of 2024-08-03, there are 135 unique warnings. ,
-       -cppcoreguidelines-avoid-goto,
-
         # As of 2023-05-22, there are 1257 unique warnings. ,
        -cppcoreguidelines-avoid-non-const-global-variables,
 
@@ -282,11 +279,13 @@ Checks: '-*,
 '
 
 CheckOptions:
+  - { key: bugprone-narrowing-conversions.PedanticMode, value: 0 }
   - { key: bugprone-suspicious-string-compare.WarnOnLogicalNotComparison, value: 1 }
   - { key: bugprone-pointer-arithmetic-on-polymorphic-object.IgnoreInheritedVirtualFunctions, value: 1 }
 
+  - { key: cppcoreguidelines-avoid-do-while.IgnoreMacros, value: 1 }
+  - { key: cppcoreguidelines-avoid-non-const-global-variables.AllowInternalLinkage, value: 1 }
   - { key: cppcoreguidelines-pro-type-member-init.IgnoreArrays, value: 1 }
-  - { key: cppcoreguidelines-narrowing-conversions.PedanticMode, value: 0 } # test 1 at some point
 
   - { key: misc-header-include-cycle.IgnoredFilesList, value: 'qglobal.h;mem.h;common.h' }
 
