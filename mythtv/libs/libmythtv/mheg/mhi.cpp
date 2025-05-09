@@ -1882,12 +1882,14 @@ void MHIBitmap::CreateFromMPEG(const unsigned char *data, int length)
 
     c = avcodec_alloc_context3(nullptr);
 
+    try
+    {
         if (avcodec_open2(c, codec, nullptr) < 0)
-            goto Close;
+            throw -1;
 
         // Copy the data into AVPacket
         if (av_new_packet(&pkt, length) < 0)
-            goto Close;
+            throw -1;
 
         memcpy(pkt.data, data, length);
         buff = pkt.data;
@@ -1912,13 +1914,10 @@ void MHIBitmap::CreateFromMPEG(const unsigned char *data, int length)
                     QString("[mhi] video decode error: %1 (%2)")
                     .arg(av_make_error_stdstring(error, len))
                     .arg(gotPicture));
-                goto Close;
+                throw -1;
             }
-            else
-            {
-                pkt.data = nullptr;
-                pkt.size = 0;
-            }
+            pkt.data = nullptr;
+            pkt.size = 0;
         }
 
         if (gotPicture)
@@ -1958,8 +1957,12 @@ void MHIBitmap::CreateFromMPEG(const unsigned char *data, int length)
             }
             av_freep(reinterpret_cast<void*>(&outputbuf));
         }
+    }
+    catch (int e)
+    {
+        // Do nothing
+    }
 
-Close:
     pkt.data = buff;
     av_packet_unref(&pkt);
     avcodec_free_context(&c);
