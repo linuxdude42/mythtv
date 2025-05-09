@@ -451,6 +451,8 @@ bool MythContext::Impl::FindDatabase(bool prompt, bool noAutodetect)
     // valid XmlConfiguration::k_default_filename
     bool autoSelect = !manualSelect && !loaded && !noAutodetect;
 
+    try
+    {
         // 2. If the user isn't forcing up the chooser UI, look for a default
         //    backend in XmlConfiguration::k_default_filename, then test DB settings we've got so far:
         if (!manualSelect)
@@ -466,7 +468,7 @@ bool MythContext::Impl::FindDatabase(bool prompt, bool noAutodetect)
 
             failure = TestDBconnection(loaded);
             if (failure.isEmpty())
-                goto DBfound;
+                throw "default";
             if (m_guiStartup && m_guiStartup->m_Exit)
                 return false;
             if (m_guiStartup && m_guiStartup->m_Search)
@@ -485,7 +487,7 @@ bool MythContext::Impl::FindDatabase(bool prompt, bool noAutodetect)
             {
                 failure = TestDBconnection();
                 if (failure.isEmpty())
-                    goto DBfound;
+                    throw "UPnP";
                 if (m_guiStartup && m_guiStartup->m_Exit)
                     return false;
             }
@@ -543,8 +545,16 @@ bool MythContext::Impl::FindDatabase(bool prompt, bool noAutodetect)
                 manualSelect=false;
         }
         while (!failure.isEmpty());
+    }
+    catch (char const *msg)
+    {
+        if (msg)
+        {
+            LOG(VB_GENERAL, LOG_DEBUG,
+                QString("DB Connection test succeesed in %1 step").arg(msg));
+        }
+    }
 
-DBfound:
     LOG(VB_GENERAL, LOG_DEBUG, "FindDatabase() - Success!");
     // If we got the database from UPNP then the wakeup settings are lost.
     // Restore them.
