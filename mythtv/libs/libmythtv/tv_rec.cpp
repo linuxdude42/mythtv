@@ -4245,6 +4245,8 @@ void TVRec::TuningNewRecorder(MPEGStreamData *streamData)
     RecordingProfile profile;
     m_recProfileName = LoadProfile(m_tvChain, rec, profile);
 
+    try
+    {
         if (m_tvChain)
         {
             bool ok = false;
@@ -4261,7 +4263,7 @@ void TVRec::TuningNewRecorder(MPEGStreamData *streamData)
             if (!ok)
             {
                 LOG(VB_GENERAL, LOG_ERR, LOC + "Failed to create RingBuffer 2");
-                goto err_ret;
+                throw -1;
             }
             rec = m_curRecording;  // new'd in Create/SwitchLiveTVRingBuffer()
         }
@@ -4279,7 +4281,7 @@ void TVRec::TuningNewRecorder(MPEGStreamData *streamData)
                         .arg(rec->GetPathname()));
                 SetRingBuffer(nullptr);
                 ClearFlags(kFlagPendingActions, __FILE__, __LINE__);
-                goto err_ret;
+                throw -1;
             }
         }
 
@@ -4296,7 +4298,7 @@ void TVRec::TuningNewRecorder(MPEGStreamData *streamData)
                 MythEvent me(message);
                 gCoreContext->dispatch(me);
             }
-            goto err_ret;
+            throw -1;
         }
 
         if (m_channel && m_genOpt.m_inputType == "MJPEG")
@@ -4333,7 +4335,7 @@ void TVRec::TuningNewRecorder(MPEGStreamData *streamData)
             TeardownRecorder(kFlagKillRec);
             if (m_tvChain)
                 rec = nullptr;
-            goto err_ret;
+            throw -1;
         }
 
         if (rec)
@@ -4388,9 +4390,9 @@ void TVRec::TuningNewRecorder(MPEGStreamData *streamData)
             if (m_curRecording)
                 m_curRecording->SetRecordingStatus(RecStatus::Recording);
         }
-        return;
-
-  err_ret:
+    }
+    catch (int e)
+    {
         SetRecordingStatus(RecStatus::Failed, __LINE__, true);
         ChangeState(kState_None);
 
@@ -4412,6 +4414,7 @@ void TVRec::TuningNewRecorder(MPEGStreamData *streamData)
 
         if (m_tvChain)
             delete rec;
+    }
 }
 
 /** \fn TVRec::TuningRestartRecorder(void)
