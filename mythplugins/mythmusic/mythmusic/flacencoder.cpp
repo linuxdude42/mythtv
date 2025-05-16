@@ -90,7 +90,8 @@ int FlacEncoder::addSamples(int16_t *bytes, unsigned int length)
 
     length /= sizeof(int16_t);
 
-    do {
+    while (index < length)
+    {
         while (bytes && index < length && m_sampleIndex < MAX_SAMPLES)
         {
             m_input[0][m_sampleIndex] = (FLAC__int32)(bytes[index++]);
@@ -110,7 +111,7 @@ int FlacEncoder::addSamples(int16_t *bytes, unsigned int length)
             }
             m_sampleIndex = 0;
         }
-    } while (index < length);
+    }
 
     return 0;
 }
