@@ -1384,8 +1384,9 @@ void PlaylistEditorView::filterTracks(MusicGenericTree *node)
             // only show the Compilation Artists node if we are one the Compilations branch
             bool showCompArtists = false;
             MusicGenericTree *mnode = node;
-            do
+            while (mnode)
             {
+                LOG(VB_GENERAL, LOG_ERR, QString("********** %1 in compartists while").arg(__PRETTY_FUNCTION__));
                 if (mnode->getAction() == "compilations")
                 {
                     showCompArtists = true;
@@ -1393,8 +1394,7 @@ void PlaylistEditorView::filterTracks(MusicGenericTree *node)
                 }
 
                 mnode = dynamic_cast<MusicGenericTree *>(mnode->getParent());
-
-            } while (mnode);
+            }
 
             // only show the Comp. Artist if it differs from the Artist
             bool found = false;

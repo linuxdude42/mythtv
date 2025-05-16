@@ -264,8 +264,10 @@ unsigned char Synaesthesia::getPixel(int x, int y, int where) const
 void Synaesthesia::fadeFade(void) const
 {
     auto *ptr = (uint32_t *)output;
-    int i = static_cast<ptrdiff_t>(m_outWidth) * m_outHeight * 2 / sizeof(uint32_t);
-    do {
+    for (int i = static_cast<ptrdiff_t>(m_outWidth) * m_outHeight * 2 / sizeof(uint32_t);
+         i > 0; i--)
+    {
+        LOG(VB_GENERAL, LOG_ERR, QString("********** %1").arg(__PRETTY_FUNCTION__));
         uint32_t x = *ptr;
         if (x)
         {
@@ -276,7 +278,7 @@ void Synaesthesia::fadeFade(void) const
         {
             ptr++;
         }
-    } while (--i > 0);
+    }
 }
 
 void Synaesthesia::fadePixelWave(int x, int y, int where, int step)
@@ -330,9 +332,9 @@ void Synaesthesia::fadeWave(void)
     for (int y = 1, start = (m_outWidth * 2) + 2, end = (m_outWidth * 4) - 2;
          y < m_outHeight - 1; y++, start += step, end += step) 
     {
-        int i2 = start;
-        do
+        for (int i2 = start; i2 < end; i2++)
         {
+            LOG(VB_GENERAL, LOG_ERR, QString("********** %1").arg(__PRETTY_FUNCTION__));
             short j2 = short((int(lastOutput[i2 - 2]) +
                               int(lastOutput[i2 + 2]) +
                               int(lastOutput[i2 - step]) +
@@ -352,7 +354,7 @@ void Synaesthesia::fadeWave(void)
                 else
                     output[i2] = j2;
             }
-        } while(++i2 < end);
+        }
     }
 }
 
@@ -406,9 +408,9 @@ void Synaesthesia::fadeHeat(void)
     for(int y = 1, start = (m_outWidth * 2) + 2, end = (m_outWidth * 4) - 2;
         y < m_outHeight - 1; y++, start += step, end += step) 
     {
-        int i2 = start;
-        do
+        for (int i2 = start; i2 < end; i2++)
         {
+            LOG(VB_GENERAL, LOG_ERR, QString("********** %1").arg(__PRETTY_FUNCTION__));
             short j2 = short((int(lastOutput[i2 - 2]) +
                               int(lastOutput[i2 + 2]) +
                               int(lastOutput[i2 - step]) +
@@ -427,7 +429,7 @@ void Synaesthesia::fadeHeat(void)
                 else
                     output[i2] = j2;
             }
-        } while(++i2 < end);
+        };
     }
 }
 
@@ -599,10 +601,9 @@ bool Synaesthesia::draw(QPainter *p, [[maybe_unused]] const QColor &back)
         auto *ptrTop = (uint32_t *)(m_outputImage->scanLine(j));
         auto *ptrBot = (uint32_t *)(m_outputImage->scanLine(j+1));
 
-        int i = m_outWidth / 4;
-
-        do
+        for (int i = m_outWidth / 4; i > 0; i--)
         {
+            LOG(VB_GENERAL, LOG_ERR, QString("********** %1").arg(__PRETTY_FUNCTION__));
             unsigned int const r1 = *(ptrOutput++);
             unsigned int const r2 = *(ptrOutput++);
 
@@ -620,7 +621,7 @@ bool Synaesthesia::draw(QPainter *p, [[maybe_unused]] const QColor &back)
                                ((r2 & 0x0000f000UL) << 8) |
                                ((r2 & 0x00f00000UL) << 4) |
                                ((r2 & 0xf0000000UL)));
-        } while (--i > 0);
+        }
     }
 
     p->drawImage(0, 0, *m_outputImage);
