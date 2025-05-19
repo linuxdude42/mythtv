@@ -195,9 +195,11 @@ int CC608Reader::Update(unsigned char *inpos)
         bool scroll_prsv = false;
         int scroll_yoff = 0;
         int scroll_ymax = 15;
+        bool at_least_once = !subtitle.clr;
 
-        do
+        while (inpos < end || at_least_once)
         {
+            at_least_once = false;
             if (linecont)
             {
                 // append to last line; needs to be redrawn
@@ -265,7 +267,7 @@ int CC608Reader::Update(unsigned char *inpos)
             subtitle.row++;
             inpos = cur + 1;
             linecont = 0;
-        } while (inpos < end);
+        }
 
         // adjust row position
         if (subtitle.resumetext & CC_TXT_MASK)
