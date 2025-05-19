@@ -276,21 +276,22 @@ void MHIContext::run(void)
 // Dequeue and process any DSMCC packets.
 void MHIContext::ProcessDSMCCQueue(void)
 {
-    DSMCCPacket *packet = nullptr;
-    do
-    {
-        QMutexLocker locker(&m_dsmccLock);
-        packet = m_dsmccQueue.dequeue();
-        if (packet)
-        {
-            m_dsmcc->ProcessSection(
-                packet->m_data,           packet->m_length,
-                packet->m_componentTag,   packet->m_carouselId,
-                packet->m_dataBroadcastId);
+    QMutexLocker locker(&m_dsmccLock);
+    DSMCCPacket *packet = m_dsmccQueue.dequeue();
 
-            delete packet;
-        }
-    } while (packet);
+    while (packet)
+    {
+        m_dsmcc->ProcessSection(
+            packet->m_data,           packet->m_length,
+            packet->m_componentTag,   packet->m_carouselId,
+            packet->m_dataBroadcastId);
+        delete packet;
+
+        packet = m_dsmccQueue.dequeue();
+        locker.unlock();
+        // Allow access to other threads
+        locker.relock();
+    }
 }
 
 void MHIContext::QueueDSMCCPacket(
