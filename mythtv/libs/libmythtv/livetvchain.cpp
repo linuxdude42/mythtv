@@ -498,10 +498,10 @@ ProgramInfo *LiveTVChain::DoGetNextProgram(bool up, int curpos, int &newid,
         {
             // didn't find in first pass, now get back to the next good one
             // as this is the one we will use
-            do
+
+            while (!pginfo && newid >= 0 && newid < m_chain.count())
             {
                 newid += up ? -1 : 1;
-
                 GetEntryAt(newid, entry);
 
                 bool at_last_entry =
@@ -524,7 +524,6 @@ ProgramInfo *LiveTVChain::DoGetNextProgram(bool up, int curpos, int &newid,
                     pginfo = nullptr;
                 }
             }
-            while (!pginfo && newid < m_chain.count() && newid >= 0);
 
             if (!pginfo)
             {
