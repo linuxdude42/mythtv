@@ -28,6 +28,7 @@
 #include <unistd.h>
 
 #include "lirc_client.h"
+#include "libmythbase/mythlogging.h"
 
 // clazy:excludeall=raw-environment-function
 // NOLINTBEGIN(performance-no-int-to-ptr)
@@ -1942,11 +1943,13 @@ static const char *lirc_read_string(const struct lirc_state *state, int fd)
 			FD_SET(fd,&fds);
 			tv.tv_sec=LIRC_TIMEOUT;
 			tv.tv_usec=0;
-			do
+			ret=select(fd+1,&fds,nullptr,nullptr,&tv);
+                        LOG(VB_GENERAL, LOG_ERR, QString("********** %1").arg(__PRETTY_FUNCTION__));
+			while(ret==-1 && errno==EINTR)
 			{
+                            LOG(VB_GENERAL, LOG_ERR, QString("********** %1 in while").arg(__PRETTY_FUNCTION__));
 				ret=select(fd+1,&fds,nullptr,nullptr,&tv);
 			}
-			while(ret==-1 && errno==EINTR);
 			if(ret==-1)
 			{
 				lirc_printf(state, "%s: select() failed\n", state->lirc_prog);
