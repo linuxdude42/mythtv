@@ -1916,11 +1916,9 @@ static const char *lirc_read_string(const struct lirc_state *state, int fd)
 			FD_SET(fd,&fds);
 			tv.tv_sec=LIRC_TIMEOUT;
 			tv.tv_usec=0;
-			do
-			{
+			ret=select(fd+1,&fds,nullptr,nullptr,&tv);
+			while(ret==-1 && errno==EINTR)
 				ret=select(fd+1,&fds,nullptr,nullptr,&tv);
-			}
-			while(ret==-1 && errno==EINTR);
 			if(ret==-1)
 				throw "select() failed";
 			if(ret==0)
