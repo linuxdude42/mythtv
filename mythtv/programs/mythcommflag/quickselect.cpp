@@ -43,11 +43,13 @@ quick_select(unsigned char *arr, int nelems, int select)
         ELEM_SWAP(arr[middle], arr[low+1]);
 
         /* Nibble from each end towards middle, swapping items when stuck */
-        int ll = low + 1;
-        int hh = high;
+        int ll = low + 2;
+        int hh = high - 1;
         for (;;) {
-            do ll++; while (arr[low] > arr[ll]);
-            do hh--; while (arr[hh]  > arr[low]);
+            while (arr[low] > arr[ll])
+                ll++;
+            while (arr[hh]  > arr[low])
+                hh--;
 
             if (hh < ll)
                 break;
@@ -98,11 +100,13 @@ quick_select_ushort(unsigned short *arr, int nelems, int select)
         ELEM_SWAP(arr[middle], arr[low+1]);
 
         /* Nibble from each end towards middle, swapping items when stuck */
-        int ll = low + 1;
-        int hh = high;
+        int ll = low + 2;
+        int hh = high - 1;
         for (;;) {
-            do ll++; while (arr[low] > arr[ll]);
-            do hh--; while (arr[hh]  > arr[low]);
+            while (arr[low] > arr[ll])
+                ll++;
+            while (arr[hh]  > arr[low])
+                hh--;
 
             if (hh < ll)
                 break;
@@ -153,11 +157,13 @@ quick_select_float(float *arr, int nelems, int select)
         ELEM_SWAP(arr[middle], arr[low+1]);
 
         /* Nibble from each end towards middle, swapping items when stuck */
-        int ll = low + 1;
-        int hh = high;
+        int ll = low + 2;
+        int hh = high - 1;
         for (;;) {
-            do ll++; while (arr[low] > arr[ll]);
-            do hh--; while (arr[hh]  > arr[low]);
+            while (arr[low] > arr[ll])
+                ll++;
+            while (arr[hh]  > arr[low])
+                hh--;
 
             if (hh < ll)
                 break;
