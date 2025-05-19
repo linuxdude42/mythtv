@@ -99,10 +99,12 @@ int MythDVDDecoder::ReadPacket(AVFormatContext *Ctx, AVPacket* Pkt, bool& StoreP
     {
         bool gotPacket = false;
 
-        do
+        LOG(VB_GENERAL, LOG_ERR, QString("********** %1").arg(__PRETTY_FUNCTION__));
+        while (!gotPacket)
         {
             gotPacket = true;
 
+            // while (m_ringBuffer->DVD()->IsReadingBlocked());
             do
             {
                 if (m_ringBuffer->DVD()->IsReadingBlocked())
@@ -197,7 +199,7 @@ int MythDVDDecoder::ReadPacket(AVFormatContext *Ctx, AVPacket* Pkt, bool& StoreP
                     }
                 }
             }
-        } while(!gotPacket);
+        }
     }
 
     return result;
