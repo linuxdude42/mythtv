@@ -1691,11 +1691,11 @@ bool ExternalStreamHandler::CheckForError(void)
         return true;
     }
 
-    do
+    LOG(VB_GENERAL, LOG_ERR, QString("********** %1").arg(__PRETTY_FUNCTION__));
+    response = m_io->GetStatus(0ms);
+    while (!response.isEmpty())
     {
-        response = m_io->GetStatus(0ms);
-        if (!response.isEmpty())
-        {
+        LOG(VB_GENERAL, LOG_ERR, QString("********** %1 response has data").arg(__PRETTY_FUNCTION__));
             if (m_apiVersion > 2)
             {
                 QJsonParseError parseError {};
@@ -1766,9 +1766,9 @@ bool ExternalStreamHandler::CheckForError(void)
 
                 LOG(VB_RECORD, (err ? LOG_WARNING : LOG_INFO), LOC + res);
             }
-        }
+
+        response = m_io->GetStatus(0ms);
     }
-    while (!response.isEmpty());
 
     return err;
 }
