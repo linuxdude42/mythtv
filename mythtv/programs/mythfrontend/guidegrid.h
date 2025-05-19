@@ -87,15 +87,25 @@ public:
         : m_row(row), m_col(col), m_area(area), m_title(std::move(title)),
           m_category(std::move(category)), m_arrow(arrow), m_recType(recType),
           m_recStat(recStat), m_selected(selected) {}
-    const int m_row;
-    const int m_col;
-    const QRect m_area;
-    const QString m_title;
-    const QString m_category;
-    const int m_arrow;
-    const int m_recType;
-    const int m_recStat;
-    const bool m_selected;
+    int     getRow()      const { return m_row;      }
+    int     getCol()      const { return m_col;      }
+    QRect   getArea()     const { return m_area;     }
+    QString getTitle()    const { return m_title;    }
+    QString getCategory() const { return m_category; }
+    int     getArrow()    const { return m_arrow;    }
+    int     getRectype()  const { return m_recType;  }
+    int     getRecstat()  const { return m_recStat;  }
+    bool    getSelected() const { return m_selected; }
+private:
+    int m_row;
+    int m_col;
+    QRect m_area;
+    QString m_title;
+    QString m_category;
+    int m_arrow;
+    int m_recType;
+    int m_recStat;
+    bool m_selected;
 };
 
 class GuideGrid : public ScheduleCommon, public JumpToChannelListener
