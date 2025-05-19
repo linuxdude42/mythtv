@@ -38,6 +38,7 @@
 #include <QQueue>
 #include <QStack>
 #include <QTime>
+#include "libmythbase/mythlogging.h"
 
 class MHDLADisplay;
 

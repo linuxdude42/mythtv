@@ -799,24 +799,14 @@ void MHText::Redraw()
     int yOffset = 0;
     // If there isn't space for all the lines we should drop extra lines.
     int nNumLines = theText.Size();
-
-    do
+    int divisor = (m_vertJ == Centre) ? 2 : 1;
+    yOffset = (m_nBoxHeight - (nNumLines * lineSpace)) / divisor;
+    while (yOffset < 0)
     {
-        if (m_vertJ == End)
-        {
-            yOffset = m_nBoxHeight - nNumLines * lineSpace;
-        }
-        else if (m_vertJ == Centre)
-        {
-            yOffset = (m_nBoxHeight - nNumLines * lineSpace) / 2;
-        }
-
-        if (yOffset < 0)
-        {
-            nNumLines--;
-        }
+        LOG(VB_GENERAL, LOG_ERR, QString("********** %1 yOffset %2").arg(__PRETTY_FUNCTION__).arg(yOffset));
+        nNumLines--;
+        yOffset = (m_nBoxHeight - (nNumLines * lineSpace)) / divisor;
     }
-    while (yOffset < 0);
 
     for (i = 0; i < nNumLines; i++)
     {

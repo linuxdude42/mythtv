@@ -127,8 +127,12 @@ std::chrono::milliseconds MHEngine::RunAll()
 
     std::chrono::milliseconds nNextTime = 0ms;
 
-    do
+    bool do_once {true} ; // run loop at least once
+    while (! m_eventQueue.isEmpty() || ! m_actionStack.isEmpty() || do_once)
     {
+        LOG(VB_GENERAL, LOG_ERR, QString("********** %1, do_once %2").arg(__PRETTY_FUNCTION__).arg(do_once));
+        do_once = false;
+
         // Check to see if we need to close.
         if (m_context->CheckStop())
         {
@@ -178,7 +182,6 @@ std::chrono::milliseconds MHEngine::RunAll()
             delete pEvent;
         }
     }
-    while (! m_eventQueue.isEmpty() || ! m_actionStack.isEmpty());
 
     // Redraw the display if necessary.
     if (! m_redrawRegion.isEmpty())
@@ -1523,8 +1526,8 @@ void mhlog_fn(const QString& logtext)
 }
 
 // Called from the user of the library to set the logging.
-void MHSetLogging(FILE *logStream, unsigned int logLevel)
+void MHSetLogging(FILE *logStream, unsigned int logLevel2)
 {
     gMHLogStream = logStream;
-    gMHLogoptions = logLevel;
+    gMHLogoptions = logLevel2;
 }
