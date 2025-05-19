@@ -196,8 +196,10 @@ int CC608Reader::Update(unsigned char *inpos)
         int scroll_yoff = 0;
         int scroll_ymax = 15;
 
-        do
+        while (inpos < end)
         {
+            LOG(VB_GENERAL, LOG_ERR, QString("********** %1, inpos=%2, end=%3")
+                .arg(__PRETTY_FUNCTION__).arg((quintptr)inpos).arg((quintptr)end));
             if (linecont)
             {
                 // append to last line; needs to be redrawn
@@ -265,7 +267,7 @@ int CC608Reader::Update(unsigned char *inpos)
             subtitle.row++;
             inpos = cur + 1;
             linecont = 0;
-        } while (inpos < end);
+        }
 
         // adjust row position
         if (subtitle.resumetext & CC_TXT_MASK)
