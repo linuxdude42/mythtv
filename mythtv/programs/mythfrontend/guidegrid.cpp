@@ -209,16 +209,37 @@ public:
           m_currentCol(currentCol), m_channelCount(channelCount),
           m_timeCount(timeCount), m_verticalLayout(verticalLayout),
           m_firstTime(std::move(firstTime)), m_lastTime(std::move(lastTime)) {}
-    const unsigned int m_firstRow, m_numRows;
-    const QVector<int> m_chanNums;
-    const MythRect m_ggProgramRect;
-    const int m_ggChannelCount;
-    const QDateTime m_currentStartTime, m_currentEndTime;
-    const uint m_currentStartChannel;
-    const int m_currentRow, m_currentCol;
-    const int m_channelCount, m_timeCount;
-    const bool m_verticalLayout;
-    const QDateTime m_firstTime, m_lastTime;
+    unsigned int getFirstRow() const { return m_firstRow; }
+    unsigned int getNumRows() const { return m_numRows; }
+    QVector<int> getChanNums() const { return m_chanNums; }
+    MythRect getGgProgramRect() const { return m_ggProgramRect; }
+    int getGgChannelCount() const { return m_ggChannelCount; }
+    QDateTime getCurrentStartTime() const { return m_currentStartTime; }
+    QDateTime getCurrentEndTime() const { return m_currentEndTime; }
+    uint getCurrentStartChannel() const { return m_currentStartChannel; }
+    int getCurrentRow() const { return m_currentRow; }
+    int getCurrentCol() const { return m_currentCol; }
+    int getChannelCount() const { return m_channelCount; }
+    int getTimeCount() const { return m_timeCount; }
+    bool getVerticalLayout() const { return m_verticalLayout; }
+    QDateTime getFirstTime() const { return m_firstTime; }
+    QDateTime getLastTime() const { return m_lastTime; }
+private:
+    unsigned int m_firstRow;
+    unsigned int m_numRows;
+    QVector<int> m_chanNums;
+    MythRect m_ggProgramRect;
+    int m_ggChannelCount;
+    QDateTime m_currentStartTime;
+    QDateTime m_currentEndTime;
+    uint m_currentStartChannel;
+    int m_currentRow;
+    int m_currentCol;
+    int m_channelCount;
+    int m_timeCount;
+    bool m_verticalLayout;
+    QDateTime m_firstTime;
+    QDateTime m_lastTime;
 };
 
 class GuideUpdaterBase
@@ -245,21 +266,21 @@ public:
     GuideUpdateProgramRow(GuideGrid *guide, const GuideStatus &gs,
                           QVector<ProgramList*> proglists)
         : GuideUpdaterBase(guide),
-          m_firstRow(gs.m_firstRow),
-          m_numRows(gs.m_numRows),
-          m_chanNums(gs.m_chanNums),
-          m_ggProgramRect(gs.m_ggProgramRect),
-          m_ggChannelCount(gs.m_ggChannelCount),
-          m_currentStartTime(gs.m_currentStartTime),
-          m_currentEndTime(gs.m_currentEndTime),
-          m_currentStartChannel(gs.m_currentStartChannel),
-          m_currentRow(gs.m_currentRow),
-          m_currentCol(gs.m_currentCol),
-          m_channelCount(gs.m_channelCount),
-          m_timeCount(gs.m_timeCount),
-          m_verticalLayout(gs.m_verticalLayout),
-          m_firstTime(gs.m_firstTime),
-          m_lastTime(gs.m_lastTime),
+          m_firstRow(gs.getFirstRow()),
+          m_numRows(gs.getNumRows()),
+          m_chanNums(gs.getChanNums()),
+          m_ggProgramRect(gs.getGgProgramRect()),
+          m_ggChannelCount(gs.getGgChannelCount()),
+          m_currentStartTime(gs.getCurrentStartTime()),
+          m_currentEndTime(gs.getCurrentEndTime()),
+          m_currentStartChannel(gs.getCurrentStartChannel()),
+          m_currentRow(gs.getCurrentRow()),
+          m_currentCol(gs.getCurrentCol()),
+          m_channelCount(gs.getChannelCount()),
+          m_timeCount(gs.getTimeCount()),
+          m_verticalLayout(gs.getVerticalLayout()),
+          m_firstTime(gs.getFirstTime()),
+          m_lastTime(gs.getLastTime()),
           m_proglists(std::move(proglists)) {}
     ~GuideUpdateProgramRow() override = default;
     bool ExecuteNonUI(void) override // GuideUpdaterBase
@@ -296,21 +317,21 @@ private:
     void fillProgramRowInfosWith(int row, const QDateTime& start,
                                  ProgramList *proglist);
 
-    const unsigned int m_firstRow;
-    const unsigned int m_numRows;
-    const QVector<int> m_chanNums;
-    const MythRect m_ggProgramRect;
-    const int m_ggChannelCount;
-    const QDateTime m_currentStartTime;
-    const QDateTime m_currentEndTime;
-    const uint m_currentStartChannel;
-    const int m_currentRow;
-    const int m_currentCol;
-    const int m_channelCount;
-    const int m_timeCount;
-    const bool m_verticalLayout;
-    const QDateTime m_firstTime;
-    const QDateTime m_lastTime;
+    unsigned int m_firstRow;
+    unsigned int m_numRows;
+    QVector<int> m_chanNums;
+    MythRect m_ggProgramRect;
+    int m_ggChannelCount;
+    QDateTime m_currentStartTime;
+    QDateTime m_currentEndTime;
+    uint m_currentStartChannel;
+    int m_currentRow;
+    int m_currentCol;
+    int m_channelCount;
+    int m_timeCount;
+    bool m_verticalLayout;
+    QDateTime m_firstTime;
+    QDateTime m_lastTime;
 
     QVector<ProgramList*> m_proglists;
     ProgInfoGuideArray m_programInfos {};
@@ -2098,9 +2119,9 @@ void GuideGrid::updateProgramsUI(unsigned int firstRow, unsigned int numRows,
     m_guideGrid->SetProgPast(progPast);
     for (const auto & r : elements)
     {
-        m_guideGrid->SetProgramInfo(r.m_row, r.m_col, r.m_area, r.m_title,
-                                    r.m_category, r.m_arrow, r.m_recType,
-                                    r.m_recStat, r.m_selected);
+        m_guideGrid->SetProgramInfo(r.getRow(), r.getCol(), r.getArea(), r.getTitle(),
+                                    r.getCategory(), r.getArrow(), r.getRectype(),
+                                    r.getRecstat(), r.getSelected());
     }
     for (unsigned int i = firstRow; i < firstRow + numRows; ++i)
     {
