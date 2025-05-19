@@ -980,22 +980,19 @@ void MythSocket::ResetReal(void)
 {
     std::vector<char> trash;
 
+    LOG(VB_GENERAL, LOG_ERR, QString("********** %1").arg(__PRETTY_FUNCTION__));
     m_tcpSocket->waitForReadyRead(30);
-    do
+    while (uint avail = m_tcpSocket->bytesAvailable() > 0)
     {
-        uint avail = m_tcpSocket->bytesAvailable();
-        if (avail)
-        {
-            trash.resize(std::max((uint)trash.size(),avail));
-            m_tcpSocket->read(trash.data(), avail);
-        }
+        LOG(VB_GENERAL, LOG_ERR, QString("********** %1 in while").arg(__PRETTY_FUNCTION__));
+        trash.resize(std::max((uint)trash.size(),avail));
+        m_tcpSocket->read(trash.data(), avail);
 
         LOG(VB_NETWORK, LOG_INFO, LOC() + "Reset() " +
             QString("%1 bytes available").arg(avail));
 
         m_tcpSocket->waitForReadyRead(30);
     }
-    while (m_tcpSocket->bytesAvailable() > 0);
 
     m_dataAvailable.fetchAndStoreOrdered(0);
 }

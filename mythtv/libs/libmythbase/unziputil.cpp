@@ -118,8 +118,10 @@ QByteArray gzipCompress(const QByteArray& data)
     QByteArray result;
 
     // run deflate()
-    do
+    strm.avail_out = 0;
+    while (strm.avail_out == 0)
     {
+        LOG(VB_GENERAL, LOG_ERR, QString("********** %1").arg(__PRETTY_FUNCTION__));
         strm.avail_out = out.size();
         strm.next_out  = (Bytef*)(out.data());
 
@@ -138,7 +140,6 @@ QByteArray gzipCompress(const QByteArray& data)
 
         result.append(out.data(), out.size() - strm.avail_out);
     }
-    while (strm.avail_out == 0);
 
     // clean up and return
 
@@ -171,8 +172,10 @@ QByteArray gzipUncompress(const QByteArray &data)
 
     QByteArray result;
 
-    do
+    strm.avail_out = 0;
+    while (strm.avail_out == 0)
     {
+        LOG(VB_GENERAL, LOG_ERR, QString("********** %1").arg(__PRETTY_FUNCTION__));
         strm.avail_out = out.size();
         strm.next_out = (Bytef*)out.data();
         ret = inflate(&strm, Z_NO_FLUSH);
@@ -190,7 +193,6 @@ QByteArray gzipUncompress(const QByteArray &data)
 
         result.append(out.data(), out.size() - strm.avail_out);
     }
-    while (strm.avail_out == 0);
 
     (void) inflateEnd(& strm);
 

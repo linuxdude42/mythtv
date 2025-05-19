@@ -1570,8 +1570,10 @@ void MythCoreContext::SendHostSystemEvent(const QString &msg,
 
 void MythCoreContext::readyRead(MythSocket *sock)
 {
-    do
+    LOG(VB_GENERAL, LOG_ERR, QString("********** %1").arg(__PRETTY_FUNCTION__));
+    while (sock->IsDataAvailable())
     {
+        LOG(VB_GENERAL, LOG_ERR, QString("********** %1 in while").arg(__PRETTY_FUNCTION__));
         QStringList strlist;
         if (!sock->ReadStringList(strlist))
             continue;
@@ -1657,7 +1659,6 @@ void MythCoreContext::readyRead(MythSocket *sock)
             dispatch(me);
         }
     }
-    while (sock->IsDataAvailable());
 }
 
 void MythCoreContext::connectionClosed([[maybe_unused]] MythSocket *sock)

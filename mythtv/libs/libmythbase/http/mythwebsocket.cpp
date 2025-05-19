@@ -96,8 +96,10 @@ void MythWebSocket::SendBinaryFrame(const QByteArray& Data)
 void MythWebSocket::Read()
 {
     QString errormsg;
-    do
+    LOG(VB_GENERAL, LOG_ERR, QString("********** %1").arg(__PRETTY_FUNCTION__));
+    while (m_socket->bytesAvailable())
     {
+        LOG(VB_GENERAL, LOG_ERR, QString("********** %1 in while").arg(__PRETTY_FUNCTION__));
         errormsg.clear();
         // For small frames this should process everything without looping -
         // including zero length payloads
@@ -427,7 +429,7 @@ void MythWebSocket::Read()
                 m_readState = ReadHeader;
             }
         }
-    } while (m_socket->bytesAvailable());
+    }
 }
 
 void MythWebSocket::Write(int64_t Written)

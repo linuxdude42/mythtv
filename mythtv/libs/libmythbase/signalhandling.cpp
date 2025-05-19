@@ -216,7 +216,9 @@ void SignalHandler::signalHandler(int signum,
     int index = 0;
     int size  = sizeof(SignalInfo);
     char *buffer = (char *)&signalInfo;
-    do {
+    while (size > 0)
+    {
+        LOG(VB_GENERAL, LOG_ERR, QString("********** %1").arg(__PRETTY_FUNCTION__));
         int written = ::write(s_sigFd[0], &buffer[index], size);
         // If there's an error, the signal will not be seen be the application,
         // but we can't keep trying.
@@ -224,7 +226,7 @@ void SignalHandler::signalHandler(int signum,
             break;
         index += written;
         size  -= written;
-    } while (size > 0);
+    }
 
     // One must not return from SEGV, ILL, BUS or FPE. When these
     // are raised by the program itself they will immediately get
