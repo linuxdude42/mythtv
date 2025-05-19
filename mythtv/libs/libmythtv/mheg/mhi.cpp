@@ -246,9 +246,11 @@ void MHIContext::run(void)
     {
         std::chrono::milliseconds toWait = 0ms;
         // Dequeue and process any key presses.
-        int key = 0;
-        do
+        int key = -1;
+        while (key != 0)
         {
+            LOG(VB_GENERAL, LOG_ERR, QString("********** %1, key %2")
+                .arg(__PRETTY_FUNCTION__).arg(key));
             NetworkBootRequested();
             ProcessDSMCCQueue();
             {
@@ -263,7 +265,7 @@ void MHIContext::run(void)
             toWait = m_engine->RunAll();
             if (toWait < 0ms)
                 return;
-        } while (key != 0);
+        }
 
         toWait = (toWait > 1s || toWait <= 0ms) ? 1s : toWait;
 
@@ -275,21 +277,19 @@ void MHIContext::run(void)
 // Dequeue and process any DSMCC packets.
 void MHIContext::ProcessDSMCCQueue(void)
 {
-    DSMCCPacket *packet = nullptr;
-    do
+    QMutexLocker locker(&m_dsmccLock);
+    DSMCCPacket *packet = m_dsmccQueue.dequeue();
+    while (packet)
     {
-        QMutexLocker locker(&m_dsmccLock);
+        LOG(VB_GENERAL, LOG_ERR, QString("********** %1, packet %2")
+            .arg(__PRETTY_FUNCTION__).arg((quintptr)packet));
+        m_dsmcc->ProcessSection(
+            packet->m_data,           packet->m_length,
+            packet->m_componentTag,   packet->m_carouselId,
+            packet->m_dataBroadcastId);
+        delete packet;
         packet = m_dsmccQueue.dequeue();
-        if (packet)
-        {
-            m_dsmcc->ProcessSection(
-                packet->m_data,           packet->m_length,
-                packet->m_componentTag,   packet->m_carouselId,
-                packet->m_dataBroadcastId);
-
-            delete packet;
-        }
-    } while (packet);
+    }
 }
 
 void MHIContext::QueueDSMCCPacket(
@@ -892,25 +892,27 @@ int MHIContext::GetChannelIndex(const QString &str)
 {
     int nResult = -1;
 
-    do
+    try
     {
+        LOG(VB_GENERAL, LOG_ERR, QString("********** %1 try")
+            .arg(__PRETTY_FUNCTION__));
         if (str.startsWith("dvb://"))
         {
             QStringList list = str.mid(6).split('.');
             if (list.size() != 3)
-                break; // Malformed.
+                throw -1; // Malformed.
             // The various fields are expressed in hexadecimal.
             // Convert them to decimal for the DB.
             bool ok = false;
             int netID = list[0].toInt(&ok, 16);
             if (!ok)
-                break;
+                throw -1;
             int transportID = !list[1].isEmpty() ? list[1].toInt(&ok, 16) : -1;
             if (!ok)
-                break;
+                throw -1;
             int serviceID = list[2].toInt(&ok, 16);
             if (!ok)
-                break;
+                throw -1;
 
             QMutexLocker locker(&m_channelMutex);
             if (m_channelCache.isEmpty())
@@ -919,20 +921,19 @@ int MHIContext::GetChannelIndex(const QString &str)
             ChannelCache_t::const_iterator it = m_channelCache.constFind(
                 Key_t(netID,serviceID) );
             if (it == m_channelCache.constEnd())
-                break;
+                throw -1;
             if (transportID < 0)
                 nResult = Cid(it);
             else
             {
-                do
+                for ( ; it != m_channelCache.constEnd() ; it++)
                 {
                     if (Tid(it) == transportID)
                     {
                         nResult = Cid(it);
-                        break;
+                        throw -1;
                     }
                 }
-                while (++it != m_channelCache.constEnd());
             }
         }
         else if (str.startsWith("rec://svc/lcn/"))
@@ -941,7 +942,7 @@ int MHIContext::GetChannelIndex(const QString &str)
             bool ok = false;
             int channelNo = str.mid(14).toInt(&ok); // Decimal integer
             if (!ok)
-                break;
+                throw -1;
             MSqlQuery query(MSqlQuery::InitCon());
             query.prepare("SELECT chanid "
                           "FROM channel "
@@ -968,7 +969,12 @@ int MHIContext::GetChannelIndex(const QString &str)
                 .arg(str));
         }
     }
-    while (false);
+    catch (int e)
+    {
+        // Do nothing
+        LOG(VB_GENERAL, LOG_ERR, QString("********** %1 catch")
+            .arg(__PRETTY_FUNCTION__));
+    }
 
     LOG(VB_MHEG, LOG_INFO, QString("[mhi] GetChannelIndex %1 => %2")
         .arg(str).arg(nResult));
