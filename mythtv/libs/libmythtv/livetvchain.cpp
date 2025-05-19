@@ -450,6 +450,7 @@ ProgramInfo *LiveTVChain::DoGetNextProgram(bool up, int curpos, int &newid,
     LiveTVChainEntry oldentry;
     LiveTVChainEntry entry;
     ProgramInfo *pginfo = nullptr;
+    int step = up ? 1 : -1;
 
     GetEntryAt(curpos, oldentry);
 
@@ -490,7 +491,7 @@ ProgramInfo *LiveTVChain::DoGetNextProgram(bool up, int curpos, int &newid,
 
             if (!pginfo)
             {
-                newid += up ? 1 : -1;
+                newid += step;
             }
         }
 
@@ -498,10 +499,11 @@ ProgramInfo *LiveTVChain::DoGetNextProgram(bool up, int curpos, int &newid,
         {
             // didn't find in first pass, now get back to the next good one
             // as this is the one we will use
-            do
-            {
-                newid += up ? -1 : 1;
 
+            for (newid += step;
+                 (!pginfo && (newid >= 0) && (newid < m_chain.count()));
+                 newid += step)
+            {
                 GetEntryAt(newid, entry);
 
                 bool at_last_entry =
@@ -524,7 +526,6 @@ ProgramInfo *LiveTVChain::DoGetNextProgram(bool up, int curpos, int &newid,
                     pginfo = nullptr;
                 }
             }
-            while (!pginfo && newid < m_chain.count() && newid >= 0);
 
             if (!pginfo)
             {
