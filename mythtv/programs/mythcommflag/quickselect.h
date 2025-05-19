@@ -1,6 +1,8 @@
 #ifndef QUICKSELECT_H
 #define QUICKSELECT_H
 
+#include "libmythbase/mythlogging.h"
+
 template <typename T>
 void ELEM_SWAP(T& a, T& b)
 {
@@ -37,12 +39,22 @@ T quick_select(T *arr, int nelems, int select)
         /* Nibble from each end towards middle, swapping items when stuck */
         int ll = low + 1;
         int hh = high;
-        for (;;) {
-            do ll++; while (arr[low] > arr[ll]);
-            do hh--; while (arr[hh]  > arr[low]);
+        while (hh >= ll) {
+            LOG(VB_GENERAL, LOG_ERR, QString("********** %1 outer").arg(__PRETTY_FUNCTION__));
+            ll++;
+            while (arr[low] > arr[ll]) {
+                LOG(VB_GENERAL, LOG_ERR, QString("********** %1 inner ll").arg(__PRETTY_FUNCTION__));
+                ll++;
+            }
+
+            hh--;
+            while (arr[hh]  > arr[low]) {
+                LOG(VB_GENERAL, LOG_ERR, QString("********** %1 inner hh").arg(__PRETTY_FUNCTION__));
+                hh--;
+            }
 
             if (hh < ll)
-                break;
+                continue;
 
             ELEM_SWAP<T>(arr[ll], arr[hh]);
         }
