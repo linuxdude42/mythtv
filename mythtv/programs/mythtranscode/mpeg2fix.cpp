@@ -1530,6 +1530,7 @@ bool MPEG2fixup::FindStart()
         return false;
     }
 
+    // while (found.count() != m_aFrame.count());
     do
     {
         if (GetFrame(pkt))
