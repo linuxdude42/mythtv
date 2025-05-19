@@ -498,10 +498,12 @@ ProgramInfo *LiveTVChain::DoGetNextProgram(bool up, int curpos, int &newid,
         {
             // didn't find in first pass, now get back to the next good one
             // as this is the one we will use
-            do
-            {
-                newid += up ? -1 : 1;
 
+            newid += up ? -1 : 1;
+            LOG(VB_GENERAL, LOG_ERR, QString("********** %1, newid %2")
+                .arg(__PRETTY_FUNCTION__).arg(newid));
+            while (!pginfo && newid >= 0 && newid < m_chain.count())
+            {
                 GetEntryAt(newid, entry);
 
                 bool at_last_entry =
@@ -523,8 +525,8 @@ ProgramInfo *LiveTVChain::DoGetNextProgram(bool up, int curpos, int &newid,
                     delete pginfo;
                     pginfo = nullptr;
                 }
+                newid += up ? -1 : 1;
             }
-            while (!pginfo && newid < m_chain.count() && newid >= 0);
 
             if (!pginfo)
             {
