@@ -286,8 +286,11 @@ bool XMLTVParser::parseFile(
                 chaninfo->m_tvFormat = "Default";
 
                 //readNextStartElement says it reads for the next start element WITHIN the current element; but it doesnt; so we use readNext()
-                do
+                while (!xml.isEndElement() || (xml.name() != QString("channel")))
                 {
+                    static int count1 {0};
+                    if (count1++ == 0)
+                        LOG(VB_GENERAL, LOG_ERR, QString("********** %1 channel").arg(__PRETTY_FUNCTION__));
                     if (!readNextWithErrorCheck(xml))
                     {
                         delete chaninfo;
@@ -334,7 +337,6 @@ bool XMLTVParser::parseFile(
                         }
                     }
                 }
-                while (! (xml.isEndElement() && xml.name() == QString("channel")));
                 chaninfo->m_freqId = chaninfo->m_chanNum;
                 //TODO optimize this, no use to do al this parsing if xmltvid is empty; but make sure you will read until the next channel!!
                 if (!chaninfo->m_xmltvId.isEmpty())
@@ -376,8 +378,11 @@ bool XMLTVParser::parseFile(
                     pginfo->m_clumpmax = split[1];
                 }
 
-                do
+                while (!xml.isEndElement() || (xml.name() != QString("programme")))
                 {
+                    static int count2 {0};
+                    if (count2++ == 0)
+                        LOG(VB_GENERAL, LOG_ERR, QString("********** %1 programme").arg(__PRETTY_FUNCTION__));
                     if (!readNextWithErrorCheck(xml))
                     {
                         delete pginfo;
@@ -464,8 +469,11 @@ bool XMLTVParser::parseFile(
                         // 0 signals no rating!
                         // See http://xmltv.cvs.sourceforge.net/viewvc/xmltv/xmltv/xmltv.dtd?revision=1.47&view=markup#l539
                         stars = "0"; //no rating
-                        do
+                        while (!xml.isEndElement() || (xml.name() != QString("star-rating")))
                         {
+                            static int count3 {0};
+                            if (count3++ == 0)
+                                LOG(VB_GENERAL, LOG_ERR, QString("********** %1 star-rating").arg(__PRETTY_FUNCTION__));
                             if (!readNextWithErrorCheck(xml))
                                 return false;
                             if (xml.isStartElement())
@@ -476,7 +484,6 @@ bool XMLTVParser::parseFile(
                                 }
                             }
                         }
-                        while (! (xml.isEndElement() && xml.name() == QString("star-rating")));
                         if (pginfo->m_stars == 0.0F)
                         {
                             float num = stars.section('/', 0, 0).toFloat() + 1;
@@ -495,8 +502,11 @@ bool XMLTVParser::parseFile(
                         if (rating_system == nullptr)
                             rating_system = "";
 
-                        do
+                        while (!xml.isEndElement() || (xml.name() != QString("rating")))
                         {
+                            static int count4 {0};
+                            if (count4++ == 0)
+                                LOG(VB_GENERAL, LOG_ERR, QString("********** %1 rating").arg(__PRETTY_FUNCTION__));
                             if (!readNextWithErrorCheck(xml))
                                 return false;
                             if (xml.isStartElement())
@@ -507,7 +517,6 @@ bool XMLTVParser::parseFile(
                                 }
                             }
                         }
-                        while (! (xml.isEndElement() && xml.name() == QString("rating")));
 
                         if (!rat.isEmpty())
                         {
@@ -531,8 +540,11 @@ bool XMLTVParser::parseFile(
                     else if (xml.name() == QString("credits"))
                     {
                         int priority = 1;
-                        do
+                        while (!xml.isEndElement() || (xml.name() != QString("credits")))
                         {
+                            static int count5 {0};
+                            if (count5++ == 0)
+                                LOG(VB_GENERAL, LOG_ERR, QString("********** %1 credits").arg(__PRETTY_FUNCTION__));
                             if (!readNextWithErrorCheck(xml))
                                 return false;
                             if (xml.isStartElement())
@@ -569,12 +581,14 @@ bool XMLTVParser::parseFile(
                                 }
                             }
                         }
-                        while (! (xml.isEndElement() && xml.name() == QString("credits")));
                     }
                     else if (xml.name() == QString("audio"))
                     {
-                        do
+                        while (!xml.isEndElement() || (xml.name() != QString("audio")))
                         {
+                            static int count6 {0};
+                            if (count6++ == 0)
+                                LOG(VB_GENERAL, LOG_ERR, QString("********** %1 audio").arg(__PRETTY_FUNCTION__));
                             if (!readNextWithErrorCheck(xml))
                                 return false;
                             if (xml.isStartElement())
@@ -601,12 +615,14 @@ bool XMLTVParser::parseFile(
                                 }
                             }
                         }
-                        while (! (xml.isEndElement() && xml.name() == QString("audio")));
                     }
                     else if (xml.name() == QString("video"))
                     {
-                        do
+                        while (!xml.isEndElement() || (xml.name() != QString("video")))
                         {
+                            static int count7 {0};
+                            if (count7++ == 0)
+                                LOG(VB_GENERAL, LOG_ERR, QString("********** %1 video").arg(__PRETTY_FUNCTION__));
                             if (!readNextWithErrorCheck(xml))
                                 return false;
                             if (xml.isStartElement())
@@ -623,7 +639,6 @@ bool XMLTVParser::parseFile(
                                 }
                             }
                         }
-                        while (! (xml.isEndElement() && xml.name() == QString("video")));
                     }
                     else if (xml.name() == QString("episode-num"))
                     {
@@ -743,7 +758,6 @@ bool XMLTVParser::parseFile(
                         }
                     }//episode-num
                 }
-                while (! (xml.isEndElement() && xml.name() == QString("programme")));
 
                 if (pginfo->m_category.isEmpty() && pginfo->m_categoryType != ProgramInfo::kCategoryNone)
                     pginfo->m_category = myth_category_type_to_string(pginfo->m_categoryType);
