@@ -737,12 +737,14 @@ int MSocketDevice::accept()
 
     QT_SOCKLEN_T l = sizeof(aa);
 
-    bool done = true;
+    bool done = false;
 
     int s = -1;
 
-    do
+    LOG(VB_GENERAL, LOG_ERR, QString("********** %1").arg(__PRETTY_FUNCTION__));
+    while (!done)
     {
+        LOG(VB_GENERAL, LOG_ERR, QString("********** %1 in while").arg(__PRETTY_FUNCTION__));
         s = qt_socket_accept(m_fd, (struct sockaddr*) & aa, &l);
         // we'll blithely throw away the stuff accept() wrote to aa
         done = true;
@@ -816,7 +818,6 @@ int MSocketDevice::accept()
             }
         }
     }
-    while (!done);
 
     return s;
 }
