@@ -26,6 +26,7 @@ QString freesat_huffman_to_string(const unsigned char *compressed, uint size)
     }
     uchar lastch = START;
 
+    // while (lastch != STOP && byte < size+4);
     do
     {
         bool found = false;

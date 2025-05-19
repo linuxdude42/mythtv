@@ -83,14 +83,12 @@ bool CetonRTSP::ProcessRequest(
         // empty socket's waiting data just in case
         m_socket->waitForReadyRead(30);
         QVector<char> trash;
-        do
+        while (uint avail = m_socket->bytesAvailable() > 0)
         {
-            uint avail = m_socket->bytesAvailable();
             trash.resize(std::max((uint)trash.size(), avail));
             m_socket->read(trash.data(), avail);
             m_socket->waitForReadyRead(30);
         }
-        while (m_socket->bytesAvailable() > 0);
     }
 
     QStringList requestHeaders;
@@ -263,15 +261,12 @@ QStringList CetonRTSP::splitLines(const QByteArray &lines)
     QTextStream stream(lines);
     QString line;
 
-    do
+    line = stream.readLine();
+    while (!line.isNull())
     {
+        list.append(line);
         line = stream.readLine();
-        if (!line.isNull())
-        {
-            list.append(line);
-        }
     }
-    while (!line.isNull());
 
     return list;
 }

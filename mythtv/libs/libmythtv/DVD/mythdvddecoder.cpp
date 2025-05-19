@@ -99,10 +99,11 @@ int MythDVDDecoder::ReadPacket(AVFormatContext *Ctx, AVPacket* Pkt, bool& StoreP
     {
         bool gotPacket = false;
 
-        do
+        while (!gotPacket)
         {
             gotPacket = true;
 
+            // while (m_ringBuffer->DVD()->IsReadingBlocked());
             do
             {
                 if (m_ringBuffer->DVD()->IsReadingBlocked())
@@ -197,7 +198,7 @@ int MythDVDDecoder::ReadPacket(AVFormatContext *Ctx, AVPacket* Pkt, bool& StoreP
                     }
                 }
             }
-        } while(!gotPacket);
+        }
     }
 
     return result;

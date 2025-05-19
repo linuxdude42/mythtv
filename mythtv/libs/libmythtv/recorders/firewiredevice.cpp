@@ -50,15 +50,12 @@ void FirewireDevice::AddListener(TSDataListener *listener)
 
 void FirewireDevice::RemoveListener(TSDataListener *listener)
 {
-    auto it = m_listeners.end();
-
-    do
+    auto it = find(m_listeners.begin(), m_listeners.end(), listener);
+    while (it != m_listeners.end())
     {
-        it = find(m_listeners.begin(), m_listeners.end(), listener);
-        if (it != m_listeners.end())
-            it = m_listeners.erase(it);
+        it = m_listeners.erase(it);
+        it = find(it, m_listeners.end(), listener);
     }
-    while (it != m_listeners.end());
 
     LOG(VB_RECORD, LOG_INFO, LOC +
         QString("RemoveListener() %1").arg(m_listeners.size()));
