@@ -1913,8 +1913,10 @@ ChannelImporter::QueryUserDelete(const QString &msg)
     if (m_useGui)
     {
         m_functorRetval = -1;
-        do
+        while (m_functorRetval < 0)
         {
+            LOG(VB_GENERAL, LOG_ERR, QString("********** %1")
+                .arg(__PRETTY_FUNCTION__));
             if (m_useWeb) {
                 m_pWeb->m_mutex.lock();
                 m_pWeb->m_dlgMsg = msg;
@@ -1948,7 +1950,7 @@ ChannelImporter::QueryUserDelete(const QString &msg)
 
                 m_eventLoop.exec();
             }
-        } while (m_functorRetval < 0);
+        }
 
         switch (m_functorRetval)
         {
@@ -2001,8 +2003,10 @@ ChannelImporter::QueryUserInsert(const QString &msg)
     if (m_useGui)
     {
         m_functorRetval = -1;
-        do
+        while (m_functorRetval < 0)
         {
+            LOG(VB_GENERAL, LOG_ERR, QString("********** %1")
+                .arg(__PRETTY_FUNCTION__));
             if (m_useWeb) {
                 m_pWeb->m_mutex.lock();
                 m_pWeb->m_dlgMsg = msg;
@@ -2035,7 +2039,7 @@ ChannelImporter::QueryUserInsert(const QString &msg)
                 popupStack->AddScreen(insertDialog);
                 m_eventLoop.exec();
             }
-        } while (m_functorRetval < 0);
+        }
 
         switch (m_functorRetval)
         {
@@ -2087,8 +2091,10 @@ ChannelImporter::QueryUserUpdate(const QString &msg)
     if (m_useGui)
     {
         m_functorRetval = -1;
-        do
+        while (m_functorRetval < 0)
         {
+            LOG(VB_GENERAL, LOG_ERR, QString("********** %1")
+                .arg(__PRETTY_FUNCTION__));
             if (m_useWeb) {
                 m_pWeb->m_mutex.lock();
                 m_pWeb->m_dlgMsg = msg;
@@ -2119,7 +2125,7 @@ ChannelImporter::QueryUserUpdate(const QString &msg)
                 popupStack->AddScreen(updateDialog);
                 m_eventLoop.exec();
             }
-        } while (m_functorRetval < 0);
+        }
 
         switch (m_functorRetval)
         {
