@@ -631,10 +631,11 @@ bool MythUIButtonList::DistributeCols(int &first_button, int &last_button,
     int  col_cnt = 0;
     int  height = 0;
     int  end = 0;
-    bool added = false;
+    bool added = true;
 
-    do
+    while (added)
     {
+        LOG(VB_GENERAL, LOG_ERR, QString("********** %1").arg(__PRETTY_FUNCTION__));
         added = false;
 
         if (wrapped)
@@ -731,7 +732,6 @@ bool MythUIButtonList::DistributeCols(int &first_button, int &last_button,
             }
         }
     }
-    while (added);
 
     return true;
 }
