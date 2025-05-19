@@ -994,13 +994,17 @@ void AVCParser::decode_SEI(BitReader& br)
      * can be no message in less than 24 bits */
     while (br.get_bits_left() >= 24)
     {
-        do {
+        LOG(VB_GENERAL, LOG_ERR, QString("********** %1")
+            .arg(__PRETTY_FUNCTION__));
+        type += br.show_bits(8);
+        while (br.get_bits(8) == 0xFF) {
             type += br.show_bits(8);
-        } while (br.get_bits(8) == 0xFF);
+        }
 
-        do {
+        size += br.show_bits(8);
+        while (br.get_bits(8) == 0xFF) {
             size += br.show_bits(8);
-        } while (br.get_bits(8) == 0xFF);
+        }
 
         switch (type)
         {
