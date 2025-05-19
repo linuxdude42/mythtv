@@ -1786,18 +1786,27 @@ bool ProgramData::DeleteOverlaps(
         if (!query.exec())
             return false;
 
-        if (!query.next())
-            return true;
-
-        do
+        LOG(VB_GENERAL, LOG_ERR, QString("********** %1")
+            .arg(__PRETTY_FUNCTION__));
+        while (query.next())
         {
+            LOG(VB_GENERAL, LOG_ERR, QString("********** %1 in while")
+            .arg(__PRETTY_FUNCTION__));
             LOG(VB_XMLTV, LOG_DEBUG,
                 QString("Removing existing program: %1 - %2 %3 %4")
                 .arg(MythDate::as_utc(query.value(1).toDateTime()).toString(Qt::ISODate),
                      MythDate::as_utc(query.value(2).toDateTime()).toString(Qt::ISODate),
                      pi.m_channel,
                      query.value(0).toString()));
-        } while (query.next());
+        }
+
+        if (query.at() == QSql::BeforeFirstRow)
+        {
+            LOG(VB_GENERAL, LOG_ERR, QString("********** %1 BeforeFirstRow")
+                .arg(__PRETTY_FUNCTION__));
+            // Successful query, no results
+            return true;
+        }
     }
 
     if (!ClearDataByChannel(chanid, pi.m_starttime, pi.m_endtime, false))
