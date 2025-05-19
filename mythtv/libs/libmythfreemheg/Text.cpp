@@ -800,23 +800,24 @@ void MHText::Redraw()
     // If there isn't space for all the lines we should drop extra lines.
     int nNumLines = theText.Size();
 
-    do
+    if (m_vertJ == End)
     {
-        if (m_vertJ == End)
-        {
-            yOffset = m_nBoxHeight - nNumLines * lineSpace;
-        }
-        else if (m_vertJ == Centre)
-        {
-            yOffset = (m_nBoxHeight - nNumLines * lineSpace) / 2;
-        }
-
-        if (yOffset < 0)
+        yOffset = m_nBoxHeight - nNumLines * lineSpace;
+        while (yOffset < 0)
         {
             nNumLines--;
+            yOffset = m_nBoxHeight - nNumLines * lineSpace;
         }
     }
-    while (yOffset < 0);
+    else if (m_vertJ == Centre)
+    {
+        yOffset = (m_nBoxHeight - nNumLines * lineSpace) / 2;
+        while (yOffset < 0)
+        {
+            nNumLines--;
+            yOffset = (m_nBoxHeight - nNumLines * lineSpace) / 2;
+        }
+    }
 
     for (i = 0; i < nNumLines; i++)
     {
