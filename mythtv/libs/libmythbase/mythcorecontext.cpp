@@ -1570,7 +1570,7 @@ void MythCoreContext::SendHostSystemEvent(const QString &msg,
 
 void MythCoreContext::readyRead(MythSocket *sock)
 {
-    do
+    while (sock->IsDataAvailable())
     {
         QStringList strlist;
         if (!sock->ReadStringList(strlist))
@@ -1657,7 +1657,6 @@ void MythCoreContext::readyRead(MythSocket *sock)
             dispatch(me);
         }
     }
-    while (sock->IsDataAvailable());
 }
 
 void MythCoreContext::connectionClosed([[maybe_unused]] MythSocket *sock)

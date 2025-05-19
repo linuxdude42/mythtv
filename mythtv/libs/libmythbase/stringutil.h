@@ -78,14 +78,11 @@ inline std::vector<std::string_view> split_sv(const std::string_view s, const st
         return {s};
     std::vector<std::string_view> tokens;
     size_t last_pos = 0;
-    size_t pos = 0;
-    do
+    while (size_t pos = s.find(delimiter, last_pos) != std::string_view::npos)
     {
-        pos = s.find(delimiter, last_pos);
         tokens.emplace_back(s.substr(last_pos, pos - last_pos));
         last_pos = pos + delimiter.size();
     }
-    while (pos != std::string_view::npos);
     return tokens;
 }
 
