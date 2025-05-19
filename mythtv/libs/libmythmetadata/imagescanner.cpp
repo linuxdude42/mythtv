@@ -129,8 +129,11 @@ void ImageScanThread<DBFS>::run()
 
     setPriority(QThread::LowPriority);
 
-    do
+    bool run_once { true };
+    while (ClearsPending() || run_once)
     {
+        run_once = false;
+
         // Process all clears before scanning
         while (ClearsPending())
         {
@@ -221,7 +224,6 @@ void ImageScanThread<DBFS>::run()
             ChangeState(false);
         }
     }
-    while (ClearsPending());
 
     RunEpilog();
 }

@@ -37,9 +37,6 @@ AudioOutputALSA::AudioOutputALSA(const AudioSettings &settings) :
     {
         m_passthruDevice = m_mainDevice;
 
-        int len = m_passthruDevice.length();
-        int args = m_passthruDevice.indexOf(":");
-
             /*
              * AES description:
              * AES0=6 AES1=0x82 AES2=0x00 AES3=0x01.
@@ -54,23 +51,21 @@ AudioOutputALSA::AudioOutputALSA(const AudioSettings &settings) :
         QString iecarg2 = QString("AES0=6 AES1=0x82 AES2=0x00") +
             (s48k ? QString() : QString(" AES3=0x01"));
 
-        if (args < 0)
+        QStringList parts = m_passthruDevice.split(':');
+        if (parts.length() == 1)
         {
             /* no existing parameters: add it behind device name */
             m_passthruDevice += ":" + iecarg;
         }
         else
         {
-            do
-                ++args;
-            while (args < m_passthruDevice.length() &&
-                   m_passthruDevice[args].isSpace());
-            if (args == m_passthruDevice.length())
+            QString params = parts[1].trimmed();
+            if (params.isEmpty())
             {
                 /* ":" but no parameters */
                 m_passthruDevice += iecarg;
             }
-            else if (m_passthruDevice[args] != '{')
+            else if (params[0] != '{')
             {
                 /* a simple list of parameters: add it at the end of the list */
                 m_passthruDevice += "," + iecarg;
@@ -78,12 +73,11 @@ AudioOutputALSA::AudioOutputALSA(const AudioSettings &settings) :
             else
             {
                 /* parameters in config syntax: add it inside the { } block */
-                do
-                    --len;
-                while (len > 0 && m_passthruDevice[len].isSpace());
-                if (m_passthruDevice[len] == '}')
-                    m_passthruDevice =
-                        m_passthruDevice.insert(len, " " + iecarg2);
+                /* the whitespace has been trimmed, so the curly brackets */
+                /* should be the first and last characters in the string. */
+                QStringRef oldparams(&params,1,sizeof(params)-1);
+                m_passthruDevice = QString("%1:{%2 %3}")
+                    .arg(parts[0], oldparams, iecarg2);
             }
         }
     }
@@ -752,7 +746,7 @@ int AudioOutputALSA::SetParameters(snd_pcm_t *handle, snd_pcm_format_t format,
         int dir         = -1;
         uint buftmp     = buffer_time;
         int attempt     = 0;
-        do
+        while (err < 0)
         {
             err = snd_pcm_hw_params_set_buffer_time_near(handle, params,
                                                          &buffer_time, &dir);
@@ -776,7 +770,6 @@ int AudioOutputALSA::SetParameters(snd_pcm_t *handle, snd_pcm_format_t format,
                 attempt++;
             }
         }
-        while (err < 0);
     }
 
     /* See if we need to increase the prealloc'd buffer size
