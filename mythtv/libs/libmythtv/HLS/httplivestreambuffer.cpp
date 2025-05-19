@@ -2307,6 +2307,8 @@ int HLSRingBuffer::ParseM3U8(const QByteArray *buffer, StreamsList *streams)
                 if (psz_duration.isNull())
                     return RET_ERROR;
                 err = ParseTargetDuration(hls, psz_duration);
+                if (err != RET_OK)
+                    return err;
             }
             /* Store version */
             hls->SetVersion(version);
