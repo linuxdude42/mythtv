@@ -1,4 +1,5 @@
 #include "freesat_huffman.h"
+#include "libmythbase/mythlogging.h"
 
 static constexpr uint8_t START   { '\0' };
 static constexpr uint8_t STOP    { '\0' };
@@ -26,6 +27,8 @@ QString freesat_huffman_to_string(const unsigned char *compressed, uint size)
     }
     uchar lastch = START;
 
+    // while (lastch != STOP && byte < size+4);
+    LOG(VB_GENERAL, LOG_ERR, QString("********** %1: byte %2, size %3").arg(__PRETTY_FUNCTION__).arg(byte).arg(size));
     do
     {
         bool found = false;
