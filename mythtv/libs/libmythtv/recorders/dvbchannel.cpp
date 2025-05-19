@@ -1597,9 +1597,10 @@ bool DVBChannel::WaitForBackend(std::chrono::milliseconds timeout_ms)
 
     // Try to wait for some output like an event, unfortunately
     // this fails on several DVB cards, so we have a timeout.
-    int ret = 0;
-    do ret = select(fd+1, &fd_select_set, nullptr, nullptr, &select_timeout);
-    while ((-1 == ret) && (EINTR == errno));
+    LOG(VB_GENERAL, LOG_ERR, QString("********** %1").arg(__PRETTY_FUNCTION__));
+    int ret = select(fd+1, &fd_select_set, nullptr, nullptr, &select_timeout);
+    while ((-1 == ret) && (EINTR == errno))
+        ret = select(fd+1, &fd_select_set, nullptr, nullptr, &select_timeout);
 
     if (-1 == ret)
     {
