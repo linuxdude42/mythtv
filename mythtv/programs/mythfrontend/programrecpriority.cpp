@@ -1076,11 +1076,12 @@ void ProgramRecPriority::FillList(void)
     {
         MythDB::DBError("Get program recording priorities query", result);
     }
-    else if (result.next())
+
     {
         countMatches();
-        do {
+        while (result.next()) {
             uint recordid = result.value(0).toUInt();
+            LOG(VB_GENERAL, LOG_ERR, QString("********** %1 recordid").arg(__PRETTY_FUNCTION__).arg(recordid));
 //          QString title = result.value(1).toString();
 //          QString chanid = result.value(2).toString();
 //          QString tempTime = result.value(3).toString();
@@ -1123,7 +1124,7 @@ void ProgramRecPriority::FillList(void)
                 else
                     progInfo->m_recStatus = RecStatus::Unknown;
             }
-        } while (result.next());
+        }
     }
 }
 
