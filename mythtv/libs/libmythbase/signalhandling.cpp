@@ -218,7 +218,6 @@ void SignalHandler::signalHandler(int signum,
     char *buffer = (char *)&signalInfo;
     while (size > 0)
     {
-        LOG(VB_GENERAL, LOG_ERR, QString("********** %1").arg(__PRETTY_FUNCTION__));
         int written = ::write(s_sigFd[0], &buffer[index], size);
         // If there's an error, the signal will not be seen be the application,
         // but we can't keep trying.
