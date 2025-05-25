@@ -267,7 +267,6 @@ void Synaesthesia::fadeFade(void) const
     for (int i = static_cast<ptrdiff_t>(m_outWidth) * m_outHeight * 2 / sizeof(uint32_t);
          i > 0; i--)
     {
-        LOG(VB_GENERAL, LOG_ERR, QString("********** %1").arg(__PRETTY_FUNCTION__));
         uint32_t x = *ptr;
         if (x)
         {
@@ -334,7 +333,6 @@ void Synaesthesia::fadeWave(void)
     {
         for (int i2 = start; i2 < end; i2++)
         {
-            LOG(VB_GENERAL, LOG_ERR, QString("********** %1").arg(__PRETTY_FUNCTION__));
             short j2 = short((int(lastOutput[i2 - 2]) +
                               int(lastOutput[i2 + 2]) +
                               int(lastOutput[i2 - step]) +
@@ -410,7 +408,6 @@ void Synaesthesia::fadeHeat(void)
     {
         for (int i2 = start; i2 < end; i2++)
         {
-            LOG(VB_GENERAL, LOG_ERR, QString("********** %1").arg(__PRETTY_FUNCTION__));
             short j2 = short((int(lastOutput[i2 - 2]) +
                               int(lastOutput[i2 + 2]) +
                               int(lastOutput[i2 - step]) +
@@ -603,7 +600,6 @@ bool Synaesthesia::draw(QPainter *p, [[maybe_unused]] const QColor &back)
 
         for (int i = m_outWidth / 4; i > 0; i--)
         {
-            LOG(VB_GENERAL, LOG_ERR, QString("********** %1").arg(__PRETTY_FUNCTION__));
             unsigned int const r1 = *(ptrOutput++);
             unsigned int const r2 = *(ptrOutput++);
 
