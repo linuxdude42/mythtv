@@ -381,10 +381,8 @@ void SSDP::ProcessData( MSocketDevice *pSocket )
         buffer.resize(nBytes);
 
         long nRead = 0;
-        LOG(VB_GENERAL, LOG_ERR, QString("********** %1").arg(__PRETTY_FUNCTION__));
         while (nRead < nBytes)
         {
-            LOG(VB_GENERAL, LOG_ERR, QString("********** %1 in while").arg(__PRETTY_FUNCTION__));
             long ret = pSocket->readBlock( buffer.data() + nRead, nBytes - nRead );
             didDoRead = true;
             if (ret < 0)
