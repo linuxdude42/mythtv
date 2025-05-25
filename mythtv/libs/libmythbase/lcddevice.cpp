@@ -144,7 +144,6 @@ bool LCD::connectToHost(const QString &lhostname, unsigned int lport)
 
     for (int count = 1; count <= 10 && !m_connected; count++)
     {
-        LOG(VB_GENERAL, LOG_ERR, QString("********** %1").arg(__PRETTY_FUNCTION__));
         LOG(VB_GENERAL, LOG_INFO, QString("Connecting to lcd server: "
                 "%1:%2 (try %3 of 10)").arg(m_hostname).arg(m_port)
                                        .arg(count));
