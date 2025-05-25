@@ -635,7 +635,6 @@ bool MythUIButtonList::DistributeCols(int &first_button, int &last_button,
 
     while (added)
     {
-        LOG(VB_GENERAL, LOG_ERR, QString("********** %1").arg(__PRETTY_FUNCTION__));
         added = false;
 
         if (wrapped)
