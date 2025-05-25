@@ -132,7 +132,6 @@ void doDatabaseHacks()
                     " WHERE chanid = :CHANID;");
             while (records_without_station.next())
             {
-                LOG(VB_GENERAL, LOG_ERR, QString("********** %1").arg(__PRETTY_FUNCTION__));
                 update_record.bindValue(":CALLSIGN",
                         records_without_station.value(1));
                 update_record.bindValue(":CHANID",
