@@ -249,8 +249,6 @@ void MHIContext::run(void)
         int key = -1;
         while (key != 0)
         {
-            LOG(VB_GENERAL, LOG_ERR, QString("********** %1, key %2")
-                .arg(__PRETTY_FUNCTION__).arg(key));
             NetworkBootRequested();
             ProcessDSMCCQueue();
             {
@@ -281,13 +279,13 @@ void MHIContext::ProcessDSMCCQueue(void)
     DSMCCPacket *packet = m_dsmccQueue.dequeue();
     while (packet)
     {
-        LOG(VB_GENERAL, LOG_ERR, QString("********** %1, packet %2")
-            .arg(__PRETTY_FUNCTION__).arg((quintptr)packet));
+        locker.unlock();
         m_dsmcc->ProcessSection(
             packet->m_data,           packet->m_length,
             packet->m_componentTag,   packet->m_carouselId,
             packet->m_dataBroadcastId);
         delete packet;
+        locker.relock();
         packet = m_dsmccQueue.dequeue();
     }
 }
@@ -894,8 +892,6 @@ int MHIContext::GetChannelIndex(const QString &str)
 
     try
     {
-        LOG(VB_GENERAL, LOG_ERR, QString("********** %1 try")
-            .arg(__PRETTY_FUNCTION__));
         if (str.startsWith("dvb://"))
         {
             QStringList list = str.mid(6).split('.');
@@ -906,13 +902,13 @@ int MHIContext::GetChannelIndex(const QString &str)
             bool ok = false;
             int netID = list[0].toInt(&ok, 16);
             if (!ok)
-                throw -1;
+                throw -2;
             int transportID = !list[1].isEmpty() ? list[1].toInt(&ok, 16) : -1;
             if (!ok)
-                throw -1;
+                throw -3;
             int serviceID = list[2].toInt(&ok, 16);
             if (!ok)
-                throw -1;
+                throw -4;
 
             QMutexLocker locker(&m_channelMutex);
             if (m_channelCache.isEmpty())
@@ -921,7 +917,7 @@ int MHIContext::GetChannelIndex(const QString &str)
             ChannelCache_t::const_iterator it = m_channelCache.constFind(
                 Key_t(netID,serviceID) );
             if (it == m_channelCache.constEnd())
-                throw -1;
+                throw -5;
             if (transportID < 0)
                 nResult = Cid(it);
             else
@@ -931,7 +927,7 @@ int MHIContext::GetChannelIndex(const QString &str)
                     if (Tid(it) == transportID)
                     {
                         nResult = Cid(it);
-                        throw -1;
+                        throw -6;
                     }
                 }
             }
@@ -942,7 +938,7 @@ int MHIContext::GetChannelIndex(const QString &str)
             bool ok = false;
             int channelNo = str.mid(14).toInt(&ok); // Decimal integer
             if (!ok)
-                throw -1;
+                throw -7;
             MSqlQuery query(MSqlQuery::InitCon());
             query.prepare("SELECT chanid "
                           "FROM channel "
@@ -972,8 +968,6 @@ int MHIContext::GetChannelIndex(const QString &str)
     catch (int e)
     {
         // Do nothing
-        LOG(VB_GENERAL, LOG_ERR, QString("********** %1 catch")
-            .arg(__PRETTY_FUNCTION__));
     }
 
     LOG(VB_MHEG, LOG_INFO, QString("[mhi] GetChannelIndex %1 => %2")
