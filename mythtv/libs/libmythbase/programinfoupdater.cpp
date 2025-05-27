@@ -50,7 +50,6 @@ void ProgramInfoUpdater::run(void)
 
     while( workDone )
     {
-        LOG(VB_GENERAL, LOG_ERR, QString("********** %1").arg(__PRETTY_FUNCTION__));
         workDone = false;
 
         // we don't need instant updates allow a few to queue up
