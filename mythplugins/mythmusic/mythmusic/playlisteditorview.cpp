@@ -1386,7 +1386,6 @@ void PlaylistEditorView::filterTracks(MusicGenericTree *node)
             MusicGenericTree *mnode = node;
             while (mnode)
             {
-                LOG(VB_GENERAL, LOG_ERR, QString("********** %1 in compartists while").arg(__PRETTY_FUNCTION__));
                 if (mnode->getAction() == "compilations")
                 {
                     showCompArtists = true;

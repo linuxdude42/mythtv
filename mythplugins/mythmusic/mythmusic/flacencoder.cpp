@@ -92,10 +92,8 @@ int FlacEncoder::addSamples(int16_t *bytes, unsigned int length)
 
     while (index < length)
     {
-        LOG(VB_GENERAL, LOG_ERR, QString("********** %1 first while").arg(__PRETTY_FUNCTION__));
         while (bytes && index < length && m_sampleIndex < MAX_SAMPLES)
         {
-            LOG(VB_GENERAL, LOG_ERR, QString("********** %1 second while").arg(__PRETTY_FUNCTION__));
             m_input[0][m_sampleIndex] = (FLAC__int32)(bytes[index++]);
             m_input[1][m_sampleIndex] = (FLAC__int32)(bytes[index++]);
             m_sampleIndex += 1;

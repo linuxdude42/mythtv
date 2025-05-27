@@ -2215,10 +2215,8 @@ bool AlbumArt::cycleImage(void)
         return false;
 
     int newType = nextType(m_currImageType);
-    while (!albumArt->getImage((ImageType) newType)) {
-        LOG(VB_GENERAL, LOG_ERR, QString("********** %1").arg(__PRETTY_FUNCTION__));
+    while (!albumArt->getImage((ImageType) newType))
         newType = nextType(newType);
-    }
 
     if (newType != m_currImageType)
     {
