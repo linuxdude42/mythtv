@@ -206,12 +206,8 @@ bool MythFileBuffer::OpenFile(const QString &Filename, std::chrono::milliseconds
         openTimer.start();
 
         uint openAttempts = 0;
-        LOG(VB_GENERAL, LOG_ERR, QString("********** %1")
-            .arg(__PRETTY_FUNCTION__));
         while (openTimer.elapsed() < Retry)
         {
-            LOG(VB_GENERAL, LOG_ERR, QString("********** %1, attempts %2")
-                .arg(__PRETTY_FUNCTION__).arg(openAttempts));
             openAttempts++;
 
             m_fd2 = open(m_filename.toLocal8Bit().constData(),
