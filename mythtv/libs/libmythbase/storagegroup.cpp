@@ -567,7 +567,6 @@ bool StorageGroup::FindDirs(const QString &group, const QString &hostname,
             dirname = QString::fromUtf8(query.value(0)
                                         .toByteArray().constData());
             dirname = dirname.trimmed();
-            LOG(VB_GENERAL, LOG_ERR, QString("********** %1: %2").arg(__PRETTY_FUNCTION__, dirname));
             if (dirname.endsWith("/"))
                 dirname.remove(dirname.length() - 1, 1);
 
