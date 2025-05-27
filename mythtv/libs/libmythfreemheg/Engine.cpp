@@ -1525,8 +1525,8 @@ void mhlog_fn(const QString& logtext)
 }
 
 // Called from the user of the library to set the logging.
-void MHSetLogging(FILE *logStream, unsigned int logLevel2)
+void MHSetLogging(FILE *logStream, unsigned int logLevel)
 {
     gMHLogStream = logStream;
-    gMHLogoptions = logLevel2;
+    gMHLogoptions = logLevel;
 }
