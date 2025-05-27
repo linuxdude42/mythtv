@@ -51,7 +51,6 @@ AudioOutputALSA::AudioOutputALSA(const AudioSettings &settings) :
         QString iecarg2 = QString("AES0=6 AES1=0x82 AES2=0x00") +
             (s48k ? QString() : QString(" AES3=0x01"));
 
-        LOG(VB_GENERAL, LOG_ERR, QString("********** %1").arg(__PRETTY_FUNCTION__));
         QStringList parts = m_passthruDevice.split(':');
         if (parts.length() == 1)
         {
@@ -63,25 +62,22 @@ AudioOutputALSA::AudioOutputALSA(const AudioSettings &settings) :
             QString params = parts[1].trimmed();
             if (params.isEmpty())
             {
-                LOG(VB_GENERAL, LOG_ERR, QString("********** %1 no params").arg(__PRETTY_FUNCTION__));
                 /* ":" but no parameters */
                 m_passthruDevice += iecarg;
             }
             else if (params[0] != '{')
             {
-                LOG(VB_GENERAL, LOG_ERR, QString("********** %1 param comma").arg(__PRETTY_FUNCTION__));
                 /* a simple list of parameters: add it at the end of the list */
                 m_passthruDevice += "," + iecarg;
             }
             else
             {
-                LOG(VB_GENERAL, LOG_ERR, QString("********** %1 brace list").arg(__PRETTY_FUNCTION__));
                 /* parameters in config syntax: add it inside the { } block */
                 /* the whitespace has been trimmed, so the curly brackets */
                 /* should be the first and last characters in the string. */
-                QStringRef oldparams(&params,1,sizeof(params)-1);
-                m_passthruDevice = QString("%1:{%2 %3}")
-                    .arg(parts[0], oldparams, iecarg2);
+                QStringRef oldparams(&params,1,params.size()-2);
+                m_passthruDevice = QString("%1:{ %2 %3 }")
+                    .arg(parts[0], oldparams.trimmed(), iecarg2);
             }
         }
     }
