@@ -803,7 +803,6 @@ void MHText::Redraw()
     yOffset = (m_nBoxHeight - (nNumLines * lineSpace)) / divisor;
     while (yOffset < 0)
     {
-        LOG(VB_GENERAL, LOG_ERR, QString("********** %1 yOffset %2").arg(__PRETTY_FUNCTION__).arg(yOffset));
         nNumLines--;
         yOffset = (m_nBoxHeight - (nNumLines * lineSpace)) / divisor;
     }

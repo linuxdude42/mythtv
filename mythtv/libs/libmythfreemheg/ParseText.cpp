@@ -38,6 +38,7 @@ This is very basic and is only there to enable some test programs to be run.
 #include "Text.h" // For GetJustification etc
 #include "Engine.h"
 #include "Logging.h"
+#include "libmythbase/mythlogging.h"
 
 
 #ifndef WIN32

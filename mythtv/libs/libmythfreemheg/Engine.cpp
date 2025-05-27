@@ -130,7 +130,6 @@ std::chrono::milliseconds MHEngine::RunAll()
     bool do_once {true} ; // run loop at least once
     while (! m_eventQueue.isEmpty() || ! m_actionStack.isEmpty() || do_once)
     {
-        LOG(VB_GENERAL, LOG_ERR, QString("********** %1, do_once %2").arg(__PRETTY_FUNCTION__).arg(do_once));
         do_once = false;
 
         // Check to see if we need to close.
