@@ -288,9 +288,6 @@ bool XMLTVParser::parseFile(
                 //readNextStartElement says it reads for the next start element WITHIN the current element; but it doesnt; so we use readNext()
                 while (!xml.isEndElement() || (xml.name() != QString("channel")))
                 {
-                    static int count1 {0};
-                    if (count1++ == 0)
-                        LOG(VB_GENERAL, LOG_ERR, QString("********** %1 channel").arg(__PRETTY_FUNCTION__));
                     if (!readNextWithErrorCheck(xml))
                     {
                         delete chaninfo;
@@ -380,9 +377,6 @@ bool XMLTVParser::parseFile(
 
                 while (!xml.isEndElement() || (xml.name() != QString("programme")))
                 {
-                    static int count2 {0};
-                    if (count2++ == 0)
-                        LOG(VB_GENERAL, LOG_ERR, QString("********** %1 programme").arg(__PRETTY_FUNCTION__));
                     if (!readNextWithErrorCheck(xml))
                     {
                         delete pginfo;
@@ -471,9 +465,6 @@ bool XMLTVParser::parseFile(
                         stars = "0"; //no rating
                         while (!xml.isEndElement() || (xml.name() != QString("star-rating")))
                         {
-                            static int count3 {0};
-                            if (count3++ == 0)
-                                LOG(VB_GENERAL, LOG_ERR, QString("********** %1 star-rating").arg(__PRETTY_FUNCTION__));
                             if (!readNextWithErrorCheck(xml))
                                 return false;
                             if (xml.isStartElement())
@@ -504,9 +495,6 @@ bool XMLTVParser::parseFile(
 
                         while (!xml.isEndElement() || (xml.name() != QString("rating")))
                         {
-                            static int count4 {0};
-                            if (count4++ == 0)
-                                LOG(VB_GENERAL, LOG_ERR, QString("********** %1 rating").arg(__PRETTY_FUNCTION__));
                             if (!readNextWithErrorCheck(xml))
                                 return false;
                             if (xml.isStartElement())
@@ -542,9 +530,6 @@ bool XMLTVParser::parseFile(
                         int priority = 1;
                         while (!xml.isEndElement() || (xml.name() != QString("credits")))
                         {
-                            static int count5 {0};
-                            if (count5++ == 0)
-                                LOG(VB_GENERAL, LOG_ERR, QString("********** %1 credits").arg(__PRETTY_FUNCTION__));
                             if (!readNextWithErrorCheck(xml))
                                 return false;
                             if (xml.isStartElement())
@@ -586,9 +571,6 @@ bool XMLTVParser::parseFile(
                     {
                         while (!xml.isEndElement() || (xml.name() != QString("audio")))
                         {
-                            static int count6 {0};
-                            if (count6++ == 0)
-                                LOG(VB_GENERAL, LOG_ERR, QString("********** %1 audio").arg(__PRETTY_FUNCTION__));
                             if (!readNextWithErrorCheck(xml))
                                 return false;
                             if (xml.isStartElement())
@@ -620,9 +602,6 @@ bool XMLTVParser::parseFile(
                     {
                         while (!xml.isEndElement() || (xml.name() != QString("video")))
                         {
-                            static int count7 {0};
-                            if (count7++ == 0)
-                                LOG(VB_GENERAL, LOG_ERR, QString("********** %1 video").arg(__PRETTY_FUNCTION__));
                             if (!readNextWithErrorCheck(xml))
                                 return false;
                             if (xml.isStartElement())
