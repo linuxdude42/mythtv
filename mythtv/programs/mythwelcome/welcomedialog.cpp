@@ -346,7 +346,6 @@ void WelcomeDialog::updateScreen(void)
 
             while (!tuner.isRecording)
             {
-		LOG(VB_GENERAL, LOG_ERR, QString("********** %1").arg(__PRETTY_FUNCTION__));
                 if (m_screenTunerNo < m_tunerList.size() - 1)
                     m_screenTunerNo++;
                 else
