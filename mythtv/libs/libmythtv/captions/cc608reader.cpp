@@ -198,8 +198,6 @@ int CC608Reader::Update(unsigned char *inpos)
 
         while (inpos < end)
         {
-            LOG(VB_GENERAL, LOG_ERR, QString("********** %1, inpos=%2, end=%3")
-                .arg(__PRETTY_FUNCTION__).arg((quintptr)inpos).arg((quintptr)end));
             if (linecont)
             {
                 // append to last line; needs to be redrawn
