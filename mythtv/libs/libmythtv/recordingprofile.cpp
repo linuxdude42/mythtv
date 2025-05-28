@@ -1766,10 +1766,8 @@ void RecordingProfile::fillSelections(GroupSetting *setting, int group,
         return;
     }
 
-    LOG(VB_GENERAL, LOG_ERR, QString("********** %1").arg(__PRETTY_FUNCTION__));
     while (result.next())
     {
-        LOG(VB_GENERAL, LOG_ERR, QString("********** %1 in while").arg(__PRETTY_FUNCTION__));
         if ((result.at() == 0) && foldautodetect &&
             (group == RecordingProfile::TranscoderGroup))
         {
@@ -1784,7 +1782,6 @@ void RecordingProfile::fillSelections(GroupSetting *setting, int group,
         if ((group == RecordingProfile::TranscoderGroup) &&
             (name == "RTjpeg/MPEG4" || name == "MPEG2") &&
             !foldautodetect) {
-            LOG(VB_GENERAL, LOG_ERR, QString("********** %1 in if").arg(__PRETTY_FUNCTION__));
             name = QObject::tr("Autodetect from %1").arg(name);
         }
 
@@ -1820,10 +1817,8 @@ QMap< int, QString > RecordingProfile::GetProfiles(RecProfileGroup group)
         return profiles;
     }
 
-    LOG(VB_GENERAL, LOG_ERR, QString("********** %1").arg(__PRETTY_FUNCTION__));
     while (query.next())
     {
-        LOG(VB_GENERAL, LOG_ERR, QString("********** %1 in while").arg(__PRETTY_FUNCTION__));
         if ((query.at() == 0) && (group == RecordingProfile::TranscoderGroup))
         {
             int id = RecordingProfile::kTranscoderAutodetect;
@@ -1850,7 +1845,6 @@ QMap< int, QString > RecordingProfile::GetProfiles(RecProfileGroup group)
 
     if (profiles.empty())
     {
-        LOG(VB_GENERAL, LOG_ERR, QString("********** %1 in if").arg(__PRETTY_FUNCTION__));
         LOG(VB_GENERAL, LOG_WARNING,
             "RecordingProfile::fillselections, Warning: "
             "Failed to locate recording id for recording group.");
