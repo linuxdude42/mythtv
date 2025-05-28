@@ -172,7 +172,6 @@ void get_pes (pes_in_t *p, uint8_t *buf, int count, void (*func)(pes_in_t *p))
 	std::array<uint8_t,3> headr { 0x00, 0x00, 0x01} ;
 	while (!done)
 	{
-		LOG(VB_GENERAL, LOG_ERR, QString("********** %1").arg(__PRETTY_FUNCTION__));
 		int c=0;
 		done = true;
 		while (c < count && (!p->mpeg ||

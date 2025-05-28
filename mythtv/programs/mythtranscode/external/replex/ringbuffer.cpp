@@ -450,7 +450,6 @@ int dummy_delete(dummy_buffer *dbuf, uint64_t time)
 
 	while (ex == 0)
 	{
-		LOG(VB_GENERAL, LOG_ERR, QString("********** %1").arg(__PRETTY_FUNCTION__));
 		if (ring_peek(&dbuf->time_index,(uint8_t *) &rtime, 
 			      sizeof(uint64_t), 0)<0){
 			if (dsize) break;
