@@ -222,7 +222,6 @@ bool GalleryThumbView::Create()
     auto *widget = dynamic_cast<MythUIButtonList *>(this->GetChild(name));
     while (widget)
     {
-        LOG(VB_GENERAL, LOG_ERR, QString("********** %1").arg(__PRETTY_FUNCTION__));
         m_zoomWidgets.append(widget);
         widget->SetVisible(false);
 

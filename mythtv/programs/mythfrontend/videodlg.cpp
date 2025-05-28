@@ -281,7 +281,6 @@ namespace
 
         while (item)
         {
-            LOG(VB_GENERAL, LOG_ERR, QString("********** %1").arg(__PRETTY_FUNCTION__));
             playing_time.start();
 
             if (useAltPlayer)

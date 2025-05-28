@@ -1080,7 +1080,6 @@ void ProgramRecPriority::FillList(void)
     countMatches();
     while (result.next()) {
         uint recordid = result.value(0).toUInt();
-        LOG(VB_GENERAL, LOG_ERR, QString("********** %1 recordid").arg(__PRETTY_FUNCTION__).arg(recordid));
 //      QString title = result.value(1).toString();
 //      QString chanid = result.value(2).toString();
 //      QString tempTime = result.value(3).toString();

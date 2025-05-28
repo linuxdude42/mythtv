@@ -31,10 +31,8 @@ Transition &TransitionRegistry::Select(int setting)
     // If chosen transition isn't viable for painter then use previous ones.
     // First transition must always be useable by all painters
     Transition *result = nullptr;
-    while (value >= kNoTransition && !result) {
-        LOG(VB_GENERAL, LOG_ERR, QString("********** %1").arg(__PRETTY_FUNCTION__));
+    while (value >= kNoTransition && !result)
         result = m_map.value(value--, nullptr);
-    }
 
     if (result)
         return *result;
