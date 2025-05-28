@@ -1085,7 +1085,6 @@ void AutoExpire::UpdateDontExpireSet(void)
     QDateTime curTime = MythDate::current();
     while (query.next())
     {
-        LOG(VB_GENERAL, LOG_ERR, QString("********** %1").arg(__PRETTY_FUNCTION__));
         if (query.at() == 0)
            LOG(VB_FILE, LOG_INFO, LOC + "Adding Programs to 'Do Not Expire' List");
         uint chanid = query.value(0).toUInt();
