@@ -1915,8 +1915,6 @@ ChannelImporter::QueryUserDelete(const QString &msg)
         m_functorRetval = -1;
         while (m_functorRetval < 0)
         {
-            LOG(VB_GENERAL, LOG_ERR, QString("********** %1")
-                .arg(__PRETTY_FUNCTION__));
             if (m_useWeb) {
                 m_pWeb->m_mutex.lock();
                 m_pWeb->m_dlgMsg = msg;
@@ -2005,8 +2003,6 @@ ChannelImporter::QueryUserInsert(const QString &msg)
         m_functorRetval = -1;
         while (m_functorRetval < 0)
         {
-            LOG(VB_GENERAL, LOG_ERR, QString("********** %1")
-                .arg(__PRETTY_FUNCTION__));
             if (m_useWeb) {
                 m_pWeb->m_mutex.lock();
                 m_pWeb->m_dlgMsg = msg;
@@ -2093,8 +2089,6 @@ ChannelImporter::QueryUserUpdate(const QString &msg)
         m_functorRetval = -1;
         while (m_functorRetval < 0)
         {
-            LOG(VB_GENERAL, LOG_ERR, QString("********** %1")
-                .arg(__PRETTY_FUNCTION__));
             if (m_useWeb) {
                 m_pWeb->m_mutex.lock();
                 m_pWeb->m_dlgMsg = msg;
