@@ -26,6 +26,7 @@
 #include "config.h"
 #include "libmythbase/exitcodes.h"
 #include "libmythbase/mythlogging.h"
+#include "libmythbase/mythrandom.h"
 
 #include "ExternalChannel.h"
 #include "ExternalStreamHandler.h"
@@ -1691,11 +1692,9 @@ bool ExternalStreamHandler::CheckForError(void)
         return true;
     }
 
-    LOG(VB_GENERAL, LOG_ERR, QString("********** %1").arg(__PRETTY_FUNCTION__));
     response = m_io->GetStatus(0ms);
     while (!response.isEmpty())
     {
-        LOG(VB_GENERAL, LOG_ERR, QString("********** %1 response has data").arg(__PRETTY_FUNCTION__));
             if (m_apiVersion > 2)
             {
                 QJsonParseError parseError {};
