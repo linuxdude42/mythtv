@@ -206,7 +206,7 @@ bool MythFileBuffer::OpenFile(const QString &Filename, std::chrono::milliseconds
         openTimer.start();
 
         uint openAttempts = 0;
-        while (openTimer.elapsed() < Retry)
+        while ((openTimer.elapsed() < Retry) || (openAttempts == 0))
         {
             openAttempts++;
 
