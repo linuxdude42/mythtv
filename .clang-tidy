@@ -156,9 +156,6 @@ Checks: '-*,
         # As of 2024-08-01, there are 12256 unique warnings. ,
        -cppcoreguidelines-avoid-do-while,
 
-        # As of 2024-08-03, there are 135 unique warnings. ,
-       -cppcoreguidelines-avoid-goto,
-
         # As of 2023-05-22, there are 1257 unique warnings. ,
        -cppcoreguidelines-avoid-non-const-global-variables,
 
