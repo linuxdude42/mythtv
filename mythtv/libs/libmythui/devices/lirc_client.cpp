@@ -20,6 +20,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <memory>
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -841,7 +842,6 @@ int lirc_readconfig(const struct lirc_state *state,
 {
 	struct sockaddr_un addr {};
 	int sockfd = -1;
-	const char *sha_bang2 = nullptr;
 	char *command = nullptr;
 	unsigned int ret = 0;
 
@@ -852,10 +852,12 @@ int lirc_readconfig(const struct lirc_state *state,
 		return -1;
 	}
 	
+	using unique_char_p = std::unique_ptr<char,decltype(&free)>;
+	unique_char_p filename_p(filename, &free);
+	unique_char_p sha_bang_p(sha_bang, &free);
+
 	if(sha_bang == nullptr)
-	{
-		goto lirc_readconfig_compat;
-	}
+		return 0;
 	
 	/* connect to lircrcd */
 
@@ -863,20 +865,18 @@ int lirc_readconfig(const struct lirc_state *state,
 	if(lirc_getsocketname(filename, addr.sun_path, sizeof(addr.sun_path))>sizeof(addr.sun_path))
 	{
 		lirc_printf(state, "%s: WARNING: file name too long\n", state->lirc_prog);
-		goto lirc_readconfig_compat;
+		return 0;
 	}
 	sockfd=socket(AF_UNIX,SOCK_STREAM,0);
 	if(sockfd==-1)
 	{
 		lirc_printf(state, "%s: WARNING: could not open socket\n",state->lirc_prog);
 		lirc_perror(state, state->lirc_prog);
-		goto lirc_readconfig_compat;
+		return 0;
 	}
 	if(connect(sockfd, (struct sockaddr *)&addr, sizeof(addr))!=-1)
 	{
-		if(sha_bang!=nullptr) free(sha_bang);
 		(*config)->sockfd=sockfd;
-		free(filename);
 		
 		/* tell daemon state->lirc_prog */
 		if(lirc_identify(state, sockfd) == LIRC_RET_SUCCESS)
@@ -888,17 +888,13 @@ int lirc_readconfig(const struct lirc_state *state,
 		lirc_freeconfig(*config);
 		return -1;
 	}
-    close(sockfd);
+	close(sockfd);
 	
 	/* launch lircrcd */
-    sha_bang2=sha_bang;
-	
-	command=static_cast<char*>(malloc(strlen(sha_bang2)+1+strlen(filename)+1));
+	command=static_cast<char*>(malloc(strlen(sha_bang)+1+strlen(filename)+1));
 	if(command==nullptr)
-	{
-		goto lirc_readconfig_compat;
-	}
-	strcpy(command, sha_bang2);
+		return 0;
+	strcpy(command, sha_bang);
 	strcat(command, " ");
 	strcat(command, filename);
 	
@@ -906,19 +902,14 @@ int lirc_readconfig(const struct lirc_state *state,
 	free(command);
 	
 	if(ret!=EXIT_SUCCESS)
-	{
-		goto lirc_readconfig_compat;
-	}
-	
-	if(sha_bang!=nullptr) { free(sha_bang); sha_bang = nullptr; }
-	free(filename); filename = nullptr;
+		return 0;
 	
 	sockfd=socket(AF_UNIX,SOCK_STREAM,0);
 	if(sockfd==-1)
 	{
 		lirc_printf(state, "%s: WARNING: could not open socket\n",state->lirc_prog);
 		lirc_perror(state, state->lirc_prog);
-		goto lirc_readconfig_compat;
+		return 0;
 	}
 	if(connect(sockfd, (struct sockaddr *)&addr, sizeof(addr))!=-1)
 	{
@@ -931,12 +922,6 @@ int lirc_readconfig(const struct lirc_state *state,
 	close(sockfd);
 	lirc_freeconfig(*config);
 	return -1;
-	
- lirc_readconfig_compat:
-    /* compat fallback */
-	if(sha_bang!=nullptr) free(sha_bang);
-	free(filename);
-	return 0;
 }
 
 int lirc_readconfig_only(const struct lirc_state *state,
@@ -1906,6 +1891,7 @@ static const char *lirc_read_string(const struct lirc_state *state, int fd)
 	fd_set fds;
 	struct timeval tv {};
 	
+	try
 	{
 		if(s_head>0)
 		{
@@ -1919,18 +1905,12 @@ static const char *lirc_read_string(const struct lirc_state *state, int fd)
 			end=nullptr;
 		}
 		if(strlen(s_buffer.data())!=s_tail)
-		{
-			lirc_printf(state, "%s: protocol error\n", state->lirc_prog);
-			goto lirc_read_string_error;
-		}
+			throw "protocol error";
 		
 		while(end==nullptr)
 		{
 			if(LIRC_PACKET_SIZE<=s_tail)
-			{
-				lirc_printf(state, "%s: bad packet\n", state->lirc_prog);
-				goto lirc_read_string_error;
-			}
+				throw "bad packet";
 
 			FD_ZERO(&fds); // NOLINT(readability-isolate-declaration)
 			FD_SET(fd,&fds);
@@ -1942,24 +1922,13 @@ static const char *lirc_read_string(const struct lirc_state *state, int fd)
 			}
 			while(ret==-1 && errno==EINTR);
 			if(ret==-1)
-			{
-				lirc_printf(state, "%s: select() failed\n", state->lirc_prog);
-				lirc_perror(state, state->lirc_prog);
-				goto lirc_read_string_error;
-			}
-			else if(ret==0)
-			{
-				lirc_printf(state, "%s: timeout\n", state->lirc_prog);
-				goto lirc_read_string_error;
-			}
+				throw "select() failed";
+			if(ret==0)
+				throw "timeout";
 
 			n=read(fd, s_buffer.data()+s_tail, LIRC_PACKET_SIZE-s_tail);
 			if(n<=0)
-			{
-				lirc_printf(state, "%s: read() failed\n", state->lirc_prog);
-				lirc_perror(state, state->lirc_prog);
-				goto lirc_read_string_error;
-			}
+				throw "read() failed";
 			s_buffer[s_tail+n]=0;
 			s_tail+=n;
 			end=strchr(s_buffer.data(),'\n');
@@ -1969,9 +1938,12 @@ static const char *lirc_read_string(const struct lirc_state *state, int fd)
 		s_head=strlen(s_buffer.data())+1;
 		return(s_buffer.data());
 	}
-
- lirc_read_string_error:
+	catch (char *const tag)
 	{
+		// lirc_printf(state, "%s: WARNING read_string_error: %s\n", state->lirc_prog, e);
+		lirc_printf(state, "%s: %s\n", state->lirc_prog, tag);
+		if (ret < 0)
+			lirc_perror(state, state->lirc_prog);
 		s_head=s_tail=0;
 		s_buffer[0]=0;
 		return nullptr;
@@ -2011,6 +1983,7 @@ int lirc_send_command(const struct lirc_state *lstate, int sockfd, const char *c
 	int status=LIRC_RET_SUCCESS;
 	enum packet_state state=P_BEGIN;
 	n=0;
+	try
 	{
 		while(true)
 		{
@@ -2042,7 +2015,7 @@ int lirc_send_command(const struct lirc_state *lstate, int sockfd, const char *c
 				else if(strcasecmp(string,"END")==0)
 				{
 					status=LIRC_RET_SUCCESS;
-					goto good_packet;
+					throw "good";
 				}
 				else if(strcasecmp(string,"ERROR")==0)
 				{
@@ -2052,27 +2025,27 @@ int lirc_send_command(const struct lirc_state *lstate, int sockfd, const char *c
 				}
 				else
 				{
-					goto bad_packet;
+					throw "P_STATUS";
 				}
 				state=P_DATA;
 				break;
 			case P_DATA:
 				if(strcasecmp(string,"END")==0)
 				{
-					goto good_packet;
+					throw "good";
 				}
 				else if(strcasecmp(string,"DATA")==0)
 				{
 					state=P_N;
 					break;
 				}
-				goto bad_packet;
+				throw "P_DATA";
 			case P_N:
 				errno=0;
 				data_n=strtoul(string,&endptr,0);
 				if(!*string || *endptr)
 				{
-					goto bad_packet;
+					throw "P_N";
 				}
 				if(data_n==0)
 				{
@@ -2096,22 +2069,22 @@ int lirc_send_command(const struct lirc_state *lstate, int sockfd, const char *c
 			case P_END:
 				if(strcasecmp(string,"END")==0)
 				{
-					goto good_packet;
+					throw "good";
 				}
-				goto bad_packet;
-				break;
+				throw "P_END";
 			}
 		}
 	}
 	/* never reached */
 	
+	catch (char const* e)
 	{
- bad_packet:
-		lirc_printf(lstate, "%s: bad return packet\n", lstate->lirc_prog);
-		return(-1);
-	}
-	
- good_packet:
+		if (strcmp(e, "good") != 0)
+		{
+			lirc_printf(lstate, "%s: bad return packet\n", lstate->lirc_prog);
+			return(-1);
+		}
+        }
 	if(ret_status!=nullptr)
 	{
 		*ret_status=status;
