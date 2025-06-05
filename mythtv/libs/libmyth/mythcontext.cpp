@@ -502,8 +502,10 @@ bool MythContext::Impl::FindDatabase(bool prompt, bool noAutodetect)
         manualSelect &= m_gui;  // no interactive command-line chooser yet
 
         // Queries the user for the DB info
-        do
+        bool first_time {true};
+        while (!failure.isEmpty() || first_time)
         {
+            first_time = false;
             if (manualSelect)
             {
                 // Get the user to select a backend from a possible list:
@@ -544,7 +546,6 @@ bool MythContext::Impl::FindDatabase(bool prompt, bool noAutodetect)
             if (m_guiStartup && m_guiStartup->m_Setup)
                 manualSelect=false;
         }
-        while (!failure.isEmpty());
     }
     catch (char const *msg)
     {
