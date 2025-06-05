@@ -481,7 +481,8 @@ bool MythContext::Impl::FindDatabaseChoose(bool loaded, bool manualSelect, bool 
     manualSelect &= m_gui;  // no interactive command-line chooser yet
 
     // Queries the user for the DB info
-    do
+    bool answered {false};
+    while (!answered)
     {
         if (manualSelect)
         {
@@ -514,7 +515,8 @@ bool MythContext::Impl::FindDatabaseChoose(bool loaded, bool manualSelect, bool 
             }
         }
         failure = TestDBconnection();
-        if (!failure.isEmpty())
+        answered = failure.isEmpty();
+        if (!answered)
             LOG(VB_GENERAL, LOG_ALERT, failure);
         if (m_guiStartup && m_guiStartup->m_Exit)
             return false;
@@ -523,7 +525,6 @@ bool MythContext::Impl::FindDatabaseChoose(bool loaded, bool manualSelect, bool 
         if (m_guiStartup && m_guiStartup->m_Setup)
             manualSelect=false;
     }
-    while (!failure.isEmpty());
 
     return true;
 }
