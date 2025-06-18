@@ -37,6 +37,7 @@ using StreamsList = QList<HLSStream*>;
 
 class HLSRingBuffer : public MythMediaBuffer
 {
+    friend class TestHls;
 public:
     explicit HLSRingBuffer(const QString &lfilename);
     HLSRingBuffer(const QString &lfilename, bool open);
