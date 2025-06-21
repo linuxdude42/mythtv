@@ -875,6 +875,10 @@ void MHEngine::DrawRegion(const QRegion& toDraw, int nStackPos)
     {
         return;    // Nothing left to draw.
     }
+    if (!CurrentApp())
+    {
+        return;    // Something bad happened.
+    }
 
     while (nStackPos >= 0)
     {
