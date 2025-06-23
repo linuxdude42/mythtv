@@ -858,7 +858,7 @@ int lirc_readconfig(const struct lirc_state *state,
 	/* connect to lircrcd */
 
 	addr.sun_family=AF_UNIX;
-	if(lirc_getsocketname(filename.data(), addr.sun_path, sizeof(addr.sun_path))>sizeof(addr.sun_path))
+	if(lirc_getsocketname(filename, addr.sun_path, sizeof(addr.sun_path))>sizeof(addr.sun_path))
 	{
 		lirc_printf(state, "%s: WARNING: file name too long\n", state->lirc_prog);
 		return 0;
@@ -1781,14 +1781,14 @@ int lirc_nextcode(struct lirc_state *state, char **code)
 	return(0);
 }
 
-size_t lirc_getsocketname(const char *filename, char *buf, size_t size)
+size_t lirc_getsocketname(std::string filename, char *buf, size_t size)
 {
-	if(strlen(filename)+2<=size)
+	if(filename.size()+2<=size)
 	{
-		strcpy(buf, filename);
+		strcpy(buf, filename.data());
 		strcat(buf, "d");
 	}
-	return strlen(filename)+2;
+	return filename.size()+2;
 }
 
 const char *lirc_getmode(const struct lirc_state *state, struct lirc_config *config)
