@@ -110,7 +110,7 @@ int lirc_readconfig_only(const struct lirc_state *state,
 int lirc_code2charprog(struct lirc_state *state,
                        struct lirc_config *config,char *code,char **string,
                        char **prog);
-size_t lirc_getsocketname(const char *filename, char *buf, size_t size);
+size_t lirc_getsocketname(std::string filename, char *buf, size_t size);
 const char *lirc_getmode(const struct lirc_state *state, struct lirc_config *config);
 const char *lirc_setmode(const struct lirc_state *state, struct lirc_config *config, const char *mode);
 
