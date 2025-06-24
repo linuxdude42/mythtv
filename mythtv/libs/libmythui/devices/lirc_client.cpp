@@ -1578,17 +1578,15 @@ static int lirc_code2char_internal(const struct lirc_state *state,
 	*string=nullptr;
 	if(sscanf(code,"%*20x %20x %*5000s %*5000s\n",&rep)==1)
 	{
-		char *backup=strdup(code);
-		if(backup==nullptr) return(-1);
+		std::string backup=code;
 
-		strtok_r(backup," ",&strtok_state);
+		strtok_r(backup.data()," ",&strtok_state);
 		strtok_r(nullptr," ",&strtok_state);
 		char *button=strtok_r(nullptr," ",&strtok_state);
 		char *remote=strtok_r(nullptr,"\n",&strtok_state);
 
 		if(button==nullptr || remote==nullptr)
 		{
-			free(backup);
 			return(0);
 		}
 		
@@ -1632,7 +1630,6 @@ static int lirc_code2char_internal(const struct lirc_state *state,
 			}
 			scan=scan->next;
 		}
-		free(backup);
 		if(s!=nullptr)
 		{
 			*string=s;
