@@ -64,7 +64,7 @@ enum packet_state : std::uint8_t
 /* internal functions */
 static void lirc_printf(const struct lirc_state* /*state*/, const char *format_str, ...);
 static void lirc_perror(const struct lirc_state* /*state*/, const char *s);
-static int lirc_readline(const struct lirc_state *state, char **line,FILE *f);
+static int lirc_readline(const struct lirc_state *state, std::string& line,FILE *f);
 static char *lirc_trim(char *s);
 static char lirc_parse_escape(const struct lirc_state *state, char **s,const char *name,int line);
 static void lirc_parse_string(const struct lirc_state *state, char *s,const char *name,int line);
@@ -238,47 +238,26 @@ int lirc_deinit(struct lirc_state *state)
 	return ret;
 }
 
-static int lirc_readline(const struct lirc_state *state, char **line,FILE *f)
+static int lirc_readline(const struct lirc_state */*state*/, std::string& line,FILE *f)
 {
-	char *newline=(char *) malloc(LIRC_READ+1);
-	if(newline==nullptr)
-	{
-		lirc_printf(state, "%s: out of memory\n",state->lirc_prog);
-		return(-1);
-	}
+	line.resize(LIRC_READ+1);
 	int len=0;
 	while(true)
 	{
-		char *ret=fgets(newline+len,LIRC_READ+1,f);
+		char *ret=fgets(line.data()+len,LIRC_READ+1,f);
 		if(ret==nullptr)
 		{
-			if(feof(f) && len>0)
-			{
-				*line=newline;
-			}
-			else
-			{
-				free(newline);
-				*line=nullptr;
-			}
 			return(0);
 		}
-		len=strlen(newline);
-		if(newline[len-1]=='\n')
+		line.resize(strlen(line.data()));
+		if (line.back() == '\n')
 		{
-			newline[len-1]=0;
-			*line=newline;
+			line.pop_back();
 			return(0);
 		}
-		
-		char *enlargeline=(char *) realloc(newline,len+1+LIRC_READ);
-		if(enlargeline==nullptr)
-		{
-			free(newline);
-			lirc_printf(state, "%s: out of memory\n",state->lirc_prog);
-			return(-1);
-		}
-		newline=enlargeline;
+
+		len = line.size();
+		line.resize(line.capacity()+LIRC_READ);
 	}
 }
 
@@ -893,7 +872,6 @@ static int lirc_readconfig_only_internal(const struct lirc_state *state,
                                          std::string& sha_bang)
 {
 	int ret=0;
-	int firstline=1;
 	
 	struct filestack_t *filestack = stack_push(state, nullptr);
 	if (filestack == nullptr)
@@ -914,11 +892,11 @@ static int lirc_readconfig_only_internal(const struct lirc_state *state,
 	struct lirc_config_entry *last = nullptr;
 	char *mode=nullptr;
 	char *remote=LIRC_ALL;
+	std::string string;
 	while (filestack)
 	{
-		char *string = nullptr;
-		ret=lirc_readline(state,&string,filestack->m_file);
-		if(ret==-1 || string==nullptr)
+		ret=lirc_readline(state,string,filestack->m_file);
+		if(ret==-1 || feof(filestack->m_file))
 		{
 			fclose(filestack->m_file);
 			if(open_files == 1)
@@ -929,26 +907,32 @@ static int lirc_readconfig_only_internal(const struct lirc_state *state,
 			open_files--;
 			continue;
 		}
+		filestack->m_line++;
 		/* check for sha-bang */
-		if(firstline)
+		if(filestack->m_line == 1)
 		{
-			firstline = 0;
-			if(strncmp(string, "#!", 2)==0)
+			if((string[0] == '#') && (string[1] == '!'))
 			{
-				sha_bang=string+2;
+				sha_bang = string.substr(2);
+				filestack->m_line++;
+				continue;
 			}
 		}
-		filestack->m_line++;
-		char *eq=strchr(string,'=');
-		if(eq==nullptr)
+		if (string.empty() || string[0] == '#')
+		{
+			continue;
+		}
+		size_t off = string.find('=');
+		if(off == std::string::npos)
 		{
 			char *strtok_state = nullptr;
-			char *token=strtok_r(string," \t",&strtok_state);
+			char *token=strtok_r(string.data()," \t",&strtok_state);
 			if ((token==nullptr) || (token[0]=='#'))
 			{
 				/* ignore empty line or comment */
+				continue;
 			}
-			else if(strcasecmp(token, "include") == 0)
+			if(strcasecmp(token, "include") == 0)
 			{
 				if (open_files >= MAX_INCLUDES)
 				{
@@ -1030,9 +1014,9 @@ static int lirc_readconfig_only_internal(const struct lirc_state *state,
 		}
 		else
 		{
-			eq[0]=0;
-			char *token=lirc_trim(string);
-			char *token2=lirc_trim(eq+1);
+			string[off]=0;
+			char *token=lirc_trim(string.data());
+			char *token2=lirc_trim(string.data()+off+1);
 			if(token[0]=='#')
 			{
 				/* ignore comment */
@@ -1202,7 +1186,6 @@ static int lirc_readconfig_only_internal(const struct lirc_state *state,
 				}
 			}
 		}
-		free(string);
 		if(ret==-1) break;
 	}
 	if(remote!=LIRC_ALL)
