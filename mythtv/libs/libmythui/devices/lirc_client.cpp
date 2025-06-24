@@ -1526,16 +1526,17 @@ int lirc_code2char(const struct lirc_state *state, struct lirc_config *config,co
 {
 	if(config->sockfd!=-1)
 	{
-		char* command = static_cast<char*>(malloc((10+strlen(code)+1+1) * sizeof(char)));
-		if (command == nullptr)
-			return LIRC_RET_ERROR;
+		std::string command;
+		command.reserve(10+strlen(code)+1);
 		static std::array<char,LIRC_PACKET_SIZE> s_buf;
 		size_t buf_len = s_buf.size();
 		int success = LIRC_RET_ERROR;
+
+		command = "CODE ";
+		command += code;
+		command += "\n";
 		
-		sprintf(command, "CODE %s\n", code);
-		
-		int ret = lirc_send_command(state, config->sockfd, command,
+		int ret = lirc_send_command(state, config->sockfd, command.data(),
 					s_buf.data(), &buf_len, &success);
 		if(success == LIRC_RET_SUCCESS)
 		{
@@ -1547,10 +1548,8 @@ int lirc_code2char(const struct lirc_state *state, struct lirc_config *config,co
 			{
 				*string = nullptr;
 			}
-			free(command);
 			return LIRC_RET_SUCCESS;
 		}
-		free(command);
 		return LIRC_RET_ERROR;
 	}
 	return lirc_code2char_internal(state, config, code, string, nullptr);
@@ -2027,15 +2026,15 @@ int lirc_send_command(const struct lirc_state *lstate, int sockfd, const char *c
 
 int lirc_identify(const struct lirc_state *state, int sockfd)
 {
-	char* command = static_cast<char*>(malloc((10+strlen(state->lirc_prog)+1+1) * sizeof(char)));
-	if (command == nullptr)
-		return LIRC_RET_ERROR;
+	std::string command;
+	command.reserve(10+strlen(state->lirc_prog)+1);
 	int success = LIRC_RET_ERROR;
 
-	sprintf(command, "IDENT %s\n", state->lirc_prog);
+	command = "IDENT ";
+	command += state->lirc_prog;
+	command += "\n";
 
-	(void) lirc_send_command(state, sockfd, command, nullptr, nullptr, &success);
-	free(command);
+	(void) lirc_send_command(state, sockfd, command.data(), nullptr, nullptr, &success);
 	return success;
 }
 // NOLINTEND(performance-no-int-to-ptr)
