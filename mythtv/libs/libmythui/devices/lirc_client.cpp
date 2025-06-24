@@ -83,9 +83,9 @@ static int lirc_mode(
   that it will stay available in the future
 */
 static unsigned int lirc_flags(const struct lirc_state *state, char *string);
-static char *lirc_getfilename(const struct lirc_state *state,
-							  const char *file,
-							  const char *current_file);
+static std::string lirc_getfilename(const struct lirc_state *state,
+				    const char *file,
+				    const char *current_file);
 static FILE *lirc_open(const struct lirc_state *state,
 					   const char *file, const char *current_file,
 					   char **full_name);
@@ -672,74 +672,47 @@ unsigned int lirc_flags(const struct lirc_state *state, char *string)
 	return(flags);
 }
 
-static char *lirc_getfilename(const struct lirc_state *state,
-							  const char *file,
-							  const char *current_file)
+static std::string lirc_getfilename(const struct lirc_state *state,
+				    const char *file,
+				    const char *current_file)
 {
-	char *filename = nullptr;
+	std::string filename;
 
 	if(file==nullptr)
 	{
-		const char *home=getenv("HOME");
-		if(home==nullptr)
+		filename = getenv("HOME");
+		if(filename.empty())
 		{
-			home="/";
+			filename="/";
 		}
-		filename=(char *) malloc(strlen(home)+1+
-					 strlen(state->lircrc_user_file)+1);
-		if(filename==nullptr)
+		if(filename.back()!='/')
 		{
-			lirc_printf(state, "%s: out of memory\n",state->lirc_prog);
-			return nullptr;
+			filename += "/";
 		}
-		strcpy(filename,home);
-		if(strlen(home)>0 && filename[strlen(filename)-1]!='/')
-		{
-			strcat(filename,"/");
-		}
-		strcat(filename,state->lircrc_user_file);
+		filename += state->lircrc_user_file;
 	}
 	else if(strncmp(file, "~/", 2)==0)
 	{
-		const char *home=getenv("HOME");
-		if(home==nullptr)
+		filename = getenv("HOME");
+		if(filename.empty())
 		{
-			home="/";
+			filename="/";
 		}
-		filename=(char *) malloc(strlen(home)+strlen(file)+1);
-		if(filename==nullptr)
-		{
-			lirc_printf(state, "%s: out of memory\n",state->lirc_prog);
-			return nullptr;
-		}
-		strcpy(filename,home);
-		strcat(filename,file+1);
+		filename += file+1;
 	}
 	else if(file[0]=='/' || current_file==nullptr)
 	{
 		/* absulute path or root */
-		filename=strdup(file);
-		if(filename==nullptr)
-		{
-			lirc_printf(state, "%s: out of memory\n",state->lirc_prog);
-			return nullptr;
-		}
+		filename = file;
 	}
 	else
 	{
 		/* get path from parent filename */
-		int pathlen = strlen(current_file);
-		while (pathlen>0 && current_file[pathlen-1]!='/')
-			pathlen--;
-		filename=(char *) malloc(pathlen+strlen(file)+1);
-		if(filename==nullptr)
-		{
-			lirc_printf(state, "%s: out of memory\n",state->lirc_prog);
-			return nullptr;
-		}
-		memcpy(filename,current_file,pathlen);
-		filename[pathlen]=0;
-		strcat(filename,file);
+		filename = current_file;
+		size_t rindex = filename.rfind('/');
+		if (rindex != std::string::npos)
+			filename.resize(rindex);
+		filename += file;
 	}
 	return filename;
 }
@@ -748,17 +721,17 @@ static FILE *lirc_open(const struct lirc_state *state,
 					   const char *file, const char *current_file,
                        char **full_name)
 {
-	char *filename=lirc_getfilename(state, file, current_file);
-	if(filename==nullptr)
+	std:: string filename=lirc_getfilename(state, file, current_file);
+	if(filename.empty())
 	{
 		return nullptr;
 	}
 
-	FILE *fin=fopen(filename,"r");
+	FILE *fin=fopen(filename.data(),"r");
 	if(fin==nullptr && (file!=nullptr || errno!=ENOENT))
 	{
 		lirc_printf(state, "%s: could not open config file %s\n",
-			    state->lirc_prog,filename);
+			    state->lirc_prog,filename.data());
 		lirc_perror(state, state->lirc_prog);
 	}
 	else if(fin==nullptr)
@@ -774,28 +747,17 @@ static FILE *lirc_open(const struct lirc_state *state,
 		{
 			lirc_printf(state, "%s: could not open config files "
 				    "%s and %s\n",
-				    state->lirc_prog,filename,state->lircrc_root_file);
+				    state->lirc_prog,filename.data(),state->lircrc_root_file);
 			lirc_perror(state, state->lirc_prog);
 		}
 		else
 		{
-			free(filename);
-			filename = strdup(state->lircrc_root_file);
-			if(filename==nullptr)
-			{
-				fclose(fin);
-				lirc_printf(state, "%s: out of memory\n",state->lirc_prog);
-				return nullptr;
-			}
+			filename = state->lircrc_root_file;
 		}
 	}
 	if(full_name && fin!=nullptr)
 	{
-		*full_name = filename;
-	}
-	else
-	{
-		free(filename);
+		*full_name = strdup(filename.data());
 	}
 	return fin;
 }
