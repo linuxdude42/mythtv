@@ -249,6 +249,6 @@ int MythNVControl::GetDisplayID() const
     }
 
     int dispId = static_cast<int>(data[1]);
-    free(data);
+    free(data); // NOLINT(cppcoreguidelines-no-malloc)
     return dispId;
 }

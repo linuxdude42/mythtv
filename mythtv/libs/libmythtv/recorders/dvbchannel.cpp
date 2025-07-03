@@ -929,8 +929,8 @@ bool DVBChannel::Tune(const DTVMultiplex &tuning,
 
             int res = ioctl(m_fdFrontend, FE_SET_PROPERTY, cmds);
 
-            free(cmds->props);
-            free(cmds);
+            free(cmds->props); // NOLINT(cppcoreguidelines-no-malloc)
+            free(cmds);        // NOLINT(cppcoreguidelines-no-malloc)
 
             if (res < 0)
             {
@@ -1748,13 +1748,16 @@ static struct dtv_properties *dtvmultiplex_to_dtvproperties(uint inputId,
              tuning.m_modSys.toString(),
              current_sys.toString()));
 
+    // NOLINTNEXTLINE(cppcoreguidelines-no-malloc)
     auto *cmdseq = (struct dtv_properties*) calloc(1, sizeof(struct dtv_properties));
     if (!cmdseq)
         return nullptr;
 
+    // NOLINTNEXTLINE(cppcoreguidelines-no-malloc)
     cmdseq->props = (struct dtv_property*) calloc(20, sizeof(*(cmdseq->props)));
     if (!(cmdseq->props))
     {
+        // NOLINTNEXTLINE(cppcoreguidelines-no-malloc)
         free(cmdseq);
         return nullptr;
     }
