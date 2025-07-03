@@ -929,8 +929,10 @@ bool DVBChannel::Tune(const DTVMultiplex &tuning,
 
             int res = ioctl(m_fdFrontend, FE_SET_PROPERTY, cmds);
 
+            // C library structure. NOLINTBEGIN(cppcoreguidelines-no-malloc)
             free(cmds->props);
             free(cmds);
+            // NOLINTEND(cppcoreguidelines-no-malloc)
 
             if (res < 0)
             {
@@ -1747,6 +1749,7 @@ static struct dtv_properties *dtvmultiplex_to_dtvproperties(uint inputId,
              tuning.m_modSys.toString(),
              current_sys.toString()));
 
+    // C library structure. NOLINTBEGIN(cppcoreguidelines-no-malloc)
     auto *cmdseq = (struct dtv_properties*) calloc(1, sizeof(struct dtv_properties));
     if (!cmdseq)
         return nullptr;
@@ -1757,6 +1760,7 @@ static struct dtv_properties *dtvmultiplex_to_dtvproperties(uint inputId,
         free(cmdseq);
         return nullptr;
     }
+    // NOLINTEND(cppcoreguidelines-no-malloc)
 
     // 20201117 TODO do this only for cx24116 but not for all DVB-S2 demods
     //
