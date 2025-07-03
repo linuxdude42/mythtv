@@ -395,6 +395,7 @@ bool V4L2util::log_control(struct v4l2_queryctrl& qctrl, DriverOption& drv_opt,
         if (qctrl.type == V4L2_CTRL_TYPE_STRING)
         {
             ext_ctrl.size = qctrl.maximum + 1;
+            // C library structure. NOLINTNEXTLINE(cppcoreguidelines-no-malloc)
             ext_ctrl.string = (char *)malloc(ext_ctrl.size);
             ext_ctrl.string[0] = 0;
         }
@@ -420,7 +421,7 @@ bool V4L2util::log_control(struct v4l2_queryctrl& qctrl, DriverOption& drv_opt,
     log_qctrl(qctrl, drv_opt, msg);
 
     if (qctrl.type == V4L2_CTRL_TYPE_STRING)
-        free(ext_ctrl.string);
+        free(ext_ctrl.string); // NOLINT(cppcoreguidelines-no-malloc)
     return true;
 }
 

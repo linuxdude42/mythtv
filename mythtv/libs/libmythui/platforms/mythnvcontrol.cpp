@@ -249,6 +249,8 @@ int MythNVControl::GetDisplayID() const
     }
 
     int dispId = static_cast<int>(data[1]);
+    // Memory allocated by XNVCTRLQueryTargetBinaryData
+    // NOLINTNEXTLINE(cppcoreguidelines-no-malloc)
     free(data);
     return dispId;
 }

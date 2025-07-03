@@ -149,6 +149,8 @@ void MythBDInfo::GetNameAndSerialNum(BLURAY* BluRay, QString &Name,
             ba = QByteArray::fromRawData(reinterpret_cast<const char*>(buffer), buffersize);
             crypto.addData(ba);
             SerialNum = QString("%1__gen").arg(QString(crypto.result().toBase64()));
+            // Memory allocated by C library call bd_read_file()
+            // NOLINTNEXTLINE(cppcoreguidelines-no-malloc)
             free(buffer);
             LOG(VB_PLAYBACK, LOG_DEBUG, LogPrefix + QString("Generated serial number '%1'")
                 .arg(SerialNum));
