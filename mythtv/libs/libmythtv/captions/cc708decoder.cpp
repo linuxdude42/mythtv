@@ -121,16 +121,14 @@ static int handle_cc_c1(CC708Reader *cc, uint service_num, int i);
 static int handle_cc_c2(CC708Reader *cc, uint service_num, int i);
 static int handle_cc_c3(CC708Reader *cc, uint service_num, int i);
 
-#define SEND_STR \
-do { \
-    if (cc->m_tempStrSize[service_num]) \
-    { \
-        cc->TextWrite(service_num, \
-                      cc->m_tempStr[service_num], \
-                      cc->m_tempStrSize[service_num]); \
-        cc->m_tempStrSize[service_num] = 0; \
-    } \
-} while (false)
+static inline void send_str (CC708Reader* cc, uint service_num)
+{
+    std::u16string& s = cc->m_tempStr[service_num];
+    if (s.empty())
+        return;
+    cc->TextWrite(service_num, s);
+    s.clear();
+}
 
 static void parse_cc_service_stream(CC708Reader* cc, uint service_num)
 {
@@ -233,7 +231,7 @@ static void parse_cc_service_stream(CC708Reader* cc, uint service_num)
             short character = CCtableG0[code-0x20];
             append_character(cc, service_num, character);
             i++;
-            SEND_STR;
+            send_str(cc, service_num);
         }
         else if (code <= 0x9f)
         {
@@ -317,7 +315,7 @@ static int handle_cc_c0_ext1_p16(CC708Reader* cc, uint service_num, int i)
     {
         // single byte code
         if (C0::ETX == code)
-            SEND_STR;
+            send_str(cc, service_num);
         else if (C0::BS == code)
             append_character(cc, service_num, 0x8);     // Backspace
         else if (C0::FF==code)
@@ -385,7 +383,7 @@ static int handle_cc_c1(CC708Reader* cc, uint service_num, int i)
     const unsigned char* blk_buf = cc->m_buf[service_num];
     if (code<=CW7)
     { // no paramaters
-        SEND_STR;
+        send_str(cc, service_num);
         cc->SetCurrentWindow(service_num, code-0x80);
         i+=1;
     }
@@ -400,7 +398,7 @@ static int handle_cc_c1(CC708Reader* cc, uint service_num, int i)
     else if (code<=DLY && ((i+1)<blk_size))
     { // 1 byte of paramaters
         int param1 = blk_buf[i+1];
-        SEND_STR;
+        send_str(cc, service_num);
         if (CLW==code)
             cc->ClearWindows(service_num, param1);
         else if (DSW==code)
@@ -427,7 +425,7 @@ static int handle_cc_c1(CC708Reader* cc, uint service_num, int i)
         int edge_type = (blk_buf[i+2]>>3) & 0x7;
         int underline = (blk_buf[i+2]>>6) & 0x1;
         int italic    = (blk_buf[i+2]>>7) & 0x1;
-        SEND_STR;
+        send_str(cc, service_num);
         cc->SetPenAttributes(service_num, pen_size, offset, text_tag,
                              font_tag, edge_type, underline, italic);
         i+=3;
@@ -439,7 +437,7 @@ static int handle_cc_c1(CC708Reader* cc, uint service_num, int i)
         int bg_color   = (blk_buf[i+2]   ) & 0x3f;
         int bg_opacity = (blk_buf[i+2]>>6) & 0x03;
         int edge_color = (blk_buf[i+3]>>6) & 0x3f;
-        SEND_STR;
+        send_str(cc, service_num);
         cc->SetPenColor(service_num, fg_color, fg_opacity,
                         bg_color, bg_opacity, edge_color);
         i+=4;
@@ -448,7 +446,7 @@ static int handle_cc_c1(CC708Reader* cc, uint service_num, int i)
     {
         int row = blk_buf[i+1] & 0x0f;
         int col = blk_buf[i+2] & 0x3f;
-        SEND_STR;
+        send_str(cc, service_num);
         cc->SetPenLocation(service_num, row, col);
         i+=3;
     }
@@ -466,7 +464,7 @@ static int handle_cc_c1(CC708Reader* cc, uint service_num, int i)
         int display_eff   = (blk_buf[i+4]   ) & 0x03;
         int effect_dir    = (blk_buf[i+4]>>2) & 0x03;
         int effect_speed  = (blk_buf[i+4]>>4) & 0x0f;
-        SEND_STR;
+        send_str(cc, service_num);
         cc->SetWindowAttributes(
             service_num, fill_color, fill_opacity, border_color, border_type,
             scroll_dir,     print_dir,    effect_dir,
@@ -493,7 +491,7 @@ static int handle_cc_c1(CC708Reader* cc, uint service_num, int i)
         // param6
         int pen_style = blk_buf[i+6] & 0x7;
         int win_style = (blk_buf[i+6]>>3) & 0x7;
-        SEND_STR;
+        send_str(cc, service_num);
         cc->DefineWindow(service_num, code-0x98, priority, visible,
                          anchor_point, relative_pos,
                          anchor_vertical, anchor_horizontal,
@@ -520,22 +518,22 @@ static int handle_cc_c2(CC708Reader* cc, uint service_num, int i)
 
     if ((code<=0x7) && ((i+1)<blk_size)){
         i+=2;
-        SEND_STR;
+        send_str(cc, service_num);
     }
     else if ((code<=0xf) && ((i+2)<blk_size))
     {
         i+=3;
-        SEND_STR;
+        send_str(cc, service_num);
     }
     else if ((code<=0x17) && ((i+3)<blk_size))
     {
         i+=4;
-        SEND_STR;
+        send_str(cc, service_num);
     }
     else if ((code<=0x1f) && ((i+4)<blk_size))
     {
         i+=5;
-        SEND_STR;
+        send_str(cc, service_num);
     }
     return i;
 }
@@ -549,12 +547,12 @@ static int handle_cc_c3(CC708Reader* cc, uint service_num, int i)
     if ((code<=0x87) && ((i+5)<blk_size))
     {
         i+=6;
-        SEND_STR;
+        send_str(cc, service_num);
     }
     else if ((code<=0x8f) && ((i+6)<blk_size))
     {
         i+=7;
-        SEND_STR;
+        send_str(cc, service_num);
     }
     else if ((i+2)<blk_size)
     { // varible length commands
@@ -562,7 +560,7 @@ static int handle_cc_c3(CC708Reader* cc, uint service_num, int i)
         if ((i+length)<blk_size)
         {
             i+=1+length;
-            SEND_STR;
+            send_str(cc, service_num);
         }
     }
     return i;
@@ -716,28 +714,10 @@ static void parse_cc_packet(CC708Reader* cb_cbs, CaptionPacket* pkt,
 
 static void append_character(CC708Reader *cc, uint service_num, short ch)
 {
-    if (cc->m_tempStrSize[service_num]+2 > cc->m_tempStrAlloc[service_num])
-    {
-        int new_alloc = (cc->m_tempStrAlloc[service_num]) ?
-            cc->m_tempStrAlloc[service_num] * 2 : 64;
-
-        cc->m_tempStr[service_num] = (short*)
-            realloc(cc->m_tempStr[service_num], new_alloc * sizeof(short));
-
-        cc->m_tempStrAlloc[service_num] = new_alloc; // shorts allocated
-    }
-
-    if (cc->m_tempStr[service_num])
-    {
-        int i = cc->m_tempStrSize[service_num];
-        cc->m_tempStr[service_num][i] = ch;
-        cc->m_tempStrSize[service_num]++;
-    }
-    else
-    {
-        cc->m_tempStrSize[service_num] = 0;
-        cc->m_tempStrAlloc[service_num]=0;
-    }
+    std::u16string& s = cc->m_tempStr[service_num];
+    if (s.size()+2 > s.capacity())
+        s.resize(s.capacity() * 2);
+    s.push_back(ch);
 }
 
 const cc_table CCtableG0 =
