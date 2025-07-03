@@ -467,6 +467,15 @@ int MythDirClose(int DirID)
     return -1;
 }
 
+/**
+ * Note: This header file for this function is also included from the
+ * C code in external/libmythdvdnav so it cannot use Qt functions.
+ * Otherwise the return value for this function should be changed to a
+ * QByteArray.
+ * 
+ * Return char* containing the name of the specified directory.  This
+ * memory must be freed by the caller.
+ */
 char *MythDirRead(int DirID)
 {
     LOG(VB_FILE, LOG_DEBUG, LOC + QString("MythDirRead: '%1'").arg(DirID));
