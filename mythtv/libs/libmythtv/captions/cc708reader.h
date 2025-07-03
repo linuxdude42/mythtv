@@ -71,7 +71,7 @@ class CC708Reader
 
     // Text
     virtual void TextWrite(uint service_num,
-                           int16_t* unicode_string, int16_t len);
+                           std::u16string& unicode_string);
 
     // Data
     std::array<unsigned char *,k708MaxServices> m_buf          {};
@@ -79,9 +79,7 @@ class CC708Reader
     std::array<uint,k708MaxServices>            m_bufSize      {};
     std::array<bool,k708MaxServices>            m_delayed      {};
 
-    std::array<int16_t *,k708MaxServices>       m_tempStr      {};
-    std::array<int,k708MaxServices>             m_tempStrAlloc {};
-    std::array<int,k708MaxServices>             m_tempStrSize  {};
+    std::array<std::u16string,k708MaxServices>  m_tempStr      {};
 
     int                                         m_currentService {1};
     std::array<CC708Service,k708MaxServices>    m_cc708services;
