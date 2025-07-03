@@ -41,7 +41,7 @@ void TestMythIOWrapper::local_directory_test(void)
     while ((name = MythDirRead(dirid)) != nullptr) {
         if (name[0] != '.')
             found += name;
-        free(name);
+        free(name); // NOLINT(cppcoreguidelines-no-malloc)
     }
     QVERIFY(known == found);
 
