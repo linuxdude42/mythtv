@@ -121,14 +121,12 @@ static int handle_cc_c1(CC708Reader *cc, uint service_num, int i);
 static int handle_cc_c2(CC708Reader *cc, uint service_num, int i);
 static int handle_cc_c3(CC708Reader *cc, uint service_num, int i);
 
-#define SEND_STR \
+#define SEND_STR                                \
 do { \
-    if (cc->m_tempStrSize[service_num]) \
+    if (!cc->m_tempStr[service_num].empty())      \
     { \
-        cc->TextWrite(service_num, \
-                      cc->m_tempStr[service_num], \
-                      cc->m_tempStrSize[service_num]); \
-        cc->m_tempStrSize[service_num] = 0; \
+        cc->TextWrite(service_num, cc->m_tempStr[service_num]); \
+        cc->m_tempStr[service_num].clear();             \
     } \
 } while (false)
 
@@ -716,28 +714,12 @@ static void parse_cc_packet(CC708Reader* cb_cbs, CaptionPacket* pkt,
 
 static void append_character(CC708Reader *cc, uint service_num, short ch)
 {
-    if (cc->m_tempStrSize[service_num]+2 > cc->m_tempStrAlloc[service_num])
+    if (cc->m_tempStr[service_num].size()+2 > cc->m_tempStr[service_num].capacity())
     {
-        int new_alloc = (cc->m_tempStrAlloc[service_num]) ?
-            cc->m_tempStrAlloc[service_num] * 2 : 64;
-
-        cc->m_tempStr[service_num] = (short*)
-            realloc(cc->m_tempStr[service_num], new_alloc * sizeof(short));
-
-        cc->m_tempStrAlloc[service_num] = new_alloc; // shorts allocated
+        cc->m_tempStr[service_num].resize(cc->m_tempStr[service_num].capacity() * 2);
     }
 
-    if (cc->m_tempStr[service_num])
-    {
-        int i = cc->m_tempStrSize[service_num];
-        cc->m_tempStr[service_num][i] = ch;
-        cc->m_tempStrSize[service_num]++;
-    }
-    else
-    {
-        cc->m_tempStrSize[service_num] = 0;
-        cc->m_tempStrAlloc[service_num]=0;
-    }
+    cc->m_tempStr[service_num].push_back(ch);
 }
 
 const cc_table CCtableG0 =
