@@ -403,7 +403,7 @@ std::chrono::seconds MythDVDBuffer::GetChapterTimes(int Title)
 
     // Assigned via calloc, must be free'd not deleted
     if (times)
-        free(times);
+        free(times); // NOLINT(cppcoreguidelines-no-malloc)
     m_chapterMap.insert(Title, chapters);
     return duration_cast<std::chrono::seconds>(mpeg::chrono::pts(duration) + HALFSECOND);
 }
@@ -1930,7 +1930,7 @@ bool MythDVDBuffer::GetDVDStateSnapshot(QString& State)
     if (dvdstate)
     {
         State = dvdstate;
-        free(dvdstate);
+        free(dvdstate); // NOLINT(cppcoreguidelines-no-malloc)
     }
 
     return (!State.isEmpty());

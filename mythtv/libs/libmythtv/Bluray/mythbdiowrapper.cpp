@@ -29,7 +29,7 @@ static void MythBDDirClose(BD_DIR_H *Dir)
     {
         MythDirClose(static_cast<int>(reinterpret_cast<intptr_t>(Dir->internal)));
         LOG(VB_FILE, LOG_DEBUG, LOC + "Closed mythdir dir");
-        free(Dir);
+        free(Dir); // NOLINT(cppcoreguidelines-no-malloc)
     }
 }
 
@@ -40,7 +40,7 @@ static int MythBDDirRead(BD_DIR_H *Dir, BD_DIRENT *Entry)
     {
         Entry->d_name[255] = '\0';
         strncpy(Entry->d_name, filename, 255);
-        free(filename);
+        free(filename); // NOLINT(cppcoreguidelines-no-malloc)
         return 0;
     }
 
@@ -56,6 +56,8 @@ static BD_DIR_H *MythBDDirOpen(const char* DirName)
         return sDefaultDirOpen(DirName);
     }
 
+    // "dir" will be passed to a C library which can free it.
+    // NOLINTNEXTLINE(cppcoreguidelines-no-malloc)
     auto *dir = static_cast<BD_DIR_H*>(calloc(1, sizeof(BD_DIR_H)));
 
     LOG(VB_FILE, LOG_DEBUG, LOC + QString("Opening mythdir '%1'").arg(DirName));
@@ -71,7 +73,7 @@ static BD_DIR_H *MythBDDirOpen(const char* DirName)
     }
 
     LOG(VB_FILE, LOG_DEBUG, LOC + QString("Error opening dir '%1'").arg(DirName));
-    free(dir);
+    free(dir); // NOLINT(cppcoreguidelines-no-malloc)
     return nullptr;
 }
 
@@ -82,7 +84,7 @@ static void MythBDFileClose(BD_FILE_H *File)
     {
         MythfileClose(static_cast<int>(reinterpret_cast<intptr_t>(File->internal)));
         LOG(VB_FILE, LOG_DEBUG, LOC + "Closed mythfile file");
-        free(File);
+        free(File); // NOLINT(cppcoreguidelines-no-malloc)
     }
 }
 
@@ -118,6 +120,8 @@ static BD_FILE_H *MythBDFileOpen(const char* FileName, const char *CMode)
         return sDefaultFileOpen(FileName, CMode);
     }
 
+    // "file" will be passed to a C library.
+    // NOLINTNEXTLINE(cppcoreguidelines-no-malloc)
     auto *file = static_cast<BD_FILE_H*>(calloc(1, sizeof(BD_FILE_H)));
 
     LOG(VB_FILE, LOG_DEBUG, LOC + QString("Opening mythfile file '%1'").arg(FileName));
@@ -141,7 +145,7 @@ static BD_FILE_H *MythBDFileOpen(const char* FileName, const char *CMode)
     }
 
     LOG(VB_FILE, LOG_DEBUG, LOC + QString("Error opening file '%1'").arg(FileName));
-    free(file);
+    free(file); // NOLINT(cppcoreguidelines-no-malloc)
     return nullptr;
 }
 
