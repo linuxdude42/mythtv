@@ -83,20 +83,30 @@ using SimiData = std::array<SIMI,5 * MAX_SIMI>;
 struct Fractal_Struct
 {
 
-	size_t   m_nbSimi;
-	SimiData m_components;
-	int     m_depth, m_col;
-	int     m_count, m_speed;
-	int     m_width, m_height, m_lx, m_ly;
-	DBL     m_rMean, m_drMean, m_dr2Mean;
-	int     m_curPt, m_maxPt;
+	size_t   m_nbSimi     { 0 };
+	SimiData m_components {};
+	int     m_depth       { 0 };
+	int     m_col         { 0 };
+	int     m_count       { 0 };
+	int     m_speed       { 6 };
+	int     m_width       { 0 };
+	int     m_height      { 0 };
+	int     m_lx          { 0 };
+	int     m_ly          { 0 };
+	DBL     m_rMean       { 0.0 };
+	DBL     m_drMean      { 0.0 };
+	DBL     m_dr2Mean     { 0.0 };
+	int     m_curPt       { 0 };
+	int     m_maxPt       { 0 };
 
-	IFSPoint *m_buffer1, *m_buffer2;
+	std::vector<IFSPoint> m_buffer1;
+	std::vector<IFSPoint> m_buffer2;
 //      Pixmap      dbuf;
 //      GC          dbuf_gc;
 };
 
-static FRACTAL *Root = (FRACTAL *) nullptr, *Cur_F;
+static FRACTAL *Root = nullptr;
+static FRACTAL *Cur_F;
 
 /* Used by the Trace recursive method */
 IFSPoint *Buf;
@@ -141,22 +151,10 @@ Random_Simis (FRACTAL * F, SimiData &simi_set, int offset, int count)
 static void
 free_ifs_buffers (FRACTAL * Fractal)
 {
-	if (Fractal->m_buffer1 != nullptr) {
-		free ((void *) Fractal->m_buffer1);
-		Fractal->m_buffer1 = (IFSPoint *) nullptr;
-	}
-	if (Fractal->m_buffer2 != nullptr) {
-		free ((void *) Fractal->m_buffer2);
-		Fractal->m_buffer2 = (IFSPoint *) nullptr;
-	}
+	Fractal->m_buffer1.clear();
+	Fractal->m_buffer2.clear();
 }
 
-
-static void
-free_ifs (FRACTAL * Fractal)
-{
-	free_ifs_buffers (Fractal);
-}
 
 /***************************************************************/
 
@@ -166,11 +164,7 @@ init_ifs (int width, int height)
 //      printf ("initing ifs\n");
 
 	if (Root == nullptr) {
-		Root = (FRACTAL *) malloc (sizeof (FRACTAL));
-		if (Root == nullptr)
-			return;
-		Root->m_buffer1 = (IFSPoint *) nullptr;
-		Root->m_buffer2 = (IFSPoint *) nullptr;
+		Root = new FRACTAL;
 	}
 	FRACTAL *Fractal = Root;
 
@@ -215,16 +209,8 @@ init_ifs (int width, int height)
 	for (i = 0; i <= Fractal->m_depth + 2; ++i)
 		Fractal->m_maxPt *= Fractal->m_nbSimi;
 
-	Fractal->m_buffer1 = (IFSPoint *) calloc (Fractal->m_maxPt, sizeof (IFSPoint));
-	if (Fractal->m_buffer1 == nullptr) {
-		free_ifs (Fractal);
-		return;
-	}
-	Fractal->m_buffer2 = (IFSPoint *) calloc (Fractal->m_maxPt, sizeof (IFSPoint));
-	if (Fractal->m_buffer2 == nullptr) {
-		free_ifs (Fractal);
-		return;
-	}
+	Fractal->m_buffer1.resize(Fractal->m_maxPt);
+	Fractal->m_buffer2.resize(Fractal->m_maxPt);
 
 //      printf ("--ifs setting params\n");
 	Fractal->m_speed = 6;
@@ -353,7 +339,7 @@ Draw_Fractal ( void /* ModeInfo * mi */ )
 
 	Cur_Pt = 0;
 	Cur_F = F;
-	Buf = F->m_buffer2;
+	Buf = F->m_buffer2.data();
 	for (Cur = (F->m_components).data(), i = F->m_nbSimi; i; --i, Cur++) {
 		F_PT xo = Cur->m_fCx;
 		F_PT yo = Cur->m_fCy;
@@ -399,9 +385,7 @@ Draw_Fractal ( void /* ModeInfo * mi */ )
 */
 
 	F->m_curPt = Cur_Pt;
-	Buf = F->m_buffer1;
-	F->m_buffer1 = F->m_buffer2;
-	F->m_buffer2 = Buf;
+	F->m_buffer1.swap(F->m_buffer2);
 }
 
 
@@ -411,7 +395,7 @@ draw_ifs ( /* ModeInfo * mi */ int *nbPoints)
 	if (Root == nullptr)
 		return nullptr;
 	FRACTAL *F = Root; // [/*MI_SCREEN(mi)*/0];
-	if (F->m_buffer1 == nullptr)
+	if (F->m_buffer1.empty())
 		return nullptr;
 
 	DBL u = (DBL) (F->m_count) * (DBL) (F->m_speed) / 1000.0;
@@ -474,7 +458,7 @@ draw_ifs ( /* ModeInfo * mi */ int *nbPoints)
 
 	/* #1 code added by JeKo */
 	(*nbPoints) = Cur_Pt;
-	return F->m_buffer2;
+	return F->m_buffer2.data();
 	/* #1 end */
 }
 
@@ -484,9 +468,6 @@ draw_ifs ( /* ModeInfo * mi */ int *nbPoints)
 void
 release_ifs ()
 {
-	if (Root != nullptr) {
-		free_ifs(Root);
-		free ((void *) Root);
-		Root = (FRACTAL *) nullptr;
-	}
+	delete Root;
+	Root = nullptr;
 }
