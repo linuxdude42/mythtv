@@ -21,9 +21,9 @@ static constexpr int16_t TIME_BTW_CHG { 300 };
 /**-----------------------------------------------------**
  **  SHARED DATA                                        **
  **-----------------------------------------------------**/
-static guint32 *pixel;
-static guint32 *back;
-static guint32 *p1, *p2, *tmp;
+static std::vector<guint32> pixel;
+static std::vector<guint32> back;
+static guint32 *p1, *p2;
 static guint32 cycle;
 
 struct GoomState {
@@ -77,10 +77,10 @@ void goom_init (guint32 resx, guint32 resy, int cinemascope) {
 	c_offset = c_black_height * resx;
 	c_resoly = resy - (c_black_height * 2);
 
-	pixel = (guint32 *) malloc ((buffsize * sizeof (guint32)) + 128);
-	back = (guint32 *) malloc ((buffsize * sizeof (guint32)) + 128);
+	pixel.resize(buffsize);
+	back.resize(buffsize);
 	//RAND_INIT ();
-	srand ((uintptr_t) pixel);
+	srand ((uintptr_t) pixel.data()); // initialize based on random buffer addresses
 	if (!rand_tab) rand_tab = (int *) malloc (NB_RAND * sizeof(int)) ;
 	for (size_t i = 0; i < NB_RAND; i++)
 		rand_tab[i] = goom_rand();
@@ -88,8 +88,8 @@ void goom_init (guint32 resx, guint32 resy, int cinemascope) {
                 
 	cycle = 0;
 
-	p1 = (guint32 *) ((1 + ((uintptr_t) (pixel)) / 128) * 128);
-	p2 = (guint32 *) ((1 + ((uintptr_t) (back)) / 128) * 128);
+	p1 = pixel.data();
+	p2 = back.data();
 
 	init_ifs (resx, c_resoly);
 	gmline1 = goom_lines_init (resx, c_resoly, GML_HLINE, c_resoly, GML_BLACK, GML_CIRCLE, 0.4F * (float) c_resoly, GML_VERT);
@@ -102,8 +102,8 @@ void goom_init (guint32 resx, guint32 resy, int cinemascope) {
 
 
 void goom_set_resolution (guint32 resx, guint32 resy, int cinemascope) {
-	free (pixel);
-	free (back);
+	pixel.clear();
+	back.clear();
 
 	if (cinemascope)
 		c_black_height = resy / 8;
@@ -117,12 +117,10 @@ void goom_set_resolution (guint32 resx, guint32 resy, int cinemascope) {
 	resoly = resy;
 	buffsize = resx * resy;
 
-	pixel = (guint32 *) malloc ((buffsize * sizeof (guint32)) + 128);
-	memset (pixel, 0, (buffsize * sizeof (guint32)) + 128);
-	back = (guint32 *) malloc ((buffsize * sizeof (guint32)) + 128);
-	memset (back, 0,  (buffsize * sizeof (guint32)) + 128);
-	p1 = (guint32 *) ((1 + ((uintptr_t) (pixel)) / 128) * 128);
-	p2 = (guint32 *) ((1 + ((uintptr_t) (back)) / 128) * 128);
+	pixel.resize(buffsize);
+	back.resize(buffsize);
+	p1 = (guint32 *) pixel.data();
+	p2 = (guint32 *) back.data();
 
 	init_ifs (resx, c_resoly);
 	goom_lines_set_res (gmline1, resx, c_resoly);
@@ -815,7 +813,7 @@ guint32 * goom_update (GoomDualData& data, int forceMode) {
 	}
 
 	guint32 *return_val = p1;
-	tmp = p1;
+	guint32 *tmp = p1;
 	p1 = p2;
 	p2 = tmp;
 
@@ -844,11 +842,8 @@ guint32 * goom_update (GoomDualData& data, int forceMode) {
 }
 
 void goom_close () {
-	if (pixel != nullptr)
-		free (pixel);
-	if (back != nullptr)
-		free (back);
-	pixel = back = nullptr;
+	pixel.clear();
+	back.clear();
 	RAND_CLOSE ();
 	release_ifs ();
 	goom_lines_free (&gmline1);
