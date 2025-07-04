@@ -895,32 +895,19 @@ void MythSystemLegacyUnix::Fork(std::chrono::seconds timeout)
     SetArgs( args );
 
     QByteArray cmdUTF8 = GetCommand().toUtf8();
-    char *command = strdup(cmdUTF8.constData());
 
-    char **cmdargs = (char **)malloc((args.size() + 1) * sizeof(char *));
+    // Convert args from QString to utf8 encoding.
+    QByteArrayList bargs;
+    bargs.reserve(args.size());
+    for (const auto& arg : std::as_const(args))
+        bargs.push_back(arg.toUtf8());
 
-    if (cmdargs)
-    {
-        int i = 0;
-        for (auto it = args.constBegin(); it != args.constEnd(); ++it)
-        {
-            cmdargs[i++] = strdup(it->toUtf8().constData());
-        }
-        cmdargs[i] = (char *)nullptr;
-    }
-    else
-    {
-        LOG(VB_GENERAL, LOG_CRIT, LOC_ERR +
-                        "Failed to allocate memory for cmdargs " +
-                        ENO);
-        free(command);
-        return;
-    }
-
-    char *directory = nullptr;
-    QString dir = GetDirectory();
-    if (GetSetting("SetDirectory") && !dir.isEmpty())
-        directory = strdup(dir.toUtf8().constData());
+    // Build null terminated array of pointers to utf8 strings.
+    std::vector<char*>cmdargs;
+    cmdargs.reserve(args.size() + 1);
+    for (const auto& barg : std::as_const(bargs))
+        cmdargs.push_back((char*)barg.data());
+    cmdargs.push_back(nullptr);
 
     int niceval = m_parent->GetNice();
     int ioprioval = m_parent->GetIOPrio();
@@ -1124,11 +1111,15 @@ void MythSystemLegacyUnix::Fork(std::chrono::seconds timeout)
 #endif
 
         /* set directory */
-        if( directory && chdir(directory) < 0 )
+        if (GetSetting("SetDirectory"))
         {
-            std::cerr << locerr
-                      << "chdir() failed: "
-                      << strerror(errno) << std::endl;
+            QByteArray directory = GetDirectory().toUtf8();
+            if( !directory.isEmpty() && chdir(directory.constData()) < 0 )
+            {
+                std::cerr << locerr
+                          << "chdir() failed: "
+                          << strerror(errno) << std::endl;
+            }
         }
 
         /* Set nice and ioprio values if non-default */
@@ -1138,7 +1129,7 @@ void MythSystemLegacyUnix::Fork(std::chrono::seconds timeout)
             myth_ioprio(ioprioval);
 
         /* run command */
-        if( execv(command, cmdargs) < 0 )
+        if( execv(cmdUTF8.constData(), cmdargs.data()) < 0 )
         {
             // Can't use LOG due to locking fun.
             std::cerr << locerr
@@ -1151,18 +1142,6 @@ void MythSystemLegacyUnix::Fork(std::chrono::seconds timeout)
     }
 
     /* Parent */
-
-    // clean up the memory use
-    free(command);
-
-    free(directory);
-
-    if( cmdargs )
-    {
-        for (int i = 0; cmdargs[i]; i++)
-            free( cmdargs[i] );
-        free( reinterpret_cast<void*>(cmdargs) );
-    }
 
     if( GetStatus() != GENERIC_EXIT_RUNNING )
     {
