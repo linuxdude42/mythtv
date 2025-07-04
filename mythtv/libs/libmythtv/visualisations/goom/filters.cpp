@@ -117,7 +117,7 @@ static constexpr int8_t PERTEMASK { 0xf };
 // faire : a / sqrtperte <=> a >> PERTEDEC
 static constexpr uint8_t PERTEDEC { 4 };
 
-static int *firedec = nullptr;
+static std::vector<int> firedec;
 
 
 // retourne x>>s , en testant le signe de x
@@ -478,9 +478,7 @@ zoomFilterFastRGB (unsigned int * pix1, unsigned int * pix2, ZoomFilterData * zf
 		middleX = resx / 2;
 		middleY = resy - 1;
 		s_firstTime = 1;
-		if (firedec)
-			free (firedec);
-		firedec = nullptr;
+		firedec.clear();
 	}
 
 	if (s_interlaceStart != -2)
@@ -549,7 +547,7 @@ zoomFilterFastRGB (unsigned int * pix1, unsigned int * pix2, ZoomFilterData * zf
 			}
 
 			{
-				firedec = (int *) malloc (prevY * sizeof (int));
+				firedec.resize(prevY);
 
 				for (int loopv = prevY; loopv != 0;) {
 					static int s_decc = 0;
