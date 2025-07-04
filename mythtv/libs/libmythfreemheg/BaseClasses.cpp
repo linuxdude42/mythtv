@@ -42,45 +42,30 @@ MHOctetString::MHOctetString(const char *str, int nLen)
         nLen = strlen(str);
     }
 
-    m_nLength = nLen;
+    // Add a NUL terminator just past the end of the string for
+    // consistency with the following constructor.
+    m_pChars.resize(nLen+1);
+    m_pChars[nLen] = 0;
 
+    m_pChars.resize(nLen);
     if (nLen == 0)
-    {
-        m_pChars = nullptr;
-    }
-    else
-    {
-        m_pChars = (unsigned char *)malloc(nLen + 1);
-
-        if (! m_pChars)
-        {
-            throw "Out of memory";
-        }
-
-        memcpy(m_pChars, str, nLen);
-        m_pChars[nLen] = '\0';
-    }
+        return;
+    memcpy(m_pChars.data(), str, nLen);
 }
 
 MHOctetString::MHOctetString(const unsigned char *str, int nLen)
-  : m_nLength(nLen)
 {
+    // Add a NUL terminator just past the end of the string so that it
+    // can be referenced as a C string.  If we could use std::string
+    // it would do this by default, but std::string doesn't officially
+    // support 'unsigned char'.
+    m_pChars.resize(nLen+1);
+    m_pChars[nLen] = 0;
+
+    m_pChars.resize(nLen);
     if (nLen == 0)
-    {
-        m_pChars = nullptr;
-    }
-    else
-    {
-        m_pChars = (unsigned char *)malloc(nLen + 1);
-
-        if (! m_pChars)
-        {
-            throw "Out of memory";
-        }
-
-        memcpy(m_pChars, str, nLen);
-        m_pChars[nLen] = '\0';
-    }
+        return;
+    memcpy(m_pChars.data(), str, nLen);
 }
 
 // Construct a substring.
@@ -93,51 +78,24 @@ MHOctetString::MHOctetString(const MHOctetString &str, int nOffset, int nLen)
 
     nLen = std::clamp(nLen, 0, str.Size());
 
-    m_nLength = nLen;
+    // Add a NUL terminator just past the end of the string for
+    // consistency with the prior constructors.
+    m_pChars.resize(nLen+1);
+    m_pChars[nLen] = 0;
 
+    m_pChars.resize(nLen);
     if (nLen == 0)
-    {
-        m_pChars = nullptr;
-    }
-    else
-    {
-        m_pChars = (unsigned char *)malloc(nLen + 1);
-
-        if (! m_pChars)
-        {
-            throw "Out of memory";
-        }
-
-        memcpy(m_pChars, str.m_pChars + nOffset, nLen);
-        m_pChars[nLen] = '\0';
-    }
-}
-
-MHOctetString::~MHOctetString()
-{
-    free(m_pChars);
+        return;
+    memcpy(m_pChars.data(), str.m_pChars.data() + nOffset, nLen);
 }
 
 // Copy a string
 void MHOctetString::Copy(const MHOctetString &str)
 {
-    free(m_pChars);
-    m_pChars = nullptr;
-    m_nLength = str.m_nLength;
+    if (this == &str)
+        return;
 
-    if (str.m_pChars)
-    {
-        // Allocate a copy of the string.  For simplicity we always add a null.
-        m_pChars = (unsigned char *)malloc(m_nLength + 1);
-
-        if (m_pChars == nullptr)
-        {
-            throw "Out of memory";
-        }
-
-        memcpy(m_pChars, str.m_pChars, m_nLength);
-        m_pChars[m_nLength] = 0;
-    }
+    m_pChars = str.m_pChars;
 }
 
 // Print the string in a suitable format.
@@ -146,10 +104,8 @@ void MHOctetString::PrintMe(FILE *fd, int /*nTabs*/) const
 {
     putc('\'', fd);
 
-    for (int i = 0; i < m_nLength; i++)
+    for (const uint8_t ch : as_const(m_pChars))
     {
-        unsigned char ch = m_pChars[i];
-
         // Escape a non-printable character or an equal sign or a quote.
         if (ch == '=' || ch == '\'' || ch < ' ' || ch >= 127)
         {
@@ -167,16 +123,14 @@ void MHOctetString::PrintMe(FILE *fd, int /*nTabs*/) const
 // Test strings.
 int MHOctetString::Compare(const MHOctetString &str) const
 {
-    int nLength = m_nLength;
-
-    nLength = std::min(nLength, str.m_nLength);
+    int nLength = std::min(Size(), str.Size());
 
     // Test up to the length of the shorter string.
     int nTest = 0;
 
     if (nLength > 0)
     {
-        nTest = memcmp(str.m_pChars, m_pChars, nLength);
+        nTest = memcmp(str.m_pChars.data(), m_pChars.data(), nLength);
     }
 
     // If they differ return the result
@@ -186,11 +140,11 @@ int MHOctetString::Compare(const MHOctetString &str) const
     }
 
     // If they are the same then the longer string is greater.
-    if (m_nLength == str.m_nLength)
+    if (m_pChars.size() == str.m_pChars.size())
     {
         return 0;
     }
-    if (m_nLength < str.m_nLength)
+    if (m_pChars.size() < str.m_pChars.size())
     {
         return -1;
     }
@@ -200,24 +154,16 @@ int MHOctetString::Compare(const MHOctetString &str) const
 // Add text to the end of the string.
 void MHOctetString::Append(const MHOctetString &str)
 {
-    if (str.m_nLength == 0)
+    if (str.m_pChars.empty())
     {
         return;    // Nothing to do and it simplifies the code
     }
 
-    int newLen = m_nLength + str.m_nLength;
-    // Allocate a new string big enough to contain both and initialised to the first string.
-    auto *p = (unsigned char *)realloc(m_pChars, newLen);
-
-    if (p == nullptr)
-    {
-        throw "Out of memory";
-    }
-
-    m_pChars = p;
-    // Copy the second string onto the end of the first.
-    memcpy(m_pChars + m_nLength, str.m_pChars, str.m_nLength);
-    m_nLength = newLen;
+#ifdef __cpp_lib_containers_ranges
+    m_pChars.append_range(str.m_pChars);
+#else
+    m_pChars.insert(m_pChars.end(), str.m_pChars.cbegin(), str.m_pChars.cend());
+#endif
 }
 
 // Colour
