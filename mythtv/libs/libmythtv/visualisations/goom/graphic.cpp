@@ -1,4 +1,5 @@
 #include "graphic.h"
+#include <vector>
 
 const Color BLACK = { 0, 0, 0 };
 const Color WHITE = { 0xff, 0xff, 0xff };
@@ -13,7 +14,7 @@ unsigned int SIZE;
 unsigned int HEIGHT;
 unsigned int WIDTH;
 
-int    *rand_tab = nullptr;
+std::vector<int> rand_tab;
 //unsigned short int rand_pos = 0;
 /*
 inline unsigned int RAND(void)
