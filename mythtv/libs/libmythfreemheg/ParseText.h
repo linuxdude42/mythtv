@@ -33,9 +33,11 @@ class MHParseText: public MHParseBase
 {
   public:
     explicit MHParseText(QByteArray &program)
-        : m_string((unsigned char *)malloc(100)),
-          m_data(program) {}
-    ~MHParseText() override;
+        : m_data(program)
+        {
+            m_string.reserve(100);
+        }
+    ~MHParseText() override = default;
 
     // Parse the text and return a pointer to the parse tree
     MHParseNode *Parse() override; // MHParseBase
@@ -58,8 +60,7 @@ class MHParseText: public MHParseBase
     int            m_nTag          {0};
     int            m_nInt          {0};
     bool           m_fBool         {false};
-    unsigned char *m_string        {nullptr};
-    int            m_nStringLength {0};
+    std::vector<uint8_t> m_string; // can contain NUL characters
 
     unsigned int   m_p             {0}; // Count of bytes read
     QByteArray     m_data;
