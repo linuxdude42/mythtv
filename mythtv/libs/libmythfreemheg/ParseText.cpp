@@ -39,11 +39,6 @@ This is very basic and is only there to enable some test programs to be run.
 #include "Engine.h"
 #include "Logging.h"
 
-MHParseText::~MHParseText()
-{
-    free(m_string);
-}
-
 // Get the next character.
 void MHParseText::GetNextChar()
 {
@@ -442,9 +437,7 @@ void MHParseText::NextSym()
             case '"': // Start of a string
             {
                 m_nType = PTString;
-                // MHEG strings can include NULs.  For the moment we pass back the length and also
-                // null-terminate the strings.
-                m_nStringLength = 0;
+                m_string.clear();
 
                 while (true)
                 {
@@ -466,26 +459,18 @@ void MHParseText::NextSym()
                     }
 
                     // We grow the buffer to the largest string in the input.
-                    auto *str = (unsigned char *)realloc(m_string, m_nStringLength + 2);
-
-                    if (str == nullptr)
-                    {
-                        Error("Insufficient memory");
-                    }
-
-                    m_string = str;
-                    m_string[m_nStringLength++] = m_ch;
+                    m_string.reserve(m_string.size() + 2);
+                    m_string.push_back(m_ch);
                 }
 
                 GetNextChar(); // Skip the closing quote
-                m_string[m_nStringLength] = 0;
                 return;
             }
 
             case '\'': // Start of a string using quoted printable
             {
                 m_nType = PTString;
-                m_nStringLength = 0;
+                m_string.clear();
 
                 // Quotable printable strings contain escape sequences beginning with the
                 // escape character '='.  The strings can span lines but each line must
@@ -568,19 +553,11 @@ void MHParseText::NextSym()
                     }
 
                     // We grow the buffer to the largest string in the input.
-                    auto *str = (unsigned char *)realloc(m_string, m_nStringLength + 2);
-
-                    if (str == nullptr)
-                    {
-                        Error("Insufficient memory");
-                    }
-
-                    m_string = str;
-                    m_string[m_nStringLength++] = m_ch;
+                    m_string.reserve(m_string.size() + 2);
+                    m_string.push_back(m_ch);
                 }
 
                 GetNextChar(); // Skip the closing quote
-                m_string[m_nStringLength] = 0;
                 return;
             }
 
@@ -780,20 +757,11 @@ void MHParseText::NextSym()
                     if (buff.compare(colour.m_name, Qt::CaseInsensitive) == 0)
                     {
                         m_nType = PTString;
-                        auto *str = (unsigned char *)realloc(m_string, 4 + 1);
-
-                        if (str == nullptr)
-                        {
-                            Error("Insufficient memory");
-                        }
-
-                        m_string = str;
+                        m_string.resize(4);
                         m_string[0] = colour.m_r;
                         m_string[1] = colour.m_g;
                         m_string[2] = colour.m_b;
                         m_string[3] = colour.m_t;
-                        m_nStringLength = 4;
-                        m_string[m_nStringLength] = 0;
                         return;
                     }
                 }
@@ -1054,7 +1022,7 @@ MHParseNode *MHParseText::DoParse()
             case PTString:
             {
                 MHOctetString str;
-                str.Copy(MHOctetString((const char *)m_string, m_nStringLength));
+                str.Copy(MHOctetString((const char *)m_string.data(), m_string.size()));
                 pRes = new MHPString(str);
                 NextSym();
                 break;
