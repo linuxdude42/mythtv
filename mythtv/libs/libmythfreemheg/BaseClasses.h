@@ -112,26 +112,25 @@ class MHOctetString
     MHOctetString(const unsigned char *str, int nLen); // From byte vector
     MHOctetString(const MHOctetString &str, int nOffset=0, int nLen=-1); // Substring
     MHOctetString(const MHOctetString& o) { Copy(o); }
-    virtual ~MHOctetString();
+    virtual ~MHOctetString() = default;
 
     void Copy(const MHOctetString &str);
     MHOctetString& operator=(const MHOctetString& o)
         { if (this==&o) return *this; Copy(o); return *this; }
-    int Size() const { return m_nLength; }
+    int Size() const { return m_pChars.size(); }
     // Comparison - returns <0, =0, >0 depending on the ordering.
     int Compare(const MHOctetString &str) const;
     bool Equal(const MHOctetString &str) const { return Compare(str) == 0; }
     unsigned char GetAt(int i) const { MHASSERT(i >= 0 && i < Size()); return m_pChars[i]; }
-    const unsigned char *Bytes() const { return m_pChars; } // Read-only pointer to the buffer.
+    const unsigned char *Bytes() const { return m_pChars.data(); } // Read-only pointer to the buffer.
     void Append(const MHOctetString &str); // Add text to the end of the string.
 
-    QString Printable() const { return QString::fromLatin1((const char*)m_pChars, m_nLength); }
+    QString Printable() const { return QString::fromLatin1((const char*)m_pChars.data(), m_pChars.size()); }
 
     void PrintMe(FILE *fd, int nTabs) const;
 
 protected:
-    int            m_nLength {0};
-    unsigned char *m_pChars {nullptr};
+    std::vector<uint8_t> m_pChars;
 };
 
 // A colour is encoded as a string or the index into a palette.
