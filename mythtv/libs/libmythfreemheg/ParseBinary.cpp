@@ -59,21 +59,15 @@ void MHParseBinary::ParseString(int endStr, MHOctetString &str)
     }
 
     int nLength = endStr - m_p;
-    auto *stringValue = (unsigned char *)malloc(nLength + 1);
-    if (stringValue == nullptr)
-    {
-        MHERROR("Out of memory");
-    }
-
-    unsigned char *p = stringValue;
+    std::vector<uint8_t> stringValue;
+    stringValue.reserve(nLength + 1);
 
     while (m_p < endStr)
     {
-        *p++ = GetNextChar();
+        stringValue.push_back(GetNextChar());
     }
 
-    str.Copy(MHOctetString((const char *)stringValue, nLength));
-    free(stringValue);
+    str.Copy(MHOctetString((const char *)stringValue.data(), nLength));
 }
 
 // Parse an integer argument.  Also used for bool and enum.
