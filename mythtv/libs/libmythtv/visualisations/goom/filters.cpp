@@ -37,7 +37,8 @@ static constexpr int8_t EFFECT_DISTORS_SL { 2 };
 extern volatile guint32 resolx;
 extern volatile guint32 c_resoly;
 
-void c_zoom (unsigned int *expix1, unsigned int *expix2, unsigned int prevX, unsigned int prevY, const signed int *brutS, const signed int *brutD);
+void c_zoom (unsigned int *expix1, unsigned int *expix2, unsigned int prevX, unsigned int prevY,
+             const std::vector<signed int>& brutS, const std::vector<signed int>& brutD);
 
 /* Prototype to keep gcc from spewing warnings */
 static void select_zoom_filter (void);
@@ -87,7 +88,7 @@ guint32 mmx_zoom_size;
 extern unsigned int useAltivec;
 extern const void ppc_zoom (unsigned int *frompixmap, unsigned int *topixmap,
                             unsigned int sizex, unsigned int sizey,
-                            unsigned int *brutS, unsigned int *brutD,
+                            std::vector<signed int>& brutS, std::vector<signed int>& brutD,
                             unsigned int buffratio, GoomCoefficients &precalCoef);
 
 #endif /* PowerPC */
@@ -97,9 +98,9 @@ extern const void ppc_zoom (unsigned int *frompixmap, unsigned int *topixmap,
 
 unsigned int *coeffs = nullptr, *freecoeffs = nullptr;
 
-signed int *brutS = nullptr, *freebrutS = nullptr;	// source
-signed int *brutD = nullptr, *freebrutD = nullptr;	// dest
-signed int *brutT = nullptr, *freebrutT = nullptr;	// temp (en cours de génération)
+std::vector<signed int> brutS;	// source
+std::vector<signed int> brutD;	// dest
+std::vector<signed int> brutT;	// temp (en cours de génération)
 
 // TODO : virer
 guint32 *expix1 = nullptr;				// pointeur exporte vers p1
@@ -400,7 +401,7 @@ getPixelRGB_ (const Uint * buffer, Uint x, Color * c)
 
 void c_zoom (unsigned int *lexpix1, unsigned int *lexpix2,
              unsigned int lprevX, unsigned int lprevY,
-             const signed int *lbrutS, const signed int *lbrutD)
+             const std::vector<signed int>& lbrutS, const std::vector<signed int>& lbrutD)
 {
 	Color   couleur {};
 //	unsigned int coefv, coefh;
@@ -505,15 +506,9 @@ zoomFilterFastRGB (Uint * pix1, Uint * pix2, ZoomFilterData * zf, Uint resx, Uin
 		prevX = resx;
 		prevY = resy;
 
-		if (brutS)
-			free (freebrutS);
-		brutS = nullptr;
-		if (brutD)
-			free (freebrutD);
-		brutD = nullptr;
-		if (brutT)
-			free (freebrutT);
-		brutT = nullptr;
+		brutS.clear();
+		brutD.clear();
+		brutT.clear();
 
 		middleX = resx / 2;
 		middleY = resy - 1;
@@ -553,14 +548,9 @@ zoomFilterFastRGB (Uint * pix1, Uint * pix2, ZoomFilterData * zf, Uint resx, Uin
 			generatePrecalCoef ();
 			select_zoom_filter ();
 
-			freebrutS = (signed int *) calloc ((resx * resy * 2) + 128, sizeof(signed int));
-			brutS = (signed int *) ((1 + ((uintptr_t) (freebrutS)) / 128) * 128);
-
-			freebrutD = (signed int *) calloc ((resx * resy * 2) + 128, sizeof(signed int));
-			brutD = (signed int *) ((1 + ((uintptr_t) (freebrutD)) / 128) * 128);
-
-			freebrutT = (signed int *) calloc ((resx * resy * 2) + 128, sizeof(signed int));
-			brutT = (signed int *) ((1 + ((uintptr_t) (freebrutT)) / 128) * 128);
+			brutS.resize(resx * resy * 2);
+			brutD.resize(resx * resy * 2);
+			brutT.resize(resx * resy * 2);
 
 			/** modif here by jeko : plus de multiplications **/
 			{
@@ -652,12 +642,9 @@ zoomFilterFastRGB (Uint * pix1, Uint * pix2, ZoomFilterData * zf, Uint resx, Uin
 			}
 			buffratio = 0;
 
-            signed int * tmp = brutD;
+	    std::vector<signed int> tmp = brutD;
             brutD=brutT;
             brutT=tmp;
-            tmp = freebrutD;
-            freebrutD=freebrutT;
-            freebrutT=tmp;
             s_interlaceStart = -2;
         }
 

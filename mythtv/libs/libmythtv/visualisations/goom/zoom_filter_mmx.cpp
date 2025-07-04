@@ -26,7 +26,9 @@ int zoom_filter_mmx_supported () {
 
 void zoom_filter_mmx (int prevX, int prevY,
                       const unsigned int *expix1, unsigned int *expix2,//NOLINT(readability-non-const-parameter)
-                      const int *brutS, const int *brutD, int buffratio,
+                      const std::vector<signed int>& brutS,
+                      const std::vector<signed int>& brutD,
+                      int buffratio,
                       const GoomCoefficients &precalCoef)
 {
     unsigned int ax = (prevX-1)<<PERTEDEC;
@@ -136,8 +138,8 @@ void zoom_filter_mmx ([[maybe_unused]] int prevX,
                       [[maybe_unused]] int prevY,
                       [[maybe_unused]] const unsigned int *expix1,
                       [[maybe_unused]] unsigned int *expix2,
-                      [[maybe_unused]] const int *brutS,
-                      [[maybe_unused]] const int *brutD,
+                      [[maybe_unused]] const std::vector<signed int>& brutS,
+                      [[maybe_unused]] const std::vector<signed int>& brutD,
                       [[maybe_unused]] int buffratio,
                       [[maybe_unused]] const GoomCoefficients &precalCoef)
 {
