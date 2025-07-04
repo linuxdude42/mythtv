@@ -81,7 +81,7 @@ void goom_init (guint32 resx, guint32 resy, int cinemascope) {
 	back.resize(buffsize);
 	//RAND_INIT ();
 	srand ((uintptr_t) pixel.data()); // initialize based on random buffer addresses
-	if (!rand_tab) rand_tab = (int *) malloc (NB_RAND * sizeof(int)) ;
+	if (rand_tab.empty()) rand_tab.resize(NB_RAND) ;
 	for (size_t i = 0; i < NB_RAND; i++)
 		rand_tab[i] = goom_rand();
 	rand_pos = 0;
