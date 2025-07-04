@@ -30,14 +30,16 @@ int zoom_filter_xmmx_supported () {
 
 void zoom_filter_xmmx (int prevX, int prevY,
                        unsigned int *expix1, unsigned int *expix2,
-                       const int *lbruS, const int *lbruD, int buffratio,
+                       const std::vector<signed int>& lbruS,
+                       const std::vector<signed int>& lbruD,
+                       int buffratio,
                        GoomCoefficients& precalCoef)
 {
   int bufsize = prevX * prevY; /* taille du buffer */
   volatile int loop;                    /* variable de boucle */
 
-	mmx_t *brutS = (mmx_t*)lbruS; /* buffer de transformation source */
-	mmx_t *brutD = (mmx_t*)lbruD; /* buffer de transformation dest */
+	mmx_t *brutS = (mmx_t*)lbruS.data(); /* buffer de transformation source */
+	mmx_t *brutD = (mmx_t*)lbruD.data(); /* buffer de transformation dest */
 
   volatile mmx_t prevXY;
 	volatile mmx_t ratiox;
@@ -255,8 +257,8 @@ void zoom_filter_xmmx ([[maybe_unused]] int prevX,
                        [[maybe_unused]] int prevY,
                        [[maybe_unused]] unsigned int *expix1,
                        [[maybe_unused]] unsigned int *expix2,
-                       [[maybe_unused]] const int *brutS,
-                       [[maybe_unused]] const int *brutD,
+                       [[maybe_unused]] const std::vector<signed int>& brutS,
+                       [[maybe_unused]] const std::vector<signed int>& brutD,
                        [[maybe_unused]] int buffratio,
                        [[maybe_unused]] GoomCoefficients& precalCoef)
 {
