@@ -165,19 +165,7 @@ static void SetLength(std::vector<uint8_t> &Data, int Length)
   Data[len_offset] = (Data.size() - len_offset) | SIZE_INDICATOR;
 }
 
-static char *CopyString(int Length, const uint8_t *Data)
-///< Copies the string at Data.
-///< \param Length The number of bytes to copy from Data.
-///< \param Data A pointer to current location for reading data.
-///< \return Returns a pointer to a newly allocated string.
-{
-  char *s = (char *)malloc(Length + 1);
-  strncpy(s, (char *)Data, Length);
-  s[Length] = 0;
-  return s;
-}
-
-static char *GetString(int &Length, const uint8_t **Data)
+static std::string GetString(int &Length, const uint8_t **Data)
 ///< Gets the string at Data.
 ///< Upon return Length and Data represent the remaining data after the string has been copied off.
 ///< \param[in,out] Length The number of bytes to copy from Data. Updated for
@@ -189,12 +177,12 @@ static char *GetString(int &Length, const uint8_t **Data)
   if (Length > 0 && Data && *Data) {
      int l = 0;
      const uint8_t *d = GetLength(*Data, l);
-     char *s = CopyString(l, d);
+     auto s = std::string(reinterpret_cast<const char*>(d), l);
      Length -= d - *Data + l;
      *Data = d + l;
      return s;
      }
-  return nullptr;
+  return {};
 }
 
 
@@ -1243,7 +1231,7 @@ enum ANSWER_IDS : std::uint8_t {
 
 class cCiMMI : public cCiSession {
 private:
-  char *GetText(int &Length, const uint8_t **Data);
+  std::string GetText(int &Length, const uint8_t **Data);
   cCiMenu    *m_menu;
   cCiEnquiry *m_enquiry;
 public:
@@ -1271,7 +1259,7 @@ cCiMMI::~cCiMMI()
   delete m_enquiry;
 }
 
-char *cCiMMI::GetText(int &Length, const uint8_t **Data)
+std::string cCiMMI::GetText(int &Length, const uint8_t **Data)
 ///< Gets the text at Data.
 ///< \param[in,out] Length The number of bytes to copy from Data. Updated for
 ///                 the size of the string read.
@@ -1282,12 +1270,12 @@ char *cCiMMI::GetText(int &Length, const uint8_t **Data)
 {
   int Tag = GetTag(Length, Data);
   if (Tag == AOT_TEXT_LAST) {
-     char *s = GetString(Length, Data);
-     dbgprotocol("%d: <== Text Last '%s'\n", SessionId(), s);
+     std::string s = GetString(Length, Data);
+     dbgprotocol("%d: <== Text Last '%s'\n", SessionId(), s.data());
      return s;
      }
   esyslog("CI MMI: unexpected text tag: %06X", Tag);
-  return nullptr;
+  return {};
 }
 
 bool cCiMMI::Process(int Length, const uint8_t *Data)
@@ -1332,10 +1320,9 @@ bool cCiMMI::Process(int Length, const uint8_t *Data)
                if (l > 0) m_menu->m_subTitleText = GetText(l, &d);
                if (l > 0) m_menu->m_bottomText = GetText(l, &d);
                while (l > 0) {
-                     char *s = GetText(l, &d);
-                     if (s) {
-                        if (!m_menu->AddEntry(s))
-                           free(s);
+                     std::string s = GetText(l, &d);
+                     if (!s.empty()) {
+                        m_menu->AddEntry(s);
                         }
                      else {
                         break;
@@ -1358,7 +1345,7 @@ bool cCiMMI::Process(int Length, const uint8_t *Data)
                m_enquiry->m_expectedLength = *d++;
                l--;
                // I really wonder why there is no text length field here...
-               m_enquiry->m_text = CopyString(l, d);
+               m_enquiry->m_text = std::string(reinterpret_cast<const char*>(d), l);
                }
             }
             break;
@@ -1443,10 +1430,10 @@ cCiMenu::~cCiMenu()
       free(m_entries[i]);
 }
 
-bool cCiMenu::AddEntry(char *s)
+bool cCiMenu::AddEntry(std::string& s)
 {
   if (m_numEntries < MAX_CIMENU_ENTRIES) {
-     m_entries[m_numEntries++] = s;
+     m_entries[m_numEntries++] = strdup(s.data());
      return true;
      }
   return false;
@@ -1465,11 +1452,6 @@ bool cCiMenu::Cancel(void)
 }
 
 // --- cCiEnquiry ------------------------------------------------------------
-
-cCiEnquiry::~cCiEnquiry()
-{
-  free(m_text);
-}
 
 bool cCiEnquiry::Reply(const char *s)
 {
