@@ -150,15 +150,14 @@ class BiopBinding
 {
   public:
     BiopBinding() = default;
-    ~BiopBinding();
+    ~BiopBinding() = default;
 
     int Process(const unsigned char *data);
 
     BiopName      m_name;
     char          m_bindingType  {0};
     BiopIor       m_ior;
-    unsigned int  m_objInfoLen   {0};
-    char         *m_objInfo      {nullptr};
+    std::string   m_objInfo;
 };
 
 class ObjCarousel;
@@ -167,7 +166,7 @@ class BiopMessage
 {
   public:
     BiopMessage() = default;
-    ~BiopMessage();
+    ~BiopMessage() = default;
 
     bool Process(DSMCCCacheModuleData *cachep, DSMCCCache *cache,
                  unsigned char *data, unsigned long *curp);
@@ -189,11 +188,10 @@ class BiopMessage
     unsigned int   m_messageSize  {0};
     DSMCCCacheKey  m_objKey;
     unsigned long  m_objKindLen   {0};
-    unsigned int   m_objInfoLen   {0};
-    char          *m_objInfo      {nullptr};
+    std::string    m_objInfo;
 
   public:
-    char          *m_objKind       {nullptr};
+    std::string    m_objKind;
 };
 
 // Data extracted from the descriptors in a BiopModuleInfo message
