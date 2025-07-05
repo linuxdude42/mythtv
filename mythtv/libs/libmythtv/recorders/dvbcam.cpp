@@ -157,9 +157,9 @@ void DVBCam::HandleUserIO(void)
     cCiEnquiry* enq = m_ciHandler->GetEnquiry();
     if (enq != nullptr)
     {
-        if (enq->Text() != nullptr)
+        if (!enq->Text().empty())
             LOG(VB_DVBCAM, LOG_INFO, LOC + QString("CAM: Received message: %1")
-                    .arg(enq->Text()));
+                    .arg(enq->Text().data()));
         delete enq;
     }
 
