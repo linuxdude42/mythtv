@@ -949,13 +949,13 @@ private:
   uint8_t   m_applicationType;
   uint16_t  m_applicationManufacturer;
   uint16_t  m_manufacturerCode;
-  char     *m_menuString;
+  std::string m_menuString;
 public:
   cCiApplicationInformation(int SessionId, cCiTransportConnection *Tc);
-  ~cCiApplicationInformation() override;
+  ~cCiApplicationInformation() override = default;
   bool Process(int Length = 0, const uint8_t *Data = nullptr) override; // cCiSession
   bool EnterMenu(void);
-  char    *GetApplicationString()       { return strdup(m_menuString); };
+  char    *GetApplicationString()       { return strdup(m_menuString.data()); };
   uint16_t GetApplicationManufacturer() const { return m_applicationManufacturer; };
   uint16_t GetManufacturerCode() const        { return m_manufacturerCode; };
   };
@@ -969,12 +969,6 @@ cCiApplicationInformation::cCiApplicationInformation(int SessionId, cCiTransport
   m_applicationType = 0;
   m_applicationManufacturer = 0;
   m_manufacturerCode = 0;
-  m_menuString = nullptr;
-}
-
-cCiApplicationInformation::~cCiApplicationInformation()
-{
-  free(m_menuString);
 }
 
 bool cCiApplicationInformation::Process(int Length, const uint8_t *Data)
@@ -997,9 +991,8 @@ bool cCiApplicationInformation::Process(int Length, const uint8_t *Data)
             if (l < 0) break;
             m_manufacturerCode = ntohs(*(uint16_t *)d);
             d += 2;
-            free(m_menuString);
             m_menuString = GetString(l, &d);
-            isyslog("CAM: %s, %02X, %04X, %04X", m_menuString, m_applicationType,
+            isyslog("CAM: %s, %02X, %04X, %04X", m_menuString.data(), m_applicationType,
                             m_applicationManufacturer, m_manufacturerCode);
             }
             m_state = 2;
