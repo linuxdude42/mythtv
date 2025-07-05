@@ -18,16 +18,17 @@ struct GMUnitPointer
 };
 
 // tableau de points
+static const int LINENUMPOINTS { 512 };
+using GMUnitArray = std::array<GMUnitPointer,LINENUMPOINTS>;
 struct GMLine
 {
-	GMUnitPointer *points;
-	GMUnitPointer *points2;
+	GMUnitArray points;
+	GMUnitArray points2;
 	int     IDdest;
 	float   param;
 	float   amplitudeF;
 	float   amplitude;
 
-	int     nbPoints;
 	uint32_t color;
 	uint32_t color2;
 
