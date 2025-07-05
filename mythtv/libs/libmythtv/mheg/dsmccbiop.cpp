@@ -525,11 +525,13 @@ int ProfileBodyFull::Process(const unsigned char *data)
 int BiopIor::Process(const unsigned char *data)
 {
     int off = 0;
-    m_typeIdLen = COMBINE32(data, 0);
-    m_typeId = (char*) malloc(m_typeIdLen);
+    uint len = COMBINE32(data, 0);
     off += 4;
-    memcpy(m_typeId, data + off, m_typeIdLen);
-    off += m_typeIdLen;
+    m_typeId = std::string((char*)data + off, len);
+    // Strip NUL characters from the end
+    while (!m_typeId.empty() && (m_typeId.back() == 0))
+        m_typeId.pop_back();
+    off += len;
 
     m_taggedProfilesCount = COMBINE32(data, off);
     if (m_taggedProfilesCount < 1)
