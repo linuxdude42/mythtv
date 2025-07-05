@@ -5,8 +5,8 @@
 #include <vector>
 
 struct surf3d {
-	v3d *vertex;
-	v3d *svertex;
+	std::vector<v3d> vertex;
+	std::vector<v3d> svertex;
 	int nbvertex;
 
 	v3d center;
