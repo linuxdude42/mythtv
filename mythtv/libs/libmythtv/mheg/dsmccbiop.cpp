@@ -13,28 +13,24 @@
 #include "dsmccobjcarousel.h"
 #include "dsmcc.h"
 
-BiopNameComp::~BiopNameComp()
-{
-    if (m_id)
-        free(m_id);
-    if (m_kind)
-        free(m_kind);
-}
-
 int BiopNameComp::Process(const unsigned char *data)
 {
     int off = 0;
 
-    m_idLen     = data[off++];
-    m_id        = (char*) malloc(m_idLen);
-    memcpy(m_id, data + off, m_idLen);
+    uint len    = data[off++];
+    m_id        = std::string((char*)data + off, len);
 
-    off        += m_idLen;
-    m_kindLen   = data[off++];
-    m_kind      = (char*) malloc(m_kindLen);
-    memcpy(m_kind, data + off, m_kindLen);
+    off        += len;
+    len         = data[off++];
+    m_kind      = std::string((char*)data + off, len);
 
-    off        += m_kindLen;
+    off        += len;
+
+    // Remove any NUL characters at the end
+    while (!m_id.empty() && (m_id.back() == 0))
+        m_id.pop_back();
+    while (!m_kind.empty() && (m_kind.back() == 0))
+        m_kind.pop_back();
 
     return off;
 }
@@ -264,13 +260,13 @@ bool BiopMessage::ProcessDir(
 
         if (pDir && binding.m_name.m_compCount >= 1)
         {
-            if (strcmp("fil", binding.m_name.m_comps[0].m_kind) == 0)
+            if ("fil" == binding.m_name.m_comps[0].m_kind)
                 DSMCCCache::AddFileInfo(pDir, &binding);
-            else if (strcmp("dir", binding.m_name.m_comps[0].m_kind) == 0)
+            else if ("dir" == binding.m_name.m_comps[0].m_kind)
                 DSMCCCache::AddDirInfo(pDir, &binding);
             else
                 LOG(VB_DSMCC, LOG_WARNING, QString("[biop] ProcessDir unknown kind %1")
-                    .arg(binding.m_name.m_comps[0].m_kind));
+                    .arg(QString::fromStdString(binding.m_name.m_comps[0].m_kind)));
         }
     }
 
