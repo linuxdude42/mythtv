@@ -166,15 +166,15 @@ void DVBCam::HandleUserIO(void)
     cCiMenu* menu = m_ciHandler->GetMenu();
     if (menu != nullptr)
     {
-        if (menu->TitleText() != nullptr)
+        if (!menu->TitleText().empty())
             LOG(VB_DVBCAM, LOG_INFO, LOC + QString("CAM: Menu Title: %1")
-                    .arg(menu->TitleText()));
-        if (menu->SubTitleText() != nullptr)
+                    .arg(menu->TitleText().data()));
+        if (!menu->SubTitleText().empty())
             LOG(VB_DVBCAM, LOG_INFO, LOC + QString("CAM: Menu SubTitle: %1")
-                    .arg(menu->SubTitleText()));
-        if (menu->BottomText() != nullptr)
+                    .arg(menu->SubTitleText().data()));
+        if (!menu->BottomText().empty())
             LOG(VB_DVBCAM, LOG_INFO, LOC + QString("CAM: Menu BottomText: %1")
-                    .arg(menu->BottomText()));
+                    .arg(menu->BottomText().data()));
 
         for (int i=0; i<menu->NumEntries(); i++)
         {
