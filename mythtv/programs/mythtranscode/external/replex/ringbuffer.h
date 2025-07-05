@@ -40,7 +40,7 @@ using peek_poke_vec = std::vector<uint8_t>;
 		int read_pos;
 		int write_pos;
 		uint32_t size;
-		uint8_t *buffer;
+		std::vector<uint8_t> buffer;
 	};
 
 
