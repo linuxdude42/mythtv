@@ -20,14 +20,12 @@ class BiopNameComp
 {
   public:
     BiopNameComp() = default;
-    ~BiopNameComp();
+    ~BiopNameComp() = default;
 
     int Process(const unsigned char *data);
 
-    unsigned char  m_idLen    {0};
-    unsigned char  m_kindLen  {0};
-    char          *m_id       {nullptr};
-    char          *m_kind     {nullptr};
+    std::string    m_id;
+    std::string    m_kind;
 };
 
 class BiopName
