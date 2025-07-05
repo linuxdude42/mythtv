@@ -1750,9 +1750,6 @@ Piano::Piano()
 
     LOG(VB_GENERAL, LOG_DEBUG, QString("Piano : Being Initialised"));
 
-    m_pianoData = (piano_key_data *) malloc(sizeof(piano_key_data) * kPianoNumKeys);
-    m_audioData = (piano_audio *) malloc(sizeof(piano_audio) * kPianoAudioSize);
-
     double sample_rate = 44100.0;  // TODO : This should be obtained from gPlayer (likely candidate...)
 
     m_fps = 20; // This is the display frequency.   We're capturing all audio chunks by defining .process_undisplayed() though.
@@ -1783,14 +1780,6 @@ Piano::Piano()
     }
 
     zero_analysis();
-}
-
-Piano::~Piano()
-{
-    if (m_pianoData)
-        free(m_pianoData);
-    if (m_audioData)
-        free(m_audioData);
 }
 
 void Piano::zero_analysis(void)

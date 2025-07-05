@@ -13,6 +13,7 @@
 #define VISUALIZE_H
 
 // C++ headers
+#include <array>
 #include <vector>
 
 // Qt headers
@@ -357,7 +358,7 @@ struct piano_key_data {
 
   public:
     Piano();
-    ~Piano() override;
+    ~Piano() override = default;
 
     void resize(const QSize &size) override; // VisualBase
 
@@ -384,8 +385,8 @@ struct piano_key_data {
 
     std::chrono::milliseconds m_offsetProcessed  {0ms};
 
-    piano_key_data *m_pianoData        {nullptr};
-    piano_audio    *m_audioData        {nullptr};
+    std::array<piano_key_data,kPianoNumKeys> m_pianoData {};
+    std::array<piano_audio,kPianoAudioSize> m_audioData {};
 
     std::vector<double> m_magnitude;
 };
