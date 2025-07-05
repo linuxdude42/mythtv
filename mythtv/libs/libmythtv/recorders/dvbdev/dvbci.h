@@ -78,17 +78,15 @@ private:
   std::string m_titleText;
   std::string m_subTitleText;
   std::string m_bottomText;
-  char   *m_entries[MAX_CIMENU_ENTRIES] {};
-  int     m_numEntries   {0};
-  bool AddEntry(std::string& s);
+  std::vector<std::string> m_entries;
   cCiMenu(cCiMMI *MMI, bool Selectable);
 public:
-  ~cCiMenu();
   const std::string TitleText(void) { return m_titleText; }
   const std::string SubTitleText(void) { return m_subTitleText; }
   const std::string BottomText(void) { return m_bottomText; }
-  const char *Entry(int n) { return n < m_numEntries ? m_entries[n] : nullptr; }
-  int NumEntries(void) const { return m_numEntries; }
+  const std::string Entry(int n)
+        { if (n < static_cast<int>(m_entries.size())) return m_entries[n]; return {}; }
+  int NumEntries(void) const { return m_entries.size(); }
   bool Selectable(void) const { return m_selectable; }
   bool Select(int Index);
   bool Cancel(void);

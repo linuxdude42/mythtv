@@ -1330,7 +1330,7 @@ bool cCiMMI::Process(int Length, const uint8_t *Data)
                while (l > 0) {
                      std::string s = GetText(l, &d);
                      if (!s.empty()) {
-                        m_menu->AddEntry(s);
+                        m_menu->m_entries.push_back(s);
                         }
                      else {
                         break;
@@ -1430,26 +1430,12 @@ cCiMenu::cCiMenu(cCiMMI *MMI, bool Selectable)
   : m_mmi(MMI),
     m_selectable(Selectable)
 {
-}
-
-cCiMenu::~cCiMenu()
-{
-  for (int i = 0; i < m_numEntries; i++)
-      free(m_entries[i]);
-}
-
-bool cCiMenu::AddEntry(std::string& s)
-{
-  if (m_numEntries < MAX_CIMENU_ENTRIES) {
-     m_entries[m_numEntries++] = strdup(s.data());
-     return true;
-     }
-  return false;
+  m_entries.resize(MAX_CIMENU_ENTRIES);
 }
 
 bool cCiMenu::Select(int Index)
 {
-  if (m_mmi && -1 <= Index && Index < m_numEntries)
+  if (m_mmi && -1 <= Index && Index < static_cast<int>(m_entries.size()))
      return m_mmi->SendMenuAnswer(Index + 1);
   return false;
 }
