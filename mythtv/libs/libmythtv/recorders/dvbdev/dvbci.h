@@ -80,7 +80,7 @@ private:
   std::string m_bottomText;
   char   *m_entries[MAX_CIMENU_ENTRIES] {};
   int     m_numEntries   {0};
-  bool AddEntry(char *s);
+  bool AddEntry(std::string& s);
   cCiMenu(cCiMMI *MMI, bool Selectable);
 public:
   ~cCiMenu();
@@ -98,13 +98,13 @@ class cCiEnquiry {
   friend class cCiMMI;
 private:
   cCiMMI *m_mmi            {nullptr};
-  char   *m_text           {nullptr};
+  std::string m_text;
   bool    m_blind          {false};
   int     m_expectedLength {0};
   explicit cCiEnquiry(cCiMMI *MMI) : m_mmi(MMI) {}
 public:
-  ~cCiEnquiry();
-  const char *Text(void) { return m_text; }
+  ~cCiEnquiry() = default;
+  const std::string Text(void) { return m_text; }
   bool Blind(void) const { return m_blind; }
   int ExpectedLength(void) const { return m_expectedLength; }
   bool Reply(const char *s);
