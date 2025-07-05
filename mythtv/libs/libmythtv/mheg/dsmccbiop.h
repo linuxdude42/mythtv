@@ -130,15 +130,13 @@ class BiopIor
     BiopIor() = default;
     ~BiopIor()
     {
-        free(m_typeId);
         delete m_profileBody;
     }
  
     int Process(const unsigned char *data);
     void AddTap(Dsmcc *pStatus) const;
 
-    unsigned long  m_typeIdLen            {0};
-    char          *m_typeId               {nullptr};
+    std::string    m_typeId;
     unsigned long  m_taggedProfilesCount  {0};
     unsigned long  m_profileIdTag         {0};
     ProfileBody   *m_profileBody          {nullptr};
