@@ -80,27 +80,17 @@ int BiopBinding::Process(const unsigned char *data)
     else
         return ret; // Error
 
-    m_objInfoLen = (data[off] << 8) | data[off + 1];
+    uint len = (data[off] << 8) | data[off + 1];
     off += 2;
 
-    if (m_objInfoLen > 0)
-    {
-        m_objInfo = (char*) malloc(m_objInfoLen);
-        memcpy(m_objInfo, data + off, m_objInfoLen);
-    }
+    if (len > 0)
+        m_objInfo = std::vector<uint8_t>(data + off, data + off + len);
     else
-    {
-        m_objInfo = nullptr;
-    }
+        m_objInfo.clear();
 
-    off += m_objInfoLen;
+    off += len;
 
     return off;
-}
-
-BiopBinding::~BiopBinding()
-{
-    free(m_objInfo);
 }
 
 bool BiopMessage::Process(DSMCCCacheModuleData *cachep, DSMCCCache *filecache,
@@ -117,17 +107,17 @@ bool BiopMessage::Process(DSMCCCacheModuleData *cachep, DSMCCCache *filecache,
     }
 
     // Handle each message type
-    if (strcmp(m_objKind, "fil") == 0)
+    if (m_objKind == "fil")
     {
         LOG(VB_DSMCC, LOG_DEBUG, "[biop] Processing file");
         return ProcessFile(cachep, filecache, data, curp);
     }
-    if (strcmp(m_objKind, "dir") == 0)
+    if (m_objKind == "dir")
     {
         LOG(VB_DSMCC, LOG_DEBUG, "[biop] Processing directory");
         return ProcessDir(false, cachep, filecache, data, curp);
     }
-    if (strcmp(m_objKind, "srg") == 0)
+    if (m_objKind == "srg")
     {
         LOG(VB_DSMCC, LOG_DEBUG, "[biop] Processing gateway");
         return ProcessDir(true, cachep, filecache, data, curp);
@@ -138,12 +128,6 @@ bool BiopMessage::Process(DSMCCCacheModuleData *cachep, DSMCCCache *filecache,
         .arg(m_objKind[0]).arg(m_objKind[1])
         .arg(m_objKind[2]).arg(m_objKind[3]));
     return false;
-}
-
-BiopMessage::~BiopMessage()
-{
-    free(m_objInfo);
-    free(m_objKind);
 }
 
 bool BiopMessage::ProcessMsgHdr(const unsigned char *data, unsigned long *curp)
@@ -180,21 +164,22 @@ bool BiopMessage::ProcessMsgHdr(const unsigned char *data, unsigned long *curp)
     m_messageSize = COMBINE32(buf, off);
     off += 4;
 
-    uint nObjLen = buf[off++];
-    m_objKey = DSMCCCacheKey((const char*)buf + off, nObjLen);
-    off += nObjLen;
+    uint len = buf[off++];
+    m_objKey = DSMCCCacheKey((const char*)buf + off, len);
+    off += len;
 
-    m_objKindLen = COMBINE32(buf, off);
+    len = COMBINE32(buf, off);
     off += 4;
-    m_objKind = (char*) malloc(m_objKindLen);
-    memcpy(m_objKind, buf + off, m_objKindLen);
-    off += m_objKindLen;
+    m_objKind = std::string((char*)buf + off, len);
+    // Strip NUL characters from the end
+    while (!m_objKind.empty() && (m_objKind.back() == 0))
+        m_objKind.pop_back();
+    off += len;
 
-    m_objInfoLen = buf[off] << 8 | buf[off + 1];
+    len = buf[off] << 8 | buf[off + 1];
     off += 2;
-    m_objInfo = (char*) malloc(m_objInfoLen);
-    memcpy(m_objInfo, buf + off, m_objInfoLen);
-    off += m_objInfoLen;
+    m_objInfo = std::vector<uint8_t>(buf + off, buf + off + len);
+    off += len;
 
     (*curp) += off;
 
@@ -217,7 +202,7 @@ bool BiopMessage::ProcessDir(
     int off = 0;
     const unsigned char * const buf = data + (*curp);
 
-    if (m_objInfoLen)
+    if (!m_objInfo.empty())
         LOG(VB_DSMCC, LOG_WARNING, "[biop] ProcessDir non-zero objectInfo_length");
 
     const unsigned serviceContextList_count = buf[off++];
@@ -284,9 +269,9 @@ bool BiopMessage::ProcessFile(DSMCCCacheModuleData *cachep, DSMCCCache *filecach
     int off = 0;
     const unsigned char *buf = data + (*curp);
 
-    if (m_objInfoLen != 8)
+    if (m_objInfo.size() != 8)
         LOG(VB_DSMCC, LOG_WARNING, QString("[biop] ProcessFile objectInfo_length = %1")
-            .arg(m_objInfoLen));
+            .arg(m_objInfo.size()));
 
     const unsigned serviceContextList_count = buf[off++];
     if (serviceContextList_count)
