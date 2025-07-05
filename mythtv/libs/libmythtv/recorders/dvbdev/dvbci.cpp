@@ -1424,16 +1424,10 @@ cCiMenu::cCiMenu(cCiMMI *MMI, bool Selectable)
 {
 }
 
-cCiMenu::~cCiMenu()
-{
-  for (int i = 0; i < m_numEntries; i++)
-      free(m_entries[i]);
-}
-
 bool cCiMenu::AddEntry(std::string& s)
 {
   if (m_numEntries < MAX_CIMENU_ENTRIES) {
-     m_entries[m_numEntries++] = strdup(s.data());
+     m_entries[m_numEntries++] = s;
      return true;
      }
   return false;
