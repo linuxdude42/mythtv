@@ -178,9 +178,9 @@ void DVBCam::HandleUserIO(void)
 
         for (int i=0; i<menu->NumEntries(); i++)
         {
-            if (menu->Entry(i) != nullptr)
+            if (!menu->Entry(i).empty())
                 LOG(VB_DVBCAM, LOG_INFO, LOC + QString("CAM: Menu Entry: %1")
-                        .arg(menu->Entry(i)));
+                        .arg(menu->Entry(i).data()));
         }
 
         if (menu->Selectable())
