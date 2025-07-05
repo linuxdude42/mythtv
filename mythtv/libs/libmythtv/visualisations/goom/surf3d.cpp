@@ -7,20 +7,20 @@
 
 void grid3d_free(grid3d **grid)
 {
-    free ((*grid)->surf.vertex);
-    free ((*grid)->surf.svertex);
-    free (*grid);
+    (*grid)->surf.vertex.clear();
+    (*grid)->surf.svertex.clear();
+    delete *grid;
     *grid = nullptr;
 }
 
 grid3d *grid3d_new (int sizex, int defx, int sizez, int defz, v3d center) {
 	int x = defx;
 	int y = defz;
-	auto *g = (grid3d*)malloc (sizeof(grid3d));
+	auto *g = new grid3d;
 	surf3d *s = &(g->surf);
 	s->nbvertex = x*y;
-	s->vertex = (v3d*)malloc (sizeof(v3d)*x*y);
-	s->svertex = (v3d*)malloc(sizeof(v3d)*x*y);
+	s->vertex.resize(x*y);
+	s->svertex.resize(x*y);
 	s->center = center;
 	
 	g->defx=defx;
@@ -94,7 +94,7 @@ void surf3d_translate (surf3d *s) {
 	}
 }
 
-void grid3d_update (grid3d *g, float angle, const float *vals, float dist) {
+void grid3d_update (grid3d *g, float angle, const floatvec& vals, float dist) {
 	float cosa = NAN;
 	float sina = NAN;
 	surf3d *s = &(g->surf);
@@ -106,7 +106,7 @@ void grid3d_update (grid3d *g, float angle, const float *vals, float dist) {
 	SINCOS(angle,sina,cosa);
 
 	if (g->mode==0) {
-		if (vals)
+		if (static_cast<int>(vals.size()) >= g->defx)
 			for (int i=0;i<g->defx;i++)
 				s->vertex[i].y = (s->vertex[i].y*0.2F) + (vals[i]*0.8F);
 
