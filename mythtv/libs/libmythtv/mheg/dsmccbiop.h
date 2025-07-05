@@ -44,7 +44,7 @@ class BiopTap
 {
   public:
     BiopTap() = default;
-    ~BiopTap();
+    ~BiopTap() = default;
 
     int Process(const unsigned char *data);
 
@@ -53,7 +53,7 @@ class BiopTap
     // Only the association tag is currently used.
     unsigned short  m_assocTag      {0};
     unsigned short  m_selectorLen   {0};
-    char           *m_selectorData  {nullptr};
+    std::string     m_selector;
 };
 
 class BiopConnbinder
