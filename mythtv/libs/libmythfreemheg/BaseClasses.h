@@ -42,41 +42,40 @@ template <class BASE> class MHSequence {
     public:
         MHSequence() = default;
         // The destructor frees the vector but not the elements.
-        ~MHSequence() { free(reinterpret_cast<void*>(m_values)); }
+        ~MHSequence() { m_values.clear(); }
         // Get the current size.
-        int Size() const { return m_vecSize; }
+        int Size() const { return m_values.size(); }
         // Get an element at a particular index.
-        BASE GetAt(int i) const { MHASSERT(i >= 0 && i < m_vecSize); return m_values[i]; }
+        BASE GetAt(int i) const { MHASSERT(i >= 0 && i < Size()); return m_values[i]; }
         BASE operator[](int i) const { return GetAt(i); }
         // Add a new element at position n and move the existing element at that position
         // and anything above it up one place.
         void InsertAt(BASE b, int n) {
-            MHASSERT(n >= 0 && n <= m_vecSize);
-            // NOLINTNEXTLINE(bugprone-sizeof-expression)
-            BASE *ptr = (BASE*)realloc(reinterpret_cast<void*>(m_values), (m_vecSize+1) * sizeof(BASE));
-            if (ptr == nullptr) throw "Out of Memory";
-            m_values = ptr;
-            for (int i = m_vecSize; i > n; i--) m_values[i] = m_values[i-1];
+            MHASSERT(n >= 0 && n <= Size());
+            m_values.resize(m_values.size()+1);
+            for (int i = m_values.size(); i > n; i--) m_values[i] = m_values[i-1];
             m_values[n] = b;
-            m_vecSize++;
         }
         // Add an element to the end of the sequence.
-        void Append(BASE b) { InsertAt(b, m_vecSize); }
+        void Append(BASE b) { m_values.push_back(b); }
         // Remove an element and shift all the others down.
         void RemoveAt(int i) {
-            MHASSERT(i >= 0 && i < m_vecSize);
-            for (int j = i+1; j < m_vecSize; j++) m_values[j-1] = m_values[j];
-            m_vecSize--;
+            MHASSERT(i >= 0 && i < Size());
+            for (int j = i+1; j < Size(); j++) m_values[j-1] = m_values[j];
+            m_values.resize(m_values.size()-1);
         }
     protected:
-        int   m_vecSize {0};
-        BASE *m_values  {nullptr};
+        std::vector<BASE> m_values;
 };
 
 // As above, but it deletes the pointers when the sequence is destroyed.
 template <class BASE> class MHOwnPtrSequence: public MHSequence<BASE*> {
     public:
-        ~MHOwnPtrSequence() { for(int i = 0; i < MHSequence<BASE*>::m_vecSize; i++) delete(MHSequence<BASE*>::GetAt(i)); }
+        ~MHOwnPtrSequence()
+        {
+            for(int i = 0; i < static_cast<int>(MHSequence<BASE*>::m_values.size()); i++)
+                delete(MHSequence<BASE*>::GetAt(i));
+        }
 };
 
 
@@ -87,15 +86,17 @@ template <class BASE> class MHStack: protected MHSequence<BASE> {
         bool Empty() const { return Size() == 0; }
         // Pop an item from the stack.
         BASE Pop() {
-            MHASSERT(MHSequence<BASE>::m_vecSize > 0);
-            return MHSequence<BASE>::m_values[--MHSequence<BASE>::m_vecSize];
+            MHASSERT(Size() > 0);
+            BASE tmp = MHSequence<BASE>::m_values.back();
+            MHSequence<BASE>::m_values.pop_back();
+            return tmp;
         }
         // Push an element on the stack.
-        void Push(BASE b) { this->Append(b); }
+        void Push(BASE b) { MHSequence<BASE>::m_values.push_back(b); }
         // Return the top of the stack.
         BASE Top() { 
-            MHASSERT(MHSequence<BASE>::m_vecSize > 0);
-            return MHSequence<BASE>::m_values[MHSequence<BASE>::m_vecSize-1];
+            MHASSERT(Size() > 0);
+            return MHSequence<BASE>::m_values.back();
         }
         int Size() const { return MHSequence<BASE>::Size(); }
 };
