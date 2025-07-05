@@ -2356,11 +2356,9 @@ static void do_replex(struct replex *rx)
 	int video_ok = 0;
 	aok_arr ext_ok {};
 	int start=1;
-	multiplex_t mx;
-
+	multiplex_t mx {};
 
 	LOG(VB_GENERAL, LOG_INFO, "STARTING REPLEX");
-	memset(&mx, 0, sizeof(mx));
 
 	while (!replex_all_set(rx)){
 		if (replex_fill_buffers(rx, nullptr)< 0) {
@@ -2444,9 +2442,7 @@ int main(int argc, char **argv)
 	const char *type = "SVCD";
 	const char *inpt = "TS";
 
-	struct replex rx;
-
-	memset(&rx, 0, sizeof(struct replex));
+	struct replex rx {};
 
 	while (1) {
 		int option_index = 0;
