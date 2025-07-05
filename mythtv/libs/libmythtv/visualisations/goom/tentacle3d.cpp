@@ -18,10 +18,10 @@ static constexpr int8_t definitionz { 45 };
 
 static float cycle = 0.0F;
 static std::array<grid3d *,nbgrid> grille;
-static float *vals;
+static floatvec vals;
 
 void tentacle_free (void) {
-	free (vals);
+	vals.clear();
 	for (auto & tmp : grille) {
 		grid3d_free(&tmp);
 	}
@@ -29,7 +29,7 @@ void tentacle_free (void) {
 
 void tentacle_new (void) {
 	v3d center = {0,-17.0,0};
-	vals = (float*)malloc ((definitionx+20)*sizeof(float));
+	vals.resize(definitionx+20);
 	
 	for (auto & tmp : grille) {
 		int z = MythRandomInt(45, 74);
