@@ -58,6 +58,7 @@ MHOctetString::MHOctetString(const char *str, int nLen)
         }
 
         memcpy(m_pChars, str, nLen);
+        m_pChars[nLen] = '\0';
     }
 }
 
@@ -78,6 +79,7 @@ MHOctetString::MHOctetString(const unsigned char *str, int nLen)
         }
 
         memcpy(m_pChars, str, nLen);
+        m_pChars[nLen] = '\0';
     }
 }
 
@@ -107,6 +109,7 @@ MHOctetString::MHOctetString(const MHOctetString &str, int nOffset, int nLen)
         }
 
         memcpy(m_pChars, str.m_pChars + nOffset, nLen);
+        m_pChars[nLen] = '\0';
     }
 }
 
