@@ -1438,9 +1438,6 @@ cCiMenu::cCiMenu(cCiMMI *MMI, bool Selectable)
 
 cCiMenu::~cCiMenu()
 {
-  free(m_titleText);
-  free(m_subTitleText);
-  free(m_bottomText);
   for (int i = 0; i < m_numEntries; i++)
       free(m_entries[i]);
 }
