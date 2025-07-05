@@ -75,18 +75,18 @@ private:
   enum { MAX_CIMENU_ENTRIES = 64 }; ///< XXX is there a specified maximum?
   cCiMMI *m_mmi          {nullptr};
   bool    m_selectable;
-  char   *m_titleText    {nullptr};
-  char   *m_subTitleText {nullptr};
-  char   *m_bottomText   {nullptr};
+  std::string m_titleText;
+  std::string m_subTitleText;
+  std::string m_bottomText;
   char   *m_entries[MAX_CIMENU_ENTRIES] {};
   int     m_numEntries   {0};
   bool AddEntry(char *s);
   cCiMenu(cCiMMI *MMI, bool Selectable);
 public:
   ~cCiMenu();
-  const char *TitleText(void) { return m_titleText; }
-  const char *SubTitleText(void) { return m_subTitleText; }
-  const char *BottomText(void) { return m_bottomText; }
+  const std::string TitleText(void) { return m_titleText; }
+  const std::string SubTitleText(void) { return m_subTitleText; }
+  const std::string BottomText(void) { return m_bottomText; }
   const char *Entry(int n) { return n < m_numEntries ? m_entries[n] : nullptr; }
   int NumEntries(void) const { return m_numEntries; }
   bool Selectable(void) const { return m_selectable; }
