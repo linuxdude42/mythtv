@@ -94,7 +94,7 @@ void surf3d_translate (surf3d *s) {
 	}
 }
 
-void grid3d_update (grid3d *g, float angle, const float *vals, float dist) {
+void grid3d_update (grid3d *g, float angle, const std::vector<float>& vals, float dist) {
 	float cosa = NAN;
 	float sina = NAN;
 	surf3d *s = &(g->surf);
@@ -106,7 +106,7 @@ void grid3d_update (grid3d *g, float angle, const float *vals, float dist) {
 	SINCOS(angle,sina,cosa);
 
 	if (g->mode==0) {
-		if (vals)
+		if (static_cast<int>(vals.size()) >= g->defx)
 			for (int i=0;i<g->defx;i++)
 				s->vertex[i].y = (s->vertex[i].y*0.2F) + (vals[i]*0.8F);
 
