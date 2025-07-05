@@ -7,20 +7,20 @@
 
 void grid3d_free(grid3d **grid)
 {
-    free ((*grid)->surf.vertex);
-    free ((*grid)->surf.svertex);
-    free (*grid);
+    (*grid)->surf.vertex.clear();
+    (*grid)->surf.svertex.clear();
+    delete *grid;
     *grid = nullptr;
 }
 
 grid3d *grid3d_new (int sizex, int defx, int sizez, int defz, v3d center) {
 	int x = defx;
 	int y = defz;
-	auto *g = (grid3d*)malloc (sizeof(grid3d));
+	auto *g = new grid3d;
 	surf3d *s = &(g->surf);
 	s->nbvertex = x*y;
-	s->vertex = (v3d*)malloc (sizeof(v3d)*x*y);
-	s->svertex = (v3d*)malloc(sizeof(v3d)*x*y);
+	s->vertex.resize(x*y);
+	s->svertex.resize(x*y);
 	s->center = center;
 	
 	g->defx=defx;
