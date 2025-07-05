@@ -500,11 +500,10 @@ int ProfileBodyFull::Process(const unsigned char *data)
 int BiopIor::Process(const unsigned char *data)
 {
     int off = 0;
-    m_typeIdLen = COMBINE32(data, 0);
-    m_typeId = (char*) malloc(m_typeIdLen);
+    m_typeId.resize(COMBINE32(data, 0));
     off += 4;
-    memcpy(m_typeId, data + off, m_typeIdLen);
-    off += m_typeIdLen;
+    memcpy(m_typeId.data(), data + off, m_typeId.size());
+    off += m_typeId.size();
 
     m_taggedProfilesCount = COMBINE32(data, off);
     if (m_taggedProfilesCount < 1)
