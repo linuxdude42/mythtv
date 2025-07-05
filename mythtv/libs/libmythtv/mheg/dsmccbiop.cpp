@@ -390,13 +390,12 @@ int BiopTap::Process(const unsigned char *data)
     off += 2;
     m_assocTag = (data[off] << 8) | data[off + 1];
     off += 2;
-    m_selectorLen = data[off++];
-    m_selectorData = (char*) malloc(m_selectorLen);
-    memcpy(m_selectorData, data + off, m_selectorLen);
+    uint selectorLen = data[off++];
+    m_selector = std::vector<uint8_t>(data + off, data + off + selectorLen);
     if (m_use == 0x0016) // BIOP_DELIVERY_PARA_USE
     {
         unsigned selector_type = (data[off] << 8) | data[off + 1];
-        if (m_selectorLen >= 10 && selector_type == 0x0001)
+        if (selectorLen >= 10 && selector_type == 0x0001)
         {
             off += 2;
             unsigned long transactionId = COMBINE32(data, off);
@@ -405,11 +404,11 @@ int BiopTap::Process(const unsigned char *data)
             LOG(VB_DSMCC, LOG_DEBUG, QString("[biop] BIOP_DELIVERY_PARA_USE tag %1 id 0x%2 timeout %3uS")
                 .arg(m_assocTag).arg(transactionId,0,16).arg(timeout));
             off += 4;
-            m_selectorLen -= 10;
+            selectorLen -= 10;
         }
     }
 
-    off += m_selectorLen;
+    off += selectorLen;
     return off;
 }
 
@@ -577,9 +576,4 @@ void BiopIor::AddTap(Dsmcc *pStatus) const
     DSMCCCacheReference *ref = m_profileBody->GetReference();
     if (ref != nullptr)
         pStatus->AddTap(ref->m_nStreamTag, ref->m_nCarouselId);
-}
-
-BiopTap::~BiopTap()
-{
-    free(m_selectorData);
 }
