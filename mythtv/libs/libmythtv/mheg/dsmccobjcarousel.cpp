@@ -41,18 +41,18 @@ DSMCCCacheModuleData::~DSMCCCacheModuleData()
  *  \brief Add block to the module and create the module if it's now complete.
  *  \return data for the module if it is complete, nullptr otherwise.
  */
-unsigned char *DSMCCCacheModuleData::AddModuleData(DsmccDb *ddb,
+std::vector<uint8_t> DSMCCCacheModuleData::AddModuleData(DsmccDb *ddb,
                                                    const unsigned char *data)
 {
     if (m_version != ddb->m_moduleVersion)
     {
         LOG(VB_DSMCC, LOG_WARNING, QString("[dsmcc] Module %1 my version %2 != %3")
             .arg(ddb->m_moduleId).arg(m_version).arg(ddb->m_moduleVersion));
-        return nullptr; // Wrong version
+        return {}; // Wrong version
     }
 
     if (m_completed)
-        return nullptr; // Already got it.
+        return {}; // Already got it.
 
     if (ddb->m_blockNumber >= m_blocks.size())
     {
@@ -60,7 +60,7 @@ unsigned char *DSMCCCacheModuleData::AddModuleData(DsmccDb *ddb,
                                            "is larger than %3")
             .arg(ddb->m_moduleId).arg(ddb->m_blockNumber)
             .arg(m_blocks.size()));
-        return nullptr;
+        return {};
     }
 
     // Check if we have this block already or not. If not append to list
@@ -73,7 +73,7 @@ unsigned char *DSMCCCacheModuleData::AddModuleData(DsmccDb *ddb,
         LOG(VB_DSMCC, LOG_INFO, QString("[dsmcc] Module %1 block %2 dup: %3")
             .arg(ddb->m_moduleId).arg(ddb->m_blockNumber +1).arg(s));
 
-        return nullptr; // We have seen this block before.
+        return {}; // We have seen this block before.
     }
 
     // Add this to our set of blocks.
@@ -87,30 +87,30 @@ unsigned char *DSMCCCacheModuleData::AddModuleData(DsmccDb *ddb,
         .arg(m_receivedData).arg(m_moduleSize));
 
     if (m_receivedData < m_moduleSize)
-        return nullptr; // Not yet complete
+        return {}; // Not yet complete
 
     LOG(VB_DSMCC, LOG_INFO,
         QString("[dsmcc] Reconstructing module %1 from blocks")
             .arg(m_moduleId));
 
     // Re-assemble the blocks into the complete module.
-    auto *tmp_data = (unsigned char*) malloc(m_receivedData);
-    if (tmp_data == nullptr)
-        return nullptr;
-
-    uint curp = 0;
+    std::vector<uint8_t> tmp_data;
+    try {
+        tmp_data.reserve(m_receivedData);
+    } catch (const std::bad_alloc& e) {
+        return {};
+    } catch (...) {
+        throw;
+    }
     for (auto & block : m_blocks)
     {
         if (block == nullptr)
         {
             LOG(VB_DSMCC, LOG_INFO,
                 QString("[dsmcc] Null data found, aborting reconstruction"));
-            free(tmp_data);
-            return nullptr;
+            return {};
         }
-        uint size = block->size();
-        memcpy(tmp_data + curp, block->data(), size);
-        curp += size;
+        tmp_data.insert(tmp_data.end(), block->data(), block->data()+block->size());
         delete block;
         block = nullptr;
     }
@@ -123,17 +123,15 @@ unsigned char *DSMCCCacheModuleData::AddModuleData(DsmccDb *ddb,
                                         "compressed size %1, final size %2")
             .arg(m_moduleSize).arg(dataLen));
 
-        auto *uncompressed = (unsigned char*) malloc(dataLen);
-        int ret = uncompress(uncompressed, &dataLen, tmp_data, m_moduleSize);
+        std::vector<uint8_t> uncompressed;
+        uncompressed.resize(dataLen);
+        int ret = uncompress(uncompressed.data(), &dataLen, tmp_data.data(), m_moduleSize);
         if (ret != Z_OK)
         {
             LOG(VB_DSMCC, LOG_ERR, "[dsmcc] compression error, skipping");
-            free(tmp_data);
-            free(uncompressed);
-            return nullptr;
+            return {};
         }
 
-        free(tmp_data);
         tmp_data = uncompressed;
     }
 
@@ -235,8 +233,8 @@ void ObjCarousel::AddModuleData(DsmccDb *ddb, const unsigned char *data)
             (cachep->ModuleId() == ddb->m_moduleId))
         {
             // Add the block to the module
-            unsigned char *tmp_data = cachep->AddModuleData(ddb, data);
-            if (tmp_data)
+            std::vector<uint8_t> tmp_data = cachep->AddModuleData(ddb, data);
+            if (!tmp_data.empty())
             {
                 // It is complete and we have the data
                 unsigned int len   = cachep->DataSize();
@@ -249,10 +247,9 @@ void ObjCarousel::AddModuleData(DsmccDb *ddb, const unsigned char *data)
                 while (curp < len)
                 {
                     BiopMessage bm;
-                    if (!bm.Process(cachep, &m_fileCache, tmp_data, &curp))
+                    if (!bm.Process(cachep, &m_fileCache, tmp_data.data(), &curp))
                         break;
                 }
-                free(tmp_data);
             }
             return;
         }
