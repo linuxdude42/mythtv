@@ -437,8 +437,7 @@ static uint16_t scr_ext_ps(const uint8_t *scr)
 static void init_ps(ps_packet *p)
 {
         p->stuff_length=0xF8;
-        p->data = nullptr;
-        p->sheader_length = 0;
+        p->sheader.clear();
         p->audio_bound = 0;
         p->video_bound = 0;
         p->npes = 0;
@@ -446,21 +445,18 @@ static void init_ps(ps_packet *p)
 
 static void kill_ps(ps_packet *p)
 {
-        if (p->data)
-                free(p->data);
         init_ps(p);
 }
 
 static void setlength_ps(ps_packet *p)
 {
 	auto *ll = (short *) p->sheader_llength;
-	p->sheader_length = ntohs(*ll) - 6;
+	p->sheader.resize(ntohs(*ll) - 6);
 }
 
 static void setl_ps(ps_packet *p)
 {
         setlength_ps(p);
-        p->data = (uint8_t *) malloc(p->sheader_length);
 }
 
 
@@ -485,7 +481,7 @@ static int cwrite_ps(uint8_t *buf, ps_packet *p, uint32_t length)
 		count++;
 	}
 
-        if (p->sheader_length){
+        if (!p->sheader.empty()){
                 memcpy(buf+count,headr2.data(),4);
                 count += 4;
                 memcpy(buf+count,p->sheader_llength,2);
@@ -498,8 +494,8 @@ static int cwrite_ps(uint8_t *buf, ps_packet *p, uint32_t length)
 		count++;
 		memcpy(buf+count,&p->reserved,1);
 		count++;
-                memcpy(buf+count,p->data,p->sheader_length);
-                count += p->sheader_length;
+                memcpy(buf+count,p->sheader.data(),p->sheader.size());
+                count += p->sheader.size();
         }
 
         return count;
@@ -566,22 +562,18 @@ static int write_ps_header(uint8_t *buf,
 				     (video_lock << 6)|0x20|video_bound);
 		p.reserved = (uint8_t)(0xFF >> 1);
 
-                // The above setl_ps call causes a 0x12 byte data area
-                // to be allocated.
-                // NOLINTBEGIN(clang-analyzer-security.ArrayBound)
-		p.data[0] = 0xB9;  
-		p.data[1] = 0xE0;  
-		p.data[2] = 0xE8;  
-		p.data[3] = 0xB8;  
-		p.data[4] = 0xC0;  
-		p.data[5] = 0x20;  
-		p.data[6] = 0xbd;  
-		p.data[7] = 0xe0;  
-		p.data[8] = 0x3a;  
-		p.data[9] = 0xBF;  
-		p.data[10] = 0xE0;  
-		p.data[11] = 0x02;  
-                // NOLINTEND(clang-analyzer-security.ArrayBound)
+		p.sheader[0]  = 0xB9;
+		p.sheader[1]  = 0xE0;
+		p.sheader[2]  = 0xE8;
+		p.sheader[3]  = 0xB8;
+		p.sheader[4]  = 0xC0;
+		p.sheader[5]  = 0x20;
+		p.sheader[6]  = 0xbd;
+		p.sheader[7]  = 0xe0;
+		p.sheader[8]  = 0x3a;
+		p.sheader[9]  = 0xBF;
+		p.sheader[10] = 0xE0;
+		p.sheader[11] = 0x02;
 
 		cwrite_ps(buf, &p, PS_HEADER_L2);
 		kill_ps(&p);
