@@ -132,7 +132,7 @@ static inline void send_str (CC708Reader* cc, uint service_num)
 
 static void parse_cc_service_stream(CC708Reader* cc, uint service_num)
 {
-    const int blk_size = cc->m_bufSize[service_num];
+    const int blk_size = cc->m_buf[service_num].size();
     int blk_start = 0;
     int dlc_loc = 0;
     int rst_loc = 0;
@@ -266,7 +266,7 @@ static void parse_cc_service_stream(CC708Reader* cc, uint service_num)
                 LOG(VB_VBI, LOG_INFO, "eia-708 decoding error...");
                 cc->Reset(service_num);
                 cc->m_delayed[service_num] = false;
-                i = cc->m_bufSize[service_num];
+                i = cc->m_buf[service_num].size();
             }
             // There must be an incomplete code in buffer...
             break;
@@ -287,9 +287,9 @@ static void parse_cc_service_stream(CC708Reader* cc, uint service_num)
     // get rid of remaining bytes...
     if ((blk_size - i) > 0)
     {
-        memmove(cc->m_buf[service_num], cc->m_buf[service_num] + i,
+        memmove(cc->m_buf[service_num].data(), cc->m_buf[service_num].data() + i,
                 blk_size - i);
-        cc->m_bufSize[service_num] -= i;
+        cc->m_buf[service_num].resize(blk_size - i);
     }
     else
     {
@@ -302,7 +302,7 @@ static void parse_cc_service_stream(CC708Reader* cc, uint service_num)
                 msg += QString("0x%1 ").arg(cc->m_buf[service_num][i], 0, 16);
             LOG(VB_VBI, LOG_ERR, msg);
         }
-        cc->m_bufSize[service_num] = 0;
+        cc->m_buf[service_num].clear();
     }
 }
 
@@ -329,7 +329,7 @@ static int handle_cc_c0_ext1_p16(CC708Reader* cc, uint service_num, int i)
     else if (code<=0x17)
     {
         // double byte code
-        const int blk_size = cc->m_bufSize[service_num];
+        const int blk_size = cc->m_buf[service_num].size();
         if (EXT1==code && ((i+1)<blk_size))
         {
             const int code2 = cc->m_buf[service_num][i+1];
@@ -364,7 +364,7 @@ static int handle_cc_c0_ext1_p16(CC708Reader* cc, uint service_num, int i)
     else if (code<=0x1f)
     {
         // triple byte code
-        const int blk_size = cc->m_bufSize[service_num];
+        const int blk_size = cc->m_buf[service_num].size();
         if (P16==code && ((i+2)<blk_size))
         {
             // reserved for large alphabets, but not yet defined
@@ -377,10 +377,10 @@ static int handle_cc_c0_ext1_p16(CC708Reader* cc, uint service_num, int i)
 
 static int handle_cc_c1(CC708Reader* cc, uint service_num, int i)
 {
-    const int blk_size = cc->m_bufSize[service_num];
+    const int blk_size = cc->m_buf[service_num].size();
     const int code = cc->m_buf[service_num][i];
 
-    const unsigned char* blk_buf = cc->m_buf[service_num];
+    const unsigned char* blk_buf = cc->m_buf[service_num].data();
     if (code<=CW7)
     { // no paramaters
         send_str(cc, service_num);
@@ -513,7 +513,7 @@ static int handle_cc_c1(CC708Reader* cc, uint service_num, int i)
 
 static int handle_cc_c2(CC708Reader* cc, uint service_num, int i)
 {
-    const int blk_size = cc->m_bufSize[service_num];
+    const int blk_size = cc->m_buf[service_num].size();
     const int code = cc->m_buf[service_num][i+1];
 
     if ((code<=0x7) && ((i+1)<blk_size)){
@@ -540,8 +540,8 @@ static int handle_cc_c2(CC708Reader* cc, uint service_num, int i)
 
 static int handle_cc_c3(CC708Reader* cc, uint service_num, int i)
 {
-    const unsigned char* blk_buf = cc->m_buf[service_num];
-    const int blk_size = cc->m_bufSize[service_num];
+    const unsigned char* blk_buf = cc->m_buf[service_num].data();
+    const int blk_size = cc->m_buf[service_num].size();
     const int code = cc->m_buf[service_num][i+1];
 
     if ((code<=0x87) && ((i+5)<blk_size))
@@ -566,60 +566,26 @@ static int handle_cc_c3(CC708Reader* cc, uint service_num, int i)
     return i;
 }
 
-static bool rightsize_buf(CC708Reader* cc, uint service_num, uint block_size)
-{
-    size_t min_new_size = block_size + cc->m_bufSize[service_num];
-    bool ret = true;
-    if (min_new_size >= cc->m_bufAlloc[service_num])
-    {
-        size_t new_alloc = cc->m_bufAlloc[service_num];
-        for (uint i = 0; (i < 32) && (new_alloc <= min_new_size); i++)
-            new_alloc *= 2;
-        void *new_buf = realloc(cc->m_buf[service_num], new_alloc);
-        if (new_buf)
-        {
-            cc->m_buf[service_num] = (uchar *)new_buf;
-            cc->m_bufAlloc[service_num] = new_alloc;
-        }
-        else
-        {
-            ret = false;
-        }
-
-#if DEBUG_CC_SERVICE_2
-        LOG(VB_VBI, LOG_DEBUG, QString("rightsize_buf: srv %1 to %1 bytes")
-                .arg(service_num) .arg(cc->m_bufAlloc[service_num]));
-#endif
-    }
-    if (min_new_size >= cc->m_bufAlloc[service_num])
-    {
-        LOG(VB_VBI, LOG_ERR,
-            QString("buffer resize error: min_new_size=%1, buf_alloc[%2]=%3")
-            .arg(min_new_size)
-            .arg(service_num)
-            .arg(cc->m_bufAlloc[service_num]));
-    }
-    return ret;
-}
-
 static void append_cc(CC708Reader* cc, uint service_num,
                       const unsigned char* blk_buf, int block_size)
 {
-    if (!rightsize_buf(cc, service_num, block_size))
+    try
+    {
+        cc->m_buf[service_num].insert(cc->m_buf[service_num].end(),
+                                      blk_buf, blk_buf + block_size);
+    }
+    catch (std::exception&)
     {
         // The buffer resize failed. Drop the new data.
+        LOG(VB_VBI, LOG_DEBUG, QString("append_cc: srv %1 failed to add %2 bytes")
+            .arg(service_num).arg(block_size));
         return;
     }
-
-    memcpy(cc->m_buf[service_num] + cc->m_bufSize[service_num],
-           blk_buf, block_size);
-
-    cc->m_bufSize[service_num] += block_size;
 #if DEBUG_CC_SERVICE_2
     {
         uint i;
         QString msg("append_cc: ");
-        for (i = 0; i < cc->m_bufSize[service_num]; i++)
+        for (i = 0; i < cc->m_buf[service_num].size(); i++)
             msg += QString("0x%1").arg(cc->m_buf[service_num][i], 0, 16);
         LOG(VB_VBI, LOG_DEBUG, msg);
     }

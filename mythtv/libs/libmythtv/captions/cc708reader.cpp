@@ -14,22 +14,13 @@ CC708Reader::CC708Reader()
 {
     for (uint i=0; i < k708MaxServices; i++)
     {
-        m_bufAlloc[i]  = 512;
-        m_buf[i]       = (unsigned char*) malloc(m_bufAlloc[i]);
-        m_bufSize[i]   = 0;
+        m_buf[i].resize(0);
+        m_buf[i].reserve(512);
         m_delayed[i]   = false;
 
         m_tempStr[i].reserve(512);
     }
     m_cc708DelayedDeletes.fill(0);
-}
-
-CC708Reader::~CC708Reader()
-{
-    for (uint i=0; i < k708MaxServices; i++)
-    {
-        free(m_buf[i]);
-    }
 }
 
 void CC708Reader::ClearBuffers(void)
