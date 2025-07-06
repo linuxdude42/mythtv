@@ -151,9 +151,8 @@ void init_pes_in(pes_in_t *p, int t, ringbuffer *rb, int wi){
         p->mpeg = 0;
 	p->withbuf = wi;
 	
-	if (p->withbuf && !p->buf){
-		p->buf = static_cast<uchar*>(malloc(MAX_PLENGTH*sizeof(uint8_t)));
-		memset(p->buf,0,MAX_PLENGTH*sizeof(uint8_t));
+	if (p->withbuf && p->buf.empty()){
+		p->buf.resize(MAX_PLENGTH);
 	} else if (rb) {
 		p->rbuf = rb;
 	}
@@ -294,9 +293,9 @@ void get_pes (pes_in_t *p, uint8_t *buf, int count, void (*func)(pes_in_t *p))
 			case PRIVATE_STREAM1:
 
 				if (p->withbuf){
-					memcpy(p->buf, headr.data(), 3);
+					memcpy(p->buf.data(), headr.data(), 3);
 					p->buf[3] = p->cid;
-					memcpy(p->buf+4,p->plen,2);
+					memcpy(p->buf.data()+4,p->plen,2);
 				} else {
 					memcpy(p->hbuf, headr.data(), 3);
 					p->hbuf[3] = p->cid;
@@ -347,7 +346,7 @@ void get_pes (pes_in_t *p, uint8_t *buf, int count, void (*func)(pes_in_t *p))
 					if (l+p->found > p->plength+6)
 						l = p->plength+6-p->found;
 					if (p->withbuf)
-						memcpy(p->buf+p->found, buf+c, l);
+						memcpy(p->buf.data()+p->found, buf+c, l);
 					else {
 						if ( p->found < 
                                                      (unsigned int)p->hlength+9 ){
