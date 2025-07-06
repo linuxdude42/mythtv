@@ -71,7 +71,7 @@ struct pes_in_t {
 	int type;
 	unsigned int found;
 	int withbuf;
-	uint8_t *buf;
+	std::vector<uint8_t> buf;
 	ringbuffer *rbuf;
 	uint8_t hbuf[260];
 	int ini_pos;
