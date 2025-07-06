@@ -437,7 +437,7 @@ static uint16_t scr_ext_ps(const uint8_t *scr)
 static void init_ps(ps_packet *p)
 {
         p->stuff_length=0xF8;
-        p->data = nullptr;
+        p->data.clear();
         p->sheader_length = 0;
         p->audio_bound = 0;
         p->video_bound = 0;
@@ -446,8 +446,6 @@ static void init_ps(ps_packet *p)
 
 static void kill_ps(ps_packet *p)
 {
-        if (p->data)
-                free(p->data);
         init_ps(p);
 }
 
@@ -460,7 +458,7 @@ static void setlength_ps(ps_packet *p)
 static void setl_ps(ps_packet *p)
 {
         setlength_ps(p);
-        p->data = (uint8_t *) malloc(p->sheader_length);
+        p->data.resize(p->sheader_length);
 }
 
 
@@ -498,7 +496,7 @@ static int cwrite_ps(uint8_t *buf, ps_packet *p, uint32_t length)
 		count++;
 		memcpy(buf+count,&p->reserved,1);
 		count++;
-                memcpy(buf+count,p->data,p->sheader_length);
+                memcpy(buf+count,p->data.data(),p->sheader_length);
                 count += p->sheader_length;
         }
 
