@@ -27,7 +27,7 @@ class DSMCCCacheModuleData
                     unsigned short streamTag);
     ~DSMCCCacheModuleData();
 
-    unsigned char *AddModuleData(DsmccDb *ddb, const unsigned char *Data);
+    std::vector<uint8_t> AddModuleData(DsmccDb *ddb, const unsigned char *Data);
 
     unsigned long  CarouselId(void) const { return m_carouselId; }
     unsigned short ModuleId(void)   const { return m_moduleId;   }
