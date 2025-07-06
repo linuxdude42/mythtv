@@ -16,7 +16,7 @@ class CC708Reader
 {
   public:
     explicit CC708Reader();
-    virtual ~CC708Reader();
+    virtual ~CC708Reader() = default;
 
     void SetCurrentService(int service) { m_currentService = service; }
     CC708Service* GetCurrentService(void) { return &m_cc708services[m_currentService]; }
@@ -74,9 +74,7 @@ class CC708Reader
                            std::u16string& unicode_string);
 
     // Data
-    std::array<unsigned char *,k708MaxServices> m_buf          {};
-    std::array<uint,k708MaxServices>            m_bufAlloc     {};
-    std::array<uint,k708MaxServices>            m_bufSize      {};
+    std::array<std::vector<uint8_t>,k708MaxServices> m_buf     {};
     std::array<bool,k708MaxServices>            m_delayed      {};
 
     std::array<std::u16string,k708MaxServices>  m_tempStr      {};
