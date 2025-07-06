@@ -56,7 +56,7 @@ struct ps_packet {
 	uint8_t scr[6];
 	uint8_t mux_rate[3];
 	uint8_t stuff_length;
-	uint8_t *data;
+	std::vector<uint8_t> data;
 	uint8_t sheader_llength[2];
 	int sheader_length;
 	uint8_t rate_bound[3];
