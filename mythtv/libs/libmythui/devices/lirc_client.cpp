@@ -63,7 +63,7 @@ enum packet_state : std::uint8_t
 
 /* internal functions */
 static void lirc_printf(const struct lirc_state* /*state*/, const char *format_str, ...);
-static void lirc_perror(const struct lirc_state* /*state*/, const char *s);
+static void lirc_perror(const struct lirc_state* /*state*/, const std::string& s);
 static int lirc_readline(const struct lirc_state *state, std::string& line,FILE *f);
 static char *lirc_trim(char *s);
 static char lirc_parse_escape(const struct lirc_state *state, char **s,const char *name,int line);
@@ -98,7 +98,7 @@ static int lirc_readconfig_only_internal(const struct lirc_state *state,
                                          int (check)(char *s),
                                          std::string& full_name,
                                          std::string& sha_bang);
-static char *lirc_startupmode(const struct lirc_state *state,
+static std::string lirc_startupmode(const struct lirc_state *state,
 							  struct lirc_config_entry *first);
 static void lirc_freeconfigentries(struct lirc_config_entry *first);
 static void lirc_clearmode(struct lirc_config *config);
@@ -126,11 +126,11 @@ static void lirc_printf(const struct lirc_state *state, const char *format_str, 
 	va_end(ap);
 }
 
-static void lirc_perror(const struct lirc_state *state, const char *s)
+static void lirc_perror(const struct lirc_state *state, const std::string& s)
 {
 	if(!state->lirc_verbose) return;
 
-	perror(s);
+	perror(s.data());
 }
 
 struct lirc_state *lirc_init(const char *lircrc_root_file,
@@ -158,29 +158,9 @@ struct lirc_state *lirc_init(const char *lircrc_root_file,
 	state->lirc_lircd=-1;
 	state->lirc_verbose=verbose;
 
-	state->lircrc_root_file=strdup(lircrc_root_file);
-	if(state->lircrc_root_file==nullptr)
-	{
-		lirc_printf(state, "%s: out of memory\n",prog);
-		lirc_deinit(state);
-		return nullptr;
-	}
-	
-	state->lircrc_user_file=strdup(lircrc_user_file);
-	if(state->lircrc_user_file==nullptr)
-	{
-		lirc_printf(state, "%s: out of memory\n",prog);
-		lirc_deinit(state);
-		return nullptr;
-	}
-	
-	state->lirc_prog=strdup(prog);
-	if(state->lirc_prog==nullptr)
-	{
-		lirc_printf(state, "%s: out of memory\n",prog);
-		lirc_deinit(state);
-		return nullptr;
-	}
+	state->lircrc_root_file=lircrc_root_file;
+	state->lircrc_user_file=lircrc_user_file;
+	state->lirc_prog=prog;
 
 	if (lircd)
 	{
@@ -212,21 +192,9 @@ int lirc_deinit(struct lirc_state *state)
 	int ret = LIRC_RET_SUCCESS;
 	if (state==nullptr)
 		return ret;
-	if(state->lircrc_root_file!=nullptr)
-	{
-		free(state->lircrc_root_file);
-		state->lircrc_root_file=nullptr;
-	}
-	if(state->lircrc_user_file!=nullptr)
-	{
-		free(state->lircrc_user_file);
-		state->lircrc_user_file=nullptr;
-	}
-	if(state->lirc_prog!=nullptr)
-	{
-		free(state->lirc_prog);
-		state->lirc_prog=nullptr;
-	}
+	state->lircrc_root_file.clear();
+	state->lircrc_user_file.clear();
+	state->lirc_prog.clear();
 	if(state->lirc_buffer!=nullptr)
 	{
 		free(state->lirc_buffer);
@@ -548,7 +516,7 @@ int lirc_mode(const struct lirc_state *state,
 
 				if(check!=nullptr &&
 				   new_entry->prog!=nullptr &&
-				   strcasecmp(new_entry->prog,state->lirc_prog)==0)
+				   strcasecmp(new_entry->prog,state->lirc_prog.data())==0)
 				{					
 					struct lirc_list *list=new_entry->config;
 					while(list!=nullptr)
@@ -715,18 +683,18 @@ static FILE *lirc_open(const struct lirc_state *state,
 	}
 	else if(fin==nullptr)
 	{
-		fin=fopen(state->lircrc_root_file,"r");
+		fin=fopen(state->lircrc_root_file.data(),"r");
 		if(fin==nullptr && errno!=ENOENT)
 		{
 			lirc_printf(state, "%s: could not open config file %s\n",
-				    state->lirc_prog,state->lircrc_root_file);
+				    state->lirc_prog,state->lircrc_root_file.data());
 			lirc_perror(state, state->lirc_prog);
 		}
 		else if(fin==nullptr)
 		{
 			lirc_printf(state, "%s: could not open config files "
 				    "%s and %s\n",
-				    state->lirc_prog,filename.data(),state->lircrc_root_file);
+				    state->lirc_prog,filename.data(),state->lircrc_root_file.data());
 			lirc_perror(state, state->lirc_prog);
 		}
 		else
@@ -1226,8 +1194,8 @@ static int lirc_readconfig_only_internal(const struct lirc_state *state,
 		}
 		(*config)->first=first;
 		(*config)->next=first;
-		char *startupmode = lirc_startupmode(state, (*config)->first);
-		(*config)->current_mode=startupmode ? strdup(startupmode):nullptr;
+                std::string startupmode = lirc_startupmode(state, (*config)->first);
+		(*config)->current_mode=!startupmode.empty() ? strdup(startupmode.data()):nullptr;
 		(*config)->sockfd=-1;
 	}
 	else
@@ -1243,9 +1211,9 @@ static int lirc_readconfig_only_internal(const struct lirc_state *state,
 	return(ret);
 }
 
-static char *lirc_startupmode(const struct lirc_state *state, struct lirc_config_entry *first)
+static std::string lirc_startupmode(const struct lirc_state *state, struct lirc_config_entry *first)
 {
-	char *startupmode=nullptr;
+	std::string startupmode;
 	struct lirc_config_entry *scan=first;
 
 	/* Set a startup mode based on flags=startup_mode */
@@ -1265,11 +1233,11 @@ static char *lirc_startupmode(const struct lirc_state *state, struct lirc_config
 	}
 
 	/* Set a default mode if we find a mode = client app name */
-	if(startupmode==nullptr) {
+	if(startupmode.empty()) {
 		scan=first;
 		while(scan!=nullptr)
 		{
-			if(scan->mode!=nullptr && strcasecmp(state->lirc_prog,scan->mode)==0)
+			if(scan->mode!=nullptr && strcasecmp(state->lirc_prog.data(),scan->mode)==0)
 			{
 				startupmode=state->lirc_prog;
 				break;
@@ -1278,12 +1246,12 @@ static char *lirc_startupmode(const struct lirc_state *state, struct lirc_config
 		}
 	}
 
-	if(startupmode==nullptr) return nullptr;
+	if(startupmode.empty()) return {};
 	scan=first;
 	while(scan!=nullptr)
 	{
 		if(scan->change_mode!=nullptr && scan->flags&once &&
-		   strcasecmp(startupmode,scan->change_mode)==0)
+		   strcasecmp(startupmode.data(),scan->change_mode)==0)
 		{
 			scan->flags|=ecno;
 		}
@@ -1392,7 +1360,7 @@ static char *lirc_execute(const struct lirc_state *state,
 	}
 	if(scan->next_config!=nullptr &&
 	   scan->prog!=nullptr &&
-	   (state->lirc_prog == nullptr || strcasecmp(scan->prog,state->lirc_prog)==0) &&
+	   (state->lirc_prog.empty() || strcasecmp(scan->prog,state->lirc_prog.data())==0) &&
 	   do_once==1)
 	{
                 char *s=scan->next_config->string;
@@ -1514,7 +1482,7 @@ char *lirc_ir2char(const struct lirc_state *state,struct lirc_config *config,cha
 	if(warning)
 	{
 		fprintf(stderr,"%s: warning: lirc_ir2char() is obsolete\n",
-			state->lirc_prog);
+			state->lirc_prog.data());
 		warning=0;
 	}
 	if(lirc_code2char(state,config,code,&string)==-1) return nullptr;
@@ -1558,8 +1526,8 @@ int lirc_code2char(const struct lirc_state *state, struct lirc_config *config,co
 int lirc_code2charprog(struct lirc_state *state,struct lirc_config *config,char *code,char **string,
 		       char **prog)
 {
-	char *backup = state->lirc_prog;
-	state->lirc_prog = nullptr;
+	std::string backup = state->lirc_prog;
+	state->lirc_prog.clear();
 	
 	int ret = lirc_code2char_internal(state,config, code, string, prog);
 	
@@ -1652,7 +1620,7 @@ char *lirc_nextir(struct lirc_state *state)
 	if(warning)
 	{
 		fprintf(stderr,"%s: warning: lirc_nextir() is obsolete\n",
-			state->lirc_prog);
+			state->lirc_prog.data());
 		warning=0;
 	}
 	ret=lirc_nextcode(state, &code);
@@ -2024,7 +1992,6 @@ int lirc_send_command(const struct lirc_state *lstate, int sockfd, const char *c
 int lirc_identify(const struct lirc_state *state, int sockfd)
 {
 	std::string command;
-	command.reserve(10+strlen(state->lirc_prog)+1);
 	int success = LIRC_RET_ERROR;
 
 	command = "IDENT ";
