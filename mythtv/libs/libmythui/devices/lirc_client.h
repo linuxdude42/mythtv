@@ -39,7 +39,7 @@ struct lirc_state
 	int lirc_lircd;
 	int lirc_verbose;
 	std::string lirc_prog;
-	char *lirc_buffer;
+	std::string lirc_buffer;
 	std::string lircrc_root_file;
 	std::string lircrc_user_file;
 };
@@ -95,12 +95,12 @@ void lirc_freeconfig(struct lirc_config *config);
 
 #if 0
 /* obsolete */
-char *lirc_nextir(struct lirc_state *state);
+std::string lirc_nextir(struct lirc_state *state);
 /* obsolete */
 char *lirc_ir2char(const struct lirc_state *state, struct lirc_config *config,char *code);
 #endif
 
-int lirc_nextcode(struct lirc_state *state, char **code);
+int lirc_nextcode(struct lirc_state *state, std::string& code);
 int lirc_code2char(const struct lirc_state *state, struct lirc_config *config,const char *code,char **string);
 
 /* new interface for client daemon */
