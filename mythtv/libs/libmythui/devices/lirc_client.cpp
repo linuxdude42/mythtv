@@ -1205,8 +1205,7 @@ static int lirc_readconfig_only_internal(const struct lirc_state *state,
 	}
 	if(ret==0)
 	{
-		*config=(struct lirc_config *)
-			malloc(sizeof(struct lirc_config));
+		*config = new lirc_config;
 		if(*config==nullptr)
 		{
 			lirc_printf(state, "out of memory\n");
@@ -1216,7 +1215,7 @@ static int lirc_readconfig_only_internal(const struct lirc_state *state,
 		(*config)->first=first;
 		(*config)->next=first;
 		std::string startupmode = lirc_startupmode(state, (*config)->first);
-		(*config)->current_mode=!startupmode.empty() ? strdup(startupmode.data()):nullptr;
+		(*config)->current_mode= startupmode;
 		(*config)->sockfd=-1;
 	}
 	else
@@ -1290,8 +1289,8 @@ void lirc_freeconfig(struct lirc_config *config)
 			config->sockfd=-1;
 		}
 		lirc_freeconfigentries(config->first);
-		free(config->current_mode);
-		free(config);
+		config->current_mode.clear();
+		delete(config);
 	}
 }
 
@@ -1330,7 +1329,7 @@ static void lirc_freeconfigentries(struct lirc_config_entry *first)
 
 static void lirc_clearmode(struct lirc_config *config)
 {
-	if(config->current_mode==nullptr)
+	if(config->current_mode.empty())
 	{
 		return;
 	}
@@ -1339,15 +1338,14 @@ static void lirc_clearmode(struct lirc_config *config)
 	{
 		if(scan->change_mode!=nullptr)
 		{
-			if(strcasecmp(scan->change_mode,config->current_mode)==0)
+			if(strcasecmp(scan->change_mode,config->current_mode.data())==0)
 			{
 				scan->flags&=~ecno;
 			}
 		}
 		scan=scan->next;
 	}
-	free(config->current_mode);
-	config->current_mode=nullptr;
+	config->current_mode.clear();
 }
 
 static std::string lirc_execute(const struct lirc_state *state,
@@ -1362,8 +1360,7 @@ static std::string lirc_execute(const struct lirc_state *state,
 	}
 	if(scan->change_mode!=nullptr)
 	{
-		free(config->current_mode);
-		config->current_mode=strdup(scan->change_mode);
+		config->current_mode=scan->change_mode;
 		if(scan->flags&once)
 		{
 			if(scan->flags&ecno)
@@ -1568,8 +1565,7 @@ static int lirc_code2char_internal(const struct lirc_state *state,
 			if(exec_level > 0 &&
 			   (scan->mode==nullptr ||
 			    (scan->mode!=nullptr &&
-			     config->current_mode!=nullptr &&
-			     strcasecmp(scan->mode,config->current_mode)==0)) &&
+			     strcasecmp(scan->mode,config->current_mode.data())==0)) &&
 			   quit_happened==0
 			   )
 			{
@@ -1621,7 +1617,7 @@ size_t lirc_getsocketname(const char *filename, char *buf, size_t size)
 	return strlen(filename)+2;
 }
 
-const char *lirc_getmode(const struct lirc_state *state, struct lirc_config *config)
+std::string lirc_getmode(const struct lirc_state *state, struct lirc_config *config)
 {
 	if(config->sockfd!=-1)
 	{
@@ -1637,14 +1633,14 @@ const char *lirc_getmode(const struct lirc_state *state, struct lirc_config *con
 			{
 				return s_buf.data();
 			}
-                        return nullptr;
+                        return {};
 		}
-		return nullptr;
+		return {};
 	}
 	return config->current_mode;
 }
 
-const char *lirc_setmode(const struct lirc_state *state, struct lirc_config *config, const char *mode)
+std::string lirc_setmode(const struct lirc_state *state, struct lirc_config *config, const std::string& mode)
 {
 	if(config->sockfd!=-1)
 	{
@@ -1653,11 +1649,11 @@ const char *lirc_setmode(const struct lirc_state *state, struct lirc_config *con
 		size_t buf_len = s_buf.size();
 		int success = LIRC_RET_ERROR;
 		if(snprintf(cmd.data(), LIRC_PACKET_SIZE, "SETMODE%s%s\n",
-			    mode ? " ":"",
-			    mode ? mode:"")
+			    !mode.empty() ? " ":"",
+			    !mode.empty() ? mode.data():"")
 		   >= static_cast<int>(LIRC_PACKET_SIZE))
 		{
-			return nullptr;
+			return {};
 		}
 		
 		int ret = lirc_send_command(state, config->sockfd, cmd.data(),
@@ -1668,13 +1664,12 @@ const char *lirc_setmode(const struct lirc_state *state, struct lirc_config *con
 			{
 				return s_buf.data();
 			}
-                        return nullptr;
+                        return {};
 		}
-		return nullptr;
+		return {};
 	}
 	
-	free(config->current_mode);
-	config->current_mode = mode ? strdup(mode) : nullptr;
+	config->current_mode = mode;
 	return config->current_mode;
 }
 

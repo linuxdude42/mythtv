@@ -510,7 +510,7 @@ void TestLirc::test_readconfig_internal2(void)
 
     // Test returned config
     QVERIFY (m_config != nullptr);
-    QCOMPARE(m_config->current_mode, nullptr);
+    QCOMPARE(m_config->current_mode, "");
     QCOMPARE(m_config->next, m_config->first);
     struct lirc_config_entry *entry = m_config->next;
     QCOMPARE(entry->prog, "irexec");
@@ -605,7 +605,7 @@ void TestLirc::test_readconfig_internal4(void)
 
     // Test returned config
     QVERIFY (m_config != nullptr);
-    QCOMPARE(m_config->current_mode, nullptr);
+    QCOMPARE(m_config->current_mode, "");
     QCOMPARE(m_config->next, m_config->first);
     struct lirc_config_entry *entry = m_config->next;
     QCOMPARE(entry->prog, "irexec");
@@ -723,7 +723,7 @@ void TestLirc::test_readconfig1(void)
     s_response.emplace_back("1\n");
     s_response.emplace_back("REALLYGOODMODE\n");
     s_response.emplace_back("END\n");
-    const char *mode = lirc_getmode(m_state, m_config);
+    std::string mode = lirc_getmode(m_state, m_config);
     QCOMPARE(mode, "REALLYGOODMODE");
 
     s_response.clear();
@@ -731,9 +731,9 @@ void TestLirc::test_readconfig1(void)
     s_response.emplace_back("SETMODE\n");
     s_response.emplace_back("SUCCESS\n");
     s_response.emplace_back("END\n");
-    mode = lirc_setmode(m_state, m_config, nullptr);
-    QCOMPARE(mode, nullptr);
-    QCOMPARE(m_config->current_mode, nullptr);
+    mode = lirc_setmode(m_state, m_config, "");
+    QCOMPARE(mode, "");
+    QCOMPARE(m_config->current_mode, "");
 
     s_response.clear();
     s_response.emplace_back("BEGIN\n");
@@ -745,7 +745,7 @@ void TestLirc::test_readconfig1(void)
     s_response.emplace_back("END\n");
     mode = lirc_setmode(m_state, m_config, "not test3");
     QCOMPARE(mode, "not test3");               // remote said
-    QCOMPARE(m_config->current_mode, nullptr); // local unchanged
+    QCOMPARE(m_config->current_mode, "");      // local unchanged
 }
 
 // Tests the lirc_readconfig function starting the lircd daemon.
