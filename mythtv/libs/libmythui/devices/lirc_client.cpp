@@ -206,11 +206,7 @@ int lirc_deinit(struct lirc_state *state)
 	state->lircrc_root_file.clear();
 	state->lircrc_user_file.clear();
 	state->lirc_prog.clear();
-	if(state->lirc_buffer!=nullptr)
-	{
-		free(state->lirc_buffer);
-		state->lirc_buffer=nullptr;
-	}
+	state->lirc_buffer.clear();
 	if (state->lirc_lircd!=-1)
 		ret = close(state->lirc_lircd);
 	delete state;
@@ -1670,10 +1666,10 @@ static int lirc_code2char_internal(const struct lirc_state *state,
 static constexpr size_t PACKET_SIZE { 100 };
 
 #if 0
-char *lirc_nextir(struct lirc_state *state)
+std::string lirc_nextir(struct lirc_state *state)
 {
 	static int warning=1;
-	char *code;
+	std::string code;
 	int ret;
 	
 	if(warning)
@@ -1681,51 +1677,45 @@ char *lirc_nextir(struct lirc_state *state)
 		fprintf(stderr,"warning: lirc_nextir() is obsolete\n");
 		warning=0;
 	}
-	ret=lirc_nextcode(state, &code);
+	ret=lirc_nextcode(state, code);
 	if(ret==-1) return nullptr;
 	return(code);
 }
 #endif
 
-int lirc_nextcode(struct lirc_state *state, char **code)
+int lirc_nextcode(struct lirc_state *state, std::string& code)
 {
 	static size_t s_packetSize=PACKET_SIZE;
 	static size_t s_endLen=0;
-	char *end = nullptr;
+	size_t end;
 
-	*code=nullptr;
-	if(state->lirc_buffer==nullptr)
+	code.clear();
+	if(state->lirc_buffer.empty())
 	{
-		state->lirc_buffer=(char *) malloc(s_packetSize+1);
-		if(state->lirc_buffer==nullptr)
-		{
-			lirc_printf(state, "out of memory\n");
-			return(-1);
-		}
-		state->lirc_buffer[0]=0;
+		state->lirc_buffer.reserve(s_packetSize+1);
+		state->lirc_buffer.resize(0);
 	}
-	while((end=strchr(state->lirc_buffer,'\n'))==nullptr)
+	while((end=state->lirc_buffer.find('\n'))==std::string::npos)
 	{
 		if(s_endLen>=s_packetSize)
 		{
 			s_packetSize+=PACKET_SIZE;
-			char *new_buffer=(char *) realloc(state->lirc_buffer,s_packetSize+1);
-			if(new_buffer==nullptr)
-			{
-				return(-1);
-			}
-			state->lirc_buffer=new_buffer;
+			state->lirc_buffer.reserve(s_packetSize+1);
 		}
-                ssize_t len=read(state->lirc_lircd,state->lirc_buffer+s_endLen,s_packetSize-s_endLen);
+		state->lirc_buffer.resize(state->lirc_buffer.capacity());
+		ssize_t len=read(state->lirc_lircd,
+				 state->lirc_buffer.data()+s_endLen,
+				 s_packetSize-s_endLen);
 		if(len<=0)
 		{
+			state->lirc_buffer.resize(s_endLen);
 			if(len==-1 && errno==EAGAIN) return(0);
                         return(-1);
 		}
 		s_endLen+=len;
-		state->lirc_buffer[s_endLen]=0;
+		state->lirc_buffer.resize(s_endLen);
 		/* return if next code not yet available completely */
-		if(strchr(state->lirc_buffer,'\n')==nullptr)
+		if(state->lirc_buffer.find('\n')==std::string::npos)
 		{
 			return(0);
 		}
@@ -1738,14 +1728,10 @@ int lirc_nextcode(struct lirc_state *state, char **code)
         // code is if end becomes non-null.
         //
 	end++;
-	s_endLen=strlen(end);
-	char c=end[0];
-	end[0]=0;
-	*code=strdup(state->lirc_buffer);
-	end[0]=c;
-	memmove(state->lirc_buffer,end,s_endLen+1);
-	if(*code==nullptr) return(-1);
-	return(0);
+	code=state->lirc_buffer.substr(0,end);
+	state->lirc_buffer.replace(0,end,"");
+	s_endLen=state->lirc_buffer.size();
+	return code.empty() ? -1 : 0;
 }
 
 size_t lirc_getsocketname(const char *filename, char *buf, size_t size)
