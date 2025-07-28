@@ -333,7 +333,7 @@ void TestLirc::test_mode(void)
 
     int const res = lirc_mode(m_state, token.c_str(), token2.c_str(), &mode,
                         &new_config, &first_config, &last_config,
-                        [](char */*s*/){return 0;}, __FUNCTION__,0);
+                        [](std::string& /*s*/){return 0;}, __FUNCTION__,0);
     QCOMPARE(res, 0);
 }
 
@@ -483,7 +483,7 @@ void TestLirc::test_readconfig_internal1(void)
 
     auto result =
         lirc_readconfig_only_internal(m_state, tmpfilename.data(),
-                                      &m_config, [](char */*s*/){return 0;},
+                                      &m_config, [](std::string& /*s*/){return 0;},
                                       full_name,sha_bang);
     QCOMPARE(result, 0);
     QVERIFY(m_config != nullptr);
@@ -504,7 +504,7 @@ void TestLirc::test_readconfig_internal2(void)
     // Read config file
     auto result =
         lirc_readconfig_only_internal(m_state, filename.data(),
-                                      &m_config, [](char */*s*/){return 0;},
+                                      &m_config, [](std::string& /*s*/){return 0;},
                                       full_name,sha_bang);
     QCOMPARE(result, 0);
 
@@ -562,7 +562,7 @@ void TestLirc::test_readconfig_internal3(void)
     // Read config file
     auto result =
         lirc_readconfig_only(m_state, filename.data(),
-                             &m_config, [](char */*s*/){return 0;});
+                             &m_config, [](std::string& /*s*/){return 0;});
     QCOMPARE(result, 0);
 
     // Test returned config
@@ -600,7 +600,7 @@ void TestLirc::test_readconfig_internal4(void)
     // Read config file
     auto result =
         lirc_readconfig_only(m_state, filename.data(),
-                             &m_config, [](char */*s*/){return 0;});
+                             &m_config, [](std::string& /*s*/){return 0;});
     QCOMPARE(result, 0);
 
     // Test returned config
@@ -633,7 +633,7 @@ void TestLirc::test_readconfig_internal5(void)
     // Read config file
     auto result =
         lirc_readconfig_only(m_state, filename.data(),
-                             &m_config, [](char */*s*/){return 0;});
+                             &m_config, [](std::string& /*s*/){return 0;});
     QCOMPARE(result, 0);
 
     // Test returned config
@@ -706,7 +706,7 @@ void TestLirc::test_readconfig1(void)
 
     // Read config file
     auto result = lirc_readconfig(m_state, ss_conf_name.data(),
-                                  &m_config, [](char */*s*/){return 0;});
+                                  &m_config, [](std::string& /*s*/){return 0;});
     QCOMPARE(result, 0);
     if (result != 0)
         return;
@@ -775,7 +775,7 @@ void TestLirc::test_readconfig2(void)
 
     // Read config file
     auto result = lirc_readconfig(m_state, ss_conf_name.data(),
-                                  &m_config, [](char */*s*/){return 0;});
+                                  &m_config, [](std::string& /*s*/){return 0;});
     QCOMPARE(result, -1);
 
     // Test if target file created
@@ -800,7 +800,7 @@ void TestLirc::test_code2char_internal(void)
     // Read config file
     auto result =
         lirc_readconfig_only(m_state, filename.data(),
-                             &m_config, [](char */*s*/){return 0;});
+                             &m_config, [](std::string& /*s*/){return 0;});
     QCOMPARE(result, 0);
 
     // Test returned config
@@ -815,59 +815,59 @@ void TestLirc::test_code2char_internal(void)
     QCOMPARE(level, 0);
 
     // Random key 1
-    char *string { nullptr };
-    char *prog { nullptr };
+    std::string string {};
+    std::string prog {};
     int x = lirc_code2char_internal(m_state, m_config, "0 0 Off *",
-                                    &string, &prog);
+                                    string, prog);
     QCOMPARE(x,0);
     QCOMPARE(string, "Esc");
     QCOMPARE(prog, "mythtv");
 
     // Random key 2
-    string = nullptr;
-    prog = nullptr;
+    string.clear();
+    prog.clear();
     x = lirc_code2char_internal(m_state, m_config, "0 0 Green *",
-                                &string, &prog);
+                                string, prog);
     QCOMPARE(x,0);
     QCOMPARE(string, "I");
     QCOMPARE(prog, "mythtv");
 
     // Key doesn't exist
-    string = nullptr;
-    prog = nullptr;
+    string.clear();
+    prog.clear();
     x = lirc_code2char_internal(m_state, m_config, "0 0 Mauve *",
-                                &string, &prog);
+                                string, prog);
     QCOMPARE(x,0);
-    QCOMPARE(string, nullptr);
-    QCOMPARE(prog, nullptr);
+    QCOMPARE(string, "");
+    QCOMPARE(prog, "");
 
     // Key with repeat
-    string = nullptr;
-    prog = nullptr;
+    string.clear();
+    prog.clear();
     x = lirc_code2char_internal(m_state, m_config, "0 0 Yellow *",
-                                &string, &prog);
+                                string, prog);
     QCOMPARE(x,0);
     QCOMPARE(string, "F10");
     QCOMPARE(prog, "mythtv");
-    string = nullptr;
-    prog = nullptr;
+    string.clear();
+    prog.clear();
     x = lirc_code2char_internal(m_state, m_config, "0 0 Yellow *",
-                                &string, &prog);
+                                string, prog);
     QCOMPARE(x,0);
-    QCOMPARE(string, nullptr);
-    QCOMPARE(prog, nullptr);
+    QCOMPARE(string, "");
+    QCOMPARE(prog, "");
     x = lirc_code2char_internal(m_state, m_config, "0 0 Yellow *",
-                                &string, &prog);
+                                string, prog);
     QCOMPARE(x,0);
     QCOMPARE(string, "F10");
     QCOMPARE(prog, "mythtv");
-    string = nullptr;
-    prog = nullptr;
+    string.clear();
+    prog.clear();
     x = lirc_code2char_internal(m_state, m_config, "0 0 Yellow *",
-                                &string, &prog);
+                                string, prog);
     QCOMPARE(x,0);
-    QCOMPARE(string, nullptr);
-    QCOMPARE(prog, nullptr);
+    QCOMPARE(string, "");
+    QCOMPARE(prog, "");
 }
 
 // Test the read_string function used when receiving LIRC data from a
