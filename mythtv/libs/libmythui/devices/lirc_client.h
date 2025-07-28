@@ -1,3 +1,4 @@
+// -*- mode: C++ ; indent-tabs-mode: t; c-basic-offset: 8 -*-
 /* NOTE: Extracted from LIRC release 0.8.4a -- dtk */
 
 /****************************************************************************
@@ -38,10 +39,10 @@ struct lirc_state
 {
 	int lirc_lircd;
 	int lirc_verbose;
-	char *lirc_prog;
+	std::string lirc_prog;
 	char *lirc_buffer;
-	char *lircrc_root_file;
-	char *lircrc_user_file;
+	std::string lircrc_root_file;
+	std::string lircrc_user_file;
 };
 
 struct lirc_list
