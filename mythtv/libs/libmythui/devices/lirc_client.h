@@ -60,9 +60,9 @@ struct lirc_code
 
 struct lirc_config
 {
-	char *current_mode;
-	struct lirc_config_entry *next;
-	struct lirc_config_entry *first;
+	std::string current_mode;
+	struct lirc_config_entry *next  { nullptr };
+	struct lirc_config_entry *first { nullptr };
 	
 	int sockfd;
 };
@@ -112,7 +112,7 @@ int lirc_code2charprog(struct lirc_state *state,
                        struct lirc_config *config,char *code,std::string& string,
                        char **prog);
 size_t lirc_getsocketname(const char *filename, char *buf, size_t size);
-const char *lirc_getmode(const struct lirc_state *state, struct lirc_config *config);
-const char *lirc_setmode(const struct lirc_state *state, struct lirc_config *config, const char *mode);
+const std::string lirc_getmode(const struct lirc_state *state, struct lirc_config *config);
+const std::string lirc_setmode(const struct lirc_state *state, struct lirc_config *config, const std::string& mode);
 
 #endif
