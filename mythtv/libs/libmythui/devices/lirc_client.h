@@ -47,8 +47,8 @@ struct lirc_state
 
 struct lirc_list
 {
-	char *string;
-	struct lirc_list *next;
+	std::string string;
+	struct lirc_list *next {nullptr};
 };
 
 struct lirc_code
@@ -91,25 +91,25 @@ int lirc_deinit(struct lirc_state *state);
 
 int lirc_readconfig(const struct lirc_state *state,
                     const char *file,struct lirc_config **config,
-                    int (check)(char *s));
+                    int (check)(std::string& s));
 void lirc_freeconfig(struct lirc_config *config);
 
 #if 0
 /* obsolete */
 std::string lirc_nextir(struct lirc_state *state);
 /* obsolete */
-char *lirc_ir2char(const struct lirc_state *state, struct lirc_config *config,char *code);
+std::string lirc_ir2char(const struct lirc_state *state, struct lirc_config *config,char *code);
 #endif
 
 int lirc_nextcode(struct lirc_state *state, std::string& code);
-int lirc_code2char(const struct lirc_state *state, struct lirc_config *config,const char *code,char **string);
+int lirc_code2char(const struct lirc_state *state, struct lirc_config *config,const char *code,std::string& string);
 
 /* new interface for client daemon */
 int lirc_readconfig_only(const struct lirc_state *state,
                          const char *file, struct lirc_config **config,
-                         int (check)(char *s));
+                         int (check)(std::string& s));
 int lirc_code2charprog(struct lirc_state *state,
-                       struct lirc_config *config,char *code,char **string,
+                       struct lirc_config *config,char *code,std::string& string,
                        char **prog);
 size_t lirc_getsocketname(const char *filename, char *buf, size_t size);
 const char *lirc_getmode(const struct lirc_state *state, struct lirc_config *config);
