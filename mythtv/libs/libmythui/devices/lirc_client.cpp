@@ -14,6 +14,7 @@
  * System wide LIRCRC support by Michal Svec <rebel@atrey.karlin.mff.cuni.cz>
  */ 
 #include <array>
+#include <algorithm>
 #include <cerrno>
 #include <climits>
 #include <cstdarg>
@@ -106,8 +107,9 @@ static void lirc_clearmode(struct lirc_config *config);
 static std::string lirc_execute(const struct lirc_state *state,
 			  struct lirc_config *config,
 			  struct lirc_config_entry *scan);
-static int lirc_iscode(struct lirc_config_entry *scan, char *remote,
-		       char *button,unsigned int rep);
+static int sstrcasecmp(const std::string s1, const std::string s2);
+static int lirc_iscode(struct lirc_config_entry *scan, std::string& remote,
+		       std::string& button,unsigned int rep);
 static int lirc_code2char_internal(const struct lirc_state *state,
 				   struct lirc_config *config,const char *code,
 				   std::string& string, std::string& prog);
@@ -915,7 +917,7 @@ static int lirc_readconfig_only_internal(const struct lirc_state *state,
 	struct lirc_config_entry *first = nullptr;
 	struct lirc_config_entry *last = nullptr;
 	char *mode=nullptr;
-	char *remote=LIRC_ALL;
+	std::string remote=LIRC_ALL;
 	while (filestack)
 	{
 		char *string = nullptr;
@@ -1008,8 +1010,6 @@ static int lirc_readconfig_only_internal(const struct lirc_state *state,
 						      filestack->m_line);
 					if(ret==0)
 					{
-						if(remote!=LIRC_ALL)
-							free(remote);
 						remote=LIRC_ALL;
 					}
 					else
@@ -1059,9 +1059,6 @@ static int lirc_readconfig_only_internal(const struct lirc_state *state,
 				}
 				else if(strcasecmp(token,"remote")==0)
 				{
-					if(remote!=LIRC_ALL)
-						free(remote);
-					
 					if(strcasecmp("*",token2)==0)
 					{
 						remote=LIRC_ALL;
@@ -1074,8 +1071,7 @@ static int lirc_readconfig_only_internal(const struct lirc_state *state,
 				}
 				else if(strcasecmp(token,"button")==0)
 				{
-					auto *code=
-                                            (struct lirc_code *)malloc(sizeof(struct lirc_code));
+					auto *code = new lirc_code;
 					if(code==nullptr)
 					{
 						free(token2);
@@ -1106,15 +1102,6 @@ static int lirc_readconfig_only_internal(const struct lirc_state *state,
 							=code;
 						}
 						new_entry->next_code=code;
-						if(remote!=LIRC_ALL)
-						{
-							remote=strdup(remote);
-							if(remote==nullptr)
-							{
-								lirc_printf(state, "out of memory\n");
-								ret=-1;
-							}
-						}
 					}
 				}
 				else if(strcasecmp(token,"delay")==0)
@@ -1191,8 +1178,6 @@ static int lirc_readconfig_only_internal(const struct lirc_state *state,
 		free(string);
 		if(ret==-1) break;
 	}
-	if(remote!=LIRC_ALL)
-		free(remote);
 	if(new_entry!=nullptr)
 	{
 		if(ret==0)
@@ -1321,12 +1306,10 @@ static void lirc_freeconfigentries(struct lirc_config_entry *first)
 		struct lirc_code *code=c->code;
 		while(code!=nullptr)
 		{
-			if(code->remote!=nullptr && code->remote!=LIRC_ALL)
-				free(code->remote);
-			if(code->button!=nullptr && code->button!=LIRC_ALL)
-				free(code->button);
+			code->remote.clear();
+			code->button.clear();
 			struct lirc_code *code_temp=code->next;
-			free(code);
+			delete(code);
 			code=code_temp;
 		}
 
@@ -1406,8 +1389,17 @@ static std::string lirc_execute(const struct lirc_state *state,
 	return {};
 }
 
-static int lirc_iscode(struct lirc_config_entry *scan, char *remote,
-		       char *button,unsigned int rep)
+static int sstrcasecmp(std::string s1, std::string s2)
+{
+	std::transform(s1.begin(), s1.end(), s1.begin(),
+		       [](char c){ return std::tolower(c); });
+	std::transform(s2.begin(), s2.end(), s2.begin(),
+		       [](char c){ return std::tolower(c); });
+	return(strcasecmp(s1.data(), s2.data()));
+}
+
+static int lirc_iscode(struct lirc_config_entry *scan, std::string& remote,
+		       std::string& button,unsigned int rep)
 {
 	/* no remote/button specified */
 	if(scan->code==nullptr)
@@ -1419,10 +1411,10 @@ static int lirc_iscode(struct lirc_config_entry *scan, char *remote,
 	
 	/* remote/button match? */
 	if(scan->next_code->remote==LIRC_ALL || 
-	   strcasecmp(scan->next_code->remote,remote)==0)
+	   sstrcasecmp(scan->next_code->remote,remote)==0)
 	{
 		if(scan->next_code->button==LIRC_ALL || 
-		   strcasecmp(scan->next_code->button,button)==0)
+		   sstrcasecmp(scan->next_code->button,button)==0)
 		{
 			int iscode=0;
 			/* button sequence? */
@@ -1467,10 +1459,10 @@ static int lirc_iscode(struct lirc_config_entry *scan, char *remote,
                 while(next!=scan->next_code)
                 {
                         if(prev->remote==LIRC_ALL ||
-                           strcasecmp(prev->remote,next->remote)==0)
+                           sstrcasecmp(prev->remote,next->remote)==0)
                         {
                                 if(prev->button==LIRC_ALL ||
-                                   strcasecmp(prev->button,next->button)==0)
+                                   sstrcasecmp(prev->button,next->button)==0)
                                 {
                                         prev=prev->next;
                                         next=next->next;
@@ -1488,10 +1480,10 @@ static int lirc_iscode(struct lirc_config_entry *scan, char *remote,
                 if(flag==1)
                 {
                         if(prev->remote==LIRC_ALL ||
-                           strcasecmp(prev->remote,remote)==0)
+                           sstrcasecmp(prev->remote,remote)==0)
                         {
                                 if(prev->button==LIRC_ALL ||
-                                   strcasecmp(prev->button,button)==0)
+                                   sstrcasecmp(prev->button,button)==0)
                                 {
                                         if(rep==0)
                                         {
@@ -1557,10 +1549,10 @@ static int lirc_code2char_internal(const struct lirc_state *state,
 
 		strtok_r(backup," ",&strtok_state);
 		strtok_r(nullptr," ",&strtok_state);
-		char *button=strtok_r(nullptr," ",&strtok_state);
-		char *remote=strtok_r(nullptr,"\n",&strtok_state);
+		std::string button=strtok_r(nullptr," ",&strtok_state);
+		std::string remote=strtok_r(nullptr,"\n",&strtok_state);
 
-		if(button==nullptr || remote==nullptr)
+		if(button.empty() || remote.empty())
 		{
 			free(backup);
 			return(0);

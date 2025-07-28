@@ -24,7 +24,7 @@
 #define LIRC_RET_SUCCESS  (0)
 #define LIRC_RET_ERROR   (-1)
 
-#define LIRC_ALL ((char *) (-1))
+#define LIRC_ALL "ALL"
 
 enum lirc_flags {none=0x00,
 		 once=0x01,
@@ -52,9 +52,9 @@ struct lirc_list
 
 struct lirc_code
 {
-	char *remote;
-	char *button;
-	struct lirc_code *next;
+	std::string remote;
+	std::string button;
+	struct lirc_code *next { nullptr };
 };
 
 struct lirc_config
