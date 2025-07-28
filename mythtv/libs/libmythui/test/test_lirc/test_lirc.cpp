@@ -807,10 +807,8 @@ void TestLirc::test_code2char_internal(void)
     QVERIFY(m_config != nullptr);
 
     struct lirc_config_entry *entry = m_config->next;
-    char *remote = LIRC_ALL;
-    char *button = strdup("purple");
-    auto cleanup_fn = [](char **ptr) { free(*ptr); };
-    std::unique_ptr<char*,decltype(cleanup_fn)> const cleanup2 { &button, cleanup_fn };
+    std::string remote = LIRC_ALL;
+    std::string button = "purple";
     int const level = lirc_iscode(entry, remote, button, 0);
     QCOMPARE(level, 0);
 
