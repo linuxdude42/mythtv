@@ -311,7 +311,7 @@ void TestLirc::test_parse_include(void)
 // will get extensive testing by later tests.
 void TestLirc::test_mode(void)
 {
-    char *mode {nullptr};
+    std::string mode;
     std::string token = "begin";
     std::string token2;
     struct lirc_config_entry *new_config   {nullptr};
@@ -321,7 +321,7 @@ void TestLirc::test_mode(void)
     lirc_state l_state {};
     l_state.lirc_prog = strdup("__FILE__");
 
-    int res = lirc_mode(&l_state, token.c_str(), token2.c_str(), &mode,
+    int res = lirc_mode(&l_state, token.c_str(), token2.c_str(), mode,
                         &new_config, &first_config, &last_config,
                         [](std::string& /*s*/){return 0;}, __FUNCTION__,0);
     QCOMPARE(res, 0);
@@ -647,7 +647,7 @@ void TestLirc::test_readconfig_internal5(void)
     // Third item
     QVERIFY(entry->next != nullptr);
     entry = entry->next;
-    QVERIFY(entry->mode == nullptr);
+    QCOMPARE(entry->mode, "");
     QCOMPARE(entry->flags, 9U);
     code = entry->code;
     QVERIFY(code != nullptr);

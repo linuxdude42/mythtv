@@ -74,7 +74,7 @@ static void lirc_parse_string(const struct lirc_state *state, char *s,const char
 static void lirc_parse_include(char *s,const char *name,int line);
 static int lirc_mode(
              const struct lirc_state *state,
-             const char *token,const char *token2,char **mode,
+             const char *token,const char *token2,std::string& mode,
 		     struct lirc_config_entry **new_config,
 		     struct lirc_config_entry **first_config,
 		     struct lirc_config_entry **last_config,
@@ -430,7 +430,7 @@ static void lirc_parse_include(char *s,
 }
 
 int lirc_mode(const struct lirc_state *state,
-          const char *token,const char *token2,char **mode,
+	      const char *token,const char *token2,std::string& mode,
 	      struct lirc_config_entry **new_config,
 	      struct lirc_config_entry **first_config,
 	      struct lirc_config_entry **last_config,
@@ -444,26 +444,12 @@ int lirc_mode(const struct lirc_state *state,
 		{
 			if(new_entry==nullptr)
 			{
-				new_entry=(struct lirc_config_entry *)
-				malloc(sizeof(struct lirc_config_entry));
+				new_entry = new lirc_config_entry;
 				if(new_entry==nullptr)
 				{
 					lirc_printf(state, "out of memory\n");
 					return(-1);
 				}
-
-                                new_entry->prog=nullptr;
-                                new_entry->code=nullptr;
-                                new_entry->rep_delay=0;
-                                new_entry->rep=0;
-                                new_entry->config=nullptr;
-                                new_entry->change_mode=nullptr;
-                                new_entry->flags=none;
-                                new_entry->mode=nullptr;
-                                new_entry->next_config=nullptr;
-                                new_entry->next_code=nullptr;
-                                new_entry->next=nullptr;
-
                                 *new_config=new_entry;
 			}
 			else
@@ -475,13 +461,9 @@ int lirc_mode(const struct lirc_state *state,
 		}
 		else
 		{
-			if(new_entry==nullptr && *mode==nullptr)
+			if(new_entry==nullptr)
 			{
-				*mode=strdup(token2);
-				if(*mode==nullptr)
-				{
-					return(-1);
-				}
+				mode=token2;
 			}
 			else
 			{
@@ -498,7 +480,7 @@ int lirc_mode(const struct lirc_state *state,
 			if(new_entry!=nullptr)
 			{
 #if 0
-				if(new_entry->prog==nullptr)
+				if(new_entry->prog.empty())
 				{
 					lirc_printf(state, "prog missing in "
 						    "config before line %d\n",
@@ -507,7 +489,7 @@ int lirc_mode(const struct lirc_state *state,
 					*new_config=nullptr;
 					return(-1);
 				}
-				if(strcasecmp(new_entry->prog,state->lirc_prog.data())!=0)
+				if(sstrcasecmp(new_entry->prog,state->lirc_prog)!=0)
 				{
 					lirc_freeconfigentries(new_entry);
 					*new_config=nullptr;
@@ -528,19 +510,13 @@ int lirc_mode(const struct lirc_state *state,
 				}
 				*new_config=nullptr;
 
-				if(*mode!=nullptr)
+				if(!mode.empty())
 				{
-					new_entry->mode=strdup(*mode);
-					if(new_entry->mode==nullptr)
-					{
-						lirc_printf(state, "out of memory\n");
-						return(-1);
-					}
+					new_entry->mode=mode;
 				}
 
 				if(check!=nullptr &&
-				   new_entry->prog!=nullptr &&
-				   strcasecmp(new_entry->prog,state->lirc_prog.data())==0)
+				   sstrcasecmp(new_entry->prog,state->lirc_prog)==0)
 				{					
 					struct lirc_list *list=new_entry->config;
 					while(list!=nullptr)
@@ -568,7 +544,7 @@ int lirc_mode(const struct lirc_state *state,
 		}
 		else
 		{
-			if(*mode!=nullptr)
+			if(!mode.empty())
 			{
 				if(new_entry!=nullptr)
 				{
@@ -576,16 +552,15 @@ int lirc_mode(const struct lirc_state *state,
 						    "'end' token\n",name,line);
 					return(-1);
 				}
-				if(strcasecmp(*mode,token2)==0)
+				if(sstrcasecmp(mode,token2)==0)
 				{
-					free(*mode);
-					*mode=nullptr;
+					mode.clear();
 				}
 				else
 				{
 					lirc_printf(state, "\"%s\" doesn't "
 						    "match mode \"%s\"\n",
-						    token2,*mode);
+						    token2,mode.c_str());
 					return(-1);
 				}
 			}
@@ -917,7 +892,7 @@ static int lirc_readconfig_only_internal(const struct lirc_state *state,
 	struct lirc_config_entry *new_entry = nullptr;
 	struct lirc_config_entry *first = nullptr;
 	struct lirc_config_entry *last = nullptr;
-	char *mode=nullptr;
+	std::string mode;
 	std::string remote=LIRC_ALL;
 	while (filestack)
 	{
@@ -1004,7 +979,7 @@ static int lirc_readconfig_only_internal(const struct lirc_state *state,
 				}
 				else
 				{
-					ret=lirc_mode(state, token,token2,&mode,
+					ret=lirc_mode(state, token,token2,mode,
 						      &new_entry,&first,&last,
 						      check,
 						      filestack->m_name,
@@ -1015,11 +990,7 @@ static int lirc_readconfig_only_internal(const struct lirc_state *state,
 					}
 					else
 					{
-						if(mode!=nullptr)
-						{
-							free(mode);
-							mode=nullptr;
-						}
+						mode.clear();
 						if(new_entry!=nullptr)
 						{
 							lirc_freeconfigentries
@@ -1047,15 +1018,8 @@ static int lirc_readconfig_only_internal(const struct lirc_state *state,
 			}
 			else
 			{
-				token2=strdup(token2);
-				if(token2==nullptr)
+				if(strcasecmp(token,"prog")==0)
 				{
-					lirc_printf(state, "out of memory\n");
-					ret=-1;
-				}
-				else if(strcasecmp(token,"prog")==0)
-				{
-					if(new_entry->prog!=nullptr) free(new_entry->prog);
 					new_entry->prog=token2;
 				}
 				else if(strcasecmp(token,"remote")==0)
@@ -1063,7 +1027,6 @@ static int lirc_readconfig_only_internal(const struct lirc_state *state,
 					if(strcasecmp("*",token2)==0)
 					{
 						remote=LIRC_ALL;
-						free(token2);
 					}
 					else
 					{
@@ -1075,7 +1038,6 @@ static int lirc_readconfig_only_internal(const struct lirc_state *state,
 					auto *code = new lirc_code;
 					if(code==nullptr)
 					{
-						free(token2);
 						lirc_printf(state, "out of memory\n");
 						ret=-1;
 					}
@@ -1085,7 +1047,6 @@ static int lirc_readconfig_only_internal(const struct lirc_state *state,
 						if(strcasecmp("*",token2)==0)
 						{
 							code->button=LIRC_ALL;
-							free(token2);
 						}
 						else
 						{
@@ -1120,7 +1081,6 @@ static int lirc_readconfig_only_internal(const struct lirc_state *state,
 							    " a  valid number for "
 							    "delay\n",token2);
 					}
-					free(token2);
 				}
 				else if(strcasecmp(token,"repeat")==0)
 				{
@@ -1137,7 +1097,6 @@ static int lirc_readconfig_only_internal(const struct lirc_state *state,
 							    " a  valid number for "
 							    "repeat\n",token2);
 					}
-					free(token2);
 				}
 				else if(strcasecmp(token,"config")==0)
 				{
@@ -1160,17 +1119,14 @@ static int lirc_readconfig_only_internal(const struct lirc_state *state,
 				}
 				else if(strcasecmp(token,"mode")==0)
 				{
-					if(new_entry->change_mode!=nullptr) free(new_entry->change_mode);
 					new_entry->change_mode=token2;
 				}
 				else if(strcasecmp(token,"flags")==0)
 				{
 					new_entry->flags=lirc_flags(state, token2);
-					free(token2);
 				}
 				else
 				{
-					free(token2);
 					lirc_printf(state, "unknown token \"%s\" in %s:%d ignored\n",
 						    token,filestack->m_name,filestack->m_line);
 				}
@@ -1183,7 +1139,7 @@ static int lirc_readconfig_only_internal(const struct lirc_state *state,
 	{
 		if(ret==0)
 		{
-			ret=lirc_mode(state, "end",nullptr,&mode,&new_entry,
+			ret=lirc_mode(state, "end",nullptr,mode,&new_entry,
 				      &first,&last,check,"",0);
 			lirc_printf(state, "warning: end token missing at end "
 				    "of file\n");
@@ -1194,14 +1150,14 @@ static int lirc_readconfig_only_internal(const struct lirc_state *state,
 			new_entry=nullptr;
 		}
 	}
-	if(mode!=nullptr)
+	if(!mode.empty())
 	{
 		if(ret==0)
 		{
 			lirc_printf(state, "warning: no end token found for mode "
-				    "\"%s\"\n",mode);
+				    "\"%s\"\n",mode.c_str());
 		}
-		free(mode);
+		mode.clear();
 	}
 	if(ret==0)
 	{
@@ -1240,10 +1196,10 @@ static std::string lirc_startupmode(const struct lirc_state *state, struct lirc_
 	while(scan!=nullptr)
 	{
 		if(scan->flags&startup_mode) {
-			if(scan->change_mode!=nullptr) {
+			if(!scan->change_mode.empty()) {
 				startupmode=scan->change_mode;
 				/* Remove the startup mode or it confuses lirc mode system */
-				scan->change_mode=nullptr;
+				scan->change_mode.clear();
 				break;
 			}
 			lirc_printf(state, "startup_mode flags requires 'mode ='\n");
@@ -1256,7 +1212,7 @@ static std::string lirc_startupmode(const struct lirc_state *state, struct lirc_
 		scan=first;
 		while(scan!=nullptr)
 		{
-			if(scan->mode!=nullptr && strcasecmp(state->lirc_prog.data(),scan->mode)==0)
+			if(sstrcasecmp(state->lirc_prog,scan->mode)==0)
 			{
 				startupmode=state->lirc_prog;
 				break;
@@ -1269,8 +1225,8 @@ static std::string lirc_startupmode(const struct lirc_state *state, struct lirc_
 	scan=first;
 	while(scan!=nullptr)
 	{
-		if(scan->change_mode!=nullptr && scan->flags&once &&
-		   strcasecmp(startupmode.data(),scan->change_mode)==0)
+		if(!scan->change_mode.empty() && scan->flags&once &&
+		   sstrcasecmp(startupmode,scan->change_mode)==0)
 		{
 			scan->flags|=ecno;
 		}
@@ -1299,9 +1255,9 @@ static void lirc_freeconfigentries(struct lirc_config_entry *first)
 	struct lirc_config_entry *c=first;
 	while(c!=nullptr)
 	{
-		if(c->prog) free(c->prog);
-		if(c->change_mode) free(c->change_mode);
-		if(c->mode) free(c->mode);
+		c->prog.clear();
+		c->change_mode.clear();
+		c->mode.clear();
 
 		struct lirc_code *code=c->code;
 		while(code!=nullptr)
@@ -1322,7 +1278,7 @@ static void lirc_freeconfigentries(struct lirc_config_entry *first)
 			list=list_temp;
 		}
 		struct lirc_config_entry *config_temp=c->next;
-		free(c);
+		delete c;
 		c=config_temp;
 	}
 }
@@ -1336,9 +1292,9 @@ static void lirc_clearmode(struct lirc_config *config)
 	struct lirc_config_entry *scan=config->first;
 	while(scan!=nullptr)
 	{
-		if(scan->change_mode!=nullptr)
+		if(!scan->change_mode.empty())
 		{
-			if(strcasecmp(scan->change_mode,config->current_mode.data())==0)
+			if(sstrcasecmp(scan->change_mode,config->current_mode)==0)
 			{
 				scan->flags&=~ecno;
 			}
@@ -1358,7 +1314,7 @@ static std::string lirc_execute(const struct lirc_state *state,
 	{
 		lirc_clearmode(config);
 	}
-	if(scan->change_mode!=nullptr)
+	if(!scan->change_mode.empty())
 	{
 		config->current_mode=scan->change_mode;
 		if(scan->flags&once)
@@ -1374,8 +1330,7 @@ static std::string lirc_execute(const struct lirc_state *state,
 		}
 	}
 	if(scan->next_config!=nullptr &&
-	   scan->prog!=nullptr &&
-	   strcasecmp(scan->prog,state->lirc_prog.data())==0 &&
+	   sstrcasecmp(scan->prog,state->lirc_prog)==0 &&
 	   do_once==1)
 	{
 		std::string s=scan->next_config->string;
@@ -1563,9 +1518,9 @@ static int lirc_code2char_internal(const struct lirc_state *state,
 		{
 			int exec_level = lirc_iscode(scan,remote,button,rep);
 			if(exec_level > 0 &&
-			   (scan->mode==nullptr ||
-			    (scan->mode!=nullptr &&
-			     strcasecmp(scan->mode,config->current_mode.data())==0)) &&
+			   (scan->mode.empty() ||
+			    (!scan->mode.empty() &&
+			     sstrcasecmp(scan->mode,config->current_mode)==0)) &&
 			   quit_happened==0
 			   )
 			{
@@ -1650,7 +1605,7 @@ std::string lirc_setmode(const struct lirc_state *state, struct lirc_config *con
 		int success = LIRC_RET_ERROR;
 		if(snprintf(cmd.data(), LIRC_PACKET_SIZE, "SETMODE%s%s\n",
 			    !mode.empty() ? " ":"",
-			    !mode.empty() ? mode.data():"")
+			    !mode.empty() ? mode.c_str():"")
 		   >= static_cast<int>(LIRC_PACKET_SIZE))
 		{
 			return {};
