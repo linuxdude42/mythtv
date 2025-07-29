@@ -482,7 +482,7 @@ int lirc_mode(const struct lirc_state *state,
 		{
 			if(new_entry!=nullptr)
 			{
-#if 1
+#if 0
 				if(new_entry->prog.empty())
 				{
 					lirc_printf(state, "prog missing in "
