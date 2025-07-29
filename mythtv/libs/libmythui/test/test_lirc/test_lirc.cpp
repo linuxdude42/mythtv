@@ -316,22 +316,20 @@ void TestLirc::test_parse_include(void)
 // will get extensive testing by later tests.
 void TestLirc::test_mode(void)
 {
-    char *mode {nullptr};
+    std::string mode;
     std::string const token = "begin";
     std::string const token2;
     struct lirc_config_entry *new_config   {nullptr};
     struct lirc_config_entry *first_config {nullptr};
     struct lirc_config_entry *last_config  {nullptr};
 
-    auto cleanup_fn = [](char **ptr) { free(*ptr); };
-    std::unique_ptr<char*,decltype(cleanup_fn)> const cleanup { &mode, cleanup_fn };
-    auto cleanup_fn2 = [](lirc_config_entry **ptr) { free(*ptr); };
+    auto cleanup_fn2 = [](lirc_config_entry **ptr) { delete *ptr; };
     std::unique_ptr<lirc_config_entry*,decltype(cleanup_fn2)> const cleanup2 { &new_config, cleanup_fn2 };
 
     m_state = lirc_init("/etc/lircrc", ".lircrc", "test_lirc", nullptr, 0);
     QVERIFY(m_state != nullptr);
 
-    int const res = lirc_mode(m_state, token.c_str(), token2.c_str(), &mode,
+    int const res = lirc_mode(m_state, token.c_str(), token2.c_str(), mode,
                         &new_config, &first_config, &last_config,
                         [](std::string& /*s*/){return 0;}, __FUNCTION__,0);
     QCOMPARE(res, 0);
@@ -665,7 +663,7 @@ void TestLirc::test_readconfig_internal5(void)
     // Third item
     QVERIFY(entry->next != nullptr);
     entry = entry->next;
-    QVERIFY(entry->mode == nullptr);
+    QCOMPARE(entry->mode, "");
     QCOMPARE(entry->flags, 9U);
     code = entry->code;
     QVERIFY(code != nullptr);
