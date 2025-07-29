@@ -68,19 +68,19 @@ struct lirc_config
 
 struct lirc_config_entry
 {
-	char *prog;
-	struct lirc_code *code;
-	unsigned int rep_delay;
-	unsigned int rep;
-	struct lirc_list *config;
-	char *change_mode;
-	unsigned int flags;
+	std::string prog;
+	struct lirc_code *code 	       { nullptr };
+	unsigned int rep_delay         { 0 };
+	unsigned int rep               { 0 };
+	struct lirc_list *config       { nullptr };
+	std::string change_mode;
+	unsigned int flags             { none };
 	
-	char *mode;
-	struct lirc_list *next_config;
-	struct lirc_code *next_code;
+	std::string mode;
+	struct lirc_list *next_config  { nullptr };
+	struct lirc_code *next_code    { nullptr };
 
-	struct lirc_config_entry *next;
+	struct lirc_config_entry *next { nullptr };
 };
 
 struct lirc_state *lirc_init(const char *lircrc_root_file,
