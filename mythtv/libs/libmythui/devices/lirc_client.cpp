@@ -24,6 +24,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <memory>
+#include <stdexcept>
 #include <string>
 #include <sys/socket.h>
 #include <sys/stat.h>
@@ -117,7 +118,7 @@ static int lirc_code2char_internal(const struct lirc_state *state,
 static const char *lirc_read_string(const struct lirc_state *state, int fd);
 static int lirc_identify(const struct lirc_state *state, int sockfd);
 
-static int lirc_send_command(const struct lirc_state *state, int sockfd, const char *command, char *buf, size_t *buf_len, int *ret_status);
+static int lirc_send_command(const struct lirc_state *state, int sockfd, const std::string& command, char *buf, size_t *buf_len, int *ret_status);
 
 static void lirc_printf(const struct lirc_state *state, const char *format_str, ...)
 {
@@ -1427,14 +1428,14 @@ int lirc_code2char(const struct lirc_state *state, struct lirc_config *config,co
 {
 	if(config->sockfd!=-1)
 	{
-		char* command = static_cast<char*>(malloc((10+strlen(code)+1+1) * sizeof(char)));
-		if (command == nullptr)
-			return LIRC_RET_ERROR;
+		std::string command;
 		static std::array<char,LIRC_PACKET_SIZE> s_buf;
 		size_t buf_len = s_buf.size();
 		int success = LIRC_RET_ERROR;
 		
-		sprintf(command, "CODE %s\n", code);
+		command = "CODE ";
+		command += code;
+		command += "\n";
 		
 		int ret = lirc_send_command(state, config->sockfd, command,
 					s_buf.data(), &buf_len, &success);
@@ -1448,10 +1449,8 @@ int lirc_code2char(const struct lirc_state *state, struct lirc_config *config,co
 			{
 				string.clear();
 			}
-			free(command);
 			return LIRC_RET_SUCCESS;
 		}
-		free(command);
 		return LIRC_RET_ERROR;
 	}
 	std::string dummy;
@@ -1571,18 +1570,15 @@ std::string lirc_setmode(const struct lirc_state *state, struct lirc_config *con
 	if(config->sockfd!=-1)
 	{
 		static std::array<char,LIRC_PACKET_SIZE> s_buf {};
-		std::array<char,LIRC_PACKET_SIZE> cmd {};
+		std::string cmd;
 		size_t buf_len = s_buf.size();
 		int success = LIRC_RET_ERROR;
-		if(snprintf(cmd.data(), LIRC_PACKET_SIZE, "SETMODE%s%s\n",
-			    !mode.empty() ? " ":"",
-			    !mode.empty() ? mode.c_str():"")
-		   >= static_cast<int>(LIRC_PACKET_SIZE))
-		{
-			return {};
-		}
-		
-		int ret = lirc_send_command(state, config->sockfd, cmd.data(),
+		cmd = "SETMODE";
+		if (!mode.empty())
+			cmd += " " + mode;
+		cmd += "\n";
+
+		int ret = lirc_send_command(state, config->sockfd, cmd,
 					s_buf.data(), &buf_len, &success);
 		if(success == LIRC_RET_SUCCESS)
 		{
@@ -1599,6 +1595,7 @@ std::string lirc_setmode(const struct lirc_state *state, struct lirc_config *con
 	return config->current_mode;
 }
 
+// This returns a pointer into a static variable.
 static const char *lirc_read_string(const struct lirc_state *state, int fd)
 {
 	static std::array<char,LIRC_PACKET_SIZE+1> s_buffer;
@@ -1678,9 +1675,9 @@ static const char *lirc_read_string(const struct lirc_state *state, int fd)
 	return(s_buffer.data());
 }
 
-int lirc_send_command(const struct lirc_state *lstate, int sockfd, const char *command, char *buf, size_t *buf_len, int *ret_status)
+int lirc_send_command(const struct lirc_state *lstate, int sockfd, const std::string& command, char *buf, size_t *buf_len, int *ret_status)
 {
-	char *endptr = nullptr;
+	size_t end = 0;
 	unsigned long n = 0;
 	unsigned long data_n=0;
 	size_t written=0;
@@ -1691,12 +1688,12 @@ int lirc_send_command(const struct lirc_state *lstate, int sockfd, const char *c
 	{
 		max=*buf_len;
 	}
-	int todo=strlen(command);
-	const char *data=command;
-	lirc_printf(lstate, "sending command: %s", command);
+	size_t todo=command.size();
+	const char *data=command.data();
+	lirc_printf(lstate, "sending command: %s", command.data());
 	while(todo>0)
 	{
-		int done=write(sockfd,(const void *) data,todo);
+		ssize_t done=write(sockfd,(const void *) data,todo);
 		if(done<0)
 		{
 			lirc_printf(lstate, "could not send packet\n");
@@ -1715,6 +1712,7 @@ int lirc_send_command(const struct lirc_state *lstate, int sockfd, const char *c
 	n=0;
 	while(!good_packet && !bad_packet)
 	{
+		// This points into a static variable. Do not free.
 		const char *string=lirc_read_string(lstate, sockfd);
 		if(string==nullptr) return(-1);
 		lirc_printf(lstate, "read response: %s\n", string);
@@ -1728,8 +1726,8 @@ int lirc_send_command(const struct lirc_state *lstate, int sockfd, const char *c
 			state=P_MESSAGE;
 			break;
 		case P_MESSAGE:
-			if(strncasecmp(string,command,strlen(string))!=0 ||
-			   strlen(string)+1!=strlen(command))
+			if(strncasecmp(string,command.data(),strlen(string))!=0 ||
+			   strlen(string)+1!=command.size())
 			{
 				state=P_BEGIN;
 				continue;
@@ -1750,7 +1748,7 @@ int lirc_send_command(const struct lirc_state *lstate, int sockfd, const char *c
 			else if(strcasecmp(string,"ERROR")==0)
 			{
 				lirc_printf(lstate, "command failed: %s",
-					    command);
+					    command.data());
 				status=LIRC_RET_ERROR;
 			}
 			else
@@ -1774,9 +1772,13 @@ int lirc_send_command(const struct lirc_state *lstate, int sockfd, const char *c
 			bad_packet = true;
 			break;
 		case P_N:
-			errno=0;
-			data_n=strtoul(string,&endptr,0);
-			if(!*string || *endptr)
+			end=0;
+			try {
+				data_n=std::stoul(string,&end,0);
+			}
+			catch (std::invalid_argument) {}
+			catch (std::out_of_range) {}
+			if((end == 0) || (string[end] != 0))
 			{
 				bad_packet = true;
 				break;
@@ -1830,15 +1832,14 @@ int lirc_send_command(const struct lirc_state *lstate, int sockfd, const char *c
 
 int lirc_identify(const struct lirc_state *state, int sockfd)
 {
-	char* command = static_cast<char*>(malloc((10+state->lirc_prog.size()+1+1) * sizeof(char)));
-	if (command == nullptr)
-		return LIRC_RET_ERROR;
+	std::string command;
 	int success = LIRC_RET_ERROR;
 
-	sprintf(command, "IDENT %s\n", state->lirc_prog.data());
+	command = "IDENT ";
+	command += state->lirc_prog;
+	command += "\n";
 
 	(void) lirc_send_command(state, sockfd, command, nullptr, nullptr, &success);
-	free(command);
 	return success;
 }
 // NOLINTEND(performance-no-int-to-ptr)
