@@ -1305,7 +1305,7 @@ protected:
 
 private:
     HLSRingBuffer  *m_parent         {nullptr};
-    bool            m_interrupted    {false};
+    volatile bool   m_interrupted    {false};
                     // measured average download bandwidth (bits per second)
     int64_t         m_bandwidth      {0};
     int             m_stream         {0};// current HLSStream
@@ -1606,7 +1606,7 @@ private:
 
     // private variable members
     HLSRingBuffer * m_parent      {nullptr};
-    bool            m_interrupted {false};
+    volatile bool   m_interrupted {false};
     std::chrono::milliseconds m_wakeup;       // next reload time
     int             m_retries     {0}; // number of consecutive failures
     bool            m_wokenup     {false};
@@ -2846,7 +2846,7 @@ int HLSRingBuffer::SafeRead(void *data, uint sz)
         i_read  -= len;
         segment->Unlock();
     }
-    while (i_read > 0 && !m_interrupted); // cppcheck-suppress knownConditionTrueFalse
+    while (i_read > 0 && !m_interrupted);
 
     if (m_interrupted)
         LOG(VB_PLAYBACK, LOG_DEBUG, LOC + QString("interrupted"));

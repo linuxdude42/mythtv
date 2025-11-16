@@ -99,7 +99,7 @@ class IPTVChannelFetcher : public QRunnable
     fbox_chan_map_t  m_channels;
     uint             m_chanCnt        {1};
     bool             m_threadRunning  {false};
-    bool             m_stopNow        {false};
+    volatile bool    m_stopNow        {false};
     MThread         *m_thread         {nullptr};
     QMutex           m_lock;
 };

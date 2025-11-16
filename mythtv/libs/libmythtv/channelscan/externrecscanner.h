@@ -47,7 +47,7 @@ class ExternRecChannelScanner : public QRunnable
     uint         m_channelTotal  {0};
     uint         m_channelCnt    {1};
     bool         m_threadRunning {false};
-    bool         m_stopNow       {false};
+    volatile bool m_stopNow      {false};
     MThread     *m_thread        {nullptr};
     QMutex       m_lock;
 };

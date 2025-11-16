@@ -66,7 +66,7 @@ class FillData
     QString m_grabOptions;
     uint    m_maxDays                 {0};
 
-    bool    m_interrupted             {false};
+    volatile bool m_interrupted       {false};
     bool    m_endOfData               {false};
     bool    m_refreshTba              {true};
     bool    m_needPostGrabProc        {true};

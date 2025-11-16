@@ -166,7 +166,7 @@ class AudioTestThread : public MThread
     int                     m_channels;
     QString                 m_device;
     QString                 m_passthrough;
-    bool                    m_interrupted {false};
+    volatile bool           m_interrupted {false};
     int                     m_channel     {-1};
     bool                    m_hd          {false};
     int                     m_samplerate  {48000};

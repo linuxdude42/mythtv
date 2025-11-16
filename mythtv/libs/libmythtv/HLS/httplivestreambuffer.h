@@ -126,7 +126,7 @@ private:
     friend class PlaylistWorker;
     PlaylistWorker     *m_playlistworker {nullptr};
     FILE               *m_fd             {nullptr};
-    bool                m_interrupted    {false};
+    volatile bool       m_interrupted    {false};
     bool                m_killed         {false};
 };
 

@@ -118,7 +118,7 @@ class HDHRChannelFetcher : public QRunnable
     hdhr_chan_map_t     *m_channels       {nullptr};
     uint                 m_chanCnt        {1};
     bool                 m_threadRunning  {false};
-    bool                 m_stopNow        {false};
+    volatile bool        m_stopNow        {false};
     MThread             *m_thread         {nullptr};
     QMutex               m_lock;
 };
