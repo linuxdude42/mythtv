@@ -24,6 +24,7 @@
 
 #include "mpeg2config.h"
 
+#include <stddef.h>
 #include <inttypes.h>
 
 #include "mpeg2.h"
@@ -938,18 +939,18 @@ static inline void slice_non_intra_DCT (mpeg2_decoder_t * const decoder,
 	(motion_y) = pos_y - 2 * decoder->v_offset - 2 * (y);		      \
     }									      \
     xy_half = ((pos_y & 1) << 1) | (pos_x & 1);				      \
-    (table)[xy_half] (decoder->dest[0] + (y) * decoder->stride + decoder->offset, \
-		    (ref)[0] + (pos_x >> 1) + (pos_y >> 1) * decoder->stride, \
+    (table)[xy_half] (decoder->dest[0] + (y) * (ptrdiff_t)(decoder->stride) + decoder->offset, \
+		    (ref)[0] + (pos_x >> 1) + (pos_y >> 1) * (ptrdiff_t)(decoder->stride), \
 		    decoder->stride, size);				      \
     (motion_x) /= 2;	(motion_y) /= 2;				      \
     xy_half = (((motion_y) & 1) << 1) | ((motion_x) & 1);		      \
     offset = (((decoder->offset + (motion_x)) >> 1) +			      \
 	      ((((decoder->v_offset + (motion_y)) >> 1) + (y)/2) *	      \
 	       decoder->uv_stride));					      \
-    (table)[4+xy_half] (decoder->dest[1] + (y)/2 * decoder->uv_stride +	      \
+    (table)[4+xy_half] (decoder->dest[1] + (y)/2 * (ptrdiff_t)(decoder->uv_stride) + \
 		      (decoder->offset >> 1), (ref)[1] + offset,	      \
 		      decoder->uv_stride, (size)/2);			      \
-    (table)[4+xy_half] (decoder->dest[2] + (y)/2 * decoder->uv_stride +	      \
+    (table)[4+xy_half] (decoder->dest[2] + (y)/2 * (ptrdiff_t)(decoder->uv_stride) + \
 		      (decoder->offset >> 1), (ref)[2] + offset,	      \
 		      decoder->uv_stride, (size)/2)
 
@@ -965,20 +966,20 @@ static inline void slice_non_intra_DCT (mpeg2_decoder_t * const decoder,
 	(motion_y) = pos_y - decoder->v_offset;				      \
     }									      \
     xy_half = ((pos_y & 1) << 1) | (pos_x & 1);				      \
-    (table)[xy_half] (decoder->dest[0] + (dest_field) * decoder->stride +     \
+    (table)[xy_half] (decoder->dest[0] + (dest_field) * (ptrdiff_t)(decoder->stride) + \
 		    decoder->offset,					      \
 		    ((ref)[0] + (pos_x >> 1) +				      \
-		     ((pos_y op) + (src_field)) * decoder->stride),	      \
+		     ((pos_y op) + (src_field)) * (ptrdiff_t)(decoder->stride)), \
 		    2 * decoder->stride, 8);				      \
     (motion_x) /= 2;	(motion_y) /= 2;				      \
     xy_half = (((motion_y) & 1) << 1) | ((motion_x) & 1);		      \
     offset = (((decoder->offset + (motion_x)) >> 1) +			      \
 	      (((decoder->v_offset >> 1) + (motion_y op) + (src_field)) *     \
 	       decoder->uv_stride));					      \
-    (table)[4+xy_half] (decoder->dest[1] + (dest_field) * decoder->uv_stride + \
+    (table)[4+xy_half] (decoder->dest[1] + (dest_field) * (ptrdiff_t)(decoder->uv_stride) + \
 		      (decoder->offset >> 1), (ref)[1] + offset,	      \
 		      2 * decoder->uv_stride, 4);			      \
-    (table)[4+xy_half] (decoder->dest[2] + (dest_field) * decoder->uv_stride + \
+    (table)[4+xy_half] (decoder->dest[2] + (dest_field) * (ptrdiff_t)(decoder->uv_stride) + \
 		      (decoder->offset >> 1), (ref)[2] + offset,	      \
 		      2 * decoder->uv_stride, 4)
 
@@ -1021,7 +1022,7 @@ static inline void slice_non_intra_DCT (mpeg2_decoder_t * const decoder,
 #define MOTION_ZERO_420(table,ref)					      \
     table[0] (decoder->dest[0] + decoder->offset,			      \
 	      ((ref)[0] + decoder->offset +				      \
-	       decoder->v_offset * decoder->stride), decoder->stride, 16);    \
+	       decoder->v_offset * (ptrdiff_t)(decoder->stride)), decoder->stride, 16); \
     offset = ((decoder->offset >> 1) +					      \
 	      (decoder->v_offset >> 1) * decoder->uv_stride);		      \
     (table)[4] (decoder->dest[1] + (decoder->offset >> 1),		      \
@@ -1042,15 +1043,15 @@ static inline void slice_non_intra_DCT (mpeg2_decoder_t * const decoder,
     }									      \
     xy_half = ((pos_y & 1) << 1) | (pos_x & 1);				      \
     offset = (pos_x >> 1) + (pos_y >> 1) * decoder->stride;		      \
-    (table)[xy_half] (decoder->dest[0] + (y) * decoder->stride + decoder->offset, \
+    (table)[xy_half] (decoder->dest[0] + (y) * (ptrdiff_t)(decoder->stride) + decoder->offset, \
 		    (ref)[0] + offset, decoder->stride, size);		      \
     offset = (offset + ((motion_x) & ((motion_x) < 0))) >> 1;		      \
     (motion_x) /= 2;							      \
     xy_half = ((pos_y & 1) << 1) | ((motion_x) & 1);			      \
-    (table)[4+xy_half] (decoder->dest[1] + (y) * decoder->uv_stride +	      \
+    (table)[4+xy_half] (decoder->dest[1] + (y) * (ptrdiff_t)(decoder->uv_stride) + \
 		      (decoder->offset >> 1), (ref)[1] + offset,	      \
 		      decoder->uv_stride, size);			      \
-    (table)[4+xy_half] (decoder->dest[2] + (y) * decoder->uv_stride +	      \
+    (table)[4+xy_half] (decoder->dest[2] + (y) * (ptrdiff_t)(decoder->uv_stride) + \
 		      (decoder->offset >> 1), (ref)[2] + offset,	      \
 		      decoder->uv_stride, size)
 
@@ -1067,16 +1068,16 @@ static inline void slice_non_intra_DCT (mpeg2_decoder_t * const decoder,
     }									      \
     xy_half = ((pos_y & 1) << 1) | (pos_x & 1);				      \
     offset = (pos_x >> 1) + ((pos_y op) + (src_field)) * decoder->stride;     \
-    (table)[xy_half] (decoder->dest[0] + (dest_field) * decoder->stride +     \
+    (table)[xy_half] (decoder->dest[0] + (dest_field) * (ptrdiff_t)(decoder->stride) + \
 		    decoder->offset, (ref)[0] + offset,			      \
 		    2 * decoder->stride, 8);				      \
     offset = (offset + ((motion_x) & ((motion_x) < 0))) >> 1;		      \
     (motion_x) /= 2;							      \
     xy_half = ((pos_y & 1) << 1) | ((motion_x) & 1);			      \
-    (table)[4+xy_half] (decoder->dest[1] + (dest_field) * decoder->uv_stride + \
+    (table)[4+xy_half] (decoder->dest[1] + (dest_field) * (ptrdiff_t)(decoder->uv_stride) + \
 		      (decoder->offset >> 1), (ref)[1] + offset,	      \
 		      2 * decoder->uv_stride, 8);			      \
-    (table)[4+xy_half] (decoder->dest[2] + (dest_field) * decoder->uv_stride + \
+    (table)[4+xy_half] (decoder->dest[2] + (dest_field) * (ptrdiff_t)(decoder->uv_stride) + \
 		      (decoder->offset >> 1), (ref)[2] + offset,	      \
 		      2 * decoder->uv_stride, 8)
 
@@ -1137,11 +1138,11 @@ static inline void slice_non_intra_DCT (mpeg2_decoder_t * const decoder,
     }									      \
     xy_half = ((pos_y & 1) << 1) | (pos_x & 1);				      \
     offset = (pos_x >> 1) + (pos_y >> 1) * decoder->stride;		      \
-    (table)[xy_half] (decoder->dest[0] + (y) * decoder->stride + decoder->offset, \
+    (table)[xy_half] (decoder->dest[0] + (y) * (ptrdiff_t)(decoder->stride) + decoder->offset, \
 		    (ref)[0] + offset, decoder->stride, size);		      \
-    (table)[xy_half] (decoder->dest[1] + (y) * decoder->stride + decoder->offset, \
+    (table)[xy_half] (decoder->dest[1] + (y) * (ptrdiff_t)(decoder->stride) + decoder->offset, \
 		    (ref)[1] + offset, decoder->stride, size);		      \
-    (table)[xy_half] (decoder->dest[2] + (y) * decoder->stride + decoder->offset, \
+    (table)[xy_half] (decoder->dest[2] + (y) * (ptrdiff_t)(decoder->stride) + decoder->offset, \
 		    (ref)[2] + offset, decoder->stride, size)
 
 #define MOTION_FIELD_444(table,ref,motion_x,motion_y,dest_field,op,src_field) \
@@ -1157,13 +1158,13 @@ static inline void slice_non_intra_DCT (mpeg2_decoder_t * const decoder,
     }									      \
     xy_half = ((pos_y & 1) << 1) | (pos_x & 1);				      \
     offset = (pos_x >> 1) + ((pos_y op) + (src_field)) * decoder->stride;     \
-    (table)[xy_half] (decoder->dest[0] + (dest_field) * decoder->stride +     \
+    (table)[xy_half] (decoder->dest[0] + (dest_field) * (ptrdiff_t)(decoder->stride) + \
 		    decoder->offset, (ref)[0] + offset,			      \
 		    2 * decoder->stride, 8);				      \
-    (table)[xy_half] (decoder->dest[1] + (dest_field) * decoder->stride +     \
+    (table)[xy_half] (decoder->dest[1] + (dest_field) * (ptrdiff_t)(decoder->stride) + \
 		    decoder->offset, (ref)[1] + offset,			      \
 		    2 * decoder->stride, 8);				      \
-    (table)[xy_half] (decoder->dest[2] + (dest_field) * decoder->stride +     \
+    (table)[xy_half] (decoder->dest[2] + (dest_field) * (ptrdiff_t)(decoder->stride) + \
 		    decoder->offset, (ref)[2] + offset,			      \
 		    2 * decoder->stride, 8)
 

@@ -25,6 +25,7 @@
 
 #if ARCH_X86
 
+#include <stddef.h>
 #include <inttypes.h>
 
 #include "mpeg2.h"
@@ -400,6 +401,7 @@ static inline void idct_col (int16_t * col, int offset)
 }
 #endif
 
+#define ROWSIZE ((ptrdiff_t)8)
 
 /* MMX column IDCT */
 /* NOLINTNEXTLINE(readability-non-const-parameter) */
@@ -420,19 +422,19 @@ static inline void idct_col (int16_t * const col, const int offset)
 
     movq_m2r (*kT1, mm0);		/* mm0 = T1 */
 
-    movq_m2r (*(col+offset+1*8), mm1);	/* mm1 = x1 */
+    movq_m2r (*(col+offset+1*ROWSIZE), mm1);	/* mm1 = x1 */
     movq_r2r (mm0, mm2);		/* mm2 = T1 */
 
-    movq_m2r (*(col+offset+7*8), mm4);	/* mm4 = x7 */
+    movq_m2r (*(col+offset+7*ROWSIZE), mm4);	/* mm4 = x7 */
     pmulhw_r2r (mm1, mm0);		/* mm0 = T1*x1 */
 
     movq_m2r (*kT3, mm5);		/* mm5 = T3 */
     pmulhw_r2r (mm4, mm2);		/* mm2 = T1*x7 */
 
-    movq_m2r (*(col+offset+5*8), mm6);	/* mm6 = x5 */
+    movq_m2r (*(col+offset+5*ROWSIZE), mm6);	/* mm6 = x5 */
     movq_r2r (mm5, mm7);		/* mm7 = T3-1 */
 
-    movq_m2r (*(col+offset+3*8), mm3);	/* mm3 = x3 */
+    movq_m2r (*(col+offset+3*ROWSIZE), mm3);	/* mm3 = x3 */
     psubsw_r2r (mm4, mm0);		/* mm0 = v17 */
 
     movq_m2r (*kT2, mm4);		/* mm4 = T2 */
@@ -446,13 +448,13 @@ static inline void idct_col (int16_t * const col, const int offset)
     movq_r2r (mm4, mm2);		/* mm2 = T2 */
     paddsw_r2r (mm3, mm5);		/* mm5 = T3*x3 */
 
-    pmulhw_m2r (*(col+offset+2*8), mm4);/* mm4 = T2*x2 */
+    pmulhw_m2r (*(col+offset+2*ROWSIZE), mm4);/* mm4 = T2*x2 */
     paddsw_r2r (mm6, mm7);		/* mm7 = T3*x5 */
 
     psubsw_r2r (mm6, mm5);		/* mm5 = v35 */
     paddsw_r2r (mm3, mm7);		/* mm7 = u35 */
 
-    movq_m2r (*(col+offset+6*8), mm3);	/* mm3 = x6 */
+    movq_m2r (*(col+offset+6*ROWSIZE), mm3);	/* mm3 = x6 */
     movq_r2r (mm0, mm6);		/* mm6 = v17 */
 
     pmulhw_r2r (mm3, mm2);		/* mm2 = T2*x6 */
@@ -461,28 +463,28 @@ static inline void idct_col (int16_t * const col, const int offset)
     psubsw_r2r (mm3, mm4);		/* mm4 = v26 */
     paddsw_r2r (mm6, mm5);		/* mm5 = v12 */
 
-    movq_r2m (mm0, *(col+offset+3*8));	/* save b3 in scratch0 */
+    movq_r2m (mm0, *(col+offset+3*ROWSIZE));	/* save b3 in scratch0 */
     movq_r2r (mm1, mm6);		/* mm6 = u17 */
 
-    paddsw_m2r (*(col+offset+2*8), mm2);/* mm2 = u26 */
+    paddsw_m2r (*(col+offset+2*ROWSIZE), mm2);/* mm2 = u26 */
     paddsw_r2r (mm7, mm6);		/* mm6 = b0 */
 
     psubsw_r2r (mm7, mm1);		/* mm1 = u12 */
     movq_r2r (mm1, mm7);		/* mm7 = u12 */
 
-    movq_m2r (*(col+offset+0*8), mm3);	/* mm3 = x0 */
+    movq_m2r (*(col+offset+0*ROWSIZE), mm3);	/* mm3 = x0 */
     paddsw_r2r (mm5, mm1);		/* mm1 = u12+v12 */
 
     movq_m2r (*kC4, mm0);		/* mm0 = C4/2 */
     psubsw_r2r (mm5, mm7);		/* mm7 = u12-v12 */
 
-    movq_r2m (mm6, *(col+offset+5*8));	/* save b0 in scratch1 */
+    movq_r2m (mm6, *(col+offset+5*ROWSIZE));	/* save b0 in scratch1 */
     pmulhw_r2r (mm0, mm1);		/* mm1 = b1/2 */
 
     movq_r2r (mm4, mm6);		/* mm6 = v26 */
     pmulhw_r2r (mm0, mm7);		/* mm7 = b2/2 */
 
-    movq_m2r (*(col+offset+4*8), mm5);	/* mm5 = x4 */
+    movq_m2r (*(col+offset+4*ROWSIZE), mm5);	/* mm5 = x4 */
     movq_r2r (mm3, mm0);		/* mm0 = x0 */
 
     psubsw_r2r (mm5, mm3);		/* mm3 = v04 */
@@ -509,41 +511,41 @@ static inline void idct_col (int16_t * const col, const int offset)
     psraw_i2r (COL_SHIFT, mm4);		/* mm4 = y1 */
     psubsw_r2r (mm1, mm6);		/* mm6 = a1-b1 */
 
-    movq_m2r (*(col+offset+5*8), mm1);	/* mm1 = b0 */
+    movq_m2r (*(col+offset+5*ROWSIZE), mm1);	/* mm1 = b0 */
     psubsw_r2r (mm7, mm2);		/* mm2 = a2-b2 */
 
     psraw_i2r (COL_SHIFT, mm6);		/* mm6 = y6 */
     movq_r2r (mm5, mm7);		/* mm7 = a0 */
 
-    movq_r2m (mm4, *(col+offset+1*8));	/* save y1 */
+    movq_r2m (mm4, *(col+offset+1*ROWSIZE));	/* save y1 */
     psraw_i2r (COL_SHIFT, mm2);		/* mm2 = y5 */
 
-    movq_r2m (mm3, *(col+offset+2*8));	/* save y2 */
+    movq_r2m (mm3, *(col+offset+2*ROWSIZE));	/* save y2 */
     paddsw_r2r (mm1, mm5);		/* mm5 = a0+b0 */
 
-    movq_m2r (*(col+offset+3*8), mm4);	/* mm4 = b3 */
+    movq_m2r (*(col+offset+3*ROWSIZE), mm4);	/* mm4 = b3 */
     psubsw_r2r (mm1, mm7);		/* mm7 = a0-b0 */
 
     psraw_i2r (COL_SHIFT, mm5);		/* mm5 = y0 */
     movq_r2r (mm0, mm3);		/* mm3 = a3 */
 
-    movq_r2m (mm2, *(col+offset+5*8));	/* save y5 */
+    movq_r2m (mm2, *(col+offset+5*ROWSIZE));	/* save y5 */
     psubsw_r2r (mm4, mm3);		/* mm3 = a3-b3 */
 
     psraw_i2r (COL_SHIFT, mm7);		/* mm7 = y7 */
     paddsw_r2r (mm0, mm4);		/* mm4 = a3+b3 */
 
-    movq_r2m (mm5, *(col+offset+0*8));	/* save y0 */
+    movq_r2m (mm5, *(col+offset+0*ROWSIZE));	/* save y0 */
     psraw_i2r (COL_SHIFT, mm3);		/* mm3 = y4 */
 
-    movq_r2m (mm6, *(col+offset+6*8));	/* save y6 */
+    movq_r2m (mm6, *(col+offset+6*ROWSIZE));	/* save y6 */
     psraw_i2r (COL_SHIFT, mm4);		/* mm4 = y3 */
 
-    movq_r2m (mm7, *(col+offset+7*8));	/* save y7 */
+    movq_r2m (mm7, *(col+offset+7*ROWSIZE));	/* save y7 */
 
-    movq_r2m (mm3, *(col+offset+4*8));	/* save y4 */
+    movq_r2m (mm3, *(col+offset+4*ROWSIZE));	/* save y4 */
 
-    movq_r2m (mm4, *(col+offset+3*8));	/* save y3 */
+    movq_r2m (mm4, *(col+offset+3*ROWSIZE));	/* save y3 */
 }
 
 
@@ -610,21 +612,21 @@ do {					\
 
 /* NOLINTNEXTLINE(readability-non-const-parameter) */
 static inline void block_copy (const int16_t * const block, uint8_t * dest,
-			       const int stride)
+			       const ptrdiff_t stride)
 {
-    movq_m2r (*(block+0*8), mm0);
-    movq_m2r (*(block+0*8+4), mm1);
-    movq_m2r (*(block+1*8), mm2);
+    movq_m2r (*(block+0*ROWSIZE), mm0);
+    movq_m2r (*(block+0*ROWSIZE+4), mm1);
+    movq_m2r (*(block+1*ROWSIZE), mm2);
     packuswb_r2r (mm1, mm0);
-    movq_m2r (*(block+1*8+4), mm3);
+    movq_m2r (*(block+1*ROWSIZE+4), mm3);
     movq_r2m (mm0, *dest);
     packuswb_r2r (mm3, mm2);
-    COPY_MMX (2*8, mm0, mm1, mm2);
-    COPY_MMX (3*8, mm2, mm3, mm0);
-    COPY_MMX (4*8, mm0, mm1, mm2);
-    COPY_MMX (5*8, mm2, mm3, mm0);
-    COPY_MMX (6*8, mm0, mm1, mm2);
-    COPY_MMX (7*8, mm2, mm3, mm0);
+    COPY_MMX (2*ROWSIZE, mm0, mm1, mm2);
+    COPY_MMX (3*ROWSIZE, mm2, mm3, mm0);
+    COPY_MMX (4*ROWSIZE, mm0, mm1, mm2);
+    COPY_MMX (5*ROWSIZE, mm2, mm3, mm0);
+    COPY_MMX (6*ROWSIZE, mm0, mm1, mm2);
+    COPY_MMX (7*ROWSIZE, mm2, mm3, mm0);
     movq_r2m (mm2, *(dest+stride));
 }
 
@@ -644,7 +646,7 @@ do {					\
 
 /* NOLINTNEXTLINE(readability-non-const-parameter) */
 static inline void block_add (const int16_t * const block, uint8_t * dest,
-			      const int stride)
+			      const ptrdiff_t stride)
 {
     movq_m2r (*dest, mm1);
     pxor_r2r (mm0, mm0);
@@ -652,46 +654,47 @@ static inline void block_add (const int16_t * const block, uint8_t * dest,
     movq_r2r (mm1, mm2);
     punpcklbw_r2r (mm0, mm1);
     movq_r2r (mm3, mm4);
-    paddsw_m2r (*(block+0*8), mm1);
+    paddsw_m2r (*(block+0*ROWSIZE), mm1);
     punpckhbw_r2r (mm0, mm2);
-    paddsw_m2r (*(block+0*8+4), mm2);
+    paddsw_m2r (*(block+0*ROWSIZE+4), mm2);
     punpcklbw_r2r (mm0, mm3);
-    paddsw_m2r (*(block+1*8), mm3);
+    paddsw_m2r (*(block+1*ROWSIZE), mm3);
     packuswb_r2r (mm2, mm1);
     punpckhbw_r2r (mm0, mm4);
     movq_r2m (mm1, *dest);
-    paddsw_m2r (*(block+1*8+4), mm4);
-    ADD_MMX (2*8, mm1, mm2, mm3, mm4);
-    ADD_MMX (3*8, mm3, mm4, mm1, mm2);
-    ADD_MMX (4*8, mm1, mm2, mm3, mm4);
-    ADD_MMX (5*8, mm3, mm4, mm1, mm2);
-    ADD_MMX (6*8, mm1, mm2, mm3, mm4);
-    ADD_MMX (7*8, mm3, mm4, mm1, mm2);
+    paddsw_m2r (*(block+1*ROWSIZE+4), mm4);
+    ADD_MMX (2*ROWSIZE, mm1, mm2, mm3, mm4);
+    ADD_MMX (3*ROWSIZE, mm3, mm4, mm1, mm2);
+    ADD_MMX (4*ROWSIZE, mm1, mm2, mm3, mm4);
+    ADD_MMX (5*ROWSIZE, mm3, mm4, mm1, mm2);
+    ADD_MMX (6*ROWSIZE, mm1, mm2, mm3, mm4);
+    ADD_MMX (7*ROWSIZE, mm3, mm4, mm1, mm2);
     packuswb_r2r (mm4, mm3);
     movq_r2m (mm3, *(dest+stride));
 }
 
 
+#define WIDTH ((ptrdiff_t)4)
 /* NOLINTNEXTLINE(readability-non-const-parameter) */
 static inline void block_zero (int16_t * const block)
 {
     pxor_r2r (mm0, mm0);
-    movq_r2m (mm0, *(block+0*4));
-    movq_r2m (mm0, *(block+1*4));
-    movq_r2m (mm0, *(block+2*4));
-    movq_r2m (mm0, *(block+3*4));
-    movq_r2m (mm0, *(block+4*4));
-    movq_r2m (mm0, *(block+5*4));
-    movq_r2m (mm0, *(block+6*4));
-    movq_r2m (mm0, *(block+7*4));
-    movq_r2m (mm0, *(block+8*4));
-    movq_r2m (mm0, *(block+9*4));
-    movq_r2m (mm0, *(block+10*4));
-    movq_r2m (mm0, *(block+11*4));
-    movq_r2m (mm0, *(block+12*4));
-    movq_r2m (mm0, *(block+13*4));
-    movq_r2m (mm0, *(block+14*4));
-    movq_r2m (mm0, *(block+15*4));
+    movq_r2m (mm0, *(block+0*WIDTH));
+    movq_r2m (mm0, *(block+1*WIDTH));
+    movq_r2m (mm0, *(block+2*WIDTH));
+    movq_r2m (mm0, *(block+3*WIDTH));
+    movq_r2m (mm0, *(block+4*WIDTH));
+    movq_r2m (mm0, *(block+5*WIDTH));
+    movq_r2m (mm0, *(block+6*WIDTH));
+    movq_r2m (mm0, *(block+7*WIDTH));
+    movq_r2m (mm0, *(block+8*WIDTH));
+    movq_r2m (mm0, *(block+9*WIDTH));
+    movq_r2m (mm0, *(block+10*WIDTH));
+    movq_r2m (mm0, *(block+11*WIDTH));
+    movq_r2m (mm0, *(block+12*WIDTH));
+    movq_r2m (mm0, *(block+13*WIDTH));
+    movq_r2m (mm0, *(block+14*WIDTH));
+    movq_r2m (mm0, *(block+15*WIDTH));
 }
 
 
@@ -709,7 +712,7 @@ do {					\
 
 /* NOLINTNEXTLINE(readability-non-const-parameter) */
 static inline void block_add_DC (int16_t * const block, uint8_t * dest,
-				 const int stride, const int cpu)
+				 const ptrdiff_t stride, const int cpu)
 {
     movd_v2r ((block[0] + 64) >> 7, mm0);
     pxor_r2r (mm1, mm1);

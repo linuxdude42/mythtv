@@ -24,6 +24,7 @@
 
 #include "mpeg2config.h"
 
+#include <stddef.h>
 #include <inttypes.h>
 #include <stdlib.h>	/* defines NULL */
 #include <string.h>	/* memcmp */
@@ -658,6 +659,7 @@ static int picture_coding_ext (mpeg2dec_t * mpeg2dec)
     return 0;
 }
 
+#define ROWSIZE ((ptrdiff_t)4)
 static int picture_display_ext (mpeg2dec_t * mpeg2dec)
 {
     uint8_t * buffer = mpeg2dec->chunk_start;
@@ -669,10 +671,10 @@ static int picture_display_ext (mpeg2dec_t * mpeg2dec)
 	nb_pos >>= 1;
 
     for (i = 0; i < nb_pos; i++) {
-	int x = ((buffer[4*i] << 24) | (buffer[(4*i)+1] << 16) |
-                 (buffer[(4*i)+2] << 8) | buffer[(4*i)+3]) >> (11-2*i);
-	int y = ((buffer[(4*i)+2] << 24) | (buffer[(4*i)+3] << 16) |
-                 (buffer[(4*i)+4] << 8) | buffer[(4*i)+5]) >> (10-2*i);
+	int x = ((buffer[ROWSIZE*i] << 24) | (buffer[(ROWSIZE*i)+1] << 16) |
+                 (buffer[(ROWSIZE*i)+2] << 8) | buffer[(ROWSIZE*i)+3]) >> (11-2*i);
+	int y = ((buffer[(ROWSIZE*i)+2] << 24) | (buffer[(ROWSIZE*i)+3] << 16) |
+                 (buffer[(ROWSIZE*i)+4] << 8) | buffer[(ROWSIZE*i)+5]) >> (10-2*i);
 	if (! (x & y & 1))
 	    return 1;
 	picture->display_offset[i].x = mpeg2dec->display_offset_x = x >> 1;
