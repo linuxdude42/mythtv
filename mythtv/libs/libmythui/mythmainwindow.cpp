@@ -1917,11 +1917,11 @@ void MythMainWindow::customEvent(QEvent* Event)
         auto * event = dynamic_cast<ExternalKeycodeEvent *>(Event);
         if (event == nullptr)
             return;
-        auto * key = new QKeyEvent(QEvent::KeyPress, event->getKeycode(), Qt::NoModifier);
-        if (auto * target = GetTarget(*key); target)
-            QCoreApplication::sendEvent(target, key);
+        QKeyEvent key(QEvent::KeyPress, event->getKeycode(), Qt::NoModifier);
+        if (auto * target = GetTarget(key); target)
+            QCoreApplication::sendEvent(target, &key);
         else
-            QCoreApplication::sendEvent(this, key);
+            QCoreApplication::sendEvent(this, &key);
     }
     else if (Event->type() == MythMediaEvent::kEventType)
     {
