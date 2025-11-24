@@ -37,6 +37,8 @@ function(find_or_build_libass)
     DOWNLOAD_DIR ${TARBALL_DIR}
     URL https://github.com/libass/libass/releases/download/${LIBASS_VERSION}/${LIBASS_PREFIX}.tar.xz
     URL_HASH SHA256=${LIBASS_${LIBASS_VERSION}_SHA256}
+    PATCH_COMMAND patch -p1 <
+                  ${PROJECT_SOURCE_DIR}/patches/${LIBASS_PREFIX}.patch
     CONFIGURE_COMMAND
       ${CMAKE_COMMAND} -E env ${PLATFORM_CONFIGURE_ENV}
       "LDFLAGS=-L${LIBS_INSTALL_PREFIX}/lib" <SOURCE_DIR>/configure
