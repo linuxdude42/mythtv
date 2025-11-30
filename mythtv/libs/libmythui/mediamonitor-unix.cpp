@@ -55,9 +55,9 @@ extern "C" {
 
 #ifndef Q_OS_ANDROID
 #ifndef MNTTYPE_ISO9660
-#   ifdef __linux__
+#   ifdef Q_OS_LINUX
     static constexpr const char* MNTTYPE_ISO9660 { "iso9660" };
-#   elif defined(__FreeBSD__) || defined(Q_OS_DARWIN) || defined(__OpenBSD__)
+#   elif defined(Q_OS_BSD4)
     static constexpr const char* MNTTYPE_ISO9660 { "cd9660" };
 #   endif
 #endif

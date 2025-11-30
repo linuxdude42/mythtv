@@ -249,7 +249,7 @@ bool ExternIO::Run(void)
 /* Return true if the process is not, or is no longer running */
 bool ExternIO::KillIfRunning([[maybe_unused]] const QString & cmd)
 {
-#if defined(Q_OS_DARWIN) || defined(__FreeBSD__) || defined(__OpenBSD__)
+#ifdef Q_OS_BSD4
     return false;
 #elif defined( _WIN32 )
     return false;

@@ -706,9 +706,9 @@ bool MythCoreContext::IsMasterBackend(void)
 
 bool MythCoreContext::BackendIsRunning(void)
 {
-#if defined(Q_OS_DARWIN) || defined(__FreeBSD__) || defined(__OpenBSD__)
+#ifdef Q_OS_BSD4
     const char *command = "ps -axc | grep -i mythbackend | grep -v grep > /dev/null";
-#elif defined _WIN32
+#elif defined(_WIN32)
     const char *command = "%systemroot%\\system32\\tasklist.exe "
        " | %systemroot%\\system32\\find.exe /i \"mythbackend.exe\" ";
 #else

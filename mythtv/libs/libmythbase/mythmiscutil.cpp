@@ -19,7 +19,7 @@
 #include "compat.h"
 #include <QtGlobal>
 
-#ifdef __linux__
+#ifdef Q_OS_LINUX
 #include <sys/vfs.h>
 #include <sys/sysinfo.h>
 #include <sys/stat.h> // for umask, chmod
@@ -29,7 +29,7 @@
 #include <mach/mach.h>
 #endif
 
-#ifdef BSD
+#ifdef Q_OS_BSD4
 #include <sys/mount.h>  // for struct statfs
 #include <sys/sysctl.h>
 #include <sys/stat.h> // for umask, chmod
@@ -64,7 +64,7 @@
  */
 bool getUptime(std::chrono::seconds &uptime)
 {
-#ifdef __linux__
+#ifdef Q_OS_LINUX
     struct sysinfo sinfo {};
     if (sysinfo(&sinfo) == -1)
     {
@@ -73,7 +73,7 @@ bool getUptime(std::chrono::seconds &uptime)
     }
     uptime = std::chrono::seconds(sinfo.uptime);
 
-#elif defined(__FreeBSD__) || defined(Q_OS_DARWIN)
+#elif defined(Q_OS_BSD4)
 
     std::array<int,2> mib { CTL_KERN, KERN_BOOTTIME };
     struct timeval bootTime;
@@ -111,7 +111,7 @@ bool getMemStats([[maybe_unused]] int &totalMB,
                  [[maybe_unused]] int &totalVM,
                  [[maybe_unused]] int &freeVM)
 {
-#ifdef __linux__
+#ifdef Q_OS_LINUX
     static constexpr size_t MB { 1024LL * 1024 };
     struct sysinfo sinfo {};
     if (sysinfo(&sinfo) == -1)
@@ -209,7 +209,7 @@ bool ping(const QString &host, std::chrono::milliseconds timeout)
     QString addrstr =
         MythCoreContext::resolveAddress(host, MythCoreContext::ResolveAny, true);
     QHostAddress addr = QHostAddress(addrstr);
-#if defined(__FreeBSD__) || defined(Q_OS_DARWIN)
+#ifdef Q_OS_BSD4
     QString timeoutparam("-t");
 #else
     // Linux, NetBSD, OpenBSD
@@ -642,7 +642,7 @@ bool IsPulseAudioRunning(void)
     return false;
 #else
 
-#if defined(Q_OS_DARWIN) || defined(__FreeBSD__) || defined(__OpenBSD__)
+#ifdef Q_OS_BSD4
     const char *command = "ps -ax | grep -i pulseaudio | grep -v grep > /dev/null";
 #else
     const char *command = "ps ch -C pulseaudio -o pid > /dev/null";
@@ -695,7 +695,7 @@ void myth_yield(void)
  *  Only Linux on i386, ppc, x86_64 and ia64 are currently supported.
  *  This is a no-op on all other architectures and platforms.
  */
-#if defined(__linux__) && ( defined(__i386__) || defined(__ppc__) || \
+#if defined(Q_OS_LINUX) && ( defined(__i386__) || defined(__ppc__) || \
                             defined(__x86_64__) || defined(__ia64__) )
 
 #include <cstdio>
