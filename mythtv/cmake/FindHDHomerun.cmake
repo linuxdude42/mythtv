@@ -55,10 +55,14 @@ endif()
 #
 if(HDHomerun_FOUND)
   cmake_path(GET HDHomerun_LIBRARY PARENT_PATH LIB_DIR)
+  check_library_exists(hdhomerun hdhomerun_discover_find_devices_custom_v2
+                       LIB_DIR _HDHOMERUN_DISCOVER1)
   check_library_exists(hdhomerun hdhomerun_discover2_find_devices_broadcast
                        LIB_DIR _HDHOMERUN_DISCOVER2)
   if(_HDHOMERUN_DISCOVER2)
     set(HDHOMERUN_VERSION 20221010)
+  elseif(_HDHOMERUN_DISCOVER1)
+    set(HDHOMERUN_VERSION 20190625)
   else()
     set(HDHOMERUN_VERSION 0)
   endif()
@@ -74,14 +78,14 @@ find_package_handle_standard_args(
   REQUIRED_VARS HDHomerun_LIBRARY HDHomerun_INCLUDE_DIR)
 
 # Traditional variables
-if(HDHomerun_FOUND)
+if(HDHomerun_FOUND AND HDHOMERUN_VERSION GREATER 0)
   set(CONFIG_HDHOMERUN TRUE)
   set(HDHomerun_LIBRARIES ${HDHomerun_LIBRARY})
   set(HDHomerun_INCLUDE_DIRS ${HDHomerun_INCLUDE_DIR})
 endif()
 
 # Imported target
-if(HDHomerun_FOUND AND NOT TARGET HDHomerun::HDHomerun)
+if(HDHomerun_FOUND AND HDHOMERUN_VERSION GREATER 0 AND NOT TARGET HDHomerun::HDHomerun)
   add_library(HDHomerun::HDHomerun UNKNOWN IMPORTED)
   set_target_properties(
     HDHomerun::HDHomerun
