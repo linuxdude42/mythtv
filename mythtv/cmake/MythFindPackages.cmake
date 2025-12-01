@@ -275,12 +275,22 @@ else(_QT_HAS_GLES)
   add_build_config(OpenGL::GL "opengl")
   add_build_config(OpenGL::EGL "egl")
   set_if_target_exists(CONFIG_OPENGL OpenGL::GL)
+  set_if_target_exists(CONFIG_OPENGL PkgConfig::OsMesa)
   set_if_target_exists(CONFIG_EGL OpenGL::EGL)
   if(TARGET OpenGL::GL)
     add_library(any_opengl INTERFACE)
     target_link_libraries(
       any_opengl INTERFACE Qt${QT_VERSION_MAJOR}::OpenGL OpenGL::GL
                            $<TARGET_NAME_IF_EXISTS:OpenGL::EGL>)
+  endif()
+  if(NOT TARGET any_opengl)
+    pkg_check_modules(OsMesa IMPORTED_TARGET osmesa)
+    add_build_config(PkgConfig::OsMesa "mesa")
+    if(TARGET PkgConfig::OsMesa)
+      add_library(any_opengl INTERFACE)
+      target_link_libraries(
+        any_opengl INTERFACE Qt${QT_VERSION_MAJOR}::OpenGL PkgConfig::OsMesa)
+    endif()
   endif()
 endif(_QT_HAS_GLES)
 
