@@ -25,7 +25,11 @@ class MPUBLIC SPDIFEncoder
     bool SetMaxHDRate(int rate);
 
   private:
+#ifdef FF_API_AVIO_WRITE_NONCONST
+    static int funcIO(void *opaque, uint8_t *buf, int size);
+#else
     static int funcIO(void *opaque, const uint8_t *buf, int size);
+#endif
     void Destroy();
 
   private:

@@ -182,7 +182,11 @@ bool SPDIFEncoder::SetMaxHDRate(int rate)
 /**
  * funcIO: Internal callback function that will receive encoded frames
  */
+#ifdef FF_API_AVIO_WRITE_NONCONST
+int SPDIFEncoder::funcIO(void *opaque, uint8_t *buf, int size)
+#else
 int SPDIFEncoder::funcIO(void *opaque, const uint8_t *buf, int size)
+#endif
 {
     auto *enc = static_cast<SPDIFEncoder *>(opaque);
 

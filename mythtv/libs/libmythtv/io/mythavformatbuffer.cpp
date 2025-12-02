@@ -76,7 +76,11 @@ int MythAVFormatBuffer::read_packet(void *opaque, uint8_t *buf, int buf_size)
     return ret;
 }
 
+#ifdef FF_API_AVIO_WRITE_NONCONST
+int MythAVFormatBuffer::write_packet(void *opaque, uint8_t *buf, int buf_size)
+#else
 int MythAVFormatBuffer::write_packet(void *opaque, const uint8_t *buf, int buf_size)
+#endif
 {
     auto *p = reinterpret_cast<MythAVFormatBuffer*>(opaque);
     if (!p)
