@@ -8,7 +8,7 @@
 #include <pthread.h>
 
 #include <QtGlobal> // for Q_OS_XXX
-#ifdef Q_OS_NETBSD
+#if defined(Q_OS_NETBSD) || defined(Q_OS_OPENBSD)
 #define PTHREAD_NULL nullptr
 #else
 #define PTHREAD_NULL 0

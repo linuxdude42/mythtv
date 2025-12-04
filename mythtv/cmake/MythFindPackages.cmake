@@ -183,7 +183,7 @@ if(ENABLE_BINDINGS_PERL)
 endif()
 
 if(ENABLE_BINDINGS_PHP)
-  find_program(PHP_EXECUTABLE NAMES php)
+  find_program(PHP_EXECUTABLE NAMES php php-8.4)
   if(PHP_EXECUTABLE)
     execute_process(COMMAND ${PHP_EXECUTABLE} --version OUTPUT_VARIABLE _output)
     if("${_output}" MATCHES "PHP ([0-9\.]+).*")
