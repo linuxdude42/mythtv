@@ -1572,9 +1572,9 @@ MythContext::MythContext(QString binversion, bool needsBackend)
     SignalHandler::Init();
     m_impl->m_needsBackend = needsBackend;
 
-    gCoreContext = new MythCoreContext(m_appBinaryVersion, m_impl);
+    MythCoreContext *cctx = createCoreContext(m_appBinaryVersion, m_impl);
 
-    if (!gCoreContext || !gCoreContext->Init())
+    if (!cctx || !cctx->Init())
     {
         LOG(VB_GENERAL, LOG_EMERG, LOC + "Unable to allocate MythCoreContext");
         qApp->exit(GENERIC_EXIT_NO_MYTHCONTEXT);
@@ -1705,8 +1705,7 @@ MythContext::~MythContext()
 
     logStop();
 
-    delete gCoreContext;
-    gCoreContext = nullptr;
+    deleteCoreContext();
 
     delete m_impl;
 
