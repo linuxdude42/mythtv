@@ -24,7 +24,7 @@
 
 void TestMusicMetadata::initTestCase()
 {
-    gCoreContext = new MythCoreContext("test_mythmusicdata_1.0", nullptr);
+    createCoreContext("test_mythmusicdata_1.0", nullptr);
 }
 
 void TestMusicMetadata::dump(MusicMetadata *data)

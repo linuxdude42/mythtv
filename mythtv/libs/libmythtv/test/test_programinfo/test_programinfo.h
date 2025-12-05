@@ -303,9 +303,9 @@ class TestProgramInfo : public QObject
   private slots:
     void initTestCase()
     {
-        gCoreContext = new MythCoreContext("test_programinfo_1.0", nullptr);
+        MythCoreContext *cctx = createCoreContext("test_programinfo_1.0", nullptr);
         m_intOverrides["AlwaysStreamFiles"] = 0;
-        gCoreContext->setTestIntSettings(m_intOverrides);
+        cctx->setTestIntSettings(m_intOverrides);
 
         m_dracula = ProgramInfo(mockMovie ("11868", "tt0051554", "Dracula", 1958));
         m_flash34 = ProgramInfo

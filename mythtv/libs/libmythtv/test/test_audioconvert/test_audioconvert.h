@@ -37,7 +37,7 @@ class TestAudioConvert: public QObject
     // called at the beginning of these sets of tests
     static void initTestCase(void)
     {
-        gCoreContext = new MythCoreContext("bin_version", nullptr);
+        createCoreContext("bin_version", nullptr);
     }
 
     static void Identical_data(void)

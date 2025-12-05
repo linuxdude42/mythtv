@@ -158,7 +158,7 @@ TestRecordingExtender::TestRecordingExtender()
 // Before all test cases
 void TestRecordingExtender::initTestCase()
 {
-    gCoreContext = new MythCoreContext(TESTVERSION, nullptr);
+    createCoreContext(TESTVERSION, nullptr);
 
     if (!QSqlDatabase::drivers().contains("QSQLITE"))
         QSKIP("This test requires the SQLITE database driver.");

@@ -24,7 +24,7 @@
 
 void TestDbCon::initTestCase()
 {
-    gCoreContext = new MythCoreContext("test_mythdbcon_1.0", nullptr);
+    createCoreContext("test_mythdbcon_1.0", nullptr);
 }
 
 void TestDbCon::test_escapeAsQuery_data(void)

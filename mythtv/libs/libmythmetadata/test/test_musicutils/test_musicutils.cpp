@@ -24,7 +24,7 @@
 
 void TestMusicUtils::initTestCase()
 {
-    gCoreContext = new MythCoreContext("test_mythmusicutils_1.0", nullptr);
+    createCoreContext("test_mythmusicutils_1.0", nullptr);
 
     QDir::setCurrent("libmythmetadata/test/test_musicutils");
 }

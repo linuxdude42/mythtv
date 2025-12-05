@@ -28,11 +28,11 @@
 
 void TestVideoList::initTestCase()
 {
-    gCoreContext = new MythCoreContext("test_videolist_1.0", nullptr);
+    MythCoreContext *cctx = createCoreContext("test_videolist_1.0", nullptr);
 
     QMap<QString,QString> sOverrides;
     sOverrides["FilenameTemplate"] = "abc";
-    gCoreContext->setTestStringSettings(sOverrides);
+    cctx->setTestStringSettings(sOverrides);
 
     QMap<QString,int> iOverrides;
     iOverrides["VideoDefaultCategory"] = kCategoryFilterAll;
@@ -47,7 +47,7 @@ void TestVideoList::initTestCase()
     iOverrides["VideoDefaultInetref"] = kInetRefFilterAll;
     iOverrides["VideoDefaultCoverfile"] = kCoverFileFilterAll;
 //    iOverrides["VideoDefaultOrderby"] = kOrderByTitle;
-    gCoreContext->setTestIntSettings(iOverrides);
+    cctx->setTestIntSettings(iOverrides);
 }
 
 void TestVideoList::testGenericTree ()

@@ -24,7 +24,7 @@
 
 void TestMetadataGrabber::initTestCase()
 {
-    gCoreContext = new MythCoreContext("test_mythmetadatagrabber_1.0", nullptr);
+    createCoreContext("test_mythmetadatagrabber_1.0", nullptr);
 
     if (QDir::currentPath().endsWith("test_metadatagrabber"))
         QDir::setCurrent("../../..");

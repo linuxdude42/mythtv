@@ -54,7 +54,7 @@ class TestMythSystem: public QObject
     // called at the beginning of these sets of tests
     static void initTestCase(void)
     {
-        gCoreContext = new MythCoreContext("bin_version", nullptr);
+        createCoreContext("bin_version", nullptr);
 #ifdef NEW_LOGGING
         DebugLogHandler::AddReplacement("ConsoleLogHandler");
         myth_logging::initialize_logging(
