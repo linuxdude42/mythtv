@@ -322,6 +322,9 @@ class MBASE_PUBLIC MythCoreContext : public QObject, public MythObservable, publ
 
 /// This global variable contains the MythCoreContext instance for the app
 extern MBASE_PUBLIC MythCoreContext *gCoreContext;
+MBASE_PUBLIC MythCoreContext *createCoreContext(const QString &binversion, QObject *guiContext);
+MBASE_PUBLIC MythCoreContext *getCoreContext();
+MBASE_PUBLIC void deleteCoreContext();
 
 #endif
 
