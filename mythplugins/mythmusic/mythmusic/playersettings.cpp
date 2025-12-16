@@ -33,35 +33,37 @@ bool PlayerSettings::Create()
         return false;
     }
 
+    MythCoreContext *cctx = getCoreContext();
+
     new MythUIButtonListItem(m_resumeMode, tr("Off"),   QVariant::fromValue((int)MusicPlayer::RESUME_OFF));
     new MythUIButtonListItem(m_resumeMode, tr("First"), QVariant::fromValue((int)MusicPlayer::RESUME_FIRST));
     new MythUIButtonListItem(m_resumeMode, tr("Track"), QVariant::fromValue((int)MusicPlayer::RESUME_TRACK));
     new MythUIButtonListItem(m_resumeMode, tr("Exact"), QVariant::fromValue((int)MusicPlayer::RESUME_EXACT));
-    m_resumeMode->SetValueByData(gCoreContext->GetNumSetting("ResumeModePlayback", MusicPlayer::RESUME_EXACT));
+    m_resumeMode->SetValueByData(cctx->GetNumSetting("ResumeModePlayback", MusicPlayer::RESUME_EXACT));
 
     new MythUIButtonListItem(m_resumeModeEditor, tr("Off"),   QVariant::fromValue((int)MusicPlayer::RESUME_OFF));
     new MythUIButtonListItem(m_resumeModeEditor, tr("First"), QVariant::fromValue((int)MusicPlayer::RESUME_FIRST));
     new MythUIButtonListItem(m_resumeModeEditor, tr("Track"), QVariant::fromValue((int)MusicPlayer::RESUME_TRACK));
     new MythUIButtonListItem(m_resumeModeEditor, tr("Exact"), QVariant::fromValue((int)MusicPlayer::RESUME_EXACT));
-    m_resumeModeEditor->SetValueByData(gCoreContext->GetNumSetting("ResumeModeEditor", MusicPlayer::RESUME_OFF));
+    m_resumeModeEditor->SetValueByData(cctx->GetNumSetting("ResumeModeEditor", MusicPlayer::RESUME_OFF));
 
     new MythUIButtonListItem(m_resumeModeRadio, tr("Off"), QVariant::fromValue((int)MusicPlayer::RESUME_OFF));
     new MythUIButtonListItem(m_resumeModeRadio, tr("On"),  QVariant::fromValue((int)MusicPlayer::RESUME_TRACK));
-    m_resumeModeRadio->SetValueByData(gCoreContext->GetNumSetting("ResumeModeRadio", MusicPlayer::RESUME_TRACK));
+    m_resumeModeRadio->SetValueByData(cctx->GetNumSetting("ResumeModeRadio", MusicPlayer::RESUME_TRACK));
 
     new MythUIButtonListItem(m_exitAction, tr("Prompt"), QVariant::fromValue(QString("prompt")));
     new MythUIButtonListItem(m_exitAction, tr("Stop playing"), QVariant::fromValue(QString("stop")));
     new MythUIButtonListItem(m_exitAction, tr("Continue Playing"), QVariant::fromValue(QString("play")));
-    m_exitAction->SetValueByData(gCoreContext->GetSetting("MusicExitAction", "prompt"));
+    m_exitAction->SetValueByData(cctx->GetSetting("MusicExitAction", "prompt"));
 
     new MythUIButtonListItem(m_jumpAction, tr("Stop playing"), QVariant::fromValue(QString("stop")));
     new MythUIButtonListItem(m_jumpAction, tr("Continue Playing"), QVariant::fromValue(QString("play")));
-    m_jumpAction->SetValueByData(gCoreContext->GetSetting("MusicJumpPointAction", "stop"));
+    m_jumpAction->SetValueByData(cctx->GetSetting("MusicJumpPointAction", "stop"));
 
-    int loadAutoLookupCD = gCoreContext->GetNumSetting("AutoLookupCD", 0);
+    int loadAutoLookupCD = cctx->GetNumSetting("AutoLookupCD", 0);
     if (loadAutoLookupCD == 1)
         m_autoLookupCD->SetCheckState(MythUIStateType::Full);
-    int loadAutoPlayCD = gCoreContext->GetNumSetting("AutoPlayCD", 0);
+    int loadAutoPlayCD = cctx->GetNumSetting("AutoPlayCD", 0);
     if (loadAutoPlayCD == 1)
         m_autoPlayCD->SetCheckState(MythUIStateType::Full);
 
@@ -92,18 +94,19 @@ bool PlayerSettings::Create()
 
 void PlayerSettings::slotSave(void)
 {
-    gCoreContext->SaveSetting("ResumeModePlayback", m_resumeMode->GetDataValue().toInt());
-    gCoreContext->SaveSetting("ResumeModeEditor", m_resumeModeEditor->GetDataValue().toInt());
-    gCoreContext->SaveSetting("ResumeModeRadio", m_resumeModeRadio->GetDataValue().toInt());
-    gCoreContext->SaveSetting("MusicExitAction", m_exitAction->GetDataValue().toString());
-    gCoreContext->SaveSetting("MusicJumpPointAction", m_jumpAction->GetDataValue().toString());
+    MythCoreContext *cctx = getCoreContext();
+    cctx->SaveSetting("ResumeModePlayback", m_resumeMode->GetDataValue().toInt());
+    cctx->SaveSetting("ResumeModeEditor", m_resumeModeEditor->GetDataValue().toInt());
+    cctx->SaveSetting("ResumeModeRadio", m_resumeModeRadio->GetDataValue().toInt());
+    cctx->SaveSetting("MusicExitAction", m_exitAction->GetDataValue().toString());
+    cctx->SaveSetting("MusicJumpPointAction", m_jumpAction->GetDataValue().toString());
 
     int saveAutoLookupCD = (m_autoLookupCD->GetCheckState() == MythUIStateType::Full) ? 1 : 0;
-    gCoreContext->SaveSetting("AutoLookupCD", saveAutoLookupCD);
+    cctx->SaveSetting("AutoLookupCD", saveAutoLookupCD);
     int saveAutoPlayCD = (m_autoPlayCD->GetCheckState() == MythUIStateType::Full) ? 1 : 0;
-    gCoreContext->SaveSetting("AutoPlayCD", saveAutoPlayCD);
+    cctx->SaveSetting("AutoPlayCD", saveAutoPlayCD);
 
-    gCoreContext->dispatch(MythEvent(QString("MUSIC_SETTINGS_CHANGED PLAYER_SETTINGS")));
+    cctx->dispatch(MythEvent(QString("MUSIC_SETTINGS_CHANGED PLAYER_SETTINGS")));
 
     Close();
 }

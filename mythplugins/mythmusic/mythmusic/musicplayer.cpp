@@ -58,7 +58,8 @@ MusicPlayer::MusicPlayer(QObject *parent)
 {
     setObjectName("MusicPlayer");
 
-    QString playmode = gCoreContext->GetSetting("PlayMode", "none");
+    MythCoreContext *cctx = getCoreContext();
+    QString playmode = cctx->GetSetting("PlayMode", "none");
     if (playmode.toLower() == "random")
         setShuffleMode(SHUFFLE_RANDOM);
     else if (playmode.toLower() == "intelligent")
@@ -70,7 +71,7 @@ MusicPlayer::MusicPlayer(QObject *parent)
     else
         setShuffleMode(SHUFFLE_OFF);
 
-    QString repeatmode = gCoreContext->GetSetting("RepeatMode", "all");
+    QString repeatmode = cctx->GetSetting("RepeatMode", "all");
     if (repeatmode.toLower() == "track")
         setRepeatMode(REPEAT_TRACK);
     else if (repeatmode.toLower() == "all")
@@ -80,10 +81,10 @@ MusicPlayer::MusicPlayer(QObject *parent)
 
     loadSettings();
 
-    gCoreContext->addListener(this);
-    gCoreContext->RegisterForPlayback(this, &MusicPlayer::StopPlayback);
-    connect(gCoreContext, &MythCoreContext::TVPlaybackStopped, this, &MusicPlayer::StartPlayback);
-    connect(gCoreContext, &MythCoreContext::TVPlaybackAborted, this, &MusicPlayer::StartPlayback);
+    cctx->addListener(this);
+    cctx->RegisterForPlayback(this, &MusicPlayer::StopPlayback);
+    connect(cctx, &MythCoreContext::TVPlaybackStopped, this, &MusicPlayer::StartPlayback);
+    connect(cctx, &MythCoreContext::TVPlaybackAborted, this, &MusicPlayer::StartPlayback);
 }
 
 MusicPlayer::~MusicPlayer()
@@ -91,8 +92,9 @@ MusicPlayer::~MusicPlayer()
     if (!hasClient())
         savePosition();
 
-    gCoreContext->removeListener(this);
-    gCoreContext->UnregisterForPlayback(this);
+    MythCoreContext *cctx = getCoreContext();
+    cctx->removeListener(this);
+    cctx->UnregisterForPlayback(this);
 
     QMap<QString, int>::Iterator i;
     for (i = m_notificationMap.begin(); i != m_notificationMap.end(); i++)
@@ -122,24 +124,24 @@ MusicPlayer::~MusicPlayer()
     }
 
     if (m_shuffleMode == SHUFFLE_INTELLIGENT)
-        gCoreContext->SaveSetting("PlayMode", "intelligent");
+        cctx->SaveSetting("PlayMode", "intelligent");
     else if (m_shuffleMode == SHUFFLE_RANDOM)
-        gCoreContext->SaveSetting("PlayMode", "random");
+        cctx->SaveSetting("PlayMode", "random");
     else if (m_shuffleMode == SHUFFLE_ALBUM)
-        gCoreContext->SaveSetting("PlayMode", "album");
+        cctx->SaveSetting("PlayMode", "album");
     else if (m_shuffleMode == SHUFFLE_ARTIST)
-        gCoreContext->SaveSetting("PlayMode", "artist");
+        cctx->SaveSetting("PlayMode", "artist");
     else
-        gCoreContext->SaveSetting("PlayMode", "none");
+        cctx->SaveSetting("PlayMode", "none");
 
     if (m_repeatMode == REPEAT_TRACK)
-        gCoreContext->SaveSetting("RepeatMode", "track");
+        cctx->SaveSetting("RepeatMode", "track");
     else if (m_repeatMode == REPEAT_ALL)
-        gCoreContext->SaveSetting("RepeatMode", "all");
+        cctx->SaveSetting("RepeatMode", "all");
     else
-        gCoreContext->SaveSetting("RepeatMode", "none");
+        cctx->SaveSetting("RepeatMode", "none");
 
-    gCoreContext->SaveSetting("MusicAutoShowPlayer",
+    cctx->SaveSetting("MusicAutoShowPlayer",
                           (m_autoShowPlayer ? "1" : "0"));
 }
 
@@ -214,22 +216,23 @@ MusicPlayer::ResumeMode MusicPlayer::getResumeMode(void)
 
 void MusicPlayer::loadSettings(void)
 {
-    m_resumeModePlayback = (ResumeMode) gCoreContext->GetNumSetting("ResumeModePlayback", MusicPlayer::RESUME_EXACT);
-    m_resumeModeEditor = (ResumeMode) gCoreContext->GetNumSetting("ResumeModeEditor", MusicPlayer::RESUME_OFF);
-    m_resumeModeRadio = (ResumeMode) gCoreContext->GetNumSetting("ResumeModeRadio", MusicPlayer::RESUME_TRACK);
+    MythCoreContext *cctx = getCoreContext();
+    m_resumeModePlayback = (ResumeMode) cctx->GetNumSetting("ResumeModePlayback", MusicPlayer::RESUME_EXACT);
+    m_resumeModeEditor = (ResumeMode) cctx->GetNumSetting("ResumeModeEditor", MusicPlayer::RESUME_OFF);
+    m_resumeModeRadio = (ResumeMode) cctx->GetNumSetting("ResumeModeRadio", MusicPlayer::RESUME_TRACK);
 
-    m_lastplayDelay = gCoreContext->GetDurSetting<std::chrono::seconds>("MusicLastPlayDelay", LASTPLAY_DELAY);
-    m_autoShowPlayer = (gCoreContext->GetNumSetting("MusicAutoShowPlayer", 1) > 0);
+    m_lastplayDelay = cctx->GetDurSetting<std::chrono::seconds>("MusicLastPlayDelay", LASTPLAY_DELAY);
+    m_autoShowPlayer = (cctx->GetNumSetting("MusicAutoShowPlayer", 1) > 0);
 
 }
 
 void MusicPlayer::setPlayNow(bool PlayNow)
 {
-    gCoreContext->SaveBoolSetting("MusicPreferPlayNow", PlayNow);
+    getCoreContext()->SaveBoolSetting("MusicPreferPlayNow", PlayNow);
 }
 bool MusicPlayer::getPlayNow(void)
 {
-    return gCoreContext->GetBoolSetting("MusicPreferPlayNow", false);
+    return getCoreContext()->GetBoolSetting("MusicPreferPlayNow", false);
 }
 
 // this stops playing the playlist and plays the file pointed to by mdata
@@ -291,7 +294,7 @@ void MusicPlayer::stop(bool stopAll)
     AudioOutput::Event oe(AudioOutput::Event::kStopped);
     dispatch(oe);
 
-    gCoreContext->emitTVPlaybackStopped();
+    getCoreContext()->emitTVPlaybackStopped();
 
     GetMythMainWindow()->PauseIdleTimer(false);
 }
@@ -348,7 +351,7 @@ void MusicPlayer::play(void)
     }
 
     // Notify others that we are about to play
-    gCoreContext->WantingPlayback(this);
+    getCoreContext()->WantingPlayback(this);
 
     if (!m_output)
     {
@@ -375,19 +378,20 @@ bool MusicPlayer::openOutputDevice(void)
     QString adevice;
     QString pdevice;
 
-    adevice = gCoreContext->GetSetting("MusicAudioDevice", "default");
+    MythCoreContext *cctx = getCoreContext();
+    adevice = cctx->GetSetting("MusicAudioDevice", "default");
     if (adevice == "default" || adevice.isEmpty())
-        adevice = gCoreContext->GetSetting("AudioOutputDevice");
+        adevice = cctx->GetSetting("AudioOutputDevice");
     else
-        adevice = gCoreContext->GetSetting("MusicAudioDevice");
+        adevice = cctx->GetSetting("MusicAudioDevice");
 
-    pdevice = gCoreContext->GetBoolSetting("PassThruDeviceOverride", false) ?
-              gCoreContext->GetSetting("PassThruOutputDevice") : "auto";
+    pdevice = cctx->GetBoolSetting("PassThruDeviceOverride", false) ?
+              cctx->GetSetting("PassThruOutputDevice") : "auto";
 
     m_output = AudioOutput::OpenAudio(
                    adevice, pdevice, FORMAT_S16, 2, AV_CODEC_ID_NONE, 44100,
                    AUDIOOUTPUT_MUSIC, true, false,
-                   gCoreContext->GetNumSetting("MusicDefaultUpmix", 0) + 1);
+                   cctx->GetNumSetting("MusicDefaultUpmix", 0) + 1);
 
     if (m_output == nullptr || !m_output->isConfigured())
     {
@@ -529,7 +533,7 @@ void MusicPlayer::nextAuto(void)
 
 void MusicPlayer::StartPlayback(void)
 {
-    if (!gCoreContext->InWantingPlayback() && m_wasPlaying)
+    if (!getCoreContext()->InWantingPlayback() && m_wasPlaying)
     {
         play();
 
@@ -569,7 +573,7 @@ void MusicPlayer::customEvent(QEvent *event)
         if (getCurrentMetadata())
         {
             mdata->setID(getCurrentMetadata()->ID());
-            mdata->setHostname(gCoreContext->GetMasterHostName());
+            mdata->setHostname(getCoreContext()->GetMasterHostName());
             mdata->setTrack(m_playedList.count() + 1);
             mdata->setBroadcaster(getCurrentMetadata()->Broadcaster());
             mdata->setChannel(getCurrentMetadata()->Channel());
@@ -609,7 +613,8 @@ void MusicPlayer::customEvent(QEvent *event)
         {
             QStringList list = me->Message().simplified().split(' ');
 
-            if (list.size() >= 3 && list[1] == gCoreContext->GetHostName())
+            MythCoreContext *cctx = getCoreContext();
+            if (list.size() >= 3 && list[1] == cctx->GetHostName())
             {
                 if (list[2] == "PLAY")
                     play();
@@ -629,9 +634,9 @@ void MusicPlayer::customEvent(QEvent *event)
                 else if (list[2] == "GET_VOLUME")
                 {
                     QString message = QString("MUSIC_CONTROL ANSWER %1 %2")
-                            .arg(gCoreContext->GetHostName()).arg(getVolume());
+                            .arg(cctx->GetHostName()).arg(getVolume());
                     MythEvent me2(message);
-                    gCoreContext->dispatch(me2);
+                    cctx->dispatch(me2);
                 }
                 else if (list[2] == "PLAY_FILE")
                 {
@@ -694,9 +699,9 @@ void MusicPlayer::customEvent(QEvent *event)
                         mdataStr = "Unknown Track2";
 
                     QString message = QString("MUSIC_CONTROL ANSWER %1 %2")
-                            .arg(gCoreContext->GetHostName(), mdataStr);
+                            .arg(cctx->GetHostName(), mdataStr);
                     MythEvent me2(message);
-                    gCoreContext->dispatch(me2);
+                    cctx->dispatch(me2);
                 }
                 else if (list[2] == "GET_STATUS")
                 {
@@ -708,9 +713,9 @@ void MusicPlayer::customEvent(QEvent *event)
                         statusStr = "PAUSED";
 
                     QString message = QString("MUSIC_CONTROL ANSWER %1 %2")
-                            .arg(gCoreContext->GetHostName(), statusStr);
+                            .arg(cctx->GetHostName(), statusStr);
                     MythEvent me2(message);
-                    gCoreContext->dispatch(me2);
+                    cctx->dispatch(me2);
                 }
             }
             else
@@ -971,11 +976,12 @@ void MusicPlayer::setPlayMode(PlayMode mode)
 
 void MusicPlayer::loadPlaylist(void)
 {
+    MythCoreContext *cctx = getCoreContext();
     if (m_playMode == PLAYMODE_RADIO)
     {
         if (getResumeMode() > MusicPlayer::RESUME_OFF)
         {
-            int bookmark = gCoreContext->GetNumSetting("MusicRadioBookmark", 0);
+            int bookmark = cctx->GetNumSetting("MusicRadioBookmark", 0);
             Playlist *playlist = getCurrentPlaylist();
             if ((bookmark < 0) ||
                 (playlist && bookmark >= playlist->getTrackCount()))
@@ -994,7 +1000,7 @@ void MusicPlayer::loadPlaylist(void)
     {
         if (getResumeMode() > MusicPlayer::RESUME_OFF)
         {
-            int bookmark = gCoreContext->GetNumSetting("MusicBookmark", 0);
+            int bookmark = cctx->GetNumSetting("MusicBookmark", 0);
             Playlist *playlist = getCurrentPlaylist();
             if ((bookmark < 0) ||
                 (playlist && bookmark >= getCurrentPlaylist()->getTrackCount()))
@@ -1070,19 +1076,22 @@ void MusicPlayer::savePosition(void)
     if (!getCurrentMetadata())
         return;
 
+    MythCoreContext *cctx = getCoreContext();
     if (m_playMode == PLAYMODE_RADIO)
     {
-        gCoreContext->SaveSetting("MusicRadioBookmark", getCurrentMetadata()->ID());
+        cctx->SaveSetting("MusicRadioBookmark", getCurrentMetadata()->ID());
     }
     else
     {
-        gCoreContext->SaveSetting("MusicBookmark", getCurrentMetadata()->ID());
-        gCoreContext->SaveDurSetting("MusicBookmarkPosition", m_currentTime);
+        cctx->SaveSetting("MusicBookmark", getCurrentMetadata()->ID());
+        cctx->SaveDurSetting("MusicBookmarkPosition", m_currentTime);
     }
 }
 
 void MusicPlayer::restorePosition(void)
 {
+    MythCoreContext *cctx = getCoreContext();
+
     // if we are switching views we don't wont to restore the position
     if (!m_allowRestorePos)
         return;
@@ -1093,9 +1102,9 @@ void MusicPlayer::restorePosition(void)
     if (gPlayer->getResumeMode() > MusicPlayer::RESUME_FIRST)
     {
         if (m_playMode == PLAYMODE_RADIO)
-            id = gCoreContext->GetNumSetting("MusicRadioBookmark", 0);
+            id = cctx->GetNumSetting("MusicRadioBookmark", 0);
         else
-            id = gCoreContext->GetNumSetting("MusicBookmark", 0);
+            id = cctx->GetNumSetting("MusicBookmark", 0);
     }
 
     Playlist *playlist = gPlayer->getCurrentPlaylist();
@@ -1118,7 +1127,7 @@ void MusicPlayer::restorePosition(void)
             play();
 
         if (gPlayer->getResumeMode() == MusicPlayer::RESUME_EXACT && m_playMode != PLAYMODE_RADIO)
-            seek(gCoreContext->GetDurSetting<std::chrono::seconds>("MusicBookmarkPosition", 0s));
+            seek(cctx->GetDurSetting<std::chrono::seconds>("MusicBookmarkPosition", 0s));
     }
 }
 
@@ -1579,11 +1588,12 @@ void MusicPlayer::decoderHandlerReady(void)
 
         decoder->start();
 
+        MythCoreContext *cctx = getCoreContext();
         if (!m_oneshotMetadata && getResumeMode() == RESUME_EXACT &&
-            gCoreContext->GetDurSetting<std::chrono::seconds>("MusicBookmarkPosition", 0s) > 0s)
+            cctx->GetDurSetting<std::chrono::seconds>("MusicBookmarkPosition", 0s) > 0s)
         {
-            seek(gCoreContext->GetDurSetting<std::chrono::seconds>("MusicBookmarkPosition", 0s));
-            gCoreContext->SaveDurSetting("MusicBookmarkPosition", 0s);
+            seek(cctx->GetDurSetting<std::chrono::seconds>("MusicBookmarkPosition", 0s));
+            cctx->SaveDurSetting("MusicBookmarkPosition", 0s);
         }
 
         m_isPlaying = true;

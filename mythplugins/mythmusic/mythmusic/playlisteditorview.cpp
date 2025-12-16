@@ -91,13 +91,14 @@ PlaylistEditorView::PlaylistEditorView(MythScreenStack *parent, MythScreenType *
          :MusicCommon(parent, parentScreen, "playlisteditorview"),
             m_layout(layout), m_restorePosition(restorePosition)
 {
-    gCoreContext->addListener(this);
-    gCoreContext->SaveSetting("MusicPlaylistEditorView", layout);
+    MythCoreContext *cctx = getCoreContext();
+    cctx->addListener(this);
+    cctx->SaveSetting("MusicPlaylistEditorView", layout);
 }
 
 PlaylistEditorView::~PlaylistEditorView()
 {
-    gCoreContext->removeListener(this);
+    getCoreContext()->removeListener(this);
 
     saveTreePosition();
 
@@ -155,7 +156,7 @@ bool PlaylistEditorView::Create(void)
 
     m_playlistTree->AssignTree(m_rootNode);
 
-    QStringList route = gCoreContext->GetSetting("MusicTreeLastActive", "").split("\n");
+    QStringList route = getCoreContext()->GetSetting("MusicTreeLastActive", "").split("\n");
     restoreTreePosition(route);
 
     connect(m_playlistTree, &MythUIButtonTree::itemClicked,
@@ -1748,7 +1749,7 @@ void PlaylistEditorView::saveTreePosition(void)
     if (m_playlistTree)
     {
         QString route = m_playlistTree->GetCurrentNode()->getRouteByString().join("\n");
-        gCoreContext->SaveSetting("MusicTreeLastActive", route);
+        getCoreContext()->SaveSetting("MusicTreeLastActive", route);
     }
 }
 

@@ -24,7 +24,7 @@ MusicData  *gMusicData = nullptr;
 
 void SendStringListThread::run()
 {
-    gCoreContext->SendReceiveStringList(m_strList);
+    getCoreContext()->SendReceiveStringList(m_strList);
 }
 
 MusicData::~MusicData(void)

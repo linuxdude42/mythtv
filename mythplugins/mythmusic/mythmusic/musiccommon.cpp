@@ -48,7 +48,7 @@ MusicCommon::MusicCommon(MythScreenStack *parent, MythScreenType *parentScreen,
             : MythScreenType(parent, name),
     m_parentScreen(parentScreen)
 {
-    m_cycleVisualizer = gCoreContext->GetBoolSetting("VisualCycleOnSongChange", false);
+    m_cycleVisualizer = getCoreContext()->GetBoolSetting("VisualCycleOnSongChange", false);
 
     if (LCD *lcd = LCD::Get())
     {
@@ -226,7 +226,7 @@ void MusicCommon::init(bool startPlayback)
 
         m_fullscreenBlank = false;
 
-        m_randomVisualizer = gCoreContext->GetBoolSetting("VisualRandomize", false);
+        m_randomVisualizer = getCoreContext()->GetBoolSetting("VisualRandomize", false);
 
         m_currentVisual = m_mainvisual->getCurrentVisual();
 
@@ -243,7 +243,7 @@ void MusicCommon::init(bool startPlayback)
             startVisualizer();
     }
 
-    m_controlVolume = gCoreContext->GetBoolSetting("MythControlsVolume", false);
+    m_controlVolume = getCoreContext()->GetBoolSetting("MythControlsVolume", false);
     updateVolume();
 
     if (m_movingTracksState)
@@ -594,7 +594,7 @@ bool MusicCommon::keyPressEvent(QKeyEvent *e)
         gPlayer->savePosition();
 
         // do we need to stop playing?
-        if (gPlayer->isPlaying() && gCoreContext->GetSetting("MusicJumpPointAction", "stop") == "stop")
+        if (gPlayer->isPlaying() && getCoreContext()->GetSetting("MusicJumpPointAction", "stop") == "stop")
             gPlayer->stop(true);
 
         return MythScreenType::keyPressEvent(e);
@@ -657,7 +657,7 @@ bool MusicCommon::keyPressEvent(QKeyEvent *e)
             else
             {
                 // this is the top music view screen so prompt to continue playing
-                QString exit_action = gCoreContext->GetSetting("MusicExitAction", "prompt");
+                QString exit_action = getCoreContext()->GetSetting("MusicExitAction", "prompt");
 
                 if (!gPlayer->isPlaying())
                 {
@@ -1406,7 +1406,7 @@ void MusicCommon::customEvent(QEvent *event)
             else if (resulttext == tr("Playlist Editor") ||
                      resulttext == tr("Browse Music Library"))
             {
-                if (gCoreContext->GetSetting("MusicPlaylistEditorView", "tree") ==  "tree")
+                if (getCoreContext()->GetSetting("MusicPlaylistEditorView", "tree") ==  "tree")
                     switchView(MV_PLAYLISTEDITORTREE);
                 else
                     switchView(MV_PLAYLISTEDITORGALLERY);

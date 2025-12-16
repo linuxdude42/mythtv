@@ -171,7 +171,8 @@ CDRipperThread::CDRipperThread(RipStatus *parent,  QString device,
         m_cdDevice.chop(1);
 #endif // WIN32
 
-    QString lastHost = gCoreContext->GetSetting("MythMusicLastRipHost", gCoreContext->GetMasterHostName());
+    MythCoreContext *cctx = getCoreContext();
+    QString lastHost = cctx->GetSetting("MythMusicLastRipHost", cctx->GetMasterHostName());
     QStringList dirs = StorageGroup::getGroupDirs("Music", lastHost);
     if (dirs.count() > 0)
         m_musicStorageDir = StorageGroup::getGroupDirs("Music", lastHost).at(0);
@@ -241,8 +242,9 @@ void CDRipperThread::run(void)
         new RipStatusEvent(RipStatusEvent::kTrackProgressEvent, 0));
 
     QString textstatus;
-    QString encodertype = gCoreContext->GetSetting("EncoderType");
-    bool mp3usevbr = gCoreContext->GetBoolSetting("Mp3UseVBR", false);
+    MythCoreContext *cctx = getCoreContext();
+    QString encodertype = cctx->GetSetting("EncoderType");
+    bool mp3usevbr = cctx->GetBoolSetting("Mp3UseVBR", false);
 
     QApplication::postEvent(m_parent,
         new RipStatusEvent(RipStatusEvent::kOverallStartEvent, m_totalSectors));
@@ -377,7 +379,7 @@ void CDRipperThread::run(void)
         }
     }
 
-    QString PostRipCDScript = gCoreContext->GetSetting("PostCDRipScript");
+    QString PostRipCDScript = cctx->GetSetting("PostCDRipScript");
 
     if (!PostRipCDScript.isEmpty())
         myth_system(PostRipCDScript);
@@ -421,7 +423,7 @@ int CDRipperThread::ripTrack([[maybe_unused]] QString &cddevice,
         .arg(__func__,  cddevice).arg(tracknum).arg(start).arg(end));
 
     cdrom_paranoia *paranoia = paranoia_init(device);
-    if (gCoreContext->GetSetting("ParanoiaLevel") == "full")
+    if (getCoreContext()->GetSetting("ParanoiaLevel") == "full")
     {
         paranoia_modeset(paranoia, PARANOIA_MODE_FULL |
                 PARANOIA_MODE_NEVERSKIP);
@@ -538,7 +540,8 @@ Ripper::Ripper(MythScreenStack *parent, QString device) :
     myth_system(command);
 
     // get last host and directory we ripped to
-    QString lastHost = gCoreContext->GetSetting("MythMusicLastRipHost", gCoreContext->GetMasterHostName());
+    MythCoreContext *cctx = getCoreContext();
+    QString lastHost = cctx->GetSetting("MythMusicLastRipHost", cctx->GetMasterHostName());
     QStringList dirs = StorageGroup::getGroupDirs("Music", lastHost);
     if (dirs.count() > 0)
         m_musicStorageDir = StorageGroup::getGroupDirs("Music", lastHost).at(0);
@@ -621,7 +624,7 @@ bool Ripper::Create(void)
     new MythUIButtonListItem(m_qualityList, tr("High"), QVariant::fromValue(2));
     new MythUIButtonListItem(m_qualityList, tr("Perfect"), QVariant::fromValue(3));
     m_qualityList->SetValueByData(QVariant::fromValue(
-                        gCoreContext->GetNumSetting("DefaultRipQuality", 1)));
+                        getCoreContext()->GetNumSetting("DefaultRipQuality", 1)));
 
     QTimer::singleShot(500ms, this, &Ripper::startScanCD);
 
@@ -726,7 +729,7 @@ void Ripper::chooseBackend(void) const
 
 void Ripper::setSaveHost(const QString& host)
 {
-    gCoreContext->SaveSetting("MythMusicLastRipHost", host);
+    getCoreContext()->SaveSetting("MythMusicLastRipHost", host);
 
     QStringList dirs = StorageGroup::getGroupDirs("Music", host);
     if (dirs.count() > 0)
@@ -1119,7 +1122,7 @@ void Ripper::RipComplete(bool result)
 {
     if (result)
     {
-        bool EjectCD = gCoreContext->GetBoolSetting("EjectCDAfterRipping", true);
+        bool EjectCD = getCoreContext()->GetBoolSetting("EjectCDAfterRipping", true);
         if (EjectCD)
             startEjectCD();
 
@@ -1159,7 +1162,7 @@ void Ripper::EjectFinished()
 void Ripper::ejectCD()
 {
     LOG(VB_MEDIA, LOG_INFO, __PRETTY_FUNCTION__);
-    bool bEjectCD = gCoreContext->GetBoolSetting("EjectCDAfterRipping",true);
+    bool bEjectCD = getCoreContext()->GetBoolSetting("EjectCDAfterRipping",true);
     if (bEjectCD)
     {
 #ifdef HAVE_CDIO

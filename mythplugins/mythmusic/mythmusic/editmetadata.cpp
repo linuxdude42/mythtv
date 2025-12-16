@@ -289,18 +289,18 @@ void EditMetadataCommon::scanForImages(void)
 EditMetadataDialog::EditMetadataDialog(MythScreenStack *parent, MusicMetadata *source_metadata)
     : EditMetadataCommon(parent, source_metadata, "EditMetadataDialog")
 {
-    gCoreContext->addListener(this);
+    getCoreContext()->addListener(this);
 }
 
 EditMetadataDialog::EditMetadataDialog(MythScreenStack *parent)
     : EditMetadataCommon(parent, "EditMetadataDialog")
 {
-    gCoreContext->addListener(this);
+    getCoreContext()->addListener(this);
 }
 
 EditMetadataDialog::~EditMetadataDialog()
 {
-    gCoreContext->removeListener(this);
+    getCoreContext()->removeListener(this);
 }
 
 bool EditMetadataDialog::Create(void)
@@ -801,20 +801,21 @@ void EditMetadataDialog::customEvent(QEvent *event)
                 if ((errorCode != 0) || (fileSize == 0))
                     return;
 
+                MythCoreContext *cctx = getCoreContext();
                 QString newFilename;
 
                 if (m_searchType == "artist")
                 {
                     QString cleanName = fixFilename(s_metadata->Artist().toLower());
                     QString file = QString("Icons/%1/%2.jpg").arg("artist", cleanName);
-                    newFilename = MythCoreContext::GenMythURL(gCoreContext->GetMasterHostName(),
+                    newFilename = MythCoreContext::GenMythURL(cctx->GetMasterHostName(),
                                                               0, file, "MusicArt");
                 }
                 else if (m_searchType == "genre")
                 {
                     QString cleanName = fixFilename(s_metadata->Genre().toLower());
                     QString file = QString("Icons/%1/%2.jpg").arg("genre", cleanName);
-                    newFilename = MythCoreContext::GenMythURL(gCoreContext->GetMasterHostName(),
+                    newFilename = MythCoreContext::GenMythURL(cctx->GetMasterHostName(),
                                                               0, file, "MusicArt");
                 }
                 else if (m_searchType == "album")
@@ -867,12 +868,12 @@ void EditMetadataDialog::customEvent(QEvent *event)
 EditAlbumartDialog::EditAlbumartDialog(MythScreenStack *parent)
     : EditMetadataCommon(parent, "EditAlbumartDialog")
 {
-    gCoreContext->addListener(this);
+    getCoreContext()->addListener(this);
 }
 
 EditAlbumartDialog::~EditAlbumartDialog()
 {
-    gCoreContext->removeListener(this);
+    getCoreContext()->removeListener(this);
 }
 
 bool EditAlbumartDialog::Create(void)
@@ -1126,7 +1127,7 @@ void EditAlbumartDialog::customEvent(QEvent *event)
                                 << QString::number(image->m_imageType)
                                 << QString::number(type);
 
-                        gCoreContext->SendReceiveStringList(strList);
+                        getCoreContext()->SendReceiveStringList(strList);
 
                         m_albumArtChanged = true;
 
@@ -1165,7 +1166,7 @@ void EditAlbumartDialog::customEvent(QEvent *event)
 
             // save directory location for next time
             QFileInfo fi(m_imageFilename);
-            gCoreContext->SaveSetting("MusicLastImageLocation", fi.canonicalPath());
+            getCoreContext()->SaveSetting("MusicLastImageLocation", fi.canonicalPath());
 
             showTypeMenu(false);
         }
@@ -1216,7 +1217,7 @@ void EditAlbumartDialog::rescanForImages(void)
 
 void EditAlbumartDialog::startCopyImageToTag(void)
 {
-    QString lastLocation = gCoreContext->GetSetting("MusicLastImageLocation", "/");
+    QString lastLocation = getCoreContext()->GetSetting("MusicLastImageLocation", "/");
 
     MythScreenStack *popupStack = GetMythMainWindow()->GetStack("popup stack");
     auto *fb = new MythUIFileBrowser(popupStack, lastLocation);
@@ -1289,7 +1290,7 @@ void EditAlbumartDialog::doRemoveImageFromTag(bool doIt)
                     << QString::number(s_metadata->ID())
                     << QString::number(image->m_id);
 
-            gCoreContext->SendReceiveStringList(strList);
+            getCoreContext()->SendReceiveStringList(strList);
 
             removeCachedImage(image);
             rescanForImages();
@@ -1306,7 +1307,7 @@ class CopyImageThread: public MThread
     void run() override // MThread
     {
         RunProlog();
-        gCoreContext->SendReceiveStringList(m_strList);
+        getCoreContext()->SendReceiveStringList(m_strList);
         RunEpilog();
     }
 

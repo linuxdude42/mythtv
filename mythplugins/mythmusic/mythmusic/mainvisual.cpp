@@ -43,7 +43,7 @@ MainVisual::MainVisual(MythUIVideo *visualizer)
     }
     m_visualizers.sort();
 
-    m_currentVisualizer = gCoreContext->GetNumSetting("MusicLastVisualizer", 0);
+    m_currentVisualizer = getCoreContext()->GetNumSetting("MusicLastVisualizer", 0);
 
     resize(m_visualizerVideo->GetArea().size());
 
@@ -63,7 +63,7 @@ MainVisual::~MainVisual()
     while (!m_nodes.empty())
         delete m_nodes.takeLast();
 
-    gCoreContext->SaveSetting("MusicLastVisualizer", m_currentVisualizer);
+    getCoreContext()->SaveSetting("MusicLastVisualizer", m_currentVisualizer);
 }
 
 void MainVisual::stop(void)

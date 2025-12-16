@@ -59,7 +59,8 @@ ImportMusicDialog::ImportMusicDialog(MythScreenStack *parent) :
     MythScreenType(parent, "musicimportfiles"),
     m_tracks(new std::vector<TrackInfo*>)
 {
-    QString lastHost = gCoreContext->GetSetting("MythMusicLastImportHost", gCoreContext->GetMasterHostName());
+    MythCoreContext *cctx = getCoreContext();
+    QString lastHost = cctx->GetSetting("MythMusicLastImportHost", cctx->GetMasterHostName());
     QStringList dirs = StorageGroup::getGroupDirs("Music", lastHost);
     if (dirs.count() > 0)
         m_musicStorageDir = StorageGroup::getGroupDirs("Music", lastHost).at(0);
@@ -74,7 +75,7 @@ ImportMusicDialog::~ImportMusicDialog()
     }
 
     if (m_locationEdit)
-        gCoreContext->SaveSetting("MythMusicLastImportDir", m_locationEdit->GetText());
+        getCoreContext()->SaveSetting("MythMusicLastImportDir", m_locationEdit->GetText());
 
     delete m_tracks;
 
@@ -285,7 +286,7 @@ bool ImportMusicDialog::Create()
 
     BuildFocusList();
 
-    m_locationEdit->SetText(gCoreContext->GetSetting("MythMusicLastImportDir", "/"));
+    m_locationEdit->SetText(getCoreContext()->GetSetting("MythMusicLastImportDir", "/"));
 
     return true;
 }
@@ -704,7 +705,7 @@ void ImportMusicDialog::chooseBackend(void) const
 
 void ImportMusicDialog::setSaveHost(const QString& host)
 {
-    gCoreContext->SaveSetting("MythMusicLastImportHost", host);
+    getCoreContext()->SaveSetting("MythMusicLastImportHost", host);
 
     QStringList dirs = StorageGroup::getGroupDirs("Music", host);
     if (dirs.count() > 0)
@@ -827,7 +828,7 @@ void ImportMusicDialog::setRating(void)
 
 void ImportMusicDialog::setTitleInitialCap(void)
 {
-    QLocale locale = gCoreContext->GetQLocale();
+    QLocale locale = getCoreContext()->GetQLocale();
     MusicMetadata *data = m_tracks->at(m_currentTrack)->metadata;
     QString title = locale.toLower(data->Title().simplified());
     title[0] = title[0].toUpper();
@@ -837,7 +838,7 @@ void ImportMusicDialog::setTitleInitialCap(void)
 
 void ImportMusicDialog::setTitleWordCaps(void)
 {
-    QLocale locale = gCoreContext->GetQLocale();
+    QLocale locale = getCoreContext()->GetQLocale();
     MusicMetadata *data = m_tracks->at(m_currentTrack)->metadata;
     QString title = locale.toLower(data->Title().simplified());
     QStringList title_words = title.split(' ');
@@ -1035,7 +1036,7 @@ void ImportCoverArtDialog::scanDirectory()
     if (!d.exists())
         return;
 
-    QString nameFilter = gCoreContext->GetSetting("AlbumArtFilter",
+    QString nameFilter = getCoreContext()->GetSetting("AlbumArtFilter",
                                               "*.png;*.jpg;*.jpeg;*.gif;*.bmp");
 
     QFileInfoList list = d.entryInfoList(nameFilter.split(";"),

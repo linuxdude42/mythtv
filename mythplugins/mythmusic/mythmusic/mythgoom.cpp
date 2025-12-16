@@ -24,8 +24,9 @@ Goom::Goom()
 
     goom_init(800, 600, 0);
 
-    m_scalew = gCoreContext->GetNumSetting("VisualScaleWidth", 2);
-    m_scaleh = gCoreContext->GetNumSetting("VisualScaleHeight", 2);
+    MythCoreContext *cctx = getCoreContext();
+    m_scalew = cctx->GetNumSetting("VisualScaleWidth", 2);
+    m_scaleh = cctx->GetNumSetting("VisualScaleHeight", 2);
 
     // we allow 1, 2 or 4 for the scale since goom likes its resolution to be a multiple of 2
     if (m_scaleh == 3 || m_scaleh > 4)

@@ -27,14 +27,14 @@ void PlaylistLoadingThread::run()
 #define LOC_ERR  QString("PlaylistContainer, Error: ")
 
 PlaylistContainer::PlaylistContainer(AllMusic *all_music) :
-    m_playlistsLoader(new PlaylistLoadingThread(this, all_music)),
-    m_myHost(gCoreContext->GetHostName()),
-
-    m_ratingWeight(   gCoreContext->GetNumSetting("IntelliRatingWeight",    2)),
-    m_playCountWeight(gCoreContext->GetNumSetting("IntelliPlayCountWeight", 2)),
-    m_lastPlayWeight( gCoreContext->GetNumSetting("IntelliLastPlayWeight",  2)),
-    m_randomWeight(   gCoreContext->GetNumSetting("IntelliRandomWeight",    2))
+    m_playlistsLoader(new PlaylistLoadingThread(this, all_music))
 {
+    MythCoreContext *cctx = getCoreContext();
+    m_myHost          = cctx->GetHostName();
+    m_ratingWeight    = cctx->GetNumSetting("IntelliRatingWeight",    2);
+    m_playCountWeight = cctx->GetNumSetting("IntelliPlayCountWeight", 2);
+    m_lastPlayWeight  = cctx->GetNumSetting("IntelliLastPlayWeight",  2);
+    m_randomWeight    = cctx->GetNumSetting("IntelliRandomWeight",    2);
     m_playlistsLoader->start();
 }
 

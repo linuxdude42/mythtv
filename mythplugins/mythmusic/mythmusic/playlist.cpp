@@ -992,7 +992,7 @@ void Playlist::changed(void)
     m_changed = true;
 
     if (m_doSave)
-        savePlaylist(m_name, gCoreContext->GetHostName());
+        savePlaylist(m_name, getCoreContext()->GetHostName());
 }
 
 void Playlist::savePlaylist(const QString& a_name, const QString& a_host)
@@ -1254,7 +1254,8 @@ void Playlist::processExit(void)
 int Playlist::CreateCDMP3(void)
 {
     // Check & get global settings
-    if (!gCoreContext->GetNumSetting("CDWriterEnabled"))
+    MythCoreContext *cctx = getCoreContext();
+    if (!cctx->GetNumSetting("CDWriterEnabled"))
     {
         LOG(VB_GENERAL, LOG_ERR, "CD Writer is not enabled.");
         return 1;
@@ -1267,9 +1268,9 @@ int Playlist::CreateCDMP3(void)
         return 1;
     }
 
-    int disksize = gCoreContext->GetNumSetting("CDDiskSize", 2);
-    QString writespeed = gCoreContext->GetSetting("CDWriteSpeed", "2");
-    bool MP3_dir_flag = gCoreContext->GetNumSetting("CDCreateDir", 1);
+    int disksize = cctx->GetNumSetting("CDDiskSize", 2);
+    QString writespeed = cctx->GetSetting("CDWriteSpeed", "2");
+    bool MP3_dir_flag = cctx->GetNumSetting("CDCreateDir", 1);
 
     double size_in_MB = 0.0;
 

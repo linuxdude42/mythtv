@@ -36,21 +36,22 @@ bool GeneralSettings::Create()
         return false;
     }
 
-    m_musicAudioDevice->SetText(gCoreContext->GetSetting("MusicAudioDevice"));
+    MythCoreContext *cctx = getCoreContext();
+    m_musicAudioDevice->SetText(cctx->GetSetting("MusicAudioDevice"));
 
-    int loadMusicDefaultUpmix = gCoreContext->GetNumSetting("MusicDefaultUpmix", 0);
+    int loadMusicDefaultUpmix = cctx->GetNumSetting("MusicDefaultUpmix", 0);
     if (loadMusicDefaultUpmix == 1)
         m_musicDefaultUpmix->SetCheckState(MythUIStateType::Full);
 
-    m_musicCDDevice->SetText(gCoreContext->GetSetting("CDDevice"));
+    m_musicCDDevice->SetText(cctx->GetSetting("CDDevice"));
 
-    m_nonID3FileNameFormat->SetText(gCoreContext->GetSetting("NonID3FileNameFormat"));
+    m_nonID3FileNameFormat->SetText(cctx->GetSetting("NonID3FileNameFormat"));
 
-    int loadIgnoreTags = gCoreContext->GetNumSetting("Ignore_ID3", 0);
+    int loadIgnoreTags = cctx->GetNumSetting("Ignore_ID3", 0);
     if (loadIgnoreTags == 1)
         m_ignoreID3Tags->SetCheckState(MythUIStateType::Full);
 
-    int allowTagWriting = gCoreContext->GetNumSetting("AllowTagWriting", 0);
+    int allowTagWriting = cctx->GetNumSetting("AllowTagWriting", 0);
     if (allowTagWriting == 1)
         m_allowTagWriting->SetCheckState(MythUIStateType::Full);
 
@@ -153,20 +154,21 @@ void GeneralSettings::slotDoResetDB(bool ok)
 
 void GeneralSettings::slotSave(void)
 {
-    gCoreContext->SaveSetting("CDDevice", m_musicCDDevice->GetText());
-    gCoreContext->SaveSetting("MusicAudioDevice", m_musicAudioDevice->GetText());
-    gCoreContext->SaveSetting("NonID3FileNameFormat", m_nonID3FileNameFormat->GetText());
+    MythCoreContext *cctx = getCoreContext();
+    cctx->SaveSetting("CDDevice", m_musicCDDevice->GetText());
+    cctx->SaveSetting("MusicAudioDevice", m_musicAudioDevice->GetText());
+    cctx->SaveSetting("NonID3FileNameFormat", m_nonID3FileNameFormat->GetText());
 
     int saveMusicDefaultUpmix = (m_musicDefaultUpmix->GetCheckState() == MythUIStateType::Full) ? 1 : 0;
-    gCoreContext->SaveSetting("MusicDefaultUpmix", saveMusicDefaultUpmix);
+    cctx->SaveSetting("MusicDefaultUpmix", saveMusicDefaultUpmix);
 
     int saveIgnoreTags = (m_ignoreID3Tags->GetCheckState() == MythUIStateType::Full) ? 1 : 0;
-    gCoreContext->SaveSetting("Ignore_ID3", saveIgnoreTags);
+    cctx->SaveSetting("Ignore_ID3", saveIgnoreTags);
 
     int allowTagWriting = (m_allowTagWriting->GetCheckState() == MythUIStateType::Full) ? 1 : 0;
-    gCoreContext->SaveSetting("AllowTagWriting", allowTagWriting);
+    cctx->SaveSetting("AllowTagWriting", allowTagWriting);
 
-    gCoreContext->dispatch(MythEvent(QString("MUSIC_SETTINGS_CHANGED GENERAL_SETTINGS")));
+    cctx->dispatch(MythEvent(QString("MUSIC_SETTINGS_CHANGED GENERAL_SETTINGS")));
 
     Close();
 }

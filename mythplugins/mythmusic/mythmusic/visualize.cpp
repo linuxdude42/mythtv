@@ -973,7 +973,7 @@ Spectrogram::Spectrogram(bool hist)
 
     m_fps = 40;         // getting 1152 samples / 44100 = 38.28125 fps
 
-    m_color = gCoreContext->GetNumSetting("MusicSpectrogramColor", 0);
+    m_color = getCoreContext()->GetNumSetting("MusicSpectrogramColor", 0);
 
     if (s_image.isNull())  // static histogram survives resize/restart
     {
@@ -1332,7 +1332,7 @@ void Spectrogram::handleKeyPress(const QString &action)
         if (m_history)
         {
             m_color = (m_color + 1) & 0x03; // left and right color bits
-            gCoreContext->SaveSetting("MusicSpectrogramColor",
+            getCoreContext()->SaveSetting("MusicSpectrogramColor",
                                       QString("%1").arg(m_color));
         }
         else

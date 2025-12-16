@@ -28,14 +28,15 @@ bool RatingSettings::Create()
         return false;
     }
 
+    MythCoreContext *cctx = getCoreContext();
     m_ratingWeight->SetRange(0,100,1);
-    m_ratingWeight->SetValue(gCoreContext->GetNumSetting("IntelliRatingWeight"));
+    m_ratingWeight->SetValue(cctx->GetNumSetting("IntelliRatingWeight"));
     m_playCountWeight->SetRange(0,100,1);
-    m_playCountWeight->SetValue(gCoreContext->GetNumSetting("IntelliPlayCountWeight"));
+    m_playCountWeight->SetValue(cctx->GetNumSetting("IntelliPlayCountWeight"));
     m_lastPlayWeight->SetRange(0,100,1);
-    m_lastPlayWeight->SetValue(gCoreContext->GetNumSetting("IntelliLastPlayWeight"));
+    m_lastPlayWeight->SetValue(cctx->GetNumSetting("IntelliLastPlayWeight"));
     m_randomWeight->SetRange(0,100,1);
-    m_randomWeight->SetValue(gCoreContext->GetNumSetting("IntelliRandomWeight"));
+    m_randomWeight->SetValue(cctx->GetNumSetting("IntelliRandomWeight"));
 
     m_ratingWeight->SetHelpText(tr("Used in \"Smart\" Shuffle mode. "
                  "This weighting affects how much strength is "
@@ -66,12 +67,13 @@ bool RatingSettings::Create()
 
 void RatingSettings::slotSave(void)
 {
-    gCoreContext->SaveSetting("IntelliRatingWeight", m_ratingWeight->GetValue());
-    gCoreContext->SaveSetting("IntelliPlayCountWeight", m_playCountWeight->GetValue());
-    gCoreContext->SaveSetting("IntelliLastPlayWeight", m_lastPlayWeight->GetValue());
-    gCoreContext->SaveSetting("IntelliRandomWeight", m_randomWeight->GetValue());
+    MythCoreContext *cctx = getCoreContext();
+    cctx->SaveSetting("IntelliRatingWeight", m_ratingWeight->GetValue());
+    cctx->SaveSetting("IntelliPlayCountWeight", m_playCountWeight->GetValue());
+    cctx->SaveSetting("IntelliLastPlayWeight", m_lastPlayWeight->GetValue());
+    cctx->SaveSetting("IntelliRandomWeight", m_randomWeight->GetValue());
 
-    gCoreContext->dispatch(MythEvent(QString("MUSIC_SETTINGS_CHANGED RATING_SETTINGS")));
+    cctx->dispatch(MythEvent(QString("MUSIC_SETTINGS_CHANGED RATING_SETTINGS")));
 
     Close();
 }

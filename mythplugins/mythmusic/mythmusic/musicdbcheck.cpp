@@ -31,7 +31,8 @@ bool UpgradeMusicDatabaseSchema(void)
     // Suppress DB messages and turn of the settings cache,
     // These are likely to confuse the users and the code, respectively.
     GetMythDB()->SetSuppressDBMessages(true);
-    gCoreContext->ActivateSettingsCache(false);
+    MythCoreContext *cctx = getCoreContext();
+    cctx->ActivateSettingsCache(false);
 
     // Get the schema upgrade lock
     MSqlQuery query(MSqlQuery::InitCon());
@@ -47,7 +48,7 @@ bool UpgradeMusicDatabaseSchema(void)
     {
         LOG(VB_GENERAL, LOG_INFO, "Failed to get schema upgrade lock");
         GetMythDB()->SetSuppressDBMessages(false);
-        gCoreContext->ActivateSettingsCache(true);
+        cctx->ActivateSettingsCache(true);
         return false;
     }
 
@@ -58,7 +59,7 @@ bool UpgradeMusicDatabaseSchema(void)
     // enabled for good performance and we must unlock the schema
     // lock.
     GetMythDB()->SetSuppressDBMessages(false);
-    gCoreContext->ActivateSettingsCache(true);
+    cctx->ActivateSettingsCache(true);
     DBUtil::UnlockSchema(query);
     return success;
 }
@@ -102,6 +103,7 @@ static bool tryUpgradeMusicDatabaseSchema()
 
 static bool doUpgradeMusicDatabaseSchema(QString &dbver)
 {
+    MythCoreContext *cctx = getCoreContext();
     if (dbver.isEmpty())
     {
         LOG(VB_GENERAL, LOG_NOTICE,
@@ -143,7 +145,7 @@ static bool doUpgradeMusicDatabaseSchema(QString &dbver)
 
     if (dbver == "1000")
     {
-        QString startdir = gCoreContext->GetSetting("MusicLocation");
+        QString startdir = cctx->GetSetting("MusicLocation");
         startdir = QDir::cleanPath(startdir);
         if (!startdir.endsWith("/"))
             startdir += "/";
@@ -620,10 +622,10 @@ static bool doUpgradeMusicDatabaseSchema(QString &dbver)
     if (dbver == "1010")
     {
         // update the VisualMode setting to the new format
-        QString setting = gCoreContext->GetSetting("VisualMode");
+        QString setting = cctx->GetSetting("VisualMode");
         setting = setting.simplified();
         setting = setting.replace(' ', ";");
-        gCoreContext->SaveSetting("VisualMode", setting);
+        cctx->SaveSetting("VisualMode", setting);
 
         if (!UpdateDBVersionNumber("MythMusic", MythMusicVersionName, "1011", dbver))
             return false;
@@ -853,7 +855,7 @@ static bool doUpgradeMusicDatabaseSchema(QString &dbver)
         {
             "ALTER TABLE music_songs ADD COLUMN hostname VARCHAR(255) NOT NULL default '';",
             qPrintable(QString("UPDATE music_songs SET hostname = '%1';")
-                       .arg(gCoreContext->GetMasterHostName()))
+                       .arg(cctx->GetMasterHostName()))
         };
 
         if (!performActualUpdate("MythMusic", MythMusicVersionName,
@@ -867,7 +869,7 @@ static bool doUpgradeMusicDatabaseSchema(QString &dbver)
         {
             "ALTER TABLE music_albumart ADD COLUMN hostname VARCHAR(255) NOT NULL default '';",
             qPrintable(QString("UPDATE music_albumart SET hostname = '%1';")
-                       .arg(gCoreContext->GetMasterHostName()))
+                       .arg(cctx->GetMasterHostName()))
         };
 
         if (!performActualUpdate("MythMusic", MythMusicVersionName,

@@ -41,7 +41,7 @@ LyricsView::LyricsView(MythScreenStack *parent, MythScreenType *parentScreen)
 {
     m_currentView = MV_LYRICS;
 
-    gCoreContext->addListener(this);
+    getCoreContext()->addListener(this);
 }
 
 LyricsView::~LyricsView()
@@ -52,7 +52,7 @@ LyricsView::~LyricsView()
         m_lyricData = nullptr;
     }
 
-    gCoreContext->removeListener(this);
+    getCoreContext()->removeListener(this);
 }
 
 bool LyricsView::Create(void)
@@ -264,7 +264,7 @@ MythMenu* LyricsView::createFindLyricsMenu(void)
     menu->AddItemV(tr("Search All Grabbers"), QVariant::fromValue(QString("ALL")));
 
     QStringList strList("MUSIC_LYRICS_GETGRABBERS");
-    if (gCoreContext->SendReceiveStringList(strList))
+    if (getCoreContext()->SendReceiveStringList(strList))
     {
         for (int x = 1; x < strList.count(); x++)
             menu->AddItemV(tr("Search %1").arg(strList.at(x)), QVariant::fromValue(strList.at(x)));

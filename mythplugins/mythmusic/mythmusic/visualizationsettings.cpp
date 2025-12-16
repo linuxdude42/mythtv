@@ -28,17 +28,18 @@ bool VisualizationSettings::Create()
         return false;
     }
 
-    int changeOnSongChange = gCoreContext->GetNumSetting("VisualCycleOnSongChange", 0);
+    MythCoreContext *cctx = getCoreContext();
+    int changeOnSongChange = cctx->GetNumSetting("VisualCycleOnSongChange", 0);
     if (changeOnSongChange == 1)
         m_changeOnSongChange->SetCheckState(MythUIStateType::Full);
-    int randomizeorder = gCoreContext->GetNumSetting("VisualRandomize", 0);
+    int randomizeorder = cctx->GetNumSetting("VisualRandomize", 0);
     if (randomizeorder == 1)
         m_randomizeOrder->SetCheckState(MythUIStateType::Full);
 
     m_scaleWidth->SetRange(1,4,1);
-    m_scaleWidth->SetValue(gCoreContext->GetNumSetting("VisualScaleWidth"));
+    m_scaleWidth->SetValue(cctx->GetNumSetting("VisualScaleWidth"));
     m_scaleHeight->SetRange(1,4,1);
-    m_scaleHeight->SetValue(gCoreContext->GetNumSetting("VisualScaleHeight"));
+    m_scaleHeight->SetValue(cctx->GetNumSetting("VisualScaleHeight"));
 
     m_changeOnSongChange->SetHelpText(tr("Change the visualizer when the song changes."));
     m_randomizeOrder->SetHelpText(tr("On changing the visualizer pick a new one at random."));
@@ -65,15 +66,16 @@ bool VisualizationSettings::Create()
 
 void VisualizationSettings::slotSave(void)
 {
+    MythCoreContext *cctx = getCoreContext();
     int changeOnSongChange = (m_changeOnSongChange->GetCheckState() == MythUIStateType::Full) ? 1 : 0;
-    gCoreContext->SaveSetting("VisualCycleOnSongChange", changeOnSongChange);
+    cctx->SaveSetting("VisualCycleOnSongChange", changeOnSongChange);
     int randomizeorder = (m_randomizeOrder->GetCheckState() == MythUIStateType::Full) ? 1 : 0;
-    gCoreContext->SaveSetting("VisualRandomize", randomizeorder);
+    cctx->SaveSetting("VisualRandomize", randomizeorder);
 
-    gCoreContext->SaveSetting("VisualScaleWidth", m_scaleWidth->GetIntValue());
-    gCoreContext->SaveSetting("VisualScaleHeight", m_scaleHeight->GetIntValue());
+    cctx->SaveSetting("VisualScaleWidth", m_scaleWidth->GetIntValue());
+    cctx->SaveSetting("VisualScaleHeight", m_scaleHeight->GetIntValue());
 
-    gCoreContext->dispatch(MythEvent(QString("MUSIC_SETTINGS_CHANGED VISUALIZATION_SETTINGS")));
+    cctx->dispatch(MythEvent(QString("MUSIC_SETTINGS_CHANGED VISUALIZATION_SETTINGS")));
 
     Close();
 }

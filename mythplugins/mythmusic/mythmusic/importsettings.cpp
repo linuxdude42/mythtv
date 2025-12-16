@@ -33,33 +33,34 @@ bool ImportSettings::Create()
         return false;
     }
 
+    MythCoreContext *cctx = getCoreContext();
     new MythUIButtonListItem(m_paranoiaLevel, tr("Full"), QVariant::fromValue(QString("Full")));
     new MythUIButtonListItem(m_paranoiaLevel, tr("Faster"), QVariant::fromValue(QString("Faster")));
-    m_paranoiaLevel->SetValueByData(gCoreContext->GetSetting("ParanoiaLevel"));
+    m_paranoiaLevel->SetValueByData(cctx->GetSetting("ParanoiaLevel"));
 
-    m_filenameTemplate->SetText(gCoreContext->GetSetting("FilenameTemplate"));
+    m_filenameTemplate->SetText(cctx->GetSetting("FilenameTemplate"));
 
-    int loadNoWhitespace = gCoreContext->GetNumSetting("NoWhitespace", 0);
+    int loadNoWhitespace = cctx->GetNumSetting("NoWhitespace", 0);
     if (loadNoWhitespace == 1)
         m_noWhitespace->SetCheckState(MythUIStateType::Full);
 
-    m_postCDRipScript->SetText(gCoreContext->GetSetting("PostCDRipScript"));
+    m_postCDRipScript->SetText(cctx->GetSetting("PostCDRipScript"));
 
-    int loadEjectCD = gCoreContext->GetNumSetting("EjectCDAfterRipping", 0);
+    int loadEjectCD = cctx->GetNumSetting("EjectCDAfterRipping", 0);
     if (loadEjectCD == 1)
         m_ejectCD->SetCheckState(MythUIStateType::Full);
 
     new MythUIButtonListItem(m_encoderType, tr("Ogg Vorbis"), QVariant::fromValue(QString("ogg")));
     new MythUIButtonListItem(m_encoderType, tr("Lame (MP3)"), QVariant::fromValue(QString("mp3")));
-    m_encoderType->SetValueByData(gCoreContext->GetSetting("EncoderType"));
+    m_encoderType->SetValueByData(cctx->GetSetting("EncoderType"));
 
     new MythUIButtonListItem(m_defaultRipQuality, tr("Low"), QVariant::fromValue(0));
     new MythUIButtonListItem(m_defaultRipQuality, tr("Medium"), QVariant::fromValue(1));
     new MythUIButtonListItem(m_defaultRipQuality, tr("High"), QVariant::fromValue(2));
     new MythUIButtonListItem(m_defaultRipQuality, tr("Perfect"), QVariant::fromValue(3));
-    m_defaultRipQuality->SetValueByData(gCoreContext->GetSetting("DefaultRipQuality"));
+    m_defaultRipQuality->SetValueByData(cctx->GetSetting("DefaultRipQuality"));
 
-    int loadMp3UseVBR = gCoreContext->GetNumSetting("Mp3UseVBR", 0);
+    int loadMp3UseVBR = cctx->GetNumSetting("Mp3UseVBR", 0);
     if (loadMp3UseVBR == 1)
         m_mp3UseVBR->SetCheckState(MythUIStateType::Full);
 
@@ -105,22 +106,23 @@ bool ImportSettings::keyPressEvent(QKeyEvent *event)
 
 void ImportSettings::slotSave(void)
 {
-    gCoreContext->SaveSetting("ParanoiaLevel", m_paranoiaLevel->GetDataValue().toString());
-    gCoreContext->SaveSetting("FilenameTemplate", m_filenameTemplate->GetText());
-    gCoreContext->SaveSetting("PostCDRipScript", m_postCDRipScript->GetText());
-    gCoreContext->SaveSetting("EncoderType", m_encoderType->GetDataValue().toString());
-    gCoreContext->SaveSetting("DefaultRipQuality", m_defaultRipQuality->GetDataValue().toString());
+    MythCoreContext *cctx = getCoreContext();
+    cctx->SaveSetting("ParanoiaLevel", m_paranoiaLevel->GetDataValue().toString());
+    cctx->SaveSetting("FilenameTemplate", m_filenameTemplate->GetText());
+    cctx->SaveSetting("PostCDRipScript", m_postCDRipScript->GetText());
+    cctx->SaveSetting("EncoderType", m_encoderType->GetDataValue().toString());
+    cctx->SaveSetting("DefaultRipQuality", m_defaultRipQuality->GetDataValue().toString());
 
     int saveNoWhitespace = (m_noWhitespace->GetCheckState() == MythUIStateType::Full) ? 1 : 0;
-    gCoreContext->SaveSetting("Ignore_ID3", saveNoWhitespace);
+    cctx->SaveSetting("Ignore_ID3", saveNoWhitespace);
 
     int saveEjectCD = (m_ejectCD->GetCheckState() == MythUIStateType::Full) ? 1 : 0;
-    gCoreContext->SaveSetting("EjectCDAfterRipping", saveEjectCD);
+    cctx->SaveSetting("EjectCDAfterRipping", saveEjectCD);
 
     int saveMp3UseVBR = (m_mp3UseVBR->GetCheckState() == MythUIStateType::Full) ? 1 : 0;
-    gCoreContext->SaveSetting("Mp3UseVBR", saveMp3UseVBR);
+    cctx->SaveSetting("Mp3UseVBR", saveMp3UseVBR);
 
-    gCoreContext->dispatch(MythEvent(QString("MUSIC_SETTINGS_CHANGED IMPORT_SETTINGS")));
+    cctx->dispatch(MythEvent(QString("MUSIC_SETTINGS_CHANGED IMPORT_SETTINGS")));
 
     Close();
 }

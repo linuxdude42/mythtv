@@ -186,7 +186,7 @@ static void startDatabaseTree(void)
 
     MythScreenStack *mainStack = GetMythMainWindow()->GetMainStack();
 
-    QString lastView = gCoreContext->GetSetting("MusicPlaylistEditorView", "tree");
+    QString lastView = getCoreContext()->GetSetting("MusicPlaylistEditorView", "tree");
     auto *view = new PlaylistEditorView(mainStack, nullptr, lastView);
 
     if (view->Create())
@@ -527,7 +527,8 @@ static void handleMedia(MythMediaDevice *cd, bool forcePlayback)
     s_mountPath.clear();
 
     // don't show the music screen if AutoPlayCD is off
-    if (!forcePlayback && !gCoreContext->GetBoolSetting("AutoPlayCD", false))
+    MythCoreContext *cctx = getCoreContext();
+    if (!forcePlayback && !cctx->GetBoolSetting("AutoPlayCD", false))
         return;
 
     if (!gMusicData->m_initialized)
@@ -624,8 +625,8 @@ static void handleMedia(MythMediaDevice *cd, bool forcePlayback)
     if (!gPlayer->hasClient())
     {
         // make sure we start playing from the first track
-        gCoreContext->SaveSetting("MusicBookmark", 0);
-        gCoreContext->SaveSetting("MusicBookmarkPosition", 0);
+        cctx->SaveSetting("MusicBookmark", 0);
+        cctx->SaveSetting("MusicBookmarkPosition", 0);
 
         runMusicPlayback();
     }
@@ -744,7 +745,8 @@ static void handleCDMedia(MythMediaDevice *cd, bool forcePlayback)
 
     // if the AutoPlayCD setting is set we remove all the existing tracks
     // from the playlist and replace them with the new CD tracks found
-    if (forcePlayback || gCoreContext->GetBoolSetting("AutoPlayCD", false))
+    MythCoreContext *cctx = getCoreContext();
+    if (forcePlayback || cctx->GetBoolSetting("AutoPlayCD", false))
     {
         gMusicData->m_all_playlists->getActive()->removeAllTracks();
 
@@ -774,8 +776,8 @@ static void handleCDMedia(MythMediaDevice *cd, bool forcePlayback)
     if (!gPlayer->hasClient())
     {
         // make sure we start playing from the first track
-        gCoreContext->SaveSetting("MusicBookmark", 0);
-        gCoreContext->SaveSetting("MusicBookmarkPosition", 0);
+        cctx->SaveSetting("MusicBookmark", 0);
+        cctx->SaveSetting("MusicBookmarkPosition", 0);
 
         runMusicPlayback();
     }
@@ -879,9 +881,10 @@ int mythplugin_init(const char *libversion)
                                             MYTH_BINARY_VERSION))
         return -1;
 
-    gCoreContext->ActivateSettingsCache(false);
+    MythCoreContext *cctx = getCoreContext();
+    cctx->ActivateSettingsCache(false);
     bool upgraded = UpgradeMusicDatabaseSchema();
-    gCoreContext->ActivateSettingsCache(true);
+    cctx->ActivateSettingsCache(true);
 
     if (!upgraded)
     {
