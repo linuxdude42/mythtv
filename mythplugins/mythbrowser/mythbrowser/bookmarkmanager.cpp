@@ -51,12 +51,13 @@ bool BrowserConfig::Create()
         return false;
     }
 
-    m_commandEdit->SetText(gCoreContext->GetSetting("WebBrowserCommand",
+    MythCoreContext *cctx = getCoreContext();
+    m_commandEdit->SetText(cctx->GetSetting("WebBrowserCommand",
                            "Internal"));
 
-    m_zoomEdit->SetText(gCoreContext->GetSetting("WebBrowserZoomLevel", "1.0"));
+    m_zoomEdit->SetText(cctx->GetSetting("WebBrowserZoomLevel", "1.0"));
 
-    int setting = gCoreContext->GetNumSetting("WebBrowserEnablePlugins", 1);
+    int setting = cctx->GetNumSetting("WebBrowserEnablePlugins", 1);
     if (setting == 1)
         m_enablePluginsCheck->SetCheckState(MythUIStateType::Full);
 
@@ -80,12 +81,13 @@ void BrowserConfig::slotSave(void)
 {
     float zoom = m_zoomEdit->GetText().toFloat();
     zoom = std::clamp(zoom, 0.3F, 5.0F);
-    gCoreContext->SaveSetting("WebBrowserZoomLevel", QString("%1").arg(zoom));
-    gCoreContext->SaveSetting("WebBrowserCommand", m_commandEdit->GetText());
+    MythCoreContext *cctx = getCoreContext();
+    cctx->SaveSetting("WebBrowserZoomLevel", QString("%1").arg(zoom));
+    cctx->SaveSetting("WebBrowserCommand", m_commandEdit->GetText());
     int checkstate = 0;
     if (m_enablePluginsCheck->GetCheckState() == MythUIStateType::Full)
         checkstate = 1;
-    gCoreContext->SaveSetting("WebBrowserEnablePlugins", checkstate);
+    cctx->SaveSetting("WebBrowserEnablePlugins", checkstate);
 
     Close();
 }
@@ -346,8 +348,9 @@ void BookmarkManager::slotBookmarkClicked(MythUIButtonListItem *item)
 
     m_savedBookmark = *site;
 
-    QString cmd = gCoreContext->GetSetting("WebBrowserCommand", "Internal");
-    QString zoom = gCoreContext->GetSetting("WebBrowserZoomLevel", "1.0");
+    MythCoreContext *cctx = getCoreContext();
+    QString cmd = cctx->GetSetting("WebBrowserCommand", "Internal");
+    QString zoom = cctx->GetSetting("WebBrowserZoomLevel", "1.0");
     QStringList urls;
 
     urls.append(site->m_url);
@@ -593,8 +596,9 @@ void BookmarkManager::slotShowMarked(void)
            m_savedBookmark = *site;
     }
 
-    QString cmd = gCoreContext->GetSetting("WebBrowserCommand", "Internal");
-    QString zoom = gCoreContext->GetSetting("WebBrowserZoomLevel", "1.0");
+    MythCoreContext *cctx = getCoreContext();
+    QString cmd = cctx->GetSetting("WebBrowserCommand", "Internal");
+    QString zoom = cctx->GetSetting("WebBrowserZoomLevel", "1.0");
     QStringList urls;
 
     for (const auto *site : std::as_const(m_siteList))

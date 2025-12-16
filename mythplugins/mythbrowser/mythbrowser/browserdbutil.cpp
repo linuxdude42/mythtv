@@ -17,7 +17,7 @@ const QString MythBrowserVersionName = "BrowserDBSchemaVer";
 
 bool UpgradeBrowserDatabaseSchema(void)
 {
-    QString dbver = gCoreContext->GetSetting("BrowserDBSchemaVer");
+    QString dbver = getCoreContext()->GetSetting("BrowserDBSchemaVer");
 
     if (dbver == currentDatabaseVersion)
         return true;
