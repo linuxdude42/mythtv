@@ -114,10 +114,11 @@ int main(int argc, char **argv)
 
     MythTranslation::load("mythfrontend");
 
-    gCoreContext->ConnectToMasterServer(false);
+    MythCoreContext *cctx = getCoreContext();
+    cctx->ConnectToMasterServer(false);
 
     //  Figure out port to listen on
-    int assigned_port = gCoreContext->GetNumSetting("LCDServerPort", 6545);
+    int assigned_port = cctx->GetNumSetting("LCDServerPort", 6545);
     if (special_port > 0)
     {
         assigned_port = special_port;

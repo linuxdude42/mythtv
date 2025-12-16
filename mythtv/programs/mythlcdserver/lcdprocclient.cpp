@@ -117,13 +117,14 @@ LCDProcClient::LCDProcClient(LCDServer *lparent)
     connect( m_updateRecInfoTimer, &QTimer::timeout, this,
             &LCDProcClient::updateRecordingList);
 
-    gCoreContext->addListener(this);
+    getCoreContext()->addListener(this);
 }
 
 bool LCDProcClient::SetupLCD ()
 {
-    QString lcd_host = gCoreContext->GetSetting("LCDHost", "localhost");
-    int lcd_port = gCoreContext->GetNumSetting("LCDPort", 13666);
+    MythCoreContext *cctx = getCoreContext();
+    QString lcd_host = cctx->GetSetting("LCDHost", "localhost");
+    int lcd_port = cctx->GetNumSetting("LCDPort", 13666);
 
     if (lcd_host.length() > 0 && lcd_port > 1024)
         connectToHost(lcd_host, lcd_port);
@@ -140,7 +141,7 @@ bool LCDProcClient::connectToHost(const QString &lhostname, unsigned int lport)
     m_port = lport;
 
     // Don't even try to connect if we're currently disabled.
-    if (!gCoreContext->GetBoolSetting("LCDEnable", false))
+    if (!getCoreContext()->GetBoolSetting("LCDEnable", false))
     {
         m_connected = false;
         return m_connected;
@@ -286,12 +287,13 @@ void LCDProcClient::checkConnections()
         LOG(VB_GENERAL, LOG_INFO, "LCDProcClient: checking connections");
 
     // check connection to mythbackend
-    if (!gCoreContext->IsConnectedToMaster())
+    MythCoreContext *cctx = getCoreContext();
+    if (!cctx->IsConnectedToMaster())
     {
         if (debug_level > 0)
             LOG(VB_GENERAL, LOG_INFO,
                 "LCDProcClient: connecting to master server");
-        if (!gCoreContext->ConnectToMasterServer(false))
+        if (!cctx->ConnectToMasterServer(false))
             LOG(VB_GENERAL, LOG_ERR,
                 "LCDProcClient: connecting to master server failed");
     }
@@ -426,7 +428,7 @@ void LCDProcClient::init()
     sendToServer("screen_add Time");
     setPriority("Time", MEDIUM);
 
-    if (gCoreContext->GetSetting("LCDBigClock", "1") == "1")
+    if (getCoreContext()->GetSetting("LCDBigClock", "1") == "1")
     {
         // Big Clock - spans multiple lines
         sendToServer("widget_add Time rec1 string");
@@ -541,26 +543,27 @@ void LCDProcClient::loadSettings()
     QString aString;
     QString old_keystring = m_lcdKeyString;
 
-    m_timeFormat = gCoreContext->GetSetting("LCDTimeFormat", "");
+    MythCoreContext *cctx = getCoreContext();
+    m_timeFormat = cctx->GetSetting("LCDTimeFormat", "");
     if ( m_timeFormat.isEmpty())
-        m_timeFormat = gCoreContext->GetSetting("TimeFormat", "h:mm AP");
+        m_timeFormat = cctx->GetSetting("TimeFormat", "h:mm AP");
 
-    m_dateFormat = gCoreContext->GetSetting("DateFormat", "dd.MM.yyyy");
+    m_dateFormat = cctx->GetSetting("DateFormat", "dd.MM.yyyy");
 
     // Get LCD settings
-    m_lcdShowMusic=(gCoreContext->GetSetting("LCDShowMusic", "1")=="1");
-    m_lcdShowMusicItems=(gCoreContext->GetSetting("LCDShowMusicItems", "ArtistAlbumTitle"));
-    m_lcdShowTime=(gCoreContext->GetSetting("LCDShowTime", "1")=="1");
-    m_lcdShowChannel=(gCoreContext->GetSetting("LCDShowChannel", "1")=="1");
-    m_lcdShowGeneric=(gCoreContext->GetSetting("LCDShowGeneric", "1")=="1");
-    m_lcdShowVolume=(gCoreContext->GetSetting("LCDShowVolume", "1")=="1");
-    m_lcdShowMenu=(gCoreContext->GetSetting("LCDShowMenu", "1")=="1");
-    m_lcdShowRecstatus=(gCoreContext->GetSetting("LCDShowRecStatus", "1")=="1");
-    m_lcdBacklightOn=(gCoreContext->GetSetting("LCDBacklightOn", "1")=="1");
-    m_lcdHeartbeatOn=(gCoreContext->GetSetting("LCDHeartBeatOn", "1")=="1");
-    m_lcdPopupTime = gCoreContext->GetDurSetting<std::chrono::seconds>("LCDPopupTime", 5s);
-    m_lcdBigClock = (gCoreContext->GetSetting("LCDBigClock", "1")=="1");
-    m_lcdKeyString = gCoreContext->GetSetting("LCDKeyString", "ABCDEF");
+    m_lcdShowMusic=(cctx->GetSetting("LCDShowMusic", "1")=="1");
+    m_lcdShowMusicItems=(cctx->GetSetting("LCDShowMusicItems", "ArtistAlbumTitle"));
+    m_lcdShowTime=(cctx->GetSetting("LCDShowTime", "1")=="1");
+    m_lcdShowChannel=(cctx->GetSetting("LCDShowChannel", "1")=="1");
+    m_lcdShowGeneric=(cctx->GetSetting("LCDShowGeneric", "1")=="1");
+    m_lcdShowVolume=(cctx->GetSetting("LCDShowVolume", "1")=="1");
+    m_lcdShowMenu=(cctx->GetSetting("LCDShowMenu", "1")=="1");
+    m_lcdShowRecstatus=(cctx->GetSetting("LCDShowRecStatus", "1")=="1");
+    m_lcdBacklightOn=(cctx->GetSetting("LCDBacklightOn", "1")=="1");
+    m_lcdHeartbeatOn=(cctx->GetSetting("LCDHeartBeatOn", "1")=="1");
+    m_lcdPopupTime = cctx->GetDurSetting<std::chrono::seconds>("LCDPopupTime", 5s);
+    m_lcdBigClock = (cctx->GetSetting("LCDBigClock", "1")=="1");
+    m_lcdKeyString = cctx->GetSetting("LCDKeyString", "ABCDEF");
 
     if (!old_keystring.isEmpty())
     {
@@ -2397,7 +2400,7 @@ LCDProcClient::~LCDProcClient()
 
     delete m_lcdMenuItems;
 
-    gCoreContext->removeListener(this);
+    getCoreContext()->removeListener(this);
 }
 
 void LCDProcClient::customEvent(QEvent *e)
@@ -2430,9 +2433,10 @@ void LCDProcClient::updateRecordingList(void)
     m_tunerList.clear();
     m_isRecording = false;
 
-    if (!gCoreContext->IsConnectedToMaster())
+    MythCoreContext *cctx = getCoreContext();
+    if (!cctx->IsConnectedToMaster())
     {
-        if (!gCoreContext->ConnectToMasterServer(false))
+        if (!cctx->ConnectToMasterServer(false))
         {
             LOG(VB_GENERAL, LOG_ERR,
                 "LCDProcClient: Cannot get recording status "
