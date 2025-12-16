@@ -99,7 +99,7 @@ bool MythUIVirtualKeyboard::Create()
 
     BuildFocusList();
 
-    loadKeyDefinitions(gCoreContext->GetLanguageAndVariant());
+    loadKeyDefinitions(getCoreContext()->GetLanguageAndVariant());
     updateKeys(true);
 
     QSize screensize = GetMythMainWindow()->GetScreenRect().size();

@@ -448,6 +448,8 @@ void MythThemedMenu::parseThemeButton(QDomElement &element)
 
     bool addit = true;
 
+    MythCoreContext *cctx = getCoreContext();
+
     for (QDomNode child = element.firstChild(); !child.isNull();
          child = child.nextSibling())
     {
@@ -467,9 +469,9 @@ void MythThemedMenu::parseThemeButton(QDomElement &element)
                                            parseText(info).toUtf8() );
                 }
                 else if ((info.attribute("lang","").toLower() ==
-                          gCoreContext->GetLanguageAndVariant()) ||
+                          cctx->GetLanguageAndVariant()) ||
                          (info.attribute("lang","").toLower() ==
-                          gCoreContext->GetLanguage()))
+                          cctx->GetLanguage()))
                 {
                     text = parseText(info);
                 }
@@ -483,9 +485,9 @@ void MythThemedMenu::parseThemeButton(QDomElement &element)
                                               parseText(info).toUtf8());
                 }
                 else if ((info.attribute("lang","").toLower() ==
-                          gCoreContext->GetLanguageAndVariant()) ||
+                          cctx->GetLanguageAndVariant()) ||
                          (info.attribute("lang","").toLower() ==
-                          gCoreContext->GetLanguage()))
+                          cctx->GetLanguage()))
                 {
                     alttext = parseText(info);
                 }
@@ -529,9 +531,9 @@ void MythThemedMenu::parseThemeButton(QDomElement &element)
                                                   getFirstText(info).toUtf8());
                 }
                 else if ((info.attribute("lang","").toLower() ==
-                          gCoreContext->GetLanguageAndVariant()) ||
+                          cctx->GetLanguageAndVariant()) ||
                          (info.attribute("lang","").toLower() ==
-                          gCoreContext->GetLanguage()))
+                          cctx->GetLanguage()))
                 {
                     description = getFirstText(info);
                 }
@@ -879,7 +881,7 @@ bool MythThemedMenu::handleAction(const QString &action, const QString &password
 bool MythThemedMenu::findDepends(const QString &fileList)
 {
     QStringList files = fileList.split(" ");
-    MythPluginManager *pluginManager = gCoreContext->GetPluginManager();
+    MythPluginManager *pluginManager = getCoreContext()->GetPluginManager();
 
     for (const auto & file : std::as_const(files))
     {

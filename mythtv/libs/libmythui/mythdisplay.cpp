@@ -376,7 +376,7 @@ QScreen *MythDisplay::GetDesiredScreen()
         newscreen = QGuiApplication::primaryScreen();
     }
 
-    QString name = gCoreContext->GetSetting("XineramaScreen", nullptr);
+    QString name = getCoreContext()->GetSetting("XineramaScreen", nullptr);
     // Lookup by name
     if (!newscreen)
     {
@@ -501,7 +501,7 @@ void MythDisplay::UpdateCurrentMode()
 /// \brief Return true if the MythTV windows should span all screens.
 bool MythDisplay::SpanAllScreens()
 {
-    return gCoreContext->GetSetting("XineramaScreen", nullptr) == "-1";
+    return getCoreContext()->GetSetting("XineramaScreen", nullptr) == "-1";
 }
 
 QString MythDisplay::GetExtraScreenInfo(QScreen *qScreen)
@@ -889,9 +889,10 @@ double MythDisplay::GetAspectRatio(QString &Source, bool IgnoreModeOverride)
 
     // General override for invalid/misleading EDIDs or multiscreen setups
     // New default of -1.0 equates to square pixels for modern displays
+    MythCoreContext *cctx = getCoreContext();
     bool multiscreen = MythDisplay::SpanAllScreens() && GetScreenCount() > 1;
-    double override = gCoreContext->GetFloatSettingOnHost("XineramaMonitorAspectRatio",
-                                                          gCoreContext->GetHostName(), -1.0);
+    double override = cctx->GetFloatSettingOnHost("XineramaMonitorAspectRatio",
+                                                  cctx->GetHostName(), -1.0);
 
     // Zero (not valid) indicates auto
     if (valid(override))
@@ -1122,7 +1123,7 @@ void MythDisplay::WaitForNewScreen()
 
 void MythDisplay::PauseForModeSwitch()
 {
-    int pauselengthinms = gCoreContext->GetNumSetting("VideoModeChangePauseMS", 0);
+    int pauselengthinms = getCoreContext()->GetNumSetting("VideoModeChangePauseMS", 0);
     if (pauselengthinms)
     {
         LOG(VB_GENERAL, LOG_INFO, LOC +

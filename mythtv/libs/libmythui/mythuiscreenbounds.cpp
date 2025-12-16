@@ -129,37 +129,39 @@ MythUIScreenBounds::MythUIScreenBounds()
 
 void MythUIScreenBounds::InitScreenBounds()
 {
-    m_forceFullScreen = gCoreContext->GetBoolSetting("ForceFullScreen", false);
+    MythCoreContext *cctx = getCoreContext();
+    m_forceFullScreen = cctx->GetBoolSetting("ForceFullScreen", false);
     m_wantFullScreen = m_forceFullScreen ||
-                       (gCoreContext->GetNumSetting("GuiOffsetX") == 0 &&
-                        gCoreContext->GetNumSetting("GuiWidth")   == 0 &&
-                        gCoreContext->GetNumSetting("GuiOffsetY") == 0 &&
-                        gCoreContext->GetNumSetting("GuiHeight")  == 0);
-    m_wantWindow   = gCoreContext->GetBoolSetting("RunFrontendInWindow", false) && !m_forceFullScreen;
+                       (cctx->GetNumSetting("GuiOffsetX") == 0 &&
+                        cctx->GetNumSetting("GuiWidth")   == 0 &&
+                        cctx->GetNumSetting("GuiOffsetY") == 0 &&
+                        cctx->GetNumSetting("GuiHeight")  == 0);
+    m_wantWindow   = cctx->GetBoolSetting("RunFrontendInWindow", false) && !m_forceFullScreen;
     m_qtFullScreen = WindowIsAlwaysFullscreen();
-    m_alwaysOnTop  = gCoreContext->GetBoolSetting("AlwaysOnTop", false);
+    m_alwaysOnTop  = cctx->GetBoolSetting("AlwaysOnTop", false);
     m_themeSize    = GetMythUI()->GetBaseSize();
 }
 
 void MythUIScreenBounds::UpdateScreenSettings(MythDisplay *mDisplay)
 {
+    MythCoreContext *cctx = getCoreContext();
     if (s_XOverride >= 0 && s_YOverride >= 0)
     {
-        gCoreContext->OverrideSettingForSession("GuiOffsetX", QString::number(s_XOverride));
-        gCoreContext->OverrideSettingForSession("GuiOffsetY", QString::number(s_YOverride));
+        cctx->OverrideSettingForSession("GuiOffsetX", QString::number(s_XOverride));
+        cctx->OverrideSettingForSession("GuiOffsetY", QString::number(s_YOverride));
     }
 
     if (s_WOverride > 0 && s_HOverride > 0)
     {
-        gCoreContext->OverrideSettingForSession("GuiWidth", QString::number(s_WOverride));
-        gCoreContext->OverrideSettingForSession("GuiHeight", QString::number(s_HOverride));
+        cctx->OverrideSettingForSession("GuiWidth", QString::number(s_WOverride));
+        cctx->OverrideSettingForSession("GuiHeight", QString::number(s_HOverride));
     }
 
-    int x = gCoreContext->GetNumSetting("GuiOffsetX");
-    int y = gCoreContext->GetNumSetting("GuiOffsetY");
+    int x = cctx->GetNumSetting("GuiOffsetX");
+    int y = cctx->GetNumSetting("GuiOffsetY");
     int width = 0;
     int height = 0;
-    gCoreContext->GetResolutionSetting("Gui", width, height);
+    cctx->GetResolutionSetting("Gui", width, height);
 
     QRect screenbounds = mDisplay->GetScreenBounds();
 

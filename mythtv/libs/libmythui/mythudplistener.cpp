@@ -36,7 +36,7 @@ void MythUDPListener::DoEnable(bool Enable)
         connect(m_socketPool, &ServerPool::newDatagram, this, &MythUDPListener::Process);
         QList<QHostAddress> addrs = ServerPool::DefaultListen();
         addrs << ServerPool::DefaultBroadcast();
-        auto port = static_cast<uint16_t>(gCoreContext->GetNumSetting("UDPNotifyPort", 0));
+        auto port = static_cast<uint16_t>(getCoreContext()->GetNumSetting("UDPNotifyPort", 0));
         if (!m_socketPool->bind(addrs, port, false))
         {
             delete m_socketPool;

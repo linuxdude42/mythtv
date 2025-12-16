@@ -87,12 +87,12 @@ void RawSettingsEditor::Load(void)
     QList<QString>settingsList = m_settings.keys();
     QList<QString>::iterator it = settingsList.begin();
 
-    // FIXME, optimize this using gCoreContext->GetSettings()
+    // FIXME, optimize this using getCoreContext()->GetSettings()
     // QMap<QString,QString> kv;
 
     while (it != settingsList.end())
     {
-        QString value = gCoreContext->GetSetting(*it);
+        QString value = getCoreContext()->GetSetting(*it);
         m_settingValues[*it] = value;
         m_origValues[*it] = value;
 
@@ -131,6 +131,7 @@ void RawSettingsEditor::Init(void)
  */
 void RawSettingsEditor::Save(void)
 {
+    MythCoreContext *cctx = getCoreContext();
     bool changed = false;
 
     QHash <QString, QString>::const_iterator it = m_settingValues.constBegin();
@@ -140,15 +141,15 @@ void RawSettingsEditor::Save(void)
             ((m_origValues.contains(it.key())) &&
              (!m_origValues.value(it.key()).isEmpty())))
         {
-            gCoreContext->SaveSetting(it.key(), it.value());
+            cctx->SaveSetting(it.key(), it.value());
             changed = true;
         }
 
         ++it;
     }
 
-    if (changed && (!gCoreContext->IsMasterHost() || MythCoreContext::BackendIsRunning()))
-        gCoreContext->SendMessage("CLEAR_SETTINGS_CACHE");
+    if (changed && (!cctx->IsMasterHost() || MythCoreContext::BackendIsRunning()))
+        cctx->SendMessage("CLEAR_SETTINGS_CACHE");
 
     Close();
 }

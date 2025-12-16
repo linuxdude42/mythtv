@@ -114,14 +114,14 @@ void MythFontProperties::Zoom(void)
 {
     QMutexLocker locker(&s_zoomLock);
     if (s_zoomPercent == 0)
-        s_zoomPercent = gCoreContext->GetNumSetting("GUITEXTZOOM", 100);
+        s_zoomPercent = getCoreContext()->GetNumSetting("GUITEXTZOOM", 100);
 }
 
 void MythFontProperties::SetZoom(uint percent)
 {
     QMutexLocker locker(&s_zoomLock);
 
-    gCoreContext->SaveSetting("GUITEXTZOOM", QString::number(percent));
+    getCoreContext()->SaveSetting("GUITEXTZOOM", QString::number(percent));
     s_zoomPercent = percent;
 }
 

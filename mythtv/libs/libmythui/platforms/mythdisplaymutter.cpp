@@ -304,8 +304,9 @@ void MythDisplayMutter::MonitorsChanged()
 
 bool MythDisplayMutter::UsingVideoModes()
 {
-    if (gCoreContext)
-        return gCoreContext->GetBoolSetting("UseVideoModes", false);
+    MythCoreContext *cctx = getCoreContext();
+    if (cctx)
+        return cctx->GetBoolSetting("UseVideoModes", false);
     return false;
 }
 

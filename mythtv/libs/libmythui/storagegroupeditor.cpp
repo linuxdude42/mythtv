@@ -34,7 +34,7 @@ void StorageGroupEditor::SetLabel()
         dispGroup = QCoreApplication::translate("(StorageGroups)",
                                                 m_group.toLatin1().constData());
 
-    if (gCoreContext->IsMasterHost())
+    if (getCoreContext()->IsMasterHost())
     {
         setLabel(tr("'%1' Storage Group Directories").arg(dispGroup));
     }
@@ -71,7 +71,8 @@ bool StorageGroupEditor::canDelete(void)
 
 void StorageGroupEditor::ShowDeleteDialog()
 {
-    bool is_master_host = gCoreContext->IsMasterHost();
+    MythCoreContext *cctx = getCoreContext();
+    bool is_master_host = cctx->IsMasterHost();
 
     QString dispGroup = m_group;
     if (m_group == "Default")
@@ -109,9 +110,10 @@ void StorageGroupEditor::ShowDeleteDialog()
 
 void StorageGroupEditor::DoDeleteSlot(bool doDelete)
 {
+    MythCoreContext *cctx = getCoreContext();
     if (doDelete)
     {
-        bool is_master_host = gCoreContext->IsMasterHost();
+        bool is_master_host = cctx->IsMasterHost();
         MSqlQuery query(MSqlQuery::InitCon());
         QString sql = "DELETE FROM storagegroup "
                       "WHERE groupname = :NAME";
@@ -133,7 +135,7 @@ void StorageGroupEditor::DoDeleteSlot(bool doDelete)
         query.prepare(sql);
         query.bindValue(":NAME", m_group);
         if (!is_master_host || (m_group == "Default"))
-            query.bindValue(":HOSTNAME", gCoreContext->GetHostName());
+            query.bindValue(":HOSTNAME", cctx->GetHostName());
         if (!query.exec())
             MythDB::DBError("StorageGroupListEditor::doDelete", query);
     }
@@ -166,7 +168,7 @@ QString StorageGroupDirStorage::GetWhereClause(MSqlBindings &bindings) const
 
     QString query("hostname = " + hostnameTag + " AND id = " + idTag);
 
-    bindings.insert(hostnameTag, gCoreContext->GetHostName());
+    bindings.insert(hostnameTag, getCoreContext()->GetHostName());
     bindings.insert(idTag, m_id);
 
     return query;
@@ -232,7 +234,7 @@ void StorageGroupDirSetting::DoDeleteSlot(bool doDelete)
                           "AND hostname = :HOSTNAME;");
         query.bindValue(":NAME", m_group);
         query.bindValue(":DIRNAME", getValue());
-        query.bindValue(":HOSTNAME", gCoreContext->GetHostName());
+        query.bindValue(":HOSTNAME", getCoreContext()->GetHostName());
         if (query.exec())
             getParent()->removeChild(this);
         else
@@ -253,7 +255,7 @@ void StorageGroupEditor::Load(void)
                       "WHERE groupname = :NAME AND hostname = :HOSTNAME "
                       "ORDER BY id;");
         query.bindValue(":NAME", m_group);
-        query.bindValue(":HOSTNAME", gCoreContext->GetHostName());
+        query.bindValue(":HOSTNAME", getCoreContext()->GetHostName());
         if (!query.exec() || !query.isActive())
             MythDB::DBError("StorageGroupEditor::Load", query);
         else
@@ -326,7 +328,7 @@ void StorageGroupEditor::customEvent(QEvent *event)
                           "VALUES (:NAME, :HOSTNAME, :DIRNAME);");
             query.bindValue(":NAME", m_group);
             query.bindValue(":DIRNAME", dirname);
-            query.bindValue(":HOSTNAME", gCoreContext->GetHostName());
+            query.bindValue(":HOSTNAME", getCoreContext()->GetHostName());
             if (!query.exec())
                 MythDB::DBError("StorageGroupEditor::customEvent", query);
             else
@@ -348,7 +350,7 @@ void StorageGroupEditor::customEvent(QEvent *event)
 
 StorageGroupListEditor::StorageGroupListEditor(void)
 {
-    if (gCoreContext->IsMasterHost())
+    if (getCoreContext()->IsMasterHost())
         setLabel(tr("Storage Groups (directories for new recordings)"));
     else
         setLabel(tr("Local Storage Groups (directories for new recordings)"));
@@ -368,14 +370,14 @@ void StorageGroupListEditor::Load(void)
     QStringList masterNames;
     bool createAddDefaultButton = false;
     QVector< bool > createAddSpecialGroupButton( StorageGroup::kSpecialGroups.size() );
-    bool isMaster = gCoreContext->IsMasterHost();
+    bool isMaster = getCoreContext()->IsMasterHost();
 
     MSqlQuery query(MSqlQuery::InitCon());
     query.prepare("SELECT distinct groupname "
                   "FROM storagegroup "
                   "WHERE hostname = :HOSTNAME "
                   "ORDER BY groupname;");
-    query.bindValue(":HOSTNAME", gCoreContext->GetHostName());
+    query.bindValue(":HOSTNAME", getCoreContext()->GetHostName());
     if (!query.exec())
     {
         MythDB::DBError("StorageGroup::Load getting local group names",

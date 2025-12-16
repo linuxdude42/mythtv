@@ -87,7 +87,7 @@ MythMainWindow *MythMainWindow::getMainWindow(const bool UseDB)
     if (!s_mainWin)
     {
         s_mainWin = new MythMainWindow(UseDB);
-        gCoreContext->SetGUIObject(s_mainWin);
+        getCoreContext()->SetGUIObject(s_mainWin);
     }
 
     return s_mainWin;
@@ -95,8 +95,9 @@ MythMainWindow *MythMainWindow::getMainWindow(const bool UseDB)
 
 void MythMainWindow::destroyMainWindow(void)
 {
-    if (gCoreContext)
-        gCoreContext->SetGUIObject(nullptr);
+    MythCoreContext *cctx = getCoreContext();
+    if (cctx)
+        cctx->SetGUIObject(nullptr);
     delete s_mainWin;
     s_mainWin = nullptr;
 }
@@ -184,11 +185,12 @@ MythMainWindow::MythMainWindow(const bool UseDB)
 #endif
 
     // We need to listen for playback start/end events
-    gCoreContext->addListener(this);
+    MythCoreContext *cctx = getCoreContext();
+    cctx->addListener(this);
 
     // Idle timer setup
     m_idleTime =
-        gCoreContext->GetDurSetting<std::chrono::minutes>("FrontendIdleTimeout",
+        cctx->GetDurSetting<std::chrono::minutes>("FrontendIdleTimeout",
                                                          STANDBY_TIMEOUT);
     if (m_idleTime < 0min)
         m_idleTime = 0min;
@@ -210,8 +212,9 @@ MythMainWindow::~MythMainWindow()
 {
     delete m_screensaver;
 
-    if (gCoreContext != nullptr)
-        gCoreContext->removeListener(this);
+    MythCoreContext *cctx = getCoreContext();
+    if (cctx != nullptr)
+        cctx->removeListener(this);
 
     MythUDP::StopUDPListener();
 
@@ -632,8 +635,9 @@ bool MythMainWindow::event(QEvent *Event)
 
 void MythMainWindow::LoadQtConfig()
 {
-    gCoreContext->ResetLanguage();
-    gCoreContext->ResetAudioLanguage();
+    MythCoreContext *cctx = getCoreContext();
+    cctx->ResetLanguage();
+    cctx->ResetAudioLanguage();
     GetMythUI()->ClearThemeCacheDir();
     QApplication::setStyle("Windows");
 }
@@ -642,7 +646,7 @@ void MythMainWindow::Init(bool MayReInit)
 {
     LoadQtConfig();
     m_display->SetWidget(nullptr);
-    m_priv->m_useDB = ! gCoreContext->GetDB()->SuppressDBMessages();
+    m_priv->m_useDB = ! getCoreContext()->GetDB()->SuppressDBMessages();
 
     if (!(MayReInit || m_priv->m_firstinit))
         return;
@@ -1007,7 +1011,7 @@ uint MythMainWindow::PopDrawDisabled()
 
 void MythMainWindow::SetDrawEnabled(bool Enable)
 {
-    if (!gCoreContext->IsUIThread())
+    if (!getCoreContext()->IsUIThread())
     {
         emit SignalSetDrawEnabled(Enable);
         return;
@@ -1058,7 +1062,7 @@ void MythMainWindow::ExitToMainMenu(void)
         if (screen && screen->objectName() != QString("mainmenu"))
         {
             MythEvent xe("EXIT_TO_MENU");
-            gCoreContext->dispatch(xe);
+            getCoreContext()->dispatch(xe);
             if (screen->objectName() == QString("video playback window"))
             {
                 auto *me = new MythEvent("EXIT_TO_MENU");
@@ -1897,6 +1901,8 @@ bool MythMainWindow::eventFilter(QObject* Watched, QEvent* Event)
 
 void MythMainWindow::customEvent(QEvent* Event)
 {
+    MythCoreContext *cctx = getCoreContext();
+
     if (Event->type() == MythGestureEvent::kEventType)
     {
         auto * gesture = dynamic_cast<MythGestureEvent*>(Event);
@@ -2039,7 +2045,7 @@ void MythMainWindow::customEvent(QEvent* Event)
         {
             // update the idle time
             m_idleTime =
-                gCoreContext->GetDurSetting<std::chrono::minutes>("FrontendIdleTimeout",
+                cctx->GetDurSetting<std::chrono::minutes>("FrontendIdleTimeout",
                                                                   STANDBY_TIMEOUT);
 
             if (m_idleTime < 0min)
@@ -2067,7 +2073,7 @@ void MythMainWindow::customEvent(QEvent* Event)
             // If the connection to the master backend has just been (re-)established
             // but we're in standby, make sure the backend is not blocked from
             // shutting down.
-            gCoreContext->AllowShutdown();
+            cctx->AllowShutdown();
         }
     }
     else if (Event->type() == MythEvent::kMythUserMessage)
@@ -2190,7 +2196,7 @@ void MythMainWindow::IdleTimeout()
         LOG(VB_GENERAL, LOG_NOTICE,
             QString("Entering standby mode after %1 minutes of inactivity").arg(m_idleTime.count()));
         EnterStandby(false);
-        if (gCoreContext->GetNumSetting("idleTimeoutSecs", 0) > 0)
+        if (getCoreContext()->GetNumSetting("idleTimeoutSecs", 0) > 0)
         {
             m_priv->m_enteringStandby = true;
             JumpTo("Standby Mode");
@@ -2215,7 +2221,8 @@ void MythMainWindow::EnterStandby(bool Manual)
     }
 
     m_priv->m_standby = true;
-    gCoreContext->AllowShutdown();
+    MythCoreContext *cctx = getCoreContext();
+    cctx->AllowShutdown();
 
     QVariantMap state;
     state.insert("state", "standby");
@@ -2224,23 +2231,25 @@ void MythMainWindow::EnterStandby(bool Manual)
     MythUIStateTracker::SetState(state);
 
     // Cache WOL settings in case DB goes down
-    QString masterserver = gCoreContext->GetSetting("MasterServerName");
-    gCoreContext->GetSettingOnHost("BackendServerAddr", masterserver);
+    QString masterserver = cctx->GetSetting("MasterServerName");
+    cctx->GetSettingOnHost("BackendServerAddr", masterserver);
     MythCoreContext::GetMasterServerPort();
-    gCoreContext->GetSetting("WOLbackendCommand", "");
+    cctx->GetSetting("WOLbackendCommand", "");
 
     // While in standby do not attempt to wake the backend
-    gCoreContext->SetWOLAllowed(false);
+    cctx->SetWOLAllowed(false);
 }
 
 void MythMainWindow::ExitStandby(bool Manual)
 {
+    MythCoreContext *cctx = getCoreContext();
+
     if (m_priv->m_enteringStandby)
         return;
 
     if (Manual)
         PauseIdleTimer(false);
-    else if (gCoreContext->GetNumSetting("idleTimeoutSecs", 0) > 0)
+    else if (cctx->GetNumSetting("idleTimeoutSecs", 0) > 0)
         JumpTo("Main Menu");
 
     if (!m_priv->m_standby)
@@ -2250,8 +2259,8 @@ void MythMainWindow::ExitStandby(bool Manual)
     m_priv->m_standby = false;
 
     // We may attempt to wake the backend
-    gCoreContext->SetWOLAllowed(true);
-    gCoreContext->BlockShutdown();
+    cctx->SetWOLAllowed(true);
+    cctx->BlockShutdown();
 
     QVariantMap state;
     state.insert("state", "idle");

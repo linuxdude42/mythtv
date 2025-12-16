@@ -123,7 +123,7 @@ MythRenderOpenGL* MythRenderOpenGL::Create(QWidget *Widget)
 MythRenderOpenGL::MythRenderOpenGL(const QSurfaceFormat& Format, QWidget *Widget)
   : MythEGL(this),
     MythRender(kRenderOpenGL),
-    m_fullRange(gCoreContext->GetBoolSetting("GUIRGBLevels", true))
+    m_fullRange(getCoreContext()->GetBoolSetting("GUIRGBLevels", true))
 {
     m_projection.fill(0);
     m_parameters.fill(0);

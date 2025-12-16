@@ -52,7 +52,7 @@ void MythUIClock::Pulse(void)
 QString MythUIClock::GetTimeText(void)
 {
     QDateTime dt = m_time.toLocalTime();
-    QString newMsg = gCoreContext->GetQLocale().toString(dt, m_format);
+    QString newMsg = getCoreContext()->GetQLocale().toString(dt, m_format);
 
     m_nextUpdate = m_time.addSecs(1);
 #if QT_VERSION < QT_VERSION_CHECK(6,5,0)
@@ -90,6 +90,8 @@ void MythUIClock::SetText(const QString &text)
 bool MythUIClock::ParseElement(
     const QString &filename, QDomElement &element, bool showWarnings)
 {
+    MythCoreContext *cctx = getCoreContext();
+
     if (element.tagName() == "format" ||
         element.tagName() == "template")
     {
@@ -99,11 +101,11 @@ bool MythUIClock::ParseElement(
         format.replace("%DATE%", m_dateFormat, Qt::CaseInsensitive);
         format.replace("%SHORTDATE%", m_shortDateFormat, Qt::CaseInsensitive);
         m_format = format;
-        m_message = gCoreContext->GetQLocale().toString(QDateTime::currentDateTime(), m_format);
+        m_message = cctx->GetQLocale().toString(QDateTime::currentDateTime(), m_format);
     }
     else
     {
-        m_message = gCoreContext->GetQLocale().toString(QDateTime::currentDateTime(), m_format);
+        m_message = cctx->GetQLocale().toString(QDateTime::currentDateTime(), m_format);
         return MythUIText::ParseElement(filename, element, showWarnings);
     }
 

@@ -714,7 +714,7 @@ bool MythUIFileBrowser::GetRemoteFileList(const QString &url,
     list << path;
     list << "0";
 
-    bool ok = gCoreContext->SendReceiveStringList(list);
+    bool ok = getCoreContext()->SendReceiveStringList(list);
 
     if ((list.size() == 1) && (list[0] == "EMPTY LIST"))
         list.clear();

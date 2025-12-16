@@ -120,7 +120,7 @@ MediaMonitorUnix::MediaMonitorUnix(QObject* par,
                 : MediaMonitor(par, interval, allowEject)
 {
     CheckFileSystemTable();
-    if (!gCoreContext->GetBoolSetting("MonitorDrives", false)) {
+    if (!getCoreContext()->GetBoolSetting("MonitorDrives", false)) {
         LOG(VB_GENERAL, LOG_NOTICE, "MediaMonitor disabled by user setting.");
     }
     else

@@ -54,7 +54,7 @@ void MonitorThread::run(void)
         // sockets
         if (m_lastCheckTime.secsTo(now) > 120)
         {
-            gCoreContext->ResetSockets();
+            getCoreContext()->ResetSockets();
             if (HasMythMainWindow())
             {
                 LOG(VB_GENERAL, LOG_INFO, "Restarting LIRC handler");
@@ -342,7 +342,7 @@ MediaMonitor::MediaMonitor(QObject* par, unsigned long interval, bool allowEject
     m_allowEject(allowEject)
 {
     // User can specify that some devices are not monitored
-    QString ignore = gCoreContext->GetSetting("IgnoreDevices", "");
+    QString ignore = getCoreContext()->GetSetting("IgnoreDevices", "");
 
     if (!ignore.isEmpty())
     {
@@ -450,7 +450,7 @@ void MediaMonitor::StartMonitoring(void)
     // Sanity check
     if (m_active)
         return;
-    if (!gCoreContext->GetBoolSetting("MonitorDrives", false)) {
+    if (!getCoreContext()->GetBoolSetting("MonitorDrives", false)) {
         LOG(VB_MEDIA, LOG_NOTICE, "MediaMonitor disabled by user setting.");
         return;
     }
@@ -850,7 +850,7 @@ QString MediaMonitor::defaultDevice(const QString &dbSetting,
                                     const QString &label,
                                     const char *hardCodedDefault)
 {
-    QString device = gCoreContext->GetSetting(dbSetting);
+    QString device = getCoreContext()->GetSetting(dbSetting);
 
     LOG(VB_MEDIA, LOG_DEBUG,
              QString("MediaMonitor::defaultDevice(%1,..,%2) dbSetting='%3'")

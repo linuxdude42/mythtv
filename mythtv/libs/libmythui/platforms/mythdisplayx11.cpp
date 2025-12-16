@@ -99,8 +99,9 @@ void MythDisplayX11::UpdateCurrentMode()
 
 bool MythDisplayX11::UsingVideoModes()
 {
-    if (gCoreContext)
-        return gCoreContext->GetBoolSetting("UseVideoModes", false);
+    MythCoreContext *cctx = getCoreContext();
+    if (cctx)
+        return cctx->GetBoolSetting("UseVideoModes", false);
     return false;
 }
 

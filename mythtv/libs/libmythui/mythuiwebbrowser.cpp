@@ -275,6 +275,8 @@ void MythWebEngineView::closeBusyPopup(void)
 
 void MythWebEngineView::customEvent(QEvent *event)
 {
+    MythCoreContext *cctx = getCoreContext();
+
     if (event->type() == DialogCompletionEvent::kEventType)
     {
         auto *dce = (DialogCompletionEvent *)(event);
@@ -301,9 +303,9 @@ void MythWebEngineView::customEvent(QEvent *event)
                 if (isMusicFile(extension, mimeType))
                 {
                     MythEvent me(QString("MUSIC_COMMAND %1 PLAY_URL %2")
-                                 .arg(gCoreContext->GetHostName(),
+                                 .arg(cctx->GetHostName(),
                                       m_downloadRequest.url().toString()));
-                    gCoreContext->dispatch(me);
+                    cctx->dispatch(me);
                 }
                 else if (isVideoFile(extension, mimeType))
                 {
@@ -361,7 +363,7 @@ void MythWebEngineView::customEvent(QEvent *event)
                     GetMythMainWindow()->HandleMedia("Internal", filename);
 
                 MythEvent me2(QString("BROWSER_DOWNLOAD_FINISHED"), args);
-                gCoreContext->dispatch(me2);
+                cctx->dispatch(me2);
             }
         }
     }
@@ -536,6 +538,8 @@ void MythUIWebBrowser::Finalize(void)
  */
 void MythUIWebBrowser::Init(void)
 {
+    MythCoreContext *cctx = getCoreContext();
+
     // only do the initialisation for widgets not being stored in the global object store
     if (parent() == GetGlobalObjectStore())
         return;
@@ -644,7 +648,7 @@ void MythUIWebBrowser::Init(void)
             connect(stack, &MythScreenStack::topScreenChanged, this, &MythUIWebBrowser::slotTopScreenChanged);
     }
 
-    if (gCoreContext->GetNumSetting("WebBrowserEnablePlugins", 1) == 1)
+    if (cctx->GetNumSetting("WebBrowserEnablePlugins", 1) == 1)
     {
         LOG(VB_GENERAL, LOG_INFO, "MythUIWebBrowser: enabling plugins");
         m_webEngine->page()->settings()->setAttribute(QWebEngineSettings::PluginsEnabled, true);
@@ -655,7 +659,7 @@ void MythUIWebBrowser::Init(void)
         m_webEngine->page()->settings()->setAttribute(QWebEngineSettings::PluginsEnabled, false);
     }
 
-    if (!gCoreContext->GetBoolSetting("WebBrowserEnableJavascript", true))
+    if (!cctx->GetBoolSetting("WebBrowserEnableJavascript", true))
     {
         LOG(VB_GENERAL, LOG_INFO, "MythUIWebBrowser: disabling JavaScript");
         m_webEngine->page()->settings()->setAttribute(QWebEngineSettings::JavascriptEnabled, false);
@@ -679,7 +683,7 @@ void MythUIWebBrowser::Init(void)
 
     SetBackgroundColor(m_bgColor);
 
-    m_zoom = gCoreContext->GetFloatSetting("WebBrowserZoomLevel", 1.0);
+    m_zoom = cctx->GetFloatSetting("WebBrowserZoomLevel", 1.0);
 
     SetZoom(m_zoom);
 
@@ -923,7 +927,7 @@ void MythUIWebBrowser::SetZoom(double zoom)
 
     slotStatusBarMessage(tr("Zoom: %1%").arg(m_zoom * 100));
 
-    gCoreContext->SaveSetting("WebBrowserZoomLevel", QString("%1").arg(m_zoom));
+    getCoreContext()->SaveSetting("WebBrowserZoomLevel", QString("%1").arg(m_zoom));
 }
 
 void MythUIWebBrowser::Reload(bool useCache)

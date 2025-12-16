@@ -24,10 +24,11 @@
 
 LanguageSelection::LanguageSelection(MythScreenStack *parent, bool exitOnFinish)
                  :MythScreenType(parent, "LanguageSelection"),
-                  m_exitOnFinish(exitOnFinish),
-                  m_language(gCoreContext->GetSetting("Language")),
-                  m_country(gCoreContext->GetSetting("Country"))
+                  m_exitOnFinish(exitOnFinish)
 {
+    MythCoreContext *cctx = getCoreContext();
+    m_language = cctx->GetSetting("Language");
+    m_country = cctx->GetSetting("Country");
     if (exitOnFinish)
     {
         m_loop = new QEventLoop();
@@ -78,16 +79,17 @@ bool LanguageSelection::Create(void)
 
 void LanguageSelection::Load(void)
 {
+    MythCoreContext *cctx = getCoreContext();
     auto *locale = new MythLocale();
 
     QString langCode;
 
-    if (gCoreContext->GetLocale())
+    if (cctx->GetLocale())
     {
         // If the global MythLocale instance exists, then we should use it
         // since it's informed by previously chosen values from the
         // database.
-        *locale = *gCoreContext->GetLocale();
+        *locale = *cctx->GetLocale();
     }
     else
     {
@@ -172,9 +174,10 @@ bool LanguageSelection::m_languageChanged = false;
 
 bool LanguageSelection::prompt(bool force)
 {
+    MythCoreContext *cctx = getCoreContext();
     m_languageChanged = false;
-    QString language = gCoreContext->GetSetting("Language", "");
-    QString country = gCoreContext->GetSetting("Country", "");
+    QString language = cctx->GetSetting("Language", "");
+    QString country = cctx->GetSetting("Country", "");
     // Ask for language if we don't already know.
     if (force || language.isEmpty() || country.isEmpty())
     {
@@ -211,8 +214,9 @@ void LanguageSelection::Save(void)
         return;
     }
 
+    MythCoreContext *cctx = getCoreContext();
     QString langCode = item->GetData().toString();
-    gCoreContext->SaveSetting("Language", langCode);
+    cctx->SaveSetting("Language", langCode);
 
     item = m_countryList->GetItemCurrent();
 
@@ -225,7 +229,7 @@ void LanguageSelection::Save(void)
     }
 
     QString countryCode = item->GetData().toString();
-    gCoreContext->SaveSetting("Country", countryCode);
+    cctx->SaveSetting("Country", countryCode);
 
     if (m_language != langCode)
         m_languageChanged = true;

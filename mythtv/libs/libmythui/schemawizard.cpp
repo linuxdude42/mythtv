@@ -35,7 +35,7 @@ SchemaUpgradeWizard::SchemaUpgradeWizard(QString DBSchemaSetting,
     // Users and developers can choose to live dangerously,
     // either to silently and automatically upgrade,
     // or an expert option to allow use of existing:
-    switch (gCoreContext->GetNumSetting("DBSchemaAutoUpgrade"))
+    switch (getCoreContext()->GetNumSetting("DBSchemaAutoUpgrade"))
     {
         case  1: m_autoUpgrade = true; break;
 #if defined(ENABLE_SCHEMA_DEVELOPER_MODE) && ENABLE_SCHEMA_DEVELOPER_MODE
@@ -99,7 +99,7 @@ MythDBBackupStatus SchemaUpgradeWizard::BackupDB(void)
 
 int SchemaUpgradeWizard::Compare(void)
 {
-    m_DBver = gCoreContext->GetSetting(m_schemaSetting);
+    m_DBver = getCoreContext()->GetSetting(m_schemaSetting);
 
     // No current schema? Investigate further:
     if (m_DBver.isEmpty() || m_DBver == "0")

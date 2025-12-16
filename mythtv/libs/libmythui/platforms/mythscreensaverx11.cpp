@@ -106,7 +106,7 @@ class ScreenSaverX11Private
         StopTimer();
         // To be clear - this setting has no UI
         if (m_timeoutInterval == -1s)
-            m_timeoutInterval = gCoreContext->GetDurSetting<std::chrono::seconds>("xscreensaverInterval", 50s);
+            m_timeoutInterval = getCoreContext()->GetDurSetting<std::chrono::seconds>("xscreensaverInterval", 50s);
         if (m_timeoutInterval > 0s)
             StartTimer();
         LOG(VB_PLAYBACK, LOG_DEBUG, LOC + "ResetTimer -- end");

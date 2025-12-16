@@ -69,7 +69,7 @@ MythScreenType::MythScreenType(
     m_area = GetMythMainWindow()->GetUIScreenRect();
 
     if (QCoreApplication::applicationName() == MYTH_APPNAME_MYTHFRONTEND)
-        gCoreContext->SendSystemEvent(
+        getCoreContext()->SendSystemEvent(
             QString("SCREEN_TYPE CREATED %1").arg(name));
 }
 
@@ -81,14 +81,14 @@ MythScreenType::MythScreenType(
     m_area = GetMythMainWindow()->GetUIScreenRect();
 
     if (QCoreApplication::applicationName() == MYTH_APPNAME_MYTHFRONTEND)
-        gCoreContext->SendSystemEvent(
+        getCoreContext()->SendSystemEvent(
                 QString("SCREEN_TYPE CREATED %1").arg(name));
 }
 
 MythScreenType::~MythScreenType()
 {
     if (QCoreApplication::applicationName() == MYTH_APPNAME_MYTHFRONTEND)
-        gCoreContext->SendSystemEvent(
+        getCoreContext()->SendSystemEvent(
                 QString("SCREEN_TYPE DESTROYED %1").arg(objectName()));
 
     // locking ensures background screen load can finish running
@@ -439,7 +439,7 @@ bool MythScreenType::keyPressEvent(QKeyEvent *event)
         }
         else if (action.startsWith("SYSEVENT"))
         {
-            gCoreContext->SendSystemEvent(QString("KEY_%1").arg(action.mid(8)));
+            getCoreContext()->SendSystemEvent(QString("KEY_%1").arg(action.mid(8)));
         }
         else if (action == ACTION_SCREENSHOT)
         {
@@ -450,7 +450,7 @@ bool MythScreenType::keyPressEvent(QKeyEvent *event)
             GetMythMainWindow()->HandleTVAction(action);
         }
         else
-        {
+       {
             handled = false;
         }
     }

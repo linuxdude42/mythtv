@@ -13,10 +13,11 @@
 
 void MythUIThemeHelper::InitThemeHelper()
 {
-    StorageGroup sgroup("Themes", gCoreContext->GetHostName());
+    MythCoreContext *cctx = getCoreContext();
+    StorageGroup sgroup("Themes", cctx->GetHostName());
     m_userThemeDir = sgroup.GetFirstDir(true);
 
-    QString themename = gCoreContext->GetSetting("Theme", DEFAULT_UI_THEME);
+    QString themename = cctx->GetSetting("Theme", DEFAULT_UI_THEME);
     QString themedir  = FindThemeDir(themename);
 
     ThemeInfo themeinfo(themedir);
@@ -29,7 +30,7 @@ void MythUIThemeHelper::InitThemeHelper()
     m_themepathname = themedir + '/';
     m_searchPaths.clear();
 
-    themename = gCoreContext->GetSetting("MenuTheme", "defaultmenu");
+    themename = cctx->GetSetting("MenuTheme", "defaultmenu");
     if (themename == "default")
         themename = "defaultmenu";
     m_menuthemepathname = FindMenuThemeDir(themename);
@@ -47,6 +48,7 @@ void MythUIThemeHelper::InitThemeHelper()
  */
 QString MythUIThemeHelper::FindThemeDir(const QString& ThemeName, bool Fallback)
 {
+    MythCoreContext *cctx = getCoreContext();
     QString testdir;
     QDir dir;
 
@@ -74,7 +76,7 @@ QString MythUIThemeHelper::FindThemeDir(const QString& ThemeName, bool Fallback)
     {
         LOG(VB_GENERAL, LOG_ERR, LOC + QString("Could not find theme: %1 - Switching to %2")
             .arg(ThemeName, DEFAULT_UI_THEME));
-        gCoreContext->OverrideSettingForSession("Theme", DEFAULT_UI_THEME);
+        cctx->OverrideSettingForSession("Theme", DEFAULT_UI_THEME);
         return testdir;
     }
 
@@ -87,7 +89,7 @@ QString MythUIThemeHelper::FindThemeDir(const QString& ThemeName, bool Fallback)
     {
         LOG(VB_GENERAL, LOG_ERR, LOC + QString("Could not find theme: %1 - Switching to %2")
             .arg(ThemeName, FALLBACK_UI_THEME));
-        gCoreContext->OverrideSettingForSession("Theme", FALLBACK_UI_THEME);
+        cctx->OverrideSettingForSession("Theme", FALLBACK_UI_THEME);
         return testdir;
     }
 
@@ -124,7 +126,7 @@ QString MythUIThemeHelper::FindMenuThemeDir(const QString& MenuName)
     {
         LOG(VB_GENERAL, LOG_ERR, LOC + QString("Could not find menu theme: %1 - Switching to default")
             .arg(MenuName));
-        gCoreContext->SaveSetting("MenuTheme", "default");
+        getCoreContext()->SaveSetting("MenuTheme", "default");
         return testdir;
     }
 

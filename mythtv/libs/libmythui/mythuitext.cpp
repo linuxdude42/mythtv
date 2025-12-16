@@ -1374,6 +1374,8 @@ void MythUIText::StopCycling(void)
 bool MythUIText::ParseElement(
     const QString &filename, QDomElement &element, bool showWarnings)
 {
+    MythCoreContext *cctx = getCoreContext();
+
     if (element.tagName() == "area")
     {
         SetArea(parseRect(element));
@@ -1420,9 +1422,9 @@ bool MythUIText::ParseElement(
                                         parseText(element).toUtf8());
         }
         else if ((element.attribute("lang", "").toLower() ==
-                  gCoreContext->GetLanguageAndVariant()) ||
+                  cctx->GetLanguageAndVariant()) ||
                  (element.attribute("lang", "").toLower() ==
-                  gCoreContext->GetLanguage()))
+                  cctx->GetLanguage()))
         {
             m_message = parseText(element);
         }

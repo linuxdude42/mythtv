@@ -93,10 +93,12 @@ MythCECAdapter::~MythCECAdapter()
 
 void MythCECAdapter::Open(MythMainWindow *Window)
 {
+    MythCoreContext *cctx = getCoreContext();
+
     Close();
 
     // don't try if disabled
-    if (!gCoreContext->GetBoolSetting(LIBCEC_ENABLED, true))
+    if (!cctx->GetBoolSetting(LIBCEC_ENABLED, true))
     {
         LOG(VB_GENERAL, LOG_INFO, LOC + "libCEC support is disabled.");
         return;
@@ -104,18 +106,18 @@ void MythCECAdapter::Open(MythMainWindow *Window)
 
     // get settings
     // N.B. these need to be set manually since there is no UI
-    QString defaultDevice   = gCoreContext->GetSetting(LIBCEC_DEVICE, "auto").trimmed();
+    QString defaultDevice   = cctx->GetSetting(LIBCEC_DEVICE, "auto").trimmed();
     // Note - if libcec supports automatic detection via EDID then
     // these settings are not used
     // The logical address of the HDMI device Myth is connected to
-    QString base_dev        = gCoreContext->GetSetting(LIBCEC_BASE, "auto").trimmed();
+    QString base_dev        = cctx->GetSetting(LIBCEC_BASE, "auto").trimmed();
     // The number of the HDMI port Myth is connected to
-    QString hdmi_port       = gCoreContext->GetSetting(LIBCEC_PORT, "auto").trimmed();
+    QString hdmi_port       = cctx->GetSetting(LIBCEC_PORT, "auto").trimmed();
 
-    m_powerOffTVAllowed = gCoreContext->GetNumSetting(POWEROFFTV_ALLOWED, 1) > 0;
-    m_powerOffTVOnExit  = gCoreContext->GetNumSetting(POWEROFFTV_ONEXIT, 1) > 0;
-    m_powerOnTVAllowed  = gCoreContext->GetNumSetting(POWERONTV_ALLOWED, 1) > 0;
-    m_powerOnTVOnStart  = gCoreContext->GetNumSetting(POWERONTV_ONSTART, 1) > 0;
+    m_powerOffTVAllowed = cctx->GetNumSetting(POWEROFFTV_ALLOWED, 1) > 0;
+    m_powerOffTVOnExit  = cctx->GetNumSetting(POWEROFFTV_ONEXIT, 1) > 0;
+    m_powerOnTVAllowed  = cctx->GetNumSetting(POWERONTV_ALLOWED, 1) > 0;
+    m_powerOnTVOnStart  = cctx->GetNumSetting(POWERONTV_ONSTART, 1) > 0;
 
     // create adapter interface
     libcec_configuration configuration;
@@ -310,7 +312,7 @@ int MythCECAdapter::HandleCommand(const cec_command &Command)
         default:
             break;
     }
-    gCoreContext->SendSystemEvent(QString("CEC_COMMAND_RECEIVED COMMAND %1").arg(Command.opcode));
+    getCoreContext()->SendSystemEvent(QString("CEC_COMMAND_RECEIVED COMMAND %1").arg(Command.opcode));
     return 1;
 }
 
