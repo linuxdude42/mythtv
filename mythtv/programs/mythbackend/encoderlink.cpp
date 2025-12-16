@@ -120,7 +120,7 @@ void EncoderLink::SetSocket(PlaybackSock *lsock)
     {
         lsock->IncrRef();
 
-        if (gCoreContext->GetSettingOnHost("SleepCommand", m_hostname).isEmpty())
+        if (getCoreContext()->GetSettingOnHost("SleepCommand", m_hostname).isEmpty())
             SetSleepStatus(sStatus_Undefined);
         else
             SetSleepStatus(sStatus_Awake);

@@ -208,23 +208,24 @@ void MediaServer::Init(bool bIsMaster, bool bDisableUPnp /* = false */)
             RegisterExtension(new UPnpCDSVideo());
         }
 
+        MythCoreContext *cctx = getCoreContext();
 #if 0
         LOG(VB_UPNP, LOG_INFO, "MediaServer::Adding Context Listener");
 
-        gCoreContext->addListener( this );
+        cctx->addListener( this );
 #endif
 
         Start();
 
 #if CONFIG_LIBDNS_SD
         // advertise using Bonjour
-        if (gCoreContext)
+        if (cctx)
         {
             m_bonjour = new BonjourRegister();
             if (m_bonjour)
             {
                 QByteArray name("Mythbackend on ");
-                name.append(gCoreContext->GetHostName().toUtf8());
+                name.append(cctx->GetHostName().toUtf8());
                 QByteArray txt(bIsMaster ? "\x06master" : "\x05slave");
                 m_bonjour->Register(nPort, "_mythbackend._tcp", name, txt);
             }
@@ -244,7 +245,7 @@ MediaServer::~MediaServer()
     // -=>TODO: Need to check to see if calling this more than once is ok.
 
 #if 0
-    gCoreContext->removeListener(this);
+    getCoreContext()->removeListener(this);
 #endif
 
     delete m_webSocketServer;

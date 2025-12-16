@@ -74,7 +74,8 @@ V2Myth::V2Myth()
 
 V2ConnectionInfo* V2Myth::GetConnectionInfo( const QString  &sPin )
 {
-    QString sSecurityPin = gCoreContext->GetSetting( "SecurityPin", "");
+    MythCoreContext *cctx = getCoreContext();
+    QString sSecurityPin = cctx->GetSetting( "SecurityPin", "");
 
     if ( sSecurityPin.isEmpty() )
         throw( QString( "No Security Pin assigned. Run mythtv-setup to set one." ));
@@ -90,7 +91,7 @@ V2ConnectionInfo* V2Myth::GetConnectionInfo( const QString  &sPin )
     // Check for DBHostName of "localhost" and change to public name or IP
     // ----------------------------------------------------------------------
 
-    QString sServerIP = gCoreContext->GetBackendServerIP();
+    QString sServerIP = cctx->GetBackendServerIP();
     //QString sPeerIP   = pRequest->GetPeerAddress();
 
     if ((params.m_dbHostName.compare("localhost",Qt::CaseInsensitive)==0
@@ -192,10 +193,11 @@ bool V2Myth::SetConnectionInfo(const QString &Host, const QString &UserName, con
 
 QString V2Myth::GetHostName( )
 {
-    if (!gCoreContext)
+    MythCoreContext *cctx = getCoreContext();
+    if (!cctx)
         throw( QString( "No MythCoreContext in GetHostName." ));
 
-    return gCoreContext->GetHostName();
+    return cctx->GetHostName();
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -703,10 +705,11 @@ QString V2Myth::GetSetting( const QString &sHostName,
 
     QString hostname = sHostName;
 
+    MythCoreContext *cctx = getCoreContext();
     if (sHostName.isEmpty())
-        hostname = gCoreContext->GetHostName();
+        hostname = cctx->GetHostName();
 
-    return gCoreContext->GetSettingOnHost(sKey, hostname, sDefault);
+    return cctx->GetSettingOnHost(sKey, hostname, sDefault);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -769,6 +772,7 @@ bool V2Myth::PutSetting( const QString &sHostName,
                          const QString &sKey,
                          const QString &sValue )
 {
+    MythCoreContext *cctx = getCoreContext();
     QString hostName = sHostName;
 
     if (sKey.toLower() == "apiauthreqd")
@@ -777,7 +781,7 @@ bool V2Myth::PutSetting( const QString &sHostName,
             "authorization").trimmed();
         if (authorization.isEmpty())
             authorization = m_request->m_queries.value("authorization",{});
-        MythSessionManager *sessionManager = gCoreContext->GetSessionManager();
+        MythSessionManager *sessionManager = cctx->GetSessionManager();
         if (sessionManager->GetSession(authorization).GetUserName() != "admin")
             throw  QString ("Forbidden: PutSetting " + sKey);
     }
@@ -787,7 +791,7 @@ bool V2Myth::PutSetting( const QString &sHostName,
 
     if (!sKey.isEmpty())
     {
-        return gCoreContext->SaveSettingOnHost( sKey, sValue, hostName );
+        return cctx->SaveSettingOnHost( sKey, sValue, hostName );
     }
 
     throw ( QString( "Key Required" ));
@@ -807,7 +811,7 @@ bool V2Myth::DeleteSetting( const QString &sHostName,
 
     if (!sKey.isEmpty())
     {
-        return gCoreContext->GetDB()->ClearSettingOnHost( sKey, hostName );
+        return getCoreContext()->GetDB()->ClearSettingOnHost( sKey, hostName );
     }
 
     throw ( QString( "Key Required" ));
@@ -1021,7 +1025,7 @@ bool V2Myth::CheckDatabase( bool repair )
 
 bool V2Myth::DelayShutdown( void )
 {
-    auto *scheduler = dynamic_cast<Scheduler*>(gCoreContext->GetScheduler());
+    auto *scheduler = dynamic_cast<Scheduler*>(getCoreContext()->GetScheduler());
     if (scheduler == nullptr)
         return false;
     scheduler->DelayShutdown();
@@ -1090,7 +1094,7 @@ QString V2Myth::ProfileUpdated()
     QDateTime tUpdated;
     tUpdated = profile.GetLastUpdate();
     sProfileUpdate = tUpdated.toString(
-    gCoreContext->GetSetting( "DateFormat", "MM.dd.yyyy"));
+        getCoreContext()->GetSetting( "DateFormat", "MM.dd.yyyy"));
 
     return sProfileUpdate;
 }
@@ -1137,11 +1141,12 @@ V2BackendInfo* V2Myth::GetBackendInfo( void )
     pEnv->setUSER          ( qEnvironmentVariable("USER",
                              qEnvironmentVariable("USERNAME"))   );
     pEnv->setMYTHCONFDIR   ( qEnvironmentVariable("MYTHCONFDIR") );
-    auto *scheduler = dynamic_cast<Scheduler*>(gCoreContext->GetScheduler());
+    MythCoreContext *cctx = getCoreContext();
+    auto *scheduler = dynamic_cast<Scheduler*>(cctx->GetScheduler());
     if (scheduler != nullptr)
         pEnv->setSchedulingEnabled(scheduler->QueryScheduling());
     pLog->setLogArgs       ( logPropagateArgs      );
-    pEnv->setIsDatabaseIgnored(gCoreContext->GetDB()->IsDatabaseIgnored());
+    pEnv->setIsDatabaseIgnored(cctx->GetDB()->IsDatabaseIgnored());
     pEnv->setDBTimezoneSupport(DBUtil::CheckTimeZoneSupport());
     QString webOnly;
     switch (s_WebOnlyStartup) {
@@ -1192,7 +1197,7 @@ bool V2Myth::ManageDigestUser( const QString &sAction,
     if (authorization.isEmpty())
         authorization = m_request->m_queries.value("authorization",{});
 
-    MythSessionManager *sessionManager = gCoreContext->GetSessionManager();
+    MythSessionManager *sessionManager = getCoreContext()->GetSessionManager();
 
     // if (!authorization.isEmpty())
     loggedInUser = sessionManager->GetSession(authorization).GetUserName();
@@ -1235,8 +1240,9 @@ bool V2Myth::ManageDigestUser( const QString &sAction,
 QString  V2Myth::LoginUser         (  const QString &UserName,
                                       const QString &Password )
 {
-    MythSessionManager *sessionManager = gCoreContext->GetSessionManager();
-    QString client("webapi_" + gCoreContext->GetHostName());
+    MythCoreContext *cctx = getCoreContext();
+    MythSessionManager *sessionManager = cctx->GetSessionManager();
+    QString client("webapi_" + cctx->GetHostName());
 
     MythUserSession session = sessionManager->LoginUser(UserName, Password, client);
 
@@ -1336,13 +1342,13 @@ bool V2Myth::ManageUrlProtection( const QString &sServices,
         return false;
     }
 
-    return gCoreContext->SaveSettingOnHost("HTTP/Protected/Urls",
+    return getCoreContext()->SaveSettingOnHost("HTTP/Protected/Urls",
                                            protectedURLs.join(';'), "");
 }
 
 bool V2Myth::ManageScheduler ( bool Enable, bool Disable )
 {
-    auto *scheduler = dynamic_cast<Scheduler*>(gCoreContext->GetScheduler());
+    auto *scheduler = dynamic_cast<Scheduler*>(getCoreContext()->GetScheduler());
     if (scheduler == nullptr)
         throw QString("Scheduler is null");
     // One and only one of enable and disable must be supplied

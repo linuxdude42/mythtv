@@ -28,7 +28,7 @@ void BackendContext::SetFrontendConnected(Frontend *frontend)
     if (!frontend || frontend->m_name.isEmpty())
         return;
 
-    gCoreContext->SendSystemEvent(
+    getCoreContext()->SendSystemEvent(
                 QString("CLIENT_CONNECTED HOSTNAME %1").arg(frontend->m_name));
 
     if (m_knownFrontends.contains(frontend->m_name))
@@ -99,7 +99,7 @@ void BackendContext::SetFrontendDisconnected(const QString& name)
         // Will still be referenced in knownFrontends, so no leak here
         m_connectedFrontends.remove(name);
 
-        gCoreContext->SendSystemEvent(
+        getCoreContext()->SendSystemEvent(
                 QString("CLIENT_DISCONNECTED HOSTNAME %1")
                         .arg(frontend->m_name));
         LOG(VB_GENERAL, LOG_INFO, QString("BackendContext: Frontend '%1' "

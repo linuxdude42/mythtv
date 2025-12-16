@@ -137,8 +137,9 @@ UPnpCDSTv::UPnpCDSTv()
           : UPnpCDSExtension( QObject::tr("Recordings"), "Recordings",
                               "object.item.videoItem" )
 {
-    QString sServerIp   = gCoreContext->GetBackendServerIP();
-    int sPort           = gCoreContext->GetBackendStatusPort();
+    MythCoreContext *cctx = getCoreContext();
+    QString sServerIp   = cctx->GetBackendServerIP();
+    int sPort           = cctx->GetBackendStatusPort();
     m_uriBase.setScheme("http");
     m_uriBase.setHost(sServerIp);
     m_uriBase.setPort(sPort);
@@ -423,9 +424,10 @@ bool UPnpCDSTv::IsBrowseRequestForUs( UPnpCDSRequest *pRequest )
     // Xbox360 compatibility code.
     // ----------------------------------------------------------------------
 
+//     MythCoreContext *cctx = getCoreContext();
 //     if (pRequest->m_eClient == CDS_ClientXBox &&
 //         pRequest->m_sContainerID == "15" &&
-//         gCoreContext->GetSetting("UPnP/WMPSource") != "1")
+//         cctx->GetSetting("UPnP/WMPSource") != "1")
 //     {
 //         pRequest->m_sObjectId = "Videos/0";
 //
@@ -440,7 +442,7 @@ bool UPnpCDSTv::IsBrowseRequestForUs( UPnpCDSRequest *pRequest )
 //     if (pRequest->m_eClient == CDS_ClientWMP &&
 //         pRequest->m_nClientVersion < 12.0 &&
 //         pRequest->m_sContainerID == "13" &&
-//         gCoreContext->GetSetting("UPnP/WMPSource") != "1")
+//         cctx->GetSetting("UPnP/WMPSource") != "1")
 //     {
 //         pRequest->m_sObjectId = "RecTv/0";
 //
@@ -471,7 +473,7 @@ bool UPnpCDSTv::IsSearchRequestForUs( UPnpCDSRequest *pRequest )
 
 //     if (pRequest->m_eClient == CDS_ClientXBox &&
 //         pRequest->m_sContainerID == "15" &&
-//         gCoreContext->GetSetting("UPnP/WMPSource") !=  "1")
+//         getCoreContext()->GetSetting("UPnP/WMPSource") !=  "1")
 //     {
 //         pRequest->m_sObjectId = "Videos/0";
 //
@@ -501,7 +503,7 @@ bool UPnpCDSTv::IsSearchRequestForUs( UPnpCDSRequest *pRequest )
 //          pRequest->m_nClientVersion < 12.0)
 //     {
 //         // GetBoolSetting()?
-//         if ( gCoreContext->GetSetting("UPnP/WMPSource") != "1")
+//         if ( getCoreContext()->GetSetting("UPnP/WMPSource") != "1")
 //         {
 //             pRequest->m_sObjectId = "RecTv/0";
 //             // -=>TODO: Not sure why this was added
@@ -1045,11 +1047,12 @@ bool UPnpCDSTv::LoadRecordings(const UPnpCDSRequest* pRequest,
         // Cache Host ip Address & Port
         // ----------------------------------------------------------------------
 
+        MythCoreContext *cctx = getCoreContext();
         if (!m_mapBackendIp.contains( sHostName ))
-            m_mapBackendIp[ sHostName ] = gCoreContext->GetBackendServerIP(sHostName);
+            m_mapBackendIp[ sHostName ] = cctx->GetBackendServerIP(sHostName);
 
         if (!m_mapBackendPort.contains( sHostName ))
-            m_mapBackendPort[ sHostName ] = gCoreContext->GetBackendStatusPort(sHostName);
+            m_mapBackendPort[ sHostName ] = cctx->GetBackendStatusPort(sHostName);
 
         // ----------------------------------------------------------------------
         // Build Support Strings

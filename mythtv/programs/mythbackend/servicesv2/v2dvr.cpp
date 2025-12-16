@@ -168,8 +168,9 @@ V2ProgramList* V2Dvr::GetRecordedList( bool           bDescending,
 
     QMap< QString, ProgramInfo* > recMap;
 
-    if (gCoreContext->GetScheduler())
-        recMap = gCoreContext->GetScheduler()->GetRecording();
+    MythCoreContext *cctx = getCoreContext();
+    if (cctx->GetScheduler())
+        recMap = cctx->GetScheduler()->GetRecording();
 
     QMap< QString, uint32_t > inUseMap    = ProgramInfo::QueryInUseMap();
     QMap< QString, bool >     isJobRunning= ProgramInfo::QueryJobsRunning(JOB_COMMFLAG);
@@ -730,7 +731,7 @@ bool V2Dvr::DeleteRecording(int RecordedId,
                  allowRerecord ? "FORGET" : "NO_FORGET");
         MythEvent me(cmd);
 
-        gCoreContext->dispatch(me);
+        getCoreContext()->dispatch(me);
         return true;
     }
 
@@ -761,7 +762,7 @@ bool V2Dvr::UnDeleteRecording(int RecordedId,
             .arg(ri.GetRecordingStartTime(MythDate::ISODate));
         MythEvent me(cmd);
 
-        gCoreContext->dispatch(me);
+        getCoreContext()->dispatch(me);
         return true;
     }
 
@@ -786,7 +787,7 @@ bool V2Dvr::StopRecording(int RecordedId)
                       .arg(ri.GetRecordingStartTime(MythDate::ISODate));
         MythEvent me(cmd);
 
-        gCoreContext->dispatch(me);
+        getCoreContext()->dispatch(me);
         return true;
     }
     throw QString("RecordedId %1 not found").arg(RecordedId);
@@ -2350,8 +2351,9 @@ int V2Dvr::ManageJobQueue( const QString   &sAction,
         return nReturn;
     }
 
+    MythCoreContext *cctx = getCoreContext();
     if (sRemoteHost.isEmpty())
-        sRemoteHost = gCoreContext->GetHostName();
+        sRemoteHost = cctx->GetHostName();
 
     int jobType = JobQueue::GetJobTypeFromName(sJobName);
 
@@ -2386,14 +2388,14 @@ int V2Dvr::ManageJobQueue( const QString   &sAction,
     }
 
     if (((jobType & JOB_USERJOB) != 0) &&
-         gCoreContext->GetSetting(sJobName, "").isEmpty())
+         cctx->GetSetting(sJobName, "").isEmpty())
     {
         LOG(VB_GENERAL, LOG_ERR, QString("%1 hasn't been defined.")
             .arg(sJobName));
         return nReturn;
     }
 
-    if (!gCoreContext->GetBoolSettingOnHost(QString("JobAllow%1").arg(sJobName),
+    if (!cctx->GetBoolSettingOnHost(QString("JobAllow%1").arg(sJobName),
                                             sRemoteHost, false))
     {
         LOG(VB_GENERAL, LOG_NOTICE, QString("Note: %1 hasn't been allowed on host %2.")

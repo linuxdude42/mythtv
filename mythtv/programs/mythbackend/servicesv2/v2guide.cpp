@@ -152,7 +152,7 @@ V2ProgramGuide *V2Guide::GetProgramGuide( const QDateTime &rawStartTime,
 
     // NOTE: Fetching this information directly from the schedule is
     //       significantly faster than using ProgramInfo::LoadFromScheduler()
-    auto *scheduler = dynamic_cast<Scheduler*>(gCoreContext->GetScheduler());
+    auto *scheduler = dynamic_cast<Scheduler*>(getCoreContext()->GetScheduler());
     if (scheduler)
         scheduler->GetAllPending(schedList);
 
@@ -358,7 +358,7 @@ V2ProgramList* V2Guide::GetProgramList(int              nStartIndex,
 
     // NOTE: Fetching this information directly from the schedule is
     //       significantly faster than using ProgramInfo::LoadFromScheduler()
-    auto *scheduler = dynamic_cast<Scheduler*>(gCoreContext->GetScheduler());
+    auto *scheduler = dynamic_cast<Scheduler*>(getCoreContext()->GetScheduler());
     if (scheduler)
         scheduler->GetAllPending(schedList);
 

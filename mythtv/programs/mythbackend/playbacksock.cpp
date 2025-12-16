@@ -29,7 +29,7 @@ PlaybackSock::PlaybackSock(
     m_ip(""),
     m_eventsMode(eventsMode)
 {
-    QString localhostname = gCoreContext->GetHostName();
+    QString localhostname = getCoreContext()->GetHostName();
     m_local = (m_hostname == localhostname);
 }
 
@@ -101,7 +101,7 @@ bool PlaybackSock::SendReceiveStringList(
                 strlist.pop_front();
                 strlist.pop_front();
                 MythEvent me(message, strlist);
-                gCoreContext->dispatch(me);
+                getCoreContext()->dispatch(me);
             }
 
             ok = m_sock->ReadStringList(strlist);

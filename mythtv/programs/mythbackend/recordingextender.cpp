@@ -1377,7 +1377,7 @@ void RecordingExtender::finishRecording(
     MythEvent me(QString("STOP_RECORDING %1 %2")
                  .arg(ri->GetChanID())
                  .arg(ri->GetRecordingStartTime(MythDate::ISODate)));
-    gCoreContext->dispatch(me);
+    getCoreContext()->dispatch(me);
 }
 
 /// Extend the current recording by XX minutes. The first time this is

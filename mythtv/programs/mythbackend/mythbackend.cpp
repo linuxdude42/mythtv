@@ -165,11 +165,11 @@ int main(int argc, char **argv)
         cmdline.toBool("testsched")     ||
         cmdline.toBool("printexpire")   || cmdline.toBool("setloglevel"))
     {
-        gCoreContext->SetAsBackend(false);
+        getCoreContext()->SetAsBackend(false);
         return handle_command(cmdline);
     }
 
-    gCoreContext->SetAsBackend(true);
+    getCoreContext()->SetAsBackend(true);
     retval = run_backend(cmdline);
     // Retcode 258 is a special value to signal to mythbackend to restart
     // This is used by the V2Myth/Shutdown?Restart=true API call

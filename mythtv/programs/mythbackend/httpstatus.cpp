@@ -59,7 +59,7 @@ HttpStatus::HttpStatus( QMap<int, EncoderLink *> *tvList, Scheduler *sched,
             m_pEncoders(tvList),
             m_bIsMaster(bIsMaster)
 {
-    m_nPreRollSeconds = gCoreContext->GetNumSetting("RecordPreRoll", 0);
+    m_nPreRollSeconds = getCoreContext()->GetNumSetting("RecordPreRoll", 0);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -172,7 +172,7 @@ void HttpStatus::GetStatusHTML( HTTPRequest *pRequest )
 
 static QString setting_to_localtime(const char *setting)
 {
-    QString origDateString = gCoreContext->GetSetting(setting);
+    QString origDateString = getCoreContext()->GetSetting(setting);
     QDateTime origDate = MythDate::fromString(origDateString);
     return MythDate::toString(origDate, MythDate::kDateTimeFull);
 }
@@ -204,6 +204,7 @@ void HttpStatus::FillStatusXML( QDomDocument *pDoc )
 
     TVRec::s_inputsLock.lockForRead();
 
+    MythCoreContext *cctx = getCoreContext();
     for (auto * elink : std::as_const(*m_pEncoders))
     {
         if (elink != nullptr)
@@ -222,7 +223,7 @@ void HttpStatus::FillStatusXML( QDomDocument *pDoc )
             //encoder.setAttribute("lowOnFreeSpace", elink->isLowOnFreeSpace());
 
             if (isLocal)
-                encoder.setAttribute("hostname", gCoreContext->GetHostName());
+                encoder.setAttribute("hostname", cctx->GetHostName());
             else
                 encoder.setAttribute("hostname", elink->GetHostName());
 
@@ -325,12 +326,12 @@ void HttpStatus::FillStatusXML( QDomDocument *pDoc )
     root.appendChild(backends);
 
     int numbes = 0;
-    if (!gCoreContext->IsMasterBackend())
+    if (!cctx->IsMasterBackend())
     {
         numbes++;
-        QString masterhost = gCoreContext->GetMasterHostName();
-        QString masterip   = gCoreContext->GetMasterServerIP();
-        int masterport = gCoreContext->GetMasterServerStatusPort();
+        QString masterhost = cctx->GetMasterHostName();
+        QString masterip   = cctx->GetMasterServerIP();
+        int masterport = cctx->GetMasterServerStatusPort();
 
         QDomElement mbe = pDoc->createElement("Backend");
         backends.appendChild(mbe);
@@ -551,11 +552,11 @@ void HttpStatus::FillStatusXML( QDomDocument *pDoc )
     guide.setAttribute("end",
                        setting_to_localtime("mythfilldatabaseLastRunEnd"));
     guide.setAttribute("status",
-        gCoreContext->GetSetting("mythfilldatabaseLastRunStatus"));
-    if (gCoreContext->GetBoolSetting("MythFillGrabberSuggestsTime", false))
+        cctx->GetSetting("mythfilldatabaseLastRunStatus"));
+    if (cctx->GetBoolSetting("MythFillGrabberSuggestsTime", false))
     {
         guide.setAttribute("next",
-            gCoreContext->GetSetting("MythFillSuggestedRunTime"));
+            cctx->GetSetting("MythFillSuggestedRunTime"));
     }
 
     if (!GuideDataThrough.isNull())
@@ -567,7 +568,7 @@ void HttpStatus::FillStatusXML( QDomDocument *pDoc )
 
     // Add Miscellaneous information
 
-    QString info_script = gCoreContext->GetSetting("MiscStatusScript");
+    QString info_script = cctx->GetSetting("MiscStatusScript");
     if ((!info_script.isEmpty()) && (info_script != "none"))
     {
         QDomElement misc = pDoc->createElement("Miscellaneous");
@@ -1407,7 +1408,7 @@ int HttpStatus::PrintMachineInfo( QTextStream &os, const QDomElement& info )
             QDomText  text  = e.firstChild().toText();
 
             QString mfdblrs =
-                gCoreContext->GetSetting("mythfilldatabaseLastRunStart");
+                getCoreContext()->GetSetting("mythfilldatabaseLastRunStart");
             QDateTime lastrunstart = MythDate::fromString(mfdblrs);
 
             if (!text.isNull())
@@ -1614,8 +1615,9 @@ void HttpStatus::FillChannelInfo( QDomElement &channel,
     if (pInfo)
     {
 /*
-        QString sHostName = gCoreContext->GetHostName();
-        QString sPort     = gCoreContext->GetSettingOnHost( "BackendStatusPort",
+        MythCoreContext *cctx = getCoreContext();
+        QString sHostName = cctx->GetHostName();
+        QString sPort     = cctx->GetSettingOnHost( "BackendStatusPort",
                                                         sHostName);
         QString sIconURL  = QString( "http://%1:%2/getChannelIcon?ChanId=%3" )
                                    .arg( sHostName )

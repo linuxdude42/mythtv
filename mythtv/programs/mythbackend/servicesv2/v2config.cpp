@@ -226,9 +226,10 @@ QStringList V2Config::GetIPAddresses( const QString &Protocol )
 
 V2SystemEventList* V2Config::GetSystemEvents(const QString &Host)
 {
+    MythCoreContext *cctx = getCoreContext();
     QString theHost;
     if (Host.isEmpty())
-        theHost = gCoreContext->GetHostName();
+        theHost = cctx->GetHostName();
     else
         theHost = Host;
     auto* pList = new V2SystemEventList();
@@ -240,7 +241,7 @@ V2SystemEventList* V2Config::GetSystemEvents(const QString &Host)
         V2SystemEvent *event = pList->AddNewSystemEvent();
         event->setKey(it.key());
         event->setLocalizedName(it.value());
-        event->setValue(gCoreContext->GetSettingOnHost(it.key(), theHost, QString()));
+        event->setValue(cctx->GetSettingOnHost(it.key(), theHost, QString()));
     }
     return pList;
 }

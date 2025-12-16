@@ -549,12 +549,13 @@ QFileInfo V2Content::GetPreviewImage(        int        nRecordedId,
         return {};
     }
 
-    if (pginfo.GetHostname().toLower() != gCoreContext->GetHostName().toLower()
-            &&  ! gCoreContext->GetBoolSetting("MasterBackendOverride", false))
+    MythCoreContext *cctx = getCoreContext();
+    if (pginfo.GetHostname().toLower() != cctx->GetHostName().toLower()
+            &&  ! cctx->GetBoolSetting("MasterBackendOverride", false))
     {
         QString sMsg =
             QString("GetPreviewImage: Wrong Host '%1' request from '%2'")
-                          .arg( gCoreContext->GetHostName(),
+                          .arg( cctx->GetHostName(),
                                 pginfo.GetHostname() );
 
         LOG(VB_UPNP, LOG_ERR, sMsg);
@@ -714,14 +715,15 @@ QFileInfo V2Content::GetRecording( int              nRecordedId,
         return {};
     }
 
-    if (pginfo.GetHostname().toLower() != gCoreContext->GetHostName().toLower()
-            &&  ! gCoreContext->GetBoolSetting("MasterBackendOverride", false))
+    MythCoreContext *cctx = getCoreContext();
+    if (pginfo.GetHostname().toLower() != cctx->GetHostName().toLower()
+            &&  ! cctx->GetBoolSetting("MasterBackendOverride", false))
     {
         // We only handle requests for local resources
 
         QString sMsg =
             QString("GetRecording: Wrong Host '%1' request from '%2'.")
-                          .arg( gCoreContext->GetHostName(),
+                          .arg( cctx->GetHostName(),
                                 pginfo.GetHostname() );
 
         LOG(VB_UPNP, LOG_ERR, sMsg);
@@ -847,7 +849,7 @@ QString V2Content::GetHash( const QString &sStorageGroup,
     if (!sStorageGroup.isEmpty())
         storageGroup = sStorageGroup;
 
-    StorageGroup sgroup(storageGroup, gCoreContext->GetHostName());
+    StorageGroup sgroup(storageGroup, getCoreContext()->GetHostName());
 
     QString fullname = sgroup.FindFile(sFileName);
     QString hash = FileHash(fullname);
@@ -866,7 +868,7 @@ bool V2Content::DownloadFile( const QString &sURL, const QString &sStorageGroup 
 {
     QFileInfo finfo(sURL);
     QString filename = finfo.fileName();
-    StorageGroup sgroup(sStorageGroup, gCoreContext->GetHostName(), false);
+    StorageGroup sgroup(sStorageGroup, getCoreContext()->GetHostName(), false);
     QString outDir = sgroup.FindNextDirMostFree();
     QString outFile;
 
@@ -926,7 +928,7 @@ bool V2Content::DownloadFile( const QString &sURL, const QString &sStorageGroup 
 //     // ------------------------------------------------------------------
 
 //     QString sFullFileName;
-//     if (sHostName.isEmpty() || sHostName == gCoreContext->GetHostName())
+//     if (sHostName.isEmpty() || sHostName == getCoreContext()->GetHostName())
 //     {
 //         StorageGroup storage( sGroup );
 //         sFullFileName = storage.FindFile( sFileName );
@@ -1055,16 +1057,17 @@ bool V2Content::DownloadFile( const QString &sURL, const QString &sStorageGroup 
 //         return nullptr;
 //     }
 
-//     bool masterBackendOverride = gCoreContext->GetBoolSetting("MasterBackendOverride", false);
+//     MythCoreContext *cctx = getCoreContext();
+//     bool masterBackendOverride = cctx->GetBoolSetting("MasterBackendOverride", false);
 
-//     if (pginfo.GetHostname().toLower() != gCoreContext->GetHostName().toLower()
+//     if (pginfo.GetHostname().toLower() != cctx->GetHostName().toLower()
 //             &&  ! masterBackendOverride)
 //     {
 //         // We only handle requests for local resources
 
 //         QString sMsg =
 //             QString("GetRecording: Wrong Host '%1' request from '%2'.")
-//                           .arg( gCoreContext->GetHostName(),
+//                           .arg( cctx->GetHostName(),
 //                                 pginfo.GetHostname() );
 
 //         LOG(VB_UPNP, LOG_ERR, sMsg);
@@ -1090,7 +1093,7 @@ bool V2Content::DownloadFile( const QString &sURL, const QString &sStorageGroup 
 
 //     QString hostName;
 //     if (masterBackendOverride)
-//         hostName = gCoreContext->GetHostName();
+//         hostName = cctx->GetHostName();
 //     else
 //         hostName = pginfo.GetHostname();
 
@@ -1124,13 +1127,14 @@ bool V2Content::DownloadFile( const QString &sURL, const QString &sStorageGroup 
 //         return nullptr;
 //     }
 
-//     if ( metadata->GetHost().toLower() != gCoreContext->GetHostName().toLower())
+//     MythCoreContext *cctx = getCoreContext();
+//     if ( metadata->GetHost().toLower() != cctx->GetHostName().toLower())
 //     {
 //         // We only handle requests for local resources
 
 //         QString sMsg =
 //             QString("AddVideoLiveStream: Wrong Host '%1' request from '%2'.")
-//                           .arg( gCoreContext->GetHostName(),
+//                           .arg( cctx->GetHostName(),
 //                                 metadata->GetHost() );
 
 //         LOG(VB_UPNP, LOG_ERR, sMsg);

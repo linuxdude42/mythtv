@@ -782,7 +782,7 @@ void FillEncoderList(QVariantList &list, QObject* parent)
             pEncoder->setSleepStatus   ( elink->GetSleepStatus()  );
 
             if (pEncoder->GetLocal())
-                pEncoder->setHostName( gCoreContext->GetHostName() );
+                pEncoder->setHostName( getCoreContext()->GetHostName() );
             else
                 pEncoder->setHostName( elink->GetHostName() );
 
@@ -847,7 +847,7 @@ int FillUpcomingList(QVariantList &list, QObject* parent,
 
     // NOTE: Fetching this information directly from the schedule is
     //       significantly faster than using ProgramInfo::LoadFromScheduler()
-    auto *scheduler = dynamic_cast<Scheduler*>(gCoreContext->GetScheduler());
+    auto *scheduler = dynamic_cast<Scheduler*>(getCoreContext()->GetScheduler());
     if (scheduler)
         scheduler->GetAllPending(tmpList, nRecordId);
 
@@ -988,7 +988,7 @@ void FillFrontendList(QVariantList &list, QObject* parent, bool OnLine)
         list.append( QVariant::fromValue<QObject *>( pFrontend ));
         pFrontend->setName(fe->m_name);
         pFrontend->setIP(fe->m_ip.toString());
-        int port = gCoreContext->GetNumSettingOnHost("FrontendStatusPort",
+        int port = getCoreContext()->GetNumSettingOnHost("FrontendStatusPort",
                                                         fe->m_name, 6547);
         pFrontend->setPort(port);
         pFrontend->setOnLine(fe->m_connectionCount > 0);

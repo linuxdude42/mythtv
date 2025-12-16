@@ -47,6 +47,7 @@ bool HttpConfig::ProcessRequest(HTTPRequest *request)
         return false;
     }
 
+    MythCoreContext *cctx = getCoreContext();
     bool handled = false;
     if (request->m_sMethod == "Save")
     {
@@ -121,14 +122,14 @@ bool HttpConfig::ProcessRequest(HTTPRequest *request)
             fn += "config_backend_database.xml";
             parse_settings(m_databaseSettings, fn);
             result = StringMapToJSON(
-                GetSettingsMap(m_databaseSettings, gCoreContext->GetHostName()));
+                GetSettingsMap(m_databaseSettings, cctx->GetHostName()));
         }
         else if (request->m_sBaseUrl == "/Config/General")
         {
             fn += "config_backend_general.xml";
             parse_settings(m_generalSettings, fn);
             result = StringMapToJSON(
-                GetSettingsMap(m_generalSettings, gCoreContext->GetHostName()));
+                GetSettingsMap(m_generalSettings, cctx->GetHostName()));
         }
 
         QTextStream os(&request->m_response);
@@ -157,9 +158,9 @@ bool HttpConfig::ProcessRequest(HTTPRequest *request)
     {
         QString package = QUrl::fromPercentEncoding(request->m_mapParams["package"].toUtf8());
         QString url = QString("http://www.mythtv.org/ftp/3rdParty/%1").arg(package);
-        StorageGroup tmpGroup("Temp", gCoreContext->GetHostName());
+        StorageGroup tmpGroup("Temp", cctx->GetHostName());
         QString tmpFile = tmpGroup.GetFirstDir(true) + "package.zip";
-        StorageGroup destGroup("3rdParty", gCoreContext->GetHostName());
+        StorageGroup destGroup("3rdParty", cctx->GetHostName());
         QString outDir = destGroup.GetFirstDir();
 
         QString result = "false";
@@ -314,7 +315,7 @@ bool HttpConfig::ProcessRequest(HTTPRequest *request)
             OpenForm(request->m_response, form, group);
 
         parse_settings(m_generalSettings, fn, group);
-        load_settings(m_generalSettings, gCoreContext->GetHostName());
+        load_settings(m_generalSettings, cctx->GetHostName());
         PrintSettings(request->m_response, m_generalSettings);
 
         if (group.isEmpty())
@@ -340,7 +341,7 @@ bool HttpConfig::ProcessRequest(HTTPRequest *request)
             OpenForm(request->m_response, form, group);
 
         parse_settings(m_generalSettings, fn, group);
-        load_settings(m_generalSettings, gCoreContext->GetHostName());
+        load_settings(m_generalSettings, cctx->GetHostName());
         PrintSettings(request->m_response, m_generalSettings);
 
         if (group.isEmpty())

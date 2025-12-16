@@ -31,8 +31,9 @@ UPnpCDSVideo::UPnpCDSVideo()
              : UPnpCDSExtension( QObject::tr("Videos"), "Videos",
                                  "object.item.videoItem" )
 {
-    QString sServerIp   = gCoreContext->GetBackendServerIP();
-    int sPort           = gCoreContext->GetBackendStatusPort();
+    MythCoreContext *cctx = getCoreContext();
+    QString sServerIp   = cctx->GetBackendServerIP();
+    int sPort           = cctx->GetBackendStatusPort();
     m_uriBase.setScheme("http");
     m_uriBase.setHost(sServerIp);
     m_uriBase.setPort(sPort);
@@ -159,7 +160,7 @@ bool UPnpCDSVideo::IsBrowseRequestForUs( UPnpCDSRequest *pRequest )
 
 //     if (pRequest->m_eClient == CDS_ClientXBox &&
 //         pRequest->m_sContainerID == "15" &&
-//         gCoreContext->GetSetting("UPnP/WMPSource") == "1")
+//         getCoreContext()->GetSetting("UPnP/WMPSource") == "1")
 //     {
 //         pRequest->m_sObjectId = "Videos/0";
 //
@@ -183,7 +184,7 @@ bool UPnpCDSVideo::IsBrowseRequestForUs( UPnpCDSRequest *pRequest )
 //     if (pRequest->m_eClient == CDS_ClientWMP &&
 //         pRequest->m_sContainerID == "13" &&
 //         pRequest->m_nClientVersion < 12.0 &&
-//         gCoreContext->GetSetting("UPnP/WMPSource") == "1")
+//         getCoreContext()->GetSetting("UPnP/WMPSource") == "1")
 //     {
 //         pRequest->m_sObjectId = "Videos/0";
 //
@@ -215,7 +216,7 @@ bool UPnpCDSVideo::IsSearchRequestForUs( UPnpCDSRequest *pRequest )
 
 //     if (pRequest->m_eClient == CDS_ClientXBox &&
 //         pRequest->m_sContainerID == "15" &&
-//         gCoreContext->GetSetting("UPnP/WMPSource") == "1")
+//         getCoreContext()->GetSetting("UPnP/WMPSource") == "1")
 //     {
 //         pRequest->m_sObjectId = "Videos/0";
 //
@@ -239,7 +240,7 @@ bool UPnpCDSVideo::IsSearchRequestForUs( UPnpCDSRequest *pRequest )
 //     if ( bOurs && pRequest->m_eClient == CDS_ClientWMP &&
 //          pRequest->m_nClientVersion < 12.0 )
 //     {
-//         if ( gCoreContext->GetSetting("UPnP/WMPSource") == "1")
+//         if ( getCoreContext()->GetSetting("UPnP/WMPSource") == "1")
 //         {
 //             pRequest->m_sObjectId = "Videos/0";
 //             // -=>TODO: Not sure why this was added.
@@ -679,17 +680,18 @@ bool UPnpCDSVideo::LoadVideos(const UPnpCDSRequest* pRequest,
         // otherwise, we look up the host's IP address and port.  When the
         // client then trys to play the video it will be directed to the
         // host which actually has the content.
+        MythCoreContext *cctx = getCoreContext();
         if (!m_mapBackendIp.contains( sHostName ))
         {
             if (sHostName.isEmpty())
             {
                 m_mapBackendIp[sHostName] =
-                    gCoreContext->GetBackendServerIP();
+                    cctx->GetBackendServerIP();
             }
             else
             {
                 m_mapBackendIp[sHostName] =
-                    gCoreContext->GetBackendServerIP(sHostName);
+                    cctx->GetBackendServerIP(sHostName);
             }
         }
 
@@ -698,12 +700,12 @@ bool UPnpCDSVideo::LoadVideos(const UPnpCDSRequest* pRequest,
             if (sHostName.isEmpty())
             {
                 m_mapBackendPort[sHostName] =
-                    gCoreContext->GetBackendStatusPort();
+                    cctx->GetBackendStatusPort();
             }
             else
             {
                 m_mapBackendPort[sHostName] =
-                    gCoreContext->GetBackendStatusPort(sHostName);
+                    cctx->GetBackendStatusPort(sHostName);
             }
         }
 

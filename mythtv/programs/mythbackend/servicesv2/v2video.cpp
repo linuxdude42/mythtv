@@ -1050,7 +1050,7 @@ V2BlurayInfo* V2Video::GetBluray( const QString &sPath )
     QString path = sPath;
 
     if (sPath.isEmpty())
-        path = gCoreContext->GetSetting( "BluRayMountpoint", "/media/cdrom");
+        path = getCoreContext()->GetSetting( "BluRayMountpoint", "/media/cdrom");
 
     LOG(VB_GENERAL, LOG_NOTICE,
         QString("Parsing Blu-ray at path: %1 ").arg(path));

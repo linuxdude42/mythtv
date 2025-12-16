@@ -53,7 +53,7 @@ void CleanupTask::CleanupOldRecordings(void)
     query.prepare("DELETE FROM inuseprograms "
                   "WHERE hostname = :HOSTNAME AND "
                     "( recusage = 'recorder' OR recusage LIKE 'Unknown %' );");
-    query.bindValue(":HOSTNAME", gCoreContext->GetHostName());
+    query.bindValue(":HOSTNAME", getCoreContext()->GetHostName());
     if (!query.exec())
         MythDB::DBError("CleanupTask::CleanupOldRecordings", query);
 }
@@ -248,13 +248,14 @@ void CleanupTask::CleanupChannelTables(void)
 
 void CleanupTask::CleanupProgramListings(void)
 {
+    MythCoreContext *cctx = getCoreContext();
     MSqlQuery query(MSqlQuery::InitCon());
     // Keep as many days of listings data as we keep matching, non-recorded
     // oldrecorded entries to allow for easier post-mortem analysis
-    int offset = gCoreContext->GetNumSetting( "CleanOldRecorded", 10);
+    int offset = cctx->GetNumSetting( "CleanOldRecorded", 10);
     // Also make sure to keep enough data so that we can flag the original
     // airdate, for when that isn't included in guide data
-    int newEpiWindow = gCoreContext->GetNumSetting( "NewEpisodeWindow", 14);
+    int newEpiWindow = cctx->GetNumSetting( "NewEpisodeWindow", 14);
     offset = std::max(newEpiWindow, offset);
 
     query.prepare("DELETE FROM oldprogram WHERE airdate < "
@@ -333,7 +334,7 @@ void CleanupTask::CleanupProgramListings(void)
 
 bool ThemeUpdateTask::DoCheckRun(const QDateTime& now)
 {
-    return gCoreContext->GetBoolSetting("ThemeUpdateNofications", true) &&
+    return getCoreContext()->GetBoolSetting("ThemeUpdateNofications", true) &&
             PeriodicHouseKeeperTask::DoCheckRun(now);
 }
 
@@ -385,7 +386,7 @@ bool ThemeUpdateTask::LoadVersion(const QString &version, int download_log_level
     remoteThemesFile.append("/themes.zip");
 
     m_url = QString("%1/%2/themes.zip")
-            .arg(gCoreContext->GetSetting("ThemeRepositoryURL",
+        .arg(getCoreContext()->GetSetting("ThemeRepositoryURL",
                           "http://themes.mythtv.org/themes/repository"),
                  version);
 
@@ -472,14 +473,15 @@ RadioStreamUpdateTask::~RadioStreamUpdateTask(void)
 bool RadioStreamUpdateTask::DoCheckRun(const QDateTime& now)
 {
     // we are only interested in the global setting so remove any local host setting just in case
-    QString setting = GetMythDB()->GetSettingOnHost("MusicStreamListModified", gCoreContext->GetHostName(), "");
+    MythCoreContext *cctx = getCoreContext();
+    QString setting = GetMythDB()->GetSettingOnHost("MusicStreamListModified", cctx->GetHostName(), "");
     if (!setting.isEmpty())
     {
         GetMythDB()->ClearSetting("MusicStreamListModified");
     }
 
     // check we are not already running a radio stream update
-    return gCoreContext->GetSetting("MusicStreamListModified") == "Updating" &&
+    return cctx->GetSetting("MusicStreamListModified") == "Updating" &&
             PeriodicHouseKeeperTask::DoCheckRun(now);
 }
 
@@ -540,7 +542,7 @@ ArtworkTask::~ArtworkTask(void)
 
 bool ArtworkTask::DoCheckRun(const QDateTime& now)
 {
-    return gCoreContext->GetBoolSetting("DailyArtworkUpdates", false) &&
+    return getCoreContext()->GetBoolSetting("DailyArtworkUpdates", false) &&
             PeriodicHouseKeeperTask::DoCheckRun(now);
 }
 
@@ -567,8 +569,9 @@ void MythFillDatabaseTask::SetHourWindowFromDB(void)
 {
     // we need to set the time window from database settings, so we cannot
     // initialize these values in. grab them and set them afterwards
-    auto min = gCoreContext->GetDurSetting<std::chrono::hours>("MythFillMinHour", -1h);
-    auto max = gCoreContext->GetDurSetting<std::chrono::hours>("MythFillMaxHour", 23h);
+    MythCoreContext *cctx = getCoreContext();
+    auto min = cctx->GetDurSetting<std::chrono::hours>("MythFillMinHour", -1h);
+    auto max = cctx->GetDurSetting<std::chrono::hours>("MythFillMaxHour", 23h);
 
     if (min == -1h)
     {
@@ -587,7 +590,8 @@ void MythFillDatabaseTask::SetHourWindowFromDB(void)
 
 bool MythFillDatabaseTask::UseSuggestedTime(void)
 {
-//     if (!gCoreContext->GetBoolSetting("MythFillGrabberSuggestsTime", true))
+    MythCoreContext *cctx = getCoreContext();
+//     if (!cctx->GetBoolSetting("MythFillGrabberSuggestsTime", true))
 //         // this feature is disabled, so don't bother with a deeper check
 //         return false;
 //
@@ -605,12 +609,13 @@ bool MythFillDatabaseTask::UseSuggestedTime(void)
 //                 return true;
 //     }
 
-    return gCoreContext->GetBoolSetting("MythFillGrabberSuggestsTime", true);
+    return cctx->GetBoolSetting("MythFillGrabberSuggestsTime", true);
 }
 
 bool MythFillDatabaseTask::DoCheckRun(const QDateTime& now)
 {
-    if (!gCoreContext->GetBoolSetting("MythFillEnabled", true))
+    MythCoreContext *cctx = getCoreContext();
+    if (!cctx->GetBoolSetting("MythFillEnabled", true))
     {
         // we don't want to run this manually, so abort early
         LOG(VB_GENERAL, LOG_DEBUG, "MythFillDatabase is disabled. Cannot run.");
@@ -624,7 +629,7 @@ bool MythFillDatabaseTask::DoCheckRun(const QDateTime& now)
     if (UseSuggestedTime())
     {
         QDateTime nextRun = MythDate::fromString(
-            gCoreContext->GetSetting("MythFillSuggestedRunTime",
+            cctx->GetSetting("MythFillSuggestedRunTime",
                                      "1970-01-01T00:00:00"));
         LOG(VB_GENERAL, LOG_DEBUG,
                 QString("MythFillDatabase scheduled to run at %1.")
@@ -657,9 +662,10 @@ bool MythFillDatabaseTask::DoRun(void)
         m_msMFD = nullptr;
     }
 
-    QString mfpath = gCoreContext->GetSetting("MythFillDatabasePath",
-                                        "mythfilldatabase");
-    QString mfarg = gCoreContext->GetSetting("MythFillDatabaseArgs", "");
+    MythCoreContext *cctx = getCoreContext();
+    QString mfpath = cctx->GetSetting("MythFillDatabasePath",
+                                      "mythfilldatabase");
+    QString mfarg = cctx->GetSetting("MythFillDatabaseArgs", "");
 
     uint opts = kMSRunShell | kMSAutoCleanup;
     if (mfpath == "mythfilldatabase")

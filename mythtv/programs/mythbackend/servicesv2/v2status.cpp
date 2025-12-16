@@ -77,13 +77,14 @@ void V2Status::RegisterCustomTypes()
 }
 
 V2Status::V2Status () : MythHTTPService(s_service),
-                        m_pSched(dynamic_cast<Scheduler*>(gCoreContext->GetScheduler())),
                         m_pEncoders(&gTVList) // extern
 {
+    MythCoreContext *cctx = getCoreContext();
+    m_pSched = dynamic_cast<Scheduler*>(cctx->GetScheduler());
     if (m_pSched)
         m_pMainServer = m_pSched->GetMainServer();
-    m_bIsMaster = gCoreContext->IsMasterHost();
-    m_nPreRollSeconds = gCoreContext->GetNumSetting("RecordPreRoll", 0);
+    m_bIsMaster = cctx->IsMasterHost();
+    m_nPreRollSeconds = cctx->GetNumSetting("RecordPreRoll", 0);
 }
 
 // HTML
@@ -130,14 +131,14 @@ Preformat*  V2Status::GetStatusHTML ( )
 
 static QString setting_to_localtime(const char *setting)
 {
-    QString origDateString = gCoreContext->GetSetting(setting);
+    QString origDateString = getCoreContext()->GetSetting(setting);
     QDateTime origDate = MythDate::fromString(origDateString);
     return MythDate::toString(origDate, MythDate::kDateTimeFull);
 }
 
 static QDateTime setting_to_qdatetime(const char *setting)
 {
-    QString origDateString = gCoreContext->GetSetting(setting);
+    QString origDateString = getCoreContext()->GetSetting(setting);
     QDateTime origDate = MythDate::fromString(origDateString);
     return origDate;
 }
@@ -169,9 +170,10 @@ V2BackendStatus*  V2Status::GetBackendStatus()
 
     // Add this host
     backend = pStatus->AddNewBackend();
-    QString thisHost = gCoreContext->GetHostName();
+    MythCoreContext *cctx = getCoreContext();
+    QString thisHost = cctx->GetHostName();
     backend->setName(thisHost);
-    backend->setIP(gCoreContext->GetBackendServerIP());
+    backend->setIP(cctx->GetBackendServerIP());
 
     if (m_pMainServer)
     {
@@ -196,8 +198,8 @@ V2BackendStatus*  V2Status::GetBackendStatus()
     else
     {
         backend->setType("Slave");
-        QString masterhost = gCoreContext->GetMasterHostName();
-        QString masterip   = gCoreContext->GetMasterServerIP();
+        QString masterhost = cctx->GetMasterHostName();
+        QString masterip   = cctx->GetMasterServerIP();
         backend = pStatus->AddNewBackend();
         backend->setName(masterhost);
         backend->setIP(masterip);
@@ -268,11 +270,11 @@ V2BackendStatus*  V2Status::GetBackendStatus()
     pMachineInfo->setGuideEnd(
                        setting_to_qdatetime("mythfilldatabaseLastRunEnd"));
     pMachineInfo->setGuideStatus(
-        gCoreContext->GetSetting("mythfilldatabaseLastRunStatus"));
-    if (gCoreContext->GetBoolSetting("MythFillGrabberSuggestsTime", false))
+        cctx->GetSetting("mythfilldatabaseLastRunStatus"));
+    if (cctx->GetBoolSetting("MythFillGrabberSuggestsTime", false))
     {
         pMachineInfo->setGuideNext(
-            gCoreContext->GetSetting("MythFillSuggestedRunTime"));
+            cctx->GetSetting("MythFillSuggestedRunTime"));
     }
 
     if (!GuideDataThrough.isNull())
@@ -283,7 +285,7 @@ V2BackendStatus*  V2Status::GetBackendStatus()
     }
 
     // Add Miscellaneous information
-    QString info_script = gCoreContext->GetSetting("MiscStatusScript");
+    QString info_script = cctx->GetSetting("MiscStatusScript");
     if ((!info_script.isEmpty()) && (info_script != "none"))
     {
         uint flags = kMSRunShell | kMSStdOut;
@@ -396,6 +398,7 @@ void V2Status::FillStatusXML( QDomDocument *pDoc )
     bool isLocal     = true;
 
     TVRec::s_inputsLock.lockForRead();
+    MythCoreContext *cctx = getCoreContext();
 
     for (auto * elink : std::as_const(*m_pEncoders))
     {
@@ -415,7 +418,7 @@ void V2Status::FillStatusXML( QDomDocument *pDoc )
             //encoder.setAttribute("lowOnFreeSpace", elink->isLowOnFreeSpace());
 
             if (isLocal)
-                encoder.setAttribute("hostname", gCoreContext->GetHostName());
+                encoder.setAttribute("hostname", cctx->GetHostName());
             else
                 encoder.setAttribute("hostname", elink->GetHostName());
 
@@ -518,12 +521,12 @@ void V2Status::FillStatusXML( QDomDocument *pDoc )
     root.appendChild(backends);
 
     int numbes = 0;
-    if (!gCoreContext->IsMasterBackend())
+    if (!cctx->IsMasterBackend())
     {
         numbes++;
-        QString masterhost = gCoreContext->GetMasterHostName();
-        QString masterip   = gCoreContext->GetMasterServerIP();
-        int masterport = gCoreContext->GetMasterServerStatusPort();
+        QString masterhost = cctx->GetMasterHostName();
+        QString masterip   = cctx->GetMasterServerIP();
+        int masterport = cctx->GetMasterServerStatusPort();
 
         QDomElement mbe = pDoc->createElement("Backend");
         backends.appendChild(mbe);
@@ -744,11 +747,11 @@ void V2Status::FillStatusXML( QDomDocument *pDoc )
     guide.setAttribute("end",
                        setting_to_localtime("mythfilldatabaseLastRunEnd"));
     guide.setAttribute("status",
-        gCoreContext->GetSetting("mythfilldatabaseLastRunStatus"));
-    if (gCoreContext->GetBoolSetting("MythFillGrabberSuggestsTime", false))
+        cctx->GetSetting("mythfilldatabaseLastRunStatus"));
+    if (cctx->GetBoolSetting("MythFillGrabberSuggestsTime", false))
     {
         guide.setAttribute("next",
-            gCoreContext->GetSetting("MythFillSuggestedRunTime"));
+            cctx->GetSetting("MythFillSuggestedRunTime"));
     }
 
     if (!GuideDataThrough.isNull())
@@ -760,7 +763,7 @@ void V2Status::FillStatusXML( QDomDocument *pDoc )
 
     // Add Miscellaneous information
 
-    QString info_script = gCoreContext->GetSetting("MiscStatusScript");
+    QString info_script = cctx->GetSetting("MiscStatusScript");
     if ((!info_script.isEmpty()) && (info_script != "none"))
     {
         QDomElement misc = pDoc->createElement("Miscellaneous");
@@ -1600,7 +1603,7 @@ int V2Status::PrintMachineInfo( QTextStream &os, const QDomElement& info )
             QDomText  text  = e.firstChild().toText();
 
             QString mfdblrs =
-                gCoreContext->GetSetting("mythfilldatabaseLastRunStart");
+                getCoreContext()->GetSetting("mythfilldatabaseLastRunStart");
             QDateTime lastrunstart = MythDate::fromString(mfdblrs);
 
             if (!text.isNull())
@@ -1807,8 +1810,9 @@ void V2Status::FillChannelInfo( QDomElement &channel,
     if (pInfo)
     {
 /*
-        QString sHostName = gCoreContext->GetHostName();
-        QString sPort     = gCoreContext->GetSettingOnHost( "BackendStatusPort",
+        MythCoreContext *cctx = getCoreContext();
+        QString sHostName = cctx->GetHostName();
+        QString sPort     = cctx->GetSettingOnHost( "BackendStatusPort",
                                                         sHostName);
         QString sIconURL  = QString( "http://%1:%2/getChannelIcon?ChanId=%3" )
                                    .arg( sHostName )

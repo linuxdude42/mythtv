@@ -86,7 +86,7 @@ static MainServer             *mainServer       { nullptr };
 bool setupTVs(bool ismaster, bool &error)
 {
     error = false;
-    QString localhostname = gCoreContext->GetHostName();
+    QString localhostname = getCoreContext()->GetHostName();
 
     MSqlQuery query(MSqlQuery::InitCon());
 
@@ -268,8 +268,9 @@ void cleanup(void)
         qApp->processEvents();
     }
 
-    if (gCoreContext)
-        gCoreContext->SetExiting();
+    MythCoreContext *cctx = getCoreContext();
+    if (cctx)
+        cctx->SetExiting();
 
     delete gSysEventHandler;
     gSysEventHandler = nullptr;
@@ -277,10 +278,10 @@ void cleanup(void)
     delete gHousekeeping;
     gHousekeeping = nullptr;
 
-    if (gCoreContext)
+    if (cctx)
     {
-        delete gCoreContext->GetScheduler();
-        gCoreContext->SetScheduler(nullptr);
+        delete cctx->GetScheduler();
+        cctx->SetScheduler(nullptr);
     }
 
     delete gExpirer;
@@ -313,14 +314,15 @@ void cleanup(void)
 
 int handle_command(const MythBackendCommandLineParser &cmdline)
 {
+    MythCoreContext *cctx = getCoreContext();
     if (cmdline.toBool("setverbose"))
     {
-        if (gCoreContext->ConnectToMasterServer())
+        if (cctx->ConnectToMasterServer())
         {
             QString message = "SET_VERBOSE ";
             message += cmdline.toString("setverbose");
 
-            gCoreContext->SendMessage(message);
+            cctx->SendMessage(message);
             LOG(VB_GENERAL, LOG_INFO,
                 QString("Sent '%1' message").arg(message));
             return GENERIC_EXIT_OK;
@@ -332,12 +334,12 @@ int handle_command(const MythBackendCommandLineParser &cmdline)
 
     if (cmdline.toBool("setloglevel"))
     {
-        if (gCoreContext->ConnectToMasterServer())
+        if (cctx->ConnectToMasterServer())
         {
             QString message = "SET_LOG_LEVEL ";
             message += cmdline.toString("setloglevel");
 
-            gCoreContext->SendMessage(message);
+            cctx->SendMessage(message);
             LOG(VB_GENERAL, LOG_INFO,
                 QString("Sent '%1' message").arg(message));
             return GENERIC_EXIT_OK;
@@ -353,7 +355,7 @@ int handle_command(const MythBackendCommandLineParser &cmdline)
         auto *sched = new Scheduler(false, &gTVList);
         if (cmdline.toBool("printsched"))
         {
-            if (!gCoreContext->ConnectToMasterServer())
+            if (!cctx->ConnectToMasterServer())
             {
                 LOG(VB_GENERAL, LOG_ERR, "Cannot connect to master");
                 delete sched;
@@ -394,12 +396,13 @@ using namespace MythTZ;
 
 int connect_to_master(void)
 {
+    MythCoreContext *cctx = getCoreContext();
     auto *tempMonitorConnection = new MythSocket();
     if (tempMonitorConnection->ConnectToHost(
-            gCoreContext->GetMasterServerIP(),
+            cctx->GetMasterServerIP(),
             MythCoreContext::GetMasterServerPort()))
     {
-        if (!gCoreContext->CheckProtoVersion(tempMonitorConnection))
+        if (!cctx->CheckProtoVersion(tempMonitorConnection))
         {
             LOG(VB_GENERAL, LOG_ERR, "Master backend is incompatible with "
                     "this backend.\nCannot become a slave.");
@@ -410,7 +413,7 @@ int connect_to_master(void)
         QStringList tempMonitorDone("DONE");
 
         QStringList tempMonitorAnnounce(QString("ANN Monitor %1 0")
-                                            .arg(gCoreContext->GetHostName()));
+                                            .arg(cctx->GetHostName()));
         tempMonitorConnection->SendReceiveStringList(tempMonitorAnnounce);
         if (tempMonitorAnnounce.empty() ||
             tempMonitorAnnounce[0] == "ERROR")
@@ -506,9 +509,10 @@ void print_warnings(const MythBackendCommandLineParser &cmdline)
 
 int run_backend(MythBackendCommandLineParser &cmdline)
 {
+    MythCoreContext *cctx = getCoreContext();
     gBackendContext = new BackendContext();
 
-    if (gCoreContext->IsDatabaseIgnored())
+    if (cctx->IsDatabaseIgnored())
     {
         return run_setup_webserver();
     }
@@ -518,11 +522,11 @@ int run_backend(MythBackendCommandLineParser &cmdline)
             "MySQL time zone support is missing.  "
             "Please install it and try again.  "
             "See 'mysql_tzinfo_to_sql' for assistance.");
-        gCoreContext->GetDB()->IgnoreDatabase(true);
+        cctx->GetDB()->IgnoreDatabase(true);
         V2Myth::s_WebOnlyStartup = V2Myth::kWebOnlyDBTimezone;
         return run_setup_webserver();
     }
-    bool ismaster = gCoreContext->IsMasterHost();
+    bool ismaster = cctx->IsMasterHost();
 
     if (!UpgradeTVDatabaseSchema(ismaster, ismaster, true))
     {
@@ -557,8 +561,8 @@ int run_backend(MythBackendCommandLineParser &cmdline)
     }
 
     be_sd_notify("STATUS=Get backend server port");
-    int     port = gCoreContext->GetBackendServerPort();
-    if (gCoreContext->GetBackendServerIP().isEmpty())
+    int     port = cctx->GetBackendServerPort();
+    if (cctx->GetBackendServerIP().isEmpty())
     {
         std::cerr << "No setting found for this machine's BackendServerAddr.\n"
                   << "MythBackend starting in Web App only mode for initial setup.\n"
@@ -614,7 +618,7 @@ int run_backend(MythBackendCommandLineParser &cmdline)
             if (sched)
                 sched->SetExpirer(gExpirer);
         }
-        gCoreContext->SetScheduler(sched);
+        cctx->SetScheduler(sched);
         ChannelGroup::UpdateChannelGroups();
     }
 
@@ -631,7 +635,7 @@ int run_backend(MythBackendCommandLineParser &cmdline)
             gHousekeeping->RegisterTask(new MythFillDatabaseTask());
 
             // only run this task if MythMusic is installed and we have a new enough schema
-            if (gCoreContext->GetNumSetting("MusicDBSchemaVer", 0) >= 1024)
+            if (cctx->GetNumSetting("MusicDBSchemaVer", 0) >= 1024)
                 gHousekeeping->RegisterTask(new RadioStreamUpdateTask());
         }
 
@@ -663,7 +667,7 @@ int run_backend(MythBackendCommandLineParser &cmdline)
     if (cmdline.toBool("dvbv3"))
     {
         LOG(VB_GENERAL, LOG_INFO, LOC + "Use legacy DVBv3 API");
-        gCoreContext->SetDVBv3(true);
+        cctx->SetDVBv3(true);
     }
 
     // ----------------------------------------------------------------------
@@ -702,8 +706,8 @@ int run_backend(MythBackendCommandLineParser &cmdline)
     StorageGroup::CheckAllStorageGroupDirs();
 
     be_sd_notify("STATUS=Sending \"master started\" message");
-    if (gCoreContext->IsMasterBackend())
-        gCoreContext->SendSystemEvent("MASTER_STARTED");
+    if (cctx->IsMasterBackend())
+        cctx->SendSystemEvent("MASTER_STARTED");
 
     // Provide systemd ready notification (for Type=notify)
     be_sd_notify("READY=1");
@@ -752,9 +756,9 @@ int run_backend(MythBackendCommandLineParser &cmdline)
     ///////////////////////////////
     ///////////////////////////////
 
-    if (gCoreContext->IsMasterBackend())
+    if (cctx->IsMasterBackend())
     {
-        gCoreContext->SendSystemEvent("MASTER_SHUTDOWN");
+        cctx->SendSystemEvent("MASTER_SHUTDOWN");
         qApp->processEvents();
     }
 

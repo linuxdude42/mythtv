@@ -76,7 +76,7 @@ AutoExpire::AutoExpire(QMap<int, EncoderLink *> *tvList) :
     m_expireThreadRun(true)
 {
     m_expireThread->start();
-    gCoreContext->addListener(this);
+    getCoreContext()->addListener(this);
 }
 
 /** \fn AutoExpire::~AutoExpire()
@@ -97,7 +97,7 @@ AutoExpire::~AutoExpire()
 
     if (m_expireThread)
     {
-        gCoreContext->removeListener(this);
+        getCoreContext()->removeListener(this);
         m_expireThread->wait();
         delete m_expireThread;
         m_expireThread = nullptr;
@@ -149,7 +149,7 @@ void AutoExpire::CalcParams()
 
     uint64_t maxKBperMin = 0;
     uint64_t extraKB = static_cast<uint64_t>
-                        (gCoreContext->GetNumSetting("AutoExpireExtraSpace", 0))
+        (getCoreContext()->GetNumSetting("AutoExpireExtraSpace", 0))
                           << 20;
 
     QMap<int, uint64_t> fsMap;
@@ -320,7 +320,7 @@ void AutoExpire::RunExpirer(void)
 
             ExpireLiveTV(emNormalLiveTVPrograms);
 
-            int maxAge = gCoreContext->GetNumSetting("DeletedMaxAge", 0);
+            int maxAge = getCoreContext()->GetNumSetting("DeletedMaxAge", 0);
             if (maxAge > 0)
                 ExpireOldDeleted();
             else if (maxAge == 0)
@@ -537,7 +537,7 @@ fsit != fsInfos.end(); ++fsit)
 
             LOG(VB_FILE, LOG_INFO,
                 "    Searching for files expirable in these directories");
-            QString myHostName = gCoreContext->GetHostName();
+            QString myHostName = getCoreContext()->GetHostName();
             auto it = expireList.begin();
             while ((it != expireList.end()) &&
                    (std::max((int64_t)0LL, fsit->getFreeSpace()) <
@@ -647,7 +647,7 @@ void AutoExpire::SendDeleteMessages(pginfolist_t &deleteList)
         // send auto expire message to backend's event thread.
         MythEvent me(QString("AUTO_EXPIRE %1 %2").arg((*it)->GetChanID())
                      .arg((*it)->GetRecordingStartTime(MythDate::ISODate)));
-        gCoreContext->dispatch(me);
+        getCoreContext()->dispatch(me);
 
         ++it; // move on to next program
     }
@@ -740,7 +740,8 @@ void AutoExpire::ExpireEpisodesOverMax(void)
 
                     // allow re-record if auto expired
                     RecordingInfo recInfo(chanid, startts);
-                    if (gCoreContext->GetBoolSetting("RerecordWatched", false) ||
+                    MythCoreContext *cctx = getCoreContext();
+                    if (cctx->GetBoolSetting("RerecordWatched", false) ||
                         !recInfo.IsWatched())
                     {
                         recInfo.ForgetHistory();
@@ -750,7 +751,7 @@ void AutoExpire::ExpireEpisodesOverMax(void)
                                   .arg(startts.toString(Qt::ISODate));
 
                     MythEvent me(msg);
-                    gCoreContext->dispatch(me);
+                    cctx->dispatch(me);
                 }
                 else
                 {
@@ -779,7 +780,7 @@ void AutoExpire::ExpireEpisodesOverMax(void)
  */
 void AutoExpire::FillExpireList(pginfolist_t &expireList)
 {
-    int expMethod = gCoreContext->GetNumSetting("AutoExpireMethod", 1);
+    int expMethod = getCoreContext()->GetNumSetting("AutoExpireMethod", 1);
 
     ClearExpireList(expireList);
 
@@ -848,7 +849,7 @@ void AutoExpire::GetAllExpiring(QStringList &strList)
     FillDBOrdered(expireList, emShortLiveTVPrograms);
     FillDBOrdered(expireList, emNormalLiveTVPrograms);
     FillDBOrdered(expireList, emNormalDeletedPrograms);
-    FillDBOrdered(expireList, gCoreContext->GetNumSetting("AutoExpireMethod",
+    FillDBOrdered(expireList, getCoreContext()->GetNumSetting("AutoExpireMethod",
                   emOldestFirst));
 
     strList << QString::number(expireList.size());
@@ -872,7 +873,7 @@ void AutoExpire::GetAllExpiring(pginfolist_t &list)
     FillDBOrdered(expireList, emShortLiveTVPrograms);
     FillDBOrdered(expireList, emNormalLiveTVPrograms);
     FillDBOrdered(expireList, emNormalDeletedPrograms);
-    FillDBOrdered(expireList, gCoreContext->GetNumSetting("AutoExpireMethod",
+    FillDBOrdered(expireList, getCoreContext()->GetNumSetting("AutoExpireMethod",
                   emOldestFirst));
 
     for (auto & info : expireList)
@@ -905,6 +906,7 @@ void AutoExpire::ClearExpireList(pginfolist_t &expireList, bool deleteProg)
  */
 void AutoExpire::FillDBOrdered(pginfolist_t &expireList, int expMethod)
 {
+    MythCoreContext *cctx = getCoreContext();
     QString where;
     QString orderby;
     QString msg;
@@ -916,25 +918,25 @@ void AutoExpire::FillDBOrdered(pginfolist_t &expireList, int expMethod)
         case emOldestFirst:
             msg = "Adding programs expirable in Oldest First order";
             where = "autoexpire > 0";
-            if (gCoreContext->GetBoolSetting("AutoExpireWatchedPriority", false))
+            if (cctx->GetBoolSetting("AutoExpireWatchedPriority", false))
                 orderby = "recorded.watched DESC, ";
             orderby += "starttime ASC";
             break;
         case emLowestPriorityFirst:
             msg = "Adding programs expirable in Lowest Priority First order";
             where = "autoexpire > 0";
-            if (gCoreContext->GetBoolSetting("AutoExpireWatchedPriority", false))
+            if (cctx->GetBoolSetting("AutoExpireWatchedPriority", false))
                 orderby = "recorded.watched DESC, ";
             orderby += "recorded.recpriority ASC, starttime ASC";
             break;
         case emWeightedTimePriority:
             msg = "Adding programs expirable in Weighted Time Priority order";
             where = "autoexpire > 0";
-            if (gCoreContext->GetBoolSetting("AutoExpireWatchedPriority", false))
+            if (cctx->GetBoolSetting("AutoExpireWatchedPriority", false))
                 orderby = "recorded.watched DESC, ";
             orderby += QString("DATE_ADD(starttime, INTERVAL '%1' * "
                                         "recorded.recpriority DAY) ASC")
-                      .arg(gCoreContext->GetNumSetting("AutoExpireDayPriority", 3));
+                      .arg(cctx->GetNumSetting("AutoExpireDayPriority", 3));
             break;
         case emShortLiveTVPrograms:
             msg = "Adding Short LiveTV programs in starttime order";
@@ -947,11 +949,11 @@ void AutoExpire::FillDBOrdered(pginfolist_t &expireList, int expMethod)
             msg = "Adding LiveTV programs in starttime order";
             where = QString("recgroup = 'LiveTV' "
                     "AND endtime <= DATE_ADD(NOW(), INTERVAL '-%1' DAY) ")
-                    .arg(gCoreContext->GetNumSetting("AutoExpireLiveTVMaxAge", 1));
+                    .arg(cctx->GetNumSetting("AutoExpireLiveTVMaxAge", 1));
             orderby = "starttime ASC";
             break;
         case emOldDeletedPrograms:
-            maxAge = gCoreContext->GetNumSetting("DeletedMaxAge", 0);
+            maxAge = cctx->GetNumSetting("DeletedMaxAge", 0);
             if (maxAge <= 0)
                 return;
             msg = QString("Adding programs deleted more than %1 days ago")
@@ -962,7 +964,7 @@ void AutoExpire::FillDBOrdered(pginfolist_t &expireList, int expMethod)
             orderby = "starttime ASC";
             break;
         case emQuickDeletedPrograms:
-            if (gCoreContext->GetNumSetting("DeletedMaxAge", 0) != 0)
+            if (cctx->GetNumSetting("DeletedMaxAge", 0) != 0)
                 return;
             msg = QString("Adding programs deleted more than 5 minutes ago");
             where = QString("recgroup = 'Deleted' "
