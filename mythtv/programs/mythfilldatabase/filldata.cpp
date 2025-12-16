@@ -37,7 +37,7 @@
 bool updateLastRunEnd(void)
 {
     QDateTime qdtNow = MythDate::current();
-    return gCoreContext->SaveSettingOnHost("mythfilldatabaseLastRunEnd",
+    return getCoreContext()->SaveSettingOnHost("mythfilldatabaseLastRunEnd",
                                            qdtNow.toString(Qt::ISODate),
                                            nullptr);
 }
@@ -46,14 +46,14 @@ bool updateLastRunStart(void)
 {
     updateNextScheduledRun();
     QDateTime qdtNow = MythDate::current();
-    return gCoreContext->SaveSettingOnHost("mythfilldatabaseLastRunStart",
+    return getCoreContext()->SaveSettingOnHost("mythfilldatabaseLastRunStart",
                                            qdtNow.toString(Qt::ISODate),
                                            nullptr);
 }
 
 bool updateLastRunStatus(QString &status)
 {
-    return gCoreContext->SaveSettingOnHost("mythfilldatabaseLastRunStatus",
+    return getCoreContext()->SaveSettingOnHost("mythfilldatabaseLastRunStatus",
                                            status,
                                            nullptr);
 }
@@ -61,7 +61,7 @@ bool updateLastRunStatus(QString &status)
 bool updateNextScheduledRun()
 {
     QDateTime nextSuggestedTime = MythDate::current().addDays(1);
-    return gCoreContext->SaveSettingOnHost("MythFillSuggestedRunTime",
+    return getCoreContext()->SaveSettingOnHost("MythFillSuggestedRunTime",
                                         nextSuggestedTime.toString(Qt::ISODate),
                                         nullptr);
 }

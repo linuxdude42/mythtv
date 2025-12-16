@@ -227,7 +227,8 @@ int main(int argc, char *argv[])
         return GENERIC_EXIT_DB_OUTOFDATE;
     }
 
-    if (gCoreContext->SafeConnectToMasterServer(true, false))
+    MythCoreContext *cctx = getCoreContext();
+    if (cctx->SafeConnectToMasterServer(true, false))
     {
         LOG(VB_GENERAL, LOG_INFO,
             "Opening blocking connection to master backend");
@@ -485,7 +486,7 @@ int main(int argc, char *argv[])
     {
         LOG(VB_GENERAL, LOG_INFO, "Marking repeats.");
 
-        int newEpiWindow = gCoreContext->GetNumSetting( "NewEpisodeWindow", 14);
+        int newEpiWindow = cctx->GetNumSetting( "NewEpisodeWindow", 14);
 
         MSqlQuery query2(MSqlQuery::InitCon());
         query2.prepare("UPDATE program SET previouslyshown = 1 "
@@ -602,9 +603,9 @@ int main(int argc, char *argv[])
     if (query2.exec() && query2.next())
     {
         if (query2.value(0).toInt() != 0)
-            gCoreContext->SaveSettingOnHost("HaveRepeats", "1", nullptr);
+            cctx->SaveSettingOnHost("HaveRepeats", "1", nullptr);
         else
-            gCoreContext->SaveSettingOnHost("HaveRepeats", "0", nullptr);
+            cctx->SaveSettingOnHost("HaveRepeats", "0", nullptr);
     }
 #endif
 
@@ -621,9 +622,9 @@ int main(int argc, char *argv[])
                                             "MythFillDatabase");
     }
 
-    gCoreContext->SendMessage("CLEAR_SETTINGS_CACHE");
+    cctx->SendMessage("CLEAR_SETTINGS_CACHE");
 
-    gCoreContext->SendSystemEvent("MYTHFILLDATABASE_RAN");
+    cctx->SendSystemEvent("MYTHFILLDATABASE_RAN");
 
     LOG(VB_GENERAL, LOG_NOTICE, "mythfilldatabase run complete.");
 
