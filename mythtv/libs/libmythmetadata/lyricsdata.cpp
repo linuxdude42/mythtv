@@ -89,7 +89,8 @@ void LyricsData::findLyrics(const QString &grabber)
     }
 
     // listen for messages
-    gCoreContext->addListener(this);
+    MythCoreContext *cctx = getCoreContext();
+    cctx->addListener(this);
 
     // send a message to the master BE to find the lyrics for this track
     QStringList slist;
@@ -111,7 +112,7 @@ void LyricsData::findLyrics(const QString &grabber)
 
    LOG(VB_NETWORK, LOG_INFO, QString("LyricsData:: Sending command %1").arg(slist.join('~')));
 
-   gCoreContext->SendReceiveStringList(slist);
+   cctx->SendReceiveStringList(slist);
 }
 
 void LyricsData::save(void)
@@ -132,7 +133,7 @@ void LyricsData::save(void)
 
     slist << createLyricsXML();
 
-    gCoreContext->SendReceiveStringList(slist);
+    getCoreContext()->SendReceiveStringList(slist);
 }
 
 QString LyricsData::createLyricsXML(void)
@@ -201,9 +202,10 @@ void LyricsData::customEvent(QEvent *event)
                 // make sure the message is for us
                 if (m_parent->ID() == songID)
                 {
+                    MythCoreContext *cctx = getCoreContext();
                     if (list[0] == "MUSIC_LYRICS_FOUND")
                     {
-                        gCoreContext->removeListener(this);
+                        cctx->removeListener(this);
 
                         QString xmlData = me->Message().section(" ", 2, -1);
 
@@ -217,7 +219,7 @@ void LyricsData::customEvent(QEvent *event)
                     }
                     else
                     {
-                        gCoreContext->removeListener(this);
+                        cctx->removeListener(this);
                         // nothing found or an error occured
                         m_status = STATUS_NOTFOUND;
                         emit statusChanged(m_status, tr("No lyrics found for this track"));

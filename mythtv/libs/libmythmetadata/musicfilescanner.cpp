@@ -147,7 +147,7 @@ bool MusicFileScanner::IsArtFile(const QString &filename)
 {
     QFileInfo fi(filename);
     QString extension = fi.suffix().toLower();
-    QString nameFilter = gCoreContext->GetSetting("AlbumArtFilter", "*.png;*.jpg;*.jpeg;*.gif;*.bmp");
+    QString nameFilter = getCoreContext()->GetSetting("AlbumArtFilter", "*.png;*.jpg;*.jpeg;*.gif;*.bmp");
 
 
     return !extension.isEmpty() && nameFilter.indexOf(extension.toLower()) > -1;
@@ -256,7 +256,8 @@ void MusicFileScanner::AddFileToDB(const QString &filename, const QString &start
     directory.remove(0, startDir.length());
     directory = directory.section( '/', 0, -2);
 
-    QString nameFilter = gCoreContext->GetSetting("AlbumArtFilter", "*.png;*.jpg;*.jpeg;*.gif;*.bmp");
+    MythCoreContext *cctx = getCoreContext();
+    QString nameFilter = cctx->GetSetting("AlbumArtFilter", "*.png;*.jpg;*.jpeg;*.gif;*.bmp");
 
     // If this file is an image, insert the details into the music_albumart table
     if (nameFilter.indexOf(extension.toLower()) > -1)
@@ -271,7 +272,7 @@ void MusicFileScanner::AddFileToDB(const QString &filename, const QString &start
         query.bindValue(":FILE", name);
         query.bindValue(":DIRID", m_directoryid[directory]);
         query.bindValue(":TYPE", AlbumArtImages::guessImageType(name));
-        query.bindValue(":HOSTNAME", gCoreContext->GetHostName());
+        query.bindValue(":HOSTNAME", cctx->GetHostName());
 
         if (!query.exec() || query.numRowsAffected() <= 0)
         {
@@ -294,7 +295,7 @@ void MusicFileScanner::AddFileToDB(const QString &filename, const QString &start
     if (data)
     {
         data->setFileSize((quint64)QFileInfo(filename).size());
-        data->setHostname(gCoreContext->GetHostName());
+        data->setHostname(cctx->GetHostName());
 
         QString album_cache_string;
 
@@ -530,7 +531,7 @@ void MusicFileScanner::RemoveFileFromDB(const QString &filename, const QString &
 
     QString extension = sqlfilename.section( '.', -1 ) ;
 
-    QString nameFilter = gCoreContext->GetSetting("AlbumArtFilter",
+    QString nameFilter = getCoreContext()->GetSetting("AlbumArtFilter",
                                               "*.png;*.jpg;*.jpeg;*.gif;*.bmp");
 
     if (nameFilter.indexOf(extension.toLower()) > -1)
@@ -630,7 +631,7 @@ void MusicFileScanner::UpdateFileInDB(const QString &filename, const QString &st
 
         disk_meta->setFileSize((quint64)QFileInfo(filename).size());
 
-        disk_meta->setHostname(gCoreContext->GetHostName());
+        disk_meta->setHostname(getCoreContext()->GetHostName());
 
         // Commit track info to database
         disk_meta->dumpToDatabase();
@@ -662,13 +663,14 @@ void MusicFileScanner::UpdateFileInDB(const QString &filename, const QString &st
  */
 void MusicFileScanner::SearchDirs(const QStringList &dirList)
 {
-    QString host = gCoreContext->GetHostName();
+    MythCoreContext *cctx = getCoreContext();
+    QString host = cctx->GetHostName();
 
     if (IsRunning())
     {
         // check how long the scanner has been running
         // if it's more than 60 minutes assume something went wrong
-        QString lastRun =  gCoreContext->GetSetting("MusicScannerLastRunStart", "");
+        QString lastRun =  cctx->GetSetting("MusicScannerLastRunStart", "");
         if (!lastRun.isEmpty())
         {
             QDateTime dtLastRun = QDateTime::fromString(lastRun, Qt::ISODate);
@@ -678,7 +680,7 @@ void MusicFileScanner::SearchDirs(const QStringList &dirList)
                 if (MythDate::current() > dtLastRun.addSecs(kOneHour))
                 {
                     LOG(VB_GENERAL, LOG_INFO, "Music file scanner has been running for more than 60 minutes. Lets reset and try again");
-                    gCoreContext->SendMessage(QString("MUSIC_SCANNER_ERROR %1 %2").arg(host, "Stalled"));
+                    cctx->SendMessage(QString("MUSIC_SCANNER_ERROR %1 %2").arg(host, "Stalled"));
 
                     // give the user time to read the notification before restarting the scan
                     sleep(5);
@@ -686,7 +688,7 @@ void MusicFileScanner::SearchDirs(const QStringList &dirList)
                 else
                 {
                     LOG(VB_GENERAL, LOG_INFO, "Music file scanner is already running");
-                    gCoreContext->SendMessage(QString("MUSIC_SCANNER_ERROR %1 %2").arg(host, "Already_Running"));
+                    cctx->SendMessage(QString("MUSIC_SCANNER_ERROR %1 %2").arg(host, "Already_Running"));
                     return;
                 }
             }
@@ -696,7 +698,7 @@ void MusicFileScanner::SearchDirs(const QStringList &dirList)
     //TODO: could sanity check the directory exists and is readable here?
 
     LOG(VB_GENERAL, LOG_INFO, "Music file scanner started");
-    gCoreContext->SendMessage(QString("MUSIC_SCANNER_STARTED %1").arg(host));
+    cctx->SendMessage(QString("MUSIC_SCANNER_STARTED %1").arg(host));
 
     updateLastRunStart();
     QString status = QString("running");
@@ -780,7 +782,7 @@ void MusicFileScanner::SearchDirs(const QStringList &dirList)
     LOG(VB_GENERAL, LOG_INFO, trackStatus);
     LOG(VB_GENERAL, LOG_INFO, coverartStatus);
 
-    gCoreContext->SendMessage(QString("MUSIC_SCANNER_FINISHED %1 %2 %3 %4 %5")
+    cctx->SendMessage(QString("MUSIC_SCANNER_FINISHED %1 %2 %3 %4 %5")
                                       .arg(host).arg(m_tracksTotal).arg(m_tracksAdded)
                                       .arg(m_coverartTotal).arg(m_coverartAdded));
 
@@ -807,7 +809,7 @@ void MusicFileScanner::ScanMusic(MusicLoadedMap &music_files)
                   "WHERE filename NOT LIKE BINARY ('%://%') "
                   "AND hostname = :HOSTNAME");
 
-    query.bindValue(":HOSTNAME", gCoreContext->GetHostName());
+    query.bindValue(":HOSTNAME", getCoreContext()->GetHostName());
 
     if (!query.exec())
         MythDB::DBError("MusicFileScanner::ScanMusic", query);
@@ -866,7 +868,7 @@ void MusicFileScanner::ScanArtwork(MusicLoadedMap &music_files)
                   "WHERE music_albumart.embedded = 0 "
                   "AND music_albumart.hostname = :HOSTNAME");
 
-    query.bindValue(":HOSTNAME", gCoreContext->GetHostName());
+    query.bindValue(":HOSTNAME", getCoreContext()->GetHostName());
 
     if (!query.exec())
         MythDB::DBError("MusicFileScanner::ScanArtwork", query);
@@ -905,22 +907,22 @@ void MusicFileScanner::ScanArtwork(MusicLoadedMap &music_files)
 // static
 bool MusicFileScanner::IsRunning(void)
 {
-   return gCoreContext->GetSetting("MusicScannerLastRunStatus", "") == "running";
+    return getCoreContext()->GetSetting("MusicScannerLastRunStatus", "") == "running";
 }
 
 void MusicFileScanner::updateLastRunEnd(void)
 {
     QDateTime qdtNow = MythDate::current();
-    gCoreContext->SaveSetting("MusicScannerLastRunEnd", qdtNow.toString(Qt::ISODate));
+    getCoreContext()->SaveSetting("MusicScannerLastRunEnd", qdtNow.toString(Qt::ISODate));
 }
 
 void MusicFileScanner::updateLastRunStart(void)
 {
     QDateTime qdtNow = MythDate::current();
-    gCoreContext->SaveSetting("MusicScannerLastRunStart", qdtNow.toString(Qt::ISODate));
+    getCoreContext()->SaveSetting("MusicScannerLastRunStart", qdtNow.toString(Qt::ISODate));
 }
 
 void MusicFileScanner::updateLastRunStatus(QString &status)
 {
-    gCoreContext->SaveSetting("MusicScannerLastRunStatus", status);
+    getCoreContext()->SaveSetting("MusicScannerLastRunStatus", status);
 }

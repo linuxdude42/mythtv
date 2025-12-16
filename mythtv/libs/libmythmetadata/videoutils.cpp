@@ -88,7 +88,7 @@ QStringList GetVideoDirsByHost(const QString& host)
 #else
         QString seperator = ":";
 #endif
-        QStringList tmp3 = gCoreContext->GetSetting("VideoStartupDir",
+        QStringList tmp3 = getCoreContext()->GetSetting("VideoStartupDir",
                     DEFAULT_VIDEOSTARTUP_DIR).split(seperator, Qt::SkipEmptyParts);
         for (const auto& dir : std::as_const(tmp3))
         {

@@ -315,11 +315,13 @@ MusicMetadata *MusicMetadata::createFromID(int trackid)
 // static
 bool MusicMetadata::updateStreamList(void)
 {
+    MythCoreContext *cctx = getCoreContext();
+
     // we are only interested in the global setting so remove any local host setting just in case
     GetMythDB()->ClearSetting("MusicStreamListModified");
 
     // make sure we are not already doing an update
-    if (gCoreContext->GetSetting("MusicStreamListModified") == "Updating")
+    if (cctx->GetSetting("MusicStreamListModified") == "Updating")
     {
         LOG(VB_GENERAL, LOG_ERR, "MusicMetadata: looks like we are already updating the radio streams list");
         return false;
@@ -329,11 +331,11 @@ bool MusicMetadata::updateStreamList(void)
     QByteArray uncompressedData;
 
     // check if the streamlist has been updated since we last checked
-    QString streamupdateurl = gCoreContext->GetSetting("ServicesRepositoryURL",
+    QString streamupdateurl = cctx->GetSetting("ServicesRepositoryURL",
                                    "https://services.mythtv.org") + "/music/data/?data=streams";
     QDateTime lastModified = GetMythDownloadManager()->GetLastModified(streamupdateurl);
 
-    QDateTime lastUpdate = QDateTime::fromString(gCoreContext->GetSetting("MusicStreamListModified"), Qt::ISODate);
+    QDateTime lastUpdate = QDateTime::fromString(cctx->GetSetting("MusicStreamListModified"), Qt::ISODate);
 
     if (lastModified <= lastUpdate)
     {
@@ -341,7 +343,7 @@ bool MusicMetadata::updateStreamList(void)
         return true;
     }
 
-    gCoreContext->SaveSettingOnHost("MusicStreamListModified", "Updating", nullptr);
+    cctx->SaveSettingOnHost("MusicStreamListModified", "Updating", nullptr);
 
     LOG(VB_GENERAL, LOG_INFO, "MusicMetadata: downloading radio streams list");
 
@@ -349,7 +351,7 @@ bool MusicMetadata::updateStreamList(void)
     if (!GetMythDownloadManager()->download(streamupdateurl, &compressedData, false))
     {
         LOG(VB_GENERAL, LOG_ERR, "MusicMetadata: failed to download radio stream list");
-        gCoreContext->SaveSettingOnHost("MusicStreamListModified", "", nullptr);
+        cctx->SaveSettingOnHost("MusicStreamListModified", "", nullptr);
         return false;
     }
 
@@ -372,7 +374,7 @@ bool MusicMetadata::updateStreamList(void)
                 QString("\n\t\t\tError parsing %1").arg(streamupdateurl) +
                 QString("\n\t\t\tat line: %1  column: %2 msg: %3")
                 .arg(errorLine).arg(errorColumn).arg(errorMsg));
-        gCoreContext->SaveSettingOnHost("MusicStreamListModified", "", nullptr);
+        cctx->SaveSettingOnHost("MusicStreamListModified", "", nullptr);
         return false;
     }
 #else
@@ -385,7 +387,7 @@ bool MusicMetadata::updateStreamList(void)
                 QString("\n\t\t\tat line: %1  column: %2 msg: %3")
                 .arg(parseResult.errorLine).arg(parseResult.errorColumn)
                 .arg(parseResult.errorMessage));
-        gCoreContext->SaveSettingOnHost("MusicStreamListModified", "", nullptr);
+        cctx->SaveSettingOnHost("MusicStreamListModified", "", nullptr);
         return false;
     }
 #endif
@@ -395,7 +397,7 @@ bool MusicMetadata::updateStreamList(void)
     if (!query.exec() || !query.isActive() || query.numRowsAffected() < 0)
     {
         MythDB::DBError("music delete radio streams", query);
-        gCoreContext->SaveSettingOnHost("MusicStreamListModified", "", nullptr);
+        cctx->SaveSettingOnHost("MusicStreamListModified", "", nullptr);
         return false;
     }
 
@@ -430,12 +432,12 @@ bool MusicMetadata::updateStreamList(void)
         if (!query.exec() || !query.isActive() || query.numRowsAffected() <= 0)
         {
             MythDB::DBError("music insert radio stream", query);
-            gCoreContext->SaveSettingOnHost("MusicStreamListModified", "", nullptr);
+            cctx->SaveSettingOnHost("MusicStreamListModified", "", nullptr);
             return false;
         }
     }
 
-    gCoreContext->SaveSettingOnHost("MusicStreamListModified", lastModified.toString(Qt::ISODate), nullptr);
+    cctx->SaveSettingOnHost("MusicStreamListModified", lastModified.toString(Qt::ISODate), nullptr);
 
     LOG(VB_GENERAL, LOG_INFO, "MusicMetadata: updating radio streams list completed OK");
 
@@ -816,37 +818,38 @@ QString MusicMetadata::s_formatCompilationCdTrack    = "TITLE (ARTIST)";
 
 void MusicMetadata::setArtistAndTrackFormats()
 {
+    MythCoreContext *cctx = getCoreContext();
     QString tmp;
 
-    tmp = gCoreContext->GetSetting("MusicFormatNormalFileArtist");
+    tmp = cctx->GetSetting("MusicFormatNormalFileArtist");
     if (!tmp.isEmpty())
         s_formatNormalFileArtist = tmp;
 
-    tmp = gCoreContext->GetSetting("MusicFormatNormalFileTrack");
+    tmp = cctx->GetSetting("MusicFormatNormalFileTrack");
     if (!tmp.isEmpty())
         s_formatNormalFileTrack = tmp;
 
-    tmp = gCoreContext->GetSetting("MusicFormatNormalCDArtist");
+    tmp = cctx->GetSetting("MusicFormatNormalCDArtist");
     if (!tmp.isEmpty())
         s_formatNormalCdArtist = tmp;
 
-    tmp = gCoreContext->GetSetting("MusicFormatNormalCDTrack");
+    tmp = cctx->GetSetting("MusicFormatNormalCDTrack");
     if (!tmp.isEmpty())
         s_formatNormalCdTrack = tmp;
 
-    tmp = gCoreContext->GetSetting("MusicFormatCompilationFileArtist");
+    tmp = cctx->GetSetting("MusicFormatCompilationFileArtist");
     if (!tmp.isEmpty())
         s_formatCompilationFileArtist = tmp;
 
-    tmp = gCoreContext->GetSetting("MusicFormatCompilationFileTrack");
+    tmp = cctx->GetSetting("MusicFormatCompilationFileTrack");
     if (!tmp.isEmpty())
         s_formatCompilationFileTrack = tmp;
 
-    tmp = gCoreContext->GetSetting("MusicFormatCompilationCDArtist");
+    tmp = cctx->GetSetting("MusicFormatCompilationCDArtist");
     if (!tmp.isEmpty())
         s_formatCompilationCdArtist = tmp;
 
-    tmp = gCoreContext->GetSetting("MusicFormatCompilationCDTrack");
+    tmp = cctx->GetSetting("MusicFormatCompilationCDTrack");
     if (!tmp.isEmpty())
         s_formatCompilationCdTrack = tmp;
 }
@@ -1044,7 +1047,7 @@ QString MusicMetadata::getLocalFilename(void)
         return m_filename;
 
     // not found so now try to find the file in the local 'Music' storage group
-    StorageGroup storageGroup("Music", gCoreContext->GetHostName(), false);
+    StorageGroup storageGroup("Music", getCoreContext()->GetHostName(), false);
     return storageGroup.FindFile(m_filename);
 }
 
@@ -1149,7 +1152,7 @@ void MusicMetadata::toMap(InfoMap &metadataMap, const QString &prefix)
 
     metadataMap[prefix + "playcount"] = QString::number(m_playCount);
 
-    QLocale locale = gCoreContext->GetQLocale();
+    QLocale locale = getCoreContext()->GetQLocale();
     QString tmpSize = locale.toString(m_fileSize *
                                       (1.0 / (1024.0 * 1024.0)), 'f', 2);
     metadataMap[prefix + "filesize"] = tmpSize;
@@ -1335,10 +1338,11 @@ QString MusicMetadata::getAlbumArtFile(void)
 
             if (!RemoteFile::Exists(res))
             {
+                MythCoreContext *cctx = getCoreContext();
                 if (albumart_image->m_embedded)
                 {
-                    if (gCoreContext->IsMasterBackend() &&
-                        url.host() == gCoreContext->GetMasterHostName())
+                    if (cctx->IsMasterBackend() &&
+                        url.host() == cctx->GetMasterHostName())
                     {
                         QStringList paramList;
                         paramList.append(QString("--songid='%1'").arg(ID()));
@@ -1358,7 +1362,7 @@ QString MusicMetadata::getAlbumArtFile(void)
                             << Hostname()
                             << QString::number(ID())
                             << QString::number(albumart_image->m_imageType);
-                        gCoreContext->SendReceiveStringList(slist);
+                        cctx->SendReceiveStringList(slist);
                     }
                 }
             }
@@ -1645,7 +1649,7 @@ void AllMusic::resync()
     // tell any listeners a resync has just finished and they may need to reload/resync
     LOG(VB_GENERAL, LOG_DEBUG, QString("AllMusic::resync sending MUSIC_RESYNC_FINISHED added: %1, removed: %2, changed: %3")
                                       .arg(added).arg(removed).arg(changed));
-    gCoreContext->SendMessage(QString("MUSIC_RESYNC_FINISHED %1 %2 %3").arg(added).arg(removed).arg(changed));
+    getCoreContext()->SendMessage(QString("MUSIC_RESYNC_FINISHED %1 %2 %3").arg(added).arg(removed).arg(changed));
 
     m_doneLoading = true;
 }
@@ -2360,6 +2364,6 @@ void AlbumArtImages::dumpToDatabase(void)
 void AlbumArtScannerThread::run()
 {
     RunProlog();
-    gCoreContext->SendReceiveStringList(m_strList);
+    getCoreContext()->SendReceiveStringList(m_strList);
     RunEpilog();
 }

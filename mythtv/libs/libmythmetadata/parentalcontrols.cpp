@@ -218,12 +218,13 @@ class ParentalLevelChangeCheckerPrivate : public QObject
     explicit ParentalLevelChangeCheckerPrivate(QObject *lparent)
       : QObject(lparent)
     {
+        MythCoreContext *cctx = getCoreContext();
         m_pm.Add(ParentalLevel::plHigh,
-                gCoreContext->GetSetting("VideoAdminPassword"));
+                cctx->GetSetting("VideoAdminPassword"));
         m_pm.Add(ParentalLevel::plMedium,
-                gCoreContext->GetSetting("VideoAdminPasswordThree"));
+                cctx->GetSetting("VideoAdminPasswordThree"));
         m_pm.Add(ParentalLevel::plLow,
-                gCoreContext->GetSetting("VideoAdminPasswordTwo"));
+                cctx->GetSetting("VideoAdminPasswordTwo"));
     }
 
     void Check(ParentalLevel::Level fromLevel, ParentalLevel::Level toLevel)
@@ -244,6 +245,7 @@ class ParentalLevelChangeCheckerPrivate : public QObject
     // returns true if no completion is required
     bool DoCheck()
     {
+        MythCoreContext *cctx = getCoreContext();
         ParentalLevel which_level(m_toLevel);
 
         // No password for level 1 and you can always switch down from your
@@ -261,8 +263,8 @@ class ParentalLevelChangeCheckerPrivate : public QObject
             return true;
 
         // See if we recently (and successfully) asked for a password
-        QString last_time_stamp = gCoreContext->GetSetting("VideoPasswordTime");
-        int last_parent_lvl = gCoreContext->GetNumSetting("VideoPasswordLevel",
+        QString last_time_stamp = cctx->GetSetting("VideoPasswordTime");
+        int last_parent_lvl = cctx->GetNumSetting("VideoPasswordLevel",
                                                           -1);
 
         if (last_time_stamp.isEmpty() || last_parent_lvl == -1)
@@ -282,7 +284,7 @@ class ParentalLevelChangeCheckerPrivate : public QObject
             {
                 // Two minute window
                 last_time_stamp = curr_time.toString(Qt::ISODate);
-                gCoreContext->SaveSetting("VideoPasswordTime", last_time_stamp);
+                cctx->SaveSetting("VideoPasswordTime", last_time_stamp);
                 return true;
             }
         }
@@ -324,6 +326,7 @@ class ParentalLevelChangeCheckerPrivate : public QObject
   private slots:
     void OnPasswordEntered(const QString& password)
     {
+        MythCoreContext *cctx = getCoreContext();
         m_passwordOK = false;
 
         for (const auto& valid_pwd : std::as_const(m_validPasswords))
@@ -334,8 +337,8 @@ class ParentalLevelChangeCheckerPrivate : public QObject
             m_passwordOK = true;
             QString time_stamp = MythDate::current_iso_string();
 
-            gCoreContext->SaveSetting("VideoPasswordTime", time_stamp);
-            gCoreContext->SaveSetting("VideoPasswordLevel", m_toLevel);
+            cctx->SaveSetting("VideoPasswordTime", time_stamp);
+            cctx->SaveSetting("VideoPasswordLevel", m_toLevel);
 
             return;
         }

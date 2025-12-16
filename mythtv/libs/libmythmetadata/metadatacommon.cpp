@@ -838,7 +838,7 @@ void AddCertifications(MetadataLookup *lookup,
 
     QDomElement cert = docroot.createElement("certification");
     certifications.appendChild(cert);
-    cert.setAttribute("locale", gCoreContext->GetLocale()->GetCountryCode());
+    cert.setAttribute("locale", getCoreContext()->GetLocale()->GetCountryCode());
     cert.setAttribute("name", certstr);
 }
 
@@ -1388,7 +1388,7 @@ QString nearestName(const QString& actual, const QStringList& candidates)
 {
     int deltaBest = 10000;
     int numBest = 0;
-    int tolerance = gCoreContext->GetNumSetting("MetadataLookupTolerance", 5);
+    int tolerance = getCoreContext()->GetNumSetting("MetadataLookupTolerance", 5);
     QString best;
 
     QStringList::ConstIterator i = candidates.begin();

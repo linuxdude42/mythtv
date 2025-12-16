@@ -98,12 +98,13 @@ void TestMusicUtils::test_nameFromMetadata(void)
     QFETCH(bool,    noWhitespace);
     QFETCH(QString, e_filename);
 
+    MythCoreContext *cctx = getCoreContext();
     QMap<QString,QString> sOverrides;
     sOverrides["FilenameTemplate"] = filenameTemplate;
-    gCoreContext->setTestStringSettings(sOverrides);
+    cctx->setTestStringSettings(sOverrides);
     QMap<QString,int> iOverrides;
     iOverrides["NoWhitespace"] = static_cast<int>(noWhitespace);
-    gCoreContext->setTestIntSettings(iOverrides);
+    cctx->setTestIntSettings(iOverrides);
 
     auto* track = new MusicMetadata("", artist, "", album, title,
                                     genre, year, tracknum);

@@ -512,7 +512,7 @@ AlbumArtList MetaIOID3::readAlbumArt(TagLib::ID3v2::Tag *tag)
                 art->m_description = TStringToQString(frame->description());
 
             art->m_embedded = true;
-            art->m_hostname = gCoreContext->GetHostName();
+            art->m_hostname = getCoreContext()->GetHostName();
 
             QString ext = getExtFromMimeType(
                                 TStringToQString(frame->mimeType()).toLower());

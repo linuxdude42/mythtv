@@ -23,7 +23,7 @@ const QString MetaIO::kValidFileExtensions(".mp3|.mp2|.ogg|.oga|.flac|.wma|.wav|
                                           ".atp|.ra|.dts|.aac|.m4a|.aa3|.tta|.mka|.aiff|.swa|.wv");
 
 MetaIO::MetaIO()
-    : m_filenameFormat(gCoreContext->GetSetting("NonID3FileNameFormat").toUpper())
+    : m_filenameFormat(getCoreContext()->GetSetting("NonID3FileNameFormat").toUpper())
 {
 }
 
@@ -63,7 +63,7 @@ MusicMetadata* MetaIO::readMetadata(const QString &filename)
 {
     MusicMetadata *mdata = nullptr;
     MetaIO *tagger = MetaIO::createTagger(filename);
-    bool ignoreID3 = (gCoreContext->GetNumSetting("Ignore_ID3", 0) == 1);
+    bool ignoreID3 = (getCoreContext()->GetNumSetting("Ignore_ID3", 0) == 1);
 
     if (tagger)
     {

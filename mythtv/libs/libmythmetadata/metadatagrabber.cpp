@@ -182,7 +182,7 @@ MetaGrabberScript MetaGrabberScript::GetType(const QString &type)
 
 MetaGrabberScript MetaGrabberScript::GetType(const GrabberType type)
 {
-    QString cmd = gCoreContext->GetSetting(grabberTypes[type].m_setting,
+    QString cmd = getCoreContext()->GetSetting(grabberTypes[type].m_setting,
                                            grabberTypes[type].m_def);
 
     if (cmd.isEmpty())
@@ -453,10 +453,11 @@ void MetaGrabberScript::toMap(InfoMap &metadataMap) const
 
 void MetaGrabberScript::SetDefaultArgs(QStringList &args)
 {
+    MythCoreContext *cctx = getCoreContext();
     args << "-l"
-         << gCoreContext->GetLanguage()
+         << cctx->GetLanguage()
          << "-a"
-         << gCoreContext->GetLocale()->GetCountryCode();
+         << cctx->GetLocale()->GetCountryCode();
 }
 
 MetadataLookupList MetaGrabberScript::Search(const QString &title,

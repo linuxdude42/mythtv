@@ -1,6 +1,6 @@
 #include "imagescanner.h"
 
-#include "libmythbase/mythcorecontext.h"  // for gCoreContext
+#include "libmythbase/mythcorecontext.h"  // for getCoreContext()
 #include "libmythbase/mythlogging.h"
 
 #include "imagemetadata.h"
@@ -111,7 +111,7 @@ template <class DBFS>
 QStringList ImageScanThread<DBFS>::GetProgress()
 {
     QMutexLocker locker(&m_mutexProgress);
-    return QStringList() << QString::number(static_cast<int>(gCoreContext->IsBackend()))
+    return QStringList() << QString::number(static_cast<int>(getCoreContext()->IsBackend()))
                          << QString::number(m_progressCount)
                          << QString::number(m_progressTotalCount);
 }
@@ -571,7 +571,7 @@ template <class DBFS>
 void ImageScanThread<DBFS>::CountFiles(const QStringList &paths)
 {
     // Get exclusions as comma-seperated list using glob chars * and ?
-    QString excPattern = gCoreContext->GetSetting("GalleryIgnoreFilter", "");
+    QString excPattern = getCoreContext()->GetSetting("GalleryIgnoreFilter", "");
 
     // Combine into a single regexp
     excPattern.replace(".", "\\."); // Preserve "."
@@ -613,7 +613,7 @@ void ImageScanThread<DBFS>::Broadcast(int progress)
 {
     // Only 2 scanners are ever visible (FE & BE) so use bool as scanner id
     QStringList status;
-    status << QString::number(static_cast<int>(gCoreContext->IsBackend()))
+    status << QString::number(static_cast<int>(getCoreContext()->IsBackend()))
            << QString::number(progress)
            << QString::number(m_progressTotalCount);
 

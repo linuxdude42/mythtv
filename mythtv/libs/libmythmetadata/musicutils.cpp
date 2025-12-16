@@ -51,7 +51,7 @@ QString findIcon(const QString &type, const QString &name, bool ignoreCache)
     QString imageExtensions = "(jpg|jpeg|png|gif)";
     QStringList fileList;
 
-    fileList = RemoteFile::FindFileList(file + imageExtensions, gCoreContext->GetMasterHostName(), "MusicArt", true, true);
+    fileList = RemoteFile::FindFileList(file + imageExtensions, getCoreContext()->GetMasterHostName(), "MusicArt", true, true);
     if (!fileList.isEmpty())
     {
         LOG(VB_FILE, LOG_INFO, QString("findicon: found %1 icons using %2").arg(fileList.size()).arg(fileList[0]));
@@ -77,9 +77,10 @@ QString fixFileToken_sl(QString token)
 
 QString filenameFromMetadata(MusicMetadata *track)
 {
+    MythCoreContext *cctx = getCoreContext();
     QString filename;
-    QString fntempl = gCoreContext->GetSetting("FilenameTemplate");
-    bool no_ws = gCoreContext->GetBoolSetting("NoWhitespace", false);
+    QString fntempl = cctx->GetSetting("FilenameTemplate");
+    bool no_ws = cctx->GetBoolSetting("NoWhitespace", false);
 
     static const QRegularExpression rx_ws("\\s{1,}");
     static const QRegularExpression rx("^(.*?)(GENRE|ARTIST|ALBUM|TRACK|TITLE|YEAR)");

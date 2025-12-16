@@ -209,8 +209,9 @@ void MetadataImageDownload::run()
                 bool exists = false;
                 bool onMaster = false;
                 QString resolvedFN;
-                if (gCoreContext->IsMasterBackend() &&
-                    gCoreContext->IsThisHost(lookup->GetHost()))
+                MythCoreContext *cctx = getCoreContext();
+                if (cctx->IsMasterBackend() &&
+                    cctx->IsThisHost(lookup->GetHost()))
                 {
                     StorageGroup sg(getStorageGroupName(type), lookup->GetHost());
                     resolvedFN = sg.FindFile(filename);
@@ -440,16 +441,17 @@ QString getLocalWritePath(MetadataType metadatatype, VideoArtworkType type)
 {
     QString ret;
 
+    MythCoreContext *cctx = getCoreContext();
     if (metadatatype == kMetadataVideo)
     {
         if (type == kArtworkCoverart)
-            ret = gCoreContext->GetSetting("VideoArtworkDir");
+            ret = cctx->GetSetting("VideoArtworkDir");
         else if (type == kArtworkFanart)
-            ret = gCoreContext->GetSetting("mythvideo.fanartDir");
+            ret = cctx->GetSetting("mythvideo.fanartDir");
         else if (type == kArtworkBanner)
-            ret = gCoreContext->GetSetting("mythvideo.bannerDir");
+            ret = cctx->GetSetting("mythvideo.bannerDir");
         else if (type == kArtworkScreenshot)
-            ret = gCoreContext->GetSetting("mythvideo.screenshotDir");
+            ret = cctx->GetSetting("mythvideo.screenshotDir");
     }
     else if (metadatatype == kMetadataMusic)
     {
@@ -457,11 +459,11 @@ QString getLocalWritePath(MetadataType metadatatype, VideoArtworkType type)
     else if (metadatatype == kMetadataGame)
     {
         if (type == kArtworkCoverart)
-            ret = gCoreContext->GetSetting("mythgame.boxartdir");
+            ret = cctx->GetSetting("mythgame.boxartdir");
         else if (type == kArtworkFanart)
-            ret = gCoreContext->GetSetting("mythgame.fanartdir");
+            ret = cctx->GetSetting("mythgame.fanartdir");
         else if (type == kArtworkScreenshot)
-            ret = gCoreContext->GetSetting("mythgame.screenshotdir");
+            ret = cctx->GetSetting("mythgame.screenshotdir");
     }
 
     return ret;
@@ -470,7 +472,7 @@ QString getLocalWritePath(MetadataType metadatatype, VideoArtworkType type)
 QString getStorageGroupURL(VideoArtworkType type, const QString& host)
 {
     QString sgroup = getStorageGroupName(type);
-    uint port = gCoreContext->GetBackendServerPort(host);
+    uint port = getCoreContext()->GetBackendServerPort(host);
 
     return MythCoreContext::GenMythURL(host, port, "", sgroup);
 }

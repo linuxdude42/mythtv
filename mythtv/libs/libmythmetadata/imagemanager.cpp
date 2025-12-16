@@ -400,12 +400,13 @@ ImageItem *ImageAdapterLocal::CreateItem(const QFileInfo &fi, int parentId,
 void ImageAdapterLocal::Notify(const QString &mesg,
                                const QStringList &extra)
 {
-    QString host(gCoreContext->GetHostName());
-    gCoreContext->SendEvent(MythEvent(QString("%1 %2").arg(mesg, host), extra));
+    MythCoreContext *cctx = getCoreContext();
+    QString host(cctx->GetHostName());
+    cctx->SendEvent(MythEvent(QString("%1 %2").arg(mesg, host), extra));
 }
 
 ImageAdapterSg::ImageAdapterSg() :
-    m_hostname(gCoreContext->GetMasterHostName()),
+    m_hostname(getCoreContext()->GetMasterHostName()),
     m_hostport(MythCoreContext::GetMasterServerPort()),
     m_sg(StorageGroup(IMAGE_STORAGE_GROUP, m_hostname, false))
 {
@@ -482,7 +483,7 @@ ImageItem *ImageAdapterSg::CreateItem(const QFileInfo &fi, int parentId,
 void ImageAdapterSg::Notify(const QString &mesg,
                             const QStringList &extra)
 {
-    gCoreContext->SendEvent(MythEvent(mesg, extra));
+    getCoreContext()->SendEvent(MythEvent(mesg, extra));
 }
 
 
@@ -1083,7 +1084,7 @@ ImageDbSg::ImageDbSg() : ImageDb(DB_TABLE)
  \brief Local database constructor
 */
 ImageDbLocal::ImageDbLocal()
-    : ImageDb(QString("`%1_%2`").arg(DB_TABLE, gCoreContext->GetHostName()))
+    : ImageDb(QString("`%1_%2`").arg(DB_TABLE, getCoreContext()->GetHostName()))
 {
     // Remove any table leftover from a previous FE crash
     DropTable();
@@ -1168,7 +1169,7 @@ public:
 
         // Include file info
         tags << ImageMetaData::ToString(EXIF_MYTH_HOST,   "Host",
-                                        gCoreContext->GetHostName());
+                                        getCoreContext()->GetHostName());
         tags << ImageMetaData::ToString(EXIF_MYTH_PATH,   "Path",
                                         ImageAdapterBase::PathOf(m_path));
         tags << ImageMetaData::ToString(EXIF_MYTH_NAME,   "Name",
@@ -1178,7 +1179,7 @@ public:
                                         orientation);
 
         MythEvent me("IMAGE_METADATA", tags);
-        gCoreContext->SendEvent(me);
+        getCoreContext()->SendEvent(me);
     }
 
 private:
@@ -1623,7 +1624,7 @@ template <class DBFS>
 QStringList ImageHandler<DBFS>::HandleIgnore(const QString &exclusions) const
 {
     // Save new setting. FE will have already saved it but not cleared the cache
-    gCoreContext->SaveSettingOnHost("GalleryIgnoreFilter", exclusions, nullptr);
+    getCoreContext()->SaveSettingOnHost("GalleryIgnoreFilter", exclusions, nullptr);
 
     // Rescan
     HandleScanRequest("START");
@@ -1977,12 +1978,13 @@ ImageManagerFe& ImageManagerFe::getInstance()
     if (!s_instance)
     {
         // Use saved settings
+        MythCoreContext *cctx = getCoreContext();
         s_instance = new ImageManagerFe
-                (gCoreContext->GetNumSetting("GalleryImageOrder"),
-                 gCoreContext->GetNumSetting("GalleryDirOrder"),
-                 gCoreContext->GetBoolSetting("GalleryShowHidden"),
-                 gCoreContext->GetNumSetting("GalleryShowType"),
-                 gCoreContext->GetSetting("GalleryDateFormat"));
+                (cctx->GetNumSetting("GalleryImageOrder"),
+                 cctx->GetNumSetting("GalleryDirOrder"),
+                 cctx->GetBoolSetting("GalleryShowHidden"),
+                 cctx->GetNumSetting("GalleryShowType"),
+                 cctx->GetSetting("GalleryDateFormat"));
     }
     return *s_instance;
 }
@@ -2009,7 +2011,7 @@ void ImageManagerFe::CreateThumbnails(const ImageIdList &ids, bool forFolder)
 
         QStringList message;
         message << QString::number(static_cast<int>(forFolder)) << lists.second;
-        gCoreContext->SendEvent(MythEvent("CREATE_THUMBNAILS", message));
+        getCoreContext()->SendEvent(MythEvent("CREATE_THUMBNAILS", message));
     }
 
     if (!lists.first.isEmpty())
@@ -2039,7 +2041,7 @@ QString ImageManagerFe::ScanImagesAction(bool start, bool local)
     if (!local)
     {
         command.push_front("IMAGE_SCAN");
-        bool ok = gCoreContext->SendReceiveStringList(command, true);
+        bool ok = getCoreContext()->SendReceiveStringList(command, true);
         return ok ? "" : command[1];
     }
 
@@ -2062,7 +2064,7 @@ QStringList ImageManagerFe::ScanQuery()
     QStringList strList;
     strList << "IMAGE_SCAN" << "QUERY";
 
-    if (!gCoreContext->SendReceiveStringList(strList))
+    if (!getCoreContext()->SendReceiveStringList(strList))
     {
         LOG(VB_GENERAL, LOG_ERR, LOC + QString("Scan query failed : %1")
             .arg(strList.join(",")));
@@ -2088,7 +2090,7 @@ QString ImageManagerFe::HideFiles(bool hidden, const ImageIdList &ids)
         QStringList message;
         message << "IMAGE_HIDE" << QString::number(static_cast<int>(hidden)) << lists.second;
 
-        if (!gCoreContext->SendReceiveStringList(message, true))
+        if (!getCoreContext()->SendReceiveStringList(message, true))
             result = message[1];
     }
 
@@ -2120,7 +2122,7 @@ QString ImageManagerFe::ChangeOrientation(ImageFileTransform transform,
         QStringList message;
         message << "IMAGE_TRANSFORM" << QString::number(transform) << lists.second;
 
-        if (!gCoreContext->SendReceiveStringList(message, true))
+        if (!getCoreContext()->SendReceiveStringList(message, true))
             result = message[1];
     }
 
@@ -2147,7 +2149,7 @@ QString ImageManagerFe::SetCover(int parent, int cover)
         QStringList message;
         message << "IMAGE_COVER" << QString::number(parent) << QString::number(cover);
 
-        bool ok = gCoreContext->SendReceiveStringList(message, true);
+        bool ok = getCoreContext()->SendReceiveStringList(message, true);
         return ok ? "" : message[1];
     }
 
@@ -2165,7 +2167,7 @@ void ImageManagerFe::RequestMetaData(int id)
     if (ImageItem::IsLocalId(id))
         HandleGetMetadata(QString::number(id));
     else
-        gCoreContext->SendEvent(MythEvent("IMAGE_GET_METADATA", QString::number(id)));
+        getCoreContext()->SendEvent(MythEvent("IMAGE_GET_METADATA", QString::number(id)));
 }
 
 
@@ -2174,7 +2176,7 @@ void ImageManagerFe::ClearStorageGroup()
 {
     QStringList message("IMAGE_SCAN");
     message << "DEVICE CLEAR ALL";
-    gCoreContext->SendReceiveStringList(message, true);
+    getCoreContext()->SendReceiveStringList(message, true);
 }
 
 
@@ -2188,7 +2190,7 @@ QString ImageManagerFe::IgnoreDirs(const QString &excludes)
 {
     QStringList message("IMAGE_IGNORE");
     message << excludes;
-    bool ok = gCoreContext->SendReceiveStringList(message, true);
+    bool ok = getCoreContext()->SendReceiveStringList(message, true);
     return ok ? "" : message[1];
 }
 
@@ -2208,7 +2210,7 @@ QString ImageManagerFe::MakeDir(int parent, const QStringList &names, bool resca
     {
         QStringList message("IMAGE_CREATE_DIRS");
         message << destId << QString::number(static_cast<int>(rescan)) << names;
-        bool ok = gCoreContext->SendReceiveStringList(message, true);
+        bool ok = getCoreContext()->SendReceiveStringList(message, true);
         return ok ? "" : message[1];
     }
     QStringList err = HandleDirs(destId, rescan, names);
@@ -2228,7 +2230,7 @@ QString ImageManagerFe::RenameFile(const ImagePtrK& im, const QString &name)
     {
         QStringList message("IMAGE_RENAME");
         message << QString::number(im->m_id) << name;
-        bool ok = gCoreContext->SendReceiveStringList(message, true);
+        bool ok = getCoreContext()->SendReceiveStringList(message, true);
         return ok ? "" : message[1];
     }
     QStringList err = HandleRename(QString::number(im->m_id), name);
@@ -2274,7 +2276,7 @@ QString ImageManagerFe::CreateImages(int destId, const ImageListK &images)
         return (err[0] == "OK") ? "" : err[1];
     }
     imageDefs.prepend("IMAGE_COPY");
-    bool ok = gCoreContext->SendReceiveStringList(imageDefs, true);
+    bool ok = getCoreContext()->SendReceiveStringList(imageDefs, true);
     return ok ? "" : imageDefs[1];
 }
 
@@ -2303,7 +2305,7 @@ QString ImageManagerFe::MoveDbImages(const ImagePtrK& destDir, ImageListK &image
 
     QStringList message("IMAGE_MOVE");
     message << idents.join(",") << srcPath << destDir->m_filePath;
-    bool ok = gCoreContext->SendReceiveStringList(message, true);
+    bool ok = getCoreContext()->SendReceiveStringList(message, true);
     return ok ? "" : message[1];
 }
 
@@ -2323,7 +2325,7 @@ QString ImageManagerFe::DeleteFiles(const ImageIdList &ids)
         QStringList message("IMAGE_DELETE");
         message << lists.second;
 
-        bool ok = gCoreContext->SendReceiveStringList(message, true);
+        bool ok = getCoreContext()->SendReceiveStringList(message, true);
         if (!ok)
             result = message[1];
     }

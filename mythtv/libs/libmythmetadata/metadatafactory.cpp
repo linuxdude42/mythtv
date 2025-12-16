@@ -122,7 +122,7 @@ void MetadataFactory::Lookup(RecordingRule *recrule, bool automatic,
     lookup->SetAutomatic(automatic);
     lookup->SetHandleImages(getimages);
     lookup->SetAllowGeneric(allowgeneric);
-    lookup->SetHost(gCoreContext->GetMasterHostName());
+    lookup->SetHost(getCoreContext()->GetMasterHostName());
     lookup->SetTitle(recrule->m_title);
     lookup->SetSubtitle(recrule->m_subtitle);
     lookup->SetInetref(recrule->m_inetref);
@@ -150,7 +150,7 @@ void MetadataFactory::Lookup(ProgramInfo *pginfo, bool automatic,
     lookup->SetAutomatic(automatic);
     lookup->SetHandleImages(getimages);
     lookup->SetAllowGeneric(allowgeneric);
-    lookup->SetHost(gCoreContext->GetMasterHostName());
+    lookup->SetHost(getCoreContext()->GetMasterHostName());
     lookup->SetTitle(pginfo->GetTitle());
     lookup->SetSubtitle(pginfo->GetSubtitle());
     lookup->SetSeason(pginfo->GetSeason());
@@ -510,7 +510,7 @@ void MetadataFactory::OnVideoResult(MetadataLookup *lookup)
     metadata->SetProcessed(true);
     metadata->UpdateDatabase();
 
-    if (gCoreContext->HasGUI() && parent())
+    if (getCoreContext()->HasGUI() && parent())
     {
         QCoreApplication::postEvent(parent(),
             new MetadataFactorySingleResult(lookup));

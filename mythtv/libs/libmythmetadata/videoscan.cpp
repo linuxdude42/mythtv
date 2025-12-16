@@ -76,10 +76,11 @@ class MythUIProgressDialog;
 VideoScannerThread::VideoScannerThread(QObject *parent) :
     MThread("VideoScanner"),
     m_parent(parent),
-    m_hasGUI(gCoreContext->HasGUI()),
     m_dbMetadata(new VideoMetadataListManager)
 {
-    m_listUnknown = gCoreContext->GetBoolSetting("VideoListUnknownFiletypes", false);
+    MythCoreContext *cctx = getCoreContext();
+    m_hasGUI = cctx->HasGUI();
+    m_listUnknown = cctx->GetBoolSetting("VideoListUnknownFiletypes", false);
 }
 
 VideoScannerThread::~VideoScannerThread()
@@ -96,7 +97,7 @@ void VideoScannerThread::SetHosts(const QStringList &hosts)
 
 void VideoScannerThread::SetDirs(QStringList dirs)
 {
-    QString master = gCoreContext->GetMasterHostName().toLower();
+    QString master = getCoreContext()->GetMasterHostName().toLower();
     QStringList searchhosts;
     QStringList mdirs;
     m_offlineSGHosts.clear();
@@ -198,6 +199,7 @@ void VideoScannerThread::run()
     verifyFiles(fs_files, db_remove);
     m_dbDataChanged = updateDB(fs_files, db_remove);
 
+    MythCoreContext *cctx = getCoreContext();
     if (m_dbDataChanged)
     {
         QCoreApplication::postEvent(m_parent,
@@ -215,11 +217,11 @@ void VideoScannerThread::run()
 
         MythEvent me("VIDEO_LIST_CHANGE", slist);
 
-        gCoreContext->SendEvent(me);
+        cctx->SendEvent(me);
     }
     else
     {
-        gCoreContext->SendMessage("VIDEO_LIST_NO_CHANGE");
+        cctx->SendMessage("VIDEO_LIST_NO_CHANGE");
     }
 
     RunEpilog();
@@ -425,7 +427,7 @@ void VideoScanner::doScan(const QStringList &dirs)
     if (m_scanThread->isRunning())
         return;
 
-    if (gCoreContext->HasGUI())
+    if (getCoreContext()->HasGUI())
     {
         MythScreenStack *popupStack = GetMythMainWindow()->GetStack("popup stack");
 
@@ -489,7 +491,7 @@ bool RemoteGetActiveBackends(QStringList *list)
     list->clear();
     *list << "QUERY_ACTIVE_BACKENDS";
 
-    if (!gCoreContext->SendReceiveStringList(*list))
+    if (!getCoreContext()->SendReceiveStringList(*list))
         return false;
 
     list->removeFirst();

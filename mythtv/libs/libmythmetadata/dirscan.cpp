@@ -255,9 +255,10 @@ bool ScanVideoDirectory(const QString &start_path, DirectoryHandler *handler,
         QString host = sgurl.host();
         QString path = sgurl.path();
 
+        MythCoreContext *cctx = getCoreContext();
         if (!scan_sg_dir(path, host, path, handler, extlookup, 
-                (gCoreContext->IsMasterHost(host) &&
-                 (gCoreContext->GetHostName().toLower() == host.toLower()))))
+                (cctx->IsMasterHost(host) &&
+                 (cctx->GetHostName().toLower() == host.toLower()))))
         {
             LOG(VB_GENERAL, LOG_ERR, 
                 QString("MythVideo::ScanVideoDirectory failed to scan %1 ")
