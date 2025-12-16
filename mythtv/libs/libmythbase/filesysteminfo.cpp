@@ -110,7 +110,7 @@ FileSystemInfoList FileSystemInfoManager::GetInfoList(MythSocket *sock)
 
     if ((sock != nullptr)
         ? sock->SendReceiveStringList(strlist)
-        : gCoreContext->SendReceiveStringList(strlist)
+        : getCoreContext()->SendReceiveStringList(strlist)
        )
     {
         fsInfos = FileSystemInfoManager::FromStringList(strlist);

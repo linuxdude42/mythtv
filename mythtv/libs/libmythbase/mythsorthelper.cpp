@@ -43,26 +43,27 @@ void MythSortHelper::MythSortHelperCommon(void)
  *
  *  Create the object and read settings from the core context.
  *
- *  \note This handles the case where the gCoreContext object doesn't
+ *  \note This handles the case where the MythCoreContext object doesn't
  *  exists (i.e. running under the Qt test harness) which allows this
  *  code and the objects using it to be tested.
  */
 MythSortHelper::MythSortHelper()
 {
-    if (gCoreContext) {
+    MythCoreContext *cctx = getCoreContext();
+    if (cctx) {
 #if 0
         // Last minute change.  QStringRef::localeAwareCompare appears to
         // always do case insensitive sorting, so there's no point in
         // presenting this option to a user.
         m_caseSensitive =
-            gCoreContext->GetBoolSetting("SortCaseSensitive", false)
+            cctx->GetBoolSetting("SortCaseSensitive", false)
             ? Qt::CaseSensitive : Qt::CaseInsensitive;
 #endif
         m_prefixMode =
-            gCoreContext->GetBoolSetting("SortStripPrefixes", true)
+            cctx->GetBoolSetting("SortStripPrefixes", true)
             ? SortPrefixRemove : SortPrefixKeep;
         m_exclusions =
-            gCoreContext->GetSetting("SortPrefixExceptions", "");
+            cctx->GetSetting("SortPrefixExceptions", "");
     }
     MythSortHelperCommon();
 }

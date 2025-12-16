@@ -2958,7 +2958,7 @@ void MythCommandLineParser::ApplySettingsOverride(void)
             LOG(VB_GENERAL, LOG_NOTICE,
                  QString("Setting '%1' being forced to '%2'")
                      .arg(it.key(), *it));
-            gCoreContext->OverrideSettingForSession(it.key(), *it);
+            getCoreContext()->OverrideSettingForSession(it.key(), *it);
         }
     }
 }

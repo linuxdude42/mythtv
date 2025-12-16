@@ -74,7 +74,7 @@ bool ThreadedFileWriter::ReOpen(const QString& newFilename)
 
     if (m_registered)
     {
-        gCoreContext->UnregisterFileForWrite(m_filename);
+        getCoreContext()->UnregisterFileForWrite(m_filename);
     }
 
     if (!newFilename.isEmpty())
@@ -108,7 +108,7 @@ bool ThreadedFileWriter::Open(void)
         return false;
     }
 
-    gCoreContext->RegisterFileForWrite(m_filename);
+    getCoreContext()->RegisterFileForWrite(m_filename);
     m_registered = true;
 
     LOG(VB_FILE, LOG_INFO, LOC + "Open() successful");
@@ -177,7 +177,7 @@ ThreadedFileWriter::~ThreadedFileWriter()
         m_fd = -1;
     }
 
-    gCoreContext->UnregisterFileForWrite(m_filename);
+    getCoreContext()->UnregisterFileForWrite(m_filename);
     m_registered = false;
 }
 
@@ -396,7 +396,7 @@ void ThreadedFileWriter::SyncLoop(void)
         if (m_ignoreWrites && m_registered)
         {
             // we aren't going to write to the disk anymore, so can de-register
-            gCoreContext->UnregisterFileForWrite(m_filename);
+            getCoreContext()->UnregisterFileForWrite(m_filename);
             m_registered = false;
         }
         m_bufferSyncWait.wait(&m_bufLock, 1000);
@@ -534,7 +534,7 @@ void ThreadedFileWriter::DiskLoop(void)
 
         if (lastRegisterTimer.elapsed() >= 10s)
         {
-            gCoreContext->RegisterFileForWrite(m_filename, total_written);
+            getCoreContext()->RegisterFileForWrite(m_filename, total_written);
             m_registered = true;
             lastRegisterTimer.restart();
         }

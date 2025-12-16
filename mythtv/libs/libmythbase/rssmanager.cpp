@@ -20,7 +20,7 @@
 
 RSSManager::RSSManager()
     : m_timer(new QTimer()),
-      m_updateFreq(gCoreContext->GetDurSetting<std::chrono::hours>("rss.updateFreq", 6h))
+      m_updateFreq(getCoreContext()->GetDurSetting<std::chrono::hours>("rss.updateFreq", 6h))
 {
     connect( m_timer, &QTimer::timeout,
                       this, &RSSManager::doUpdate);

@@ -132,7 +132,7 @@ void GrabberScript::parseDBTree(const QString &feedtitle, const QString &path,
 
 GrabberManager::GrabberManager()
     : m_timer(new QTimer()),
-      m_updateFreq(gCoreContext->GetDurSetting<std::chrono::hours>("netsite.updateFreq", 24h))
+      m_updateFreq(getCoreContext()->GetDurSetting<std::chrono::hours>("netsite.updateFreq", 24h))
 {
     connect( m_timer, &QTimer::timeout,
                       this, &GrabberManager::timeout);
@@ -208,7 +208,7 @@ void GrabberDownloadThread::run()
     RunProlog();
 
     m_scripts = findAllDBTreeGrabbers();
-    auto updateFreq = gCoreContext->GetDurSetting<std::chrono::hours>(
+    auto updateFreq = getCoreContext()->GetDurSetting<std::chrono::hours>(
                "netsite.updateFreq", 24h);
 
     while (!m_scripts.isEmpty())

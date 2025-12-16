@@ -168,7 +168,7 @@ QString HostDBStorage::GetSetClause(MSqlBindings &bindings) const
 void HostDBStorage::Save(void)
 {
     SimpleDBStorage::Save();
-    gCoreContext->ClearSettingsCache(
+    getCoreContext()->ClearSettingsCache(
         MythDB::getMythDB()->GetHostName() + ' ' + m_settingname);
 }
 
@@ -206,5 +206,5 @@ QString GlobalDBStorage::GetSetClause(MSqlBindings &bindings) const
 void GlobalDBStorage::Save(void)
 {
     SimpleDBStorage::Save();
-    gCoreContext->ClearSettingsCache(m_settingname);
+    getCoreContext()->ClearSettingsCache(m_settingname);
 }

@@ -87,9 +87,10 @@ bool DBUtil::IsNewDatabase(void)
  */
 bool DBUtil::IsBackupInProgress(void)
 {
+    MythCoreContext *cctx = getCoreContext();
     QString backupStartTimeStr =
-        gCoreContext->GetSetting("BackupDBLastRunStart");
-    QString backupEndTimeStr = gCoreContext->GetSetting("BackupDBLastRunEnd");
+        cctx->GetSetting("BackupDBLastRunStart");
+    QString backupEndTimeStr = cctx->GetSetting("BackupDBLastRunEnd");
 
     if (backupStartTimeStr.isEmpty())
     {
@@ -193,7 +194,8 @@ MythDBBackupStatus DBUtil::BackupDB(QString &filename,
     return kDB_Backup_Disabled;
 #else
 
-    if (gCoreContext->GetBoolSetting("DisableAutomaticBackup", false))
+    MythCoreContext *cctx = getCoreContext();
+    if (cctx->GetBoolSetting("DisableAutomaticBackup", false))
     {
         LOG(VB_GENERAL, LOG_CRIT,
             "Database backups disabled.  Skipping backup.");
@@ -207,8 +209,7 @@ MythDBBackupStatus DBUtil::BackupDB(QString &filename,
     }
 
     QString backupScript = GetShareDir() + "mythconverg_backup.pl";
-    backupScript = gCoreContext->GetSetting("DatabaseBackupScript",
-                                            backupScript);
+    backupScript = cctx->GetSetting("DatabaseBackupScript", backupScript);
 
     if (!QFile::exists(backupScript))
     {
@@ -220,7 +221,7 @@ MythDBBackupStatus DBUtil::BackupDB(QString &filename,
     bool result = false;
     MSqlQuery query(MSqlQuery::InitCon());
 
-    gCoreContext->SaveSettingOnHost(
+    cctx->SaveSettingOnHost(
         "BackupDBLastRunStart",
         MythDate::toString(MythDate::current(), MythDate::kDatabase), nullptr);
 
@@ -235,7 +236,7 @@ MythDBBackupStatus DBUtil::BackupDB(QString &filename,
     if (!result)
         result = DoBackup(filename);
 
-    gCoreContext->SaveSettingOnHost(
+    cctx->SaveSettingOnHost(
         "BackupDBLastRunEnd",
         MythDate::toString(MythDate::current(), MythDate::kDatabase), nullptr);
 
@@ -482,7 +483,7 @@ QString DBUtil::CreateBackupFilename(const QString& prefix, const QString& exten
 QString DBUtil::GetBackupDirectory()
 {
     QString directory;
-    StorageGroup sgroup("DB Backups", gCoreContext->GetHostName());
+    StorageGroup sgroup("DB Backups", getCoreContext()->GetHostName());
     QStringList dirList = sgroup.GetDirList();
     if (!dirList.empty())
     {
@@ -564,11 +565,12 @@ bool DBUtil::DoBackup(const QString &backupScript, QString &filename,
                       bool disableRotation)
 {
     DatabaseParams dbParams = GetMythDB()->GetDatabaseParams();
-    QString     dbSchemaVer = gCoreContext->GetSetting("DBSchemaVer");
+    MythCoreContext *cctx   = getCoreContext();
+    QString     dbSchemaVer = cctx->GetSetting("DBSchemaVer");
     QString backupDirectory = GetBackupDirectory();
     QString  backupFilename = CreateBackupFilename(dbParams.m_dbName + "-" +
                                                    dbSchemaVer, ".sql");
-    QString      scriptArgs = gCoreContext->GetSetting("BackupDBScriptArgs");
+    QString      scriptArgs = cctx->GetSetting("BackupDBScriptArgs");
     QString rotate = "";
     if (disableRotation)
     {
@@ -660,7 +662,7 @@ bool DBUtil::DoBackup(const QString &backupScript, QString &filename,
 bool DBUtil::DoBackup(QString &filename)
 {
     DatabaseParams dbParams = GetMythDB()->GetDatabaseParams();
-    QString     dbSchemaVer = gCoreContext->GetSetting("DBSchemaVer");
+    QString     dbSchemaVer = getCoreContext()->GetSetting("DBSchemaVer");
     QString backupDirectory = GetBackupDirectory();
 
     QString command;
@@ -751,7 +753,7 @@ bool DBUtil::QueryDBMSVersion(void)
     // Allow users to override the string provided by the database server in
     // case the value was changed to an unrecognizable string by whomever
     // compiled the MySQL server
-    QString dbmsVersion = gCoreContext->GetSetting("DBMSVersionOverride");
+    QString dbmsVersion = getCoreContext()->GetSetting("DBMSVersionOverride");
 
     if (dbmsVersion.isEmpty())
     {

@@ -47,7 +47,7 @@
  *
  * This routine also finds the correct scope id in case of an
  * IPV6 link-local address, and caches it in
- * gCoreContext->SetScopeForAddress
+ * getCoreContext()->SetScopeForAddress
  *
  * If linkLocalOnly is specified, it only obtains link-local
  * address scope.
@@ -88,12 +88,13 @@ bool PortChecker::checkPort(QString &host, int port, std::chrono::milliseconds t
       && addr.isInSubnet(QHostAddress::parseSubnet("fe80::/10")))
         islinkLocal = true;
 #endif
+    MythCoreContext *cctx = getCoreContext();
     if (linkLocalOnly)
     {
         if (islinkLocal)
         {
             // If we already know the scope, set it here and return
-            if (gCoreContext->GetScopeForAddress(addr))
+            if (cctx->GetScopeForAddress(addr))
             {
                 host = addr.toString();
                 return true;
@@ -120,7 +121,7 @@ bool PortChecker::checkPort(QString &host, int port, std::chrono::milliseconds t
 // some processing
 #ifndef _WIN32
         int iCardsEnd = 0;
-        if (islinkLocal && !gCoreContext->GetScopeForAddress(addr))
+        if (islinkLocal && !cctx->GetScopeForAddress(addr))
         {
             addr.setScopeId(QString());
             while (addr.scopeId().isEmpty() && iCardsEnd<2)
@@ -223,7 +224,7 @@ bool PortChecker::checkPort(QString &host, int port, std::chrono::milliseconds t
     if (state == QAbstractSocket::ConnectedState
       && islinkLocal && !scope.isEmpty())
     {
-       gCoreContext->SetScopeForAddress(addr);
+       cctx->SetScopeForAddress(addr);
        host = addr.toString();
     }
     return (state == QAbstractSocket::ConnectedState);

@@ -343,7 +343,8 @@ void MythSystemLegacy::ProcessFlags(uint flags)
         return;
     }
 
-    m_settings["IsInUI"] = gCoreContext->HasGUI() && gCoreContext->IsUIThread();
+    MythCoreContext *cctx = getCoreContext();
+    m_settings["IsInUI"] = cctx->HasGUI() && cctx->IsUIThread();
 
     if (flags & kMSRunBackground)
         m_settings["RunInBackground"] = true;
@@ -422,13 +423,15 @@ int MythSystemLegacy::Write(const QByteArray &ba)
 
 void MythSystemLegacy::HandlePreRun(void)
 {
+    MythCoreContext *cctx = getCoreContext();
+
     // This needs to be a send event so that the MythUI locks the input devices
     // immediately instead of after existing events are processed
     // since this function could be called inside one of those events.
     if (GetSetting("BlockInputDevs"))
     {
         QEvent event(MythEvent::kLockInputDevicesEventType);
-        QCoreApplication::sendEvent(gCoreContext->GetGUIObject(), &event);
+        QCoreApplication::sendEvent(cctx->GetGUIObject(), &event);
     }
 
     // This needs to be a send event so that the listener is disabled
@@ -438,7 +441,7 @@ void MythSystemLegacy::HandlePreRun(void)
     if (GetSetting("DisableUDP"))
     {
         QEvent event(MythEvent::kDisableUDPListenerEventType);
-        QCoreApplication::sendEvent(gCoreContext->GetGUIObject(), &event);
+        QCoreApplication::sendEvent(cctx->GetGUIObject(), &event);
     }
 
     // This needs to be a send event so that the MythUI m_drawState change is
@@ -447,18 +450,20 @@ void MythSystemLegacy::HandlePreRun(void)
     if (GetSetting("DisableDrawing"))
     {
         QEvent event(MythEvent::kPushDisableDrawingEventType);
-        QCoreApplication::sendEvent(gCoreContext->GetGUIObject(), &event);
+        QCoreApplication::sendEvent(cctx->GetGUIObject(), &event);
     }
 }
 
 void MythSystemLegacy::HandlePostRun(void)
 {
+    MythCoreContext *cctx = getCoreContext();
+
     // Since this is *not* running in the UI thread (but rather the signal
     // handler thread), we need to use postEvents
     if (GetSetting("DisableDrawing"))
     {
         auto *event = new QEvent(MythEvent::kPopDisableDrawingEventType);
-        QCoreApplication::postEvent(gCoreContext->GetGUIObject(), event);
+        QCoreApplication::postEvent(cctx->GetGUIObject(), event);
     }
 
     // This needs to be a post event so we do not try to start listening on
@@ -466,7 +471,7 @@ void MythSystemLegacy::HandlePostRun(void)
     if (GetSetting("DisableUDP"))
     {
         auto *event = new QEvent(MythEvent::kEnableUDPListenerEventType);
-        QCoreApplication::postEvent(gCoreContext->GetGUIObject(), event);
+        QCoreApplication::postEvent(cctx->GetGUIObject(), event);
     }
 
     // This needs to be a post event so that the MythUI unlocks input devices
@@ -474,7 +479,7 @@ void MythSystemLegacy::HandlePostRun(void)
     if (GetSetting("BlockInputDevs"))
     {
         auto *event = new QEvent(MythEvent::kUnlockInputDevicesEventType);
-        QCoreApplication::postEvent(gCoreContext->GetGUIObject(), event);
+        QCoreApplication::postEvent(cctx->GetGUIObject(), event);
     }
 }
 

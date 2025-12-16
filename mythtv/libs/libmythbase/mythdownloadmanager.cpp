@@ -207,7 +207,7 @@ void MythDownloadManager::run(void)
     m_proxy = new QNetworkProxy();
     m_diskCache->setCacheDirectory(GetConfDir() + "/cache/" +
                                    QCoreApplication::applicationName() + "-" +
-                                   gCoreContext->GetHostName());
+                                   getCoreContext()->GetHostName());
     m_manager->setCache(m_diskCache);
 
     // Set the proxy for the manager to be the application default proxy,

@@ -62,7 +62,7 @@ int MythPlugin::config(void)
     if (rfunc)
     {
         rVal = rfunc();
-        gCoreContext->ClearSettingsCache();
+        getCoreContext()->ClearSettingsCache();
     }
 
     return rVal;

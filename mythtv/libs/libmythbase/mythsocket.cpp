@@ -83,7 +83,7 @@ MythSocket::MythSocket(
         m_tcpSocket->setSocketDescriptor(
             socket, QAbstractSocket::ConnectedState,
             QAbstractSocket::ReadWrite);
-        if (!gCoreContext->CheckSubnet(m_tcpSocket))
+        if (!getCoreContext()->CheckSubnet(m_tcpSocket))
         {
             m_tcpSocket->abort();
             m_connected = false;
@@ -379,8 +379,9 @@ bool MythSocket::ConnectToHost(const QString &host, quint16 port)
     if (!hadr.setAddress(host))
     {
         // attempt internal lookup through MythCoreContext
-        if (!gCoreContext ||
-            !hadr.setAddress(gCoreContext->GetBackendServerIP(host)))
+        MythCoreContext *cctx = getCoreContext();
+        if (!cctx ||
+            !hadr.setAddress(cctx->GetBackendServerIP(host)))
         {
             // attempt external lookup from hosts/DNS
             QHostInfo info = QHostInfo::fromName(host);
@@ -429,7 +430,7 @@ bool MythSocket::Validate(std::chrono::milliseconds timeout, bool error_dialog_d
                  QString::fromUtf8(MYTH_PROTO_TOKEN),
                  strlist[1]));
 
-        QObject *GUIcontext = gCoreContext->GetGUIContext();
+        QObject *GUIcontext = getCoreContext()->GetGUIContext();
         if (error_dialog_desired && GUIcontext)
         {
             QStringList list(strlist[1]);
@@ -497,8 +498,9 @@ void MythSocket::SetAnnounce(const QStringList &new_announce)
 
 void MythSocket::DisconnectFromHost(void)
 {
+    MythCoreContext *cctx = getCoreContext();
     if (QThread::currentThread() != m_thread->qthread() &&
-        gCoreContext && gCoreContext->IsExiting())
+        cctx && cctx->IsExiting())
     {
         LOG(VB_GENERAL, LOG_ERR, LOC() +
             QString("Programmer error, QEventLoop isn't running and deleting "

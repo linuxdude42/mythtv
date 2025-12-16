@@ -20,9 +20,10 @@ const QString SMOLT_TOKEN =
 
 HardwareProfile::HardwareProfile()
 {
-    m_enabled = (gCoreContext->GetNumSetting("HardwareProfileEnabled", 0) == 1);
-    m_uuid = gCoreContext->GetSetting("HardwareProfileUUID");
-    m_publicuuid = gCoreContext->GetSetting("HardwareProfilePublicUUID");
+    MythCoreContext *cctx = getCoreContext();
+    m_enabled = (cctx->GetNumSetting("HardwareProfileEnabled", 0) == 1);
+    m_uuid = cctx->GetSetting("HardwareProfileUUID");
+    m_publicuuid = cctx->GetSetting("HardwareProfilePublicUUID");
 
     if (m_enabled)
     {
@@ -31,7 +32,7 @@ HardwareProfile::HardwareProfile()
         query.prepare("SELECT lastrun FROM housekeeping"
                       " WHERE      tag = 'HardwareProfiler'"
                       "   AND hostname = :HOST");
-        query.bindValue(":HOST", gCoreContext->GetHostName());
+        query.bindValue(":HOST", cctx->GetHostName());
         if (query.exec() && query.next())
             m_lastUpdate = MythDate::as_utc(query.value(0).toDateTime());
     }
@@ -42,12 +43,12 @@ void HardwareProfile::Enable(void)
     if (m_uuid.isEmpty())
         return;
 
-    gCoreContext->SaveSettingOnHost("HardwareProfileEnabled", "1", "");
+    getCoreContext()->SaveSettingOnHost("HardwareProfileEnabled", "1", "");
 }
 
 void HardwareProfile::Disable(void)
 {
-    gCoreContext->SaveSettingOnHost("HardwareProfileEnabled", "0", "");
+    getCoreContext()->SaveSettingOnHost("HardwareProfileEnabled", "0", "");
 }
 
 void HardwareProfile::GenerateUUIDs(void)
@@ -141,7 +142,7 @@ QString HardwareProfile::GetAdminPasswordFromFile()
 {
     QString ret;
 
-    if (gCoreContext->GetSetting("HardwareProfileUUID").isEmpty())
+    if (getCoreContext()->GetSetting("HardwareProfileUUID").isEmpty())
         return ret;
 
     QString token_file = GetConfDir() + "/HardwareProfile/" + SMOLT_TOKEN;
@@ -210,8 +211,9 @@ bool HardwareProfile::SubmitProfile(bool updateTime)
     if (system.Wait() == GENERIC_EXIT_OK)
     {
         GenerateUUIDs();
-        gCoreContext->SaveSetting("HardwareProfileUUID", GetPrivateUUID());
-        gCoreContext->SaveSetting("HardwareProfilePublicUUID", GetPublicUUID());
+        MythCoreContext *cctx = getCoreContext();
+        cctx->SaveSetting("HardwareProfileUUID", GetPrivateUUID());
+        cctx->SaveSetting("HardwareProfilePublicUUID", GetPublicUUID());
 
         if (updateTime)
         {
@@ -240,8 +242,9 @@ bool HardwareProfile::DeleteProfile(void)
     system.Run();
     if (system.Wait() == GENERIC_EXIT_OK)
     {
-        gCoreContext->SaveSetting("HardwareProfileUUID", "");
-        gCoreContext->SaveSetting("HardwareProfilePublicUUID", "");
+        MythCoreContext *cctx = getCoreContext();
+        cctx->SaveSetting("HardwareProfileUUID", "");
+        cctx->SaveSetting("HardwareProfilePublicUUID", "");
         Disable();
         return true;
     }
@@ -252,7 +255,7 @@ QString HardwareProfile::GetProfileURL() const
 {
     QString ret;
 
-    if (!gCoreContext->GetSetting("HardwareProfileUUID").isEmpty())
+    if (!getCoreContext()->GetSetting("HardwareProfileUUID").isEmpty())
     {
         ret = SMOLT_SERVER_LOCATION + "client/show/?uuid=" + m_publicuuid;
     }
@@ -274,7 +277,7 @@ QString HardwareProfile::GetHardwareProfile()
 
 bool HardwareProfileTask::DoCheckRun(const QDateTime& now)
 {
-    if (gCoreContext->GetNumSetting("HardwareProfileEnabled", 0) == 0)
+    if (getCoreContext()->GetNumSetting("HardwareProfileEnabled", 0) == 0)
         // global disable, we don't want to run
         return false;
 

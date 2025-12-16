@@ -179,7 +179,7 @@ bool RemoteGetLoad(loadArray& load)
 {
     QStringList strlist(QString("QUERY_LOAD"));
 
-    if (gCoreContext->SendReceiveStringList(strlist) && strlist.size() >= 3)
+    if (getCoreContext()->SendReceiveStringList(strlist) && strlist.size() >= 3)
     {
         load[0] = strlist[0].toDouble();
         load[1] = strlist[1].toDouble();
@@ -194,7 +194,7 @@ bool RemoteGetUptime(std::chrono::seconds &uptime)
 {
     QStringList strlist(QString("QUERY_UPTIME"));
 
-    if (!gCoreContext->SendReceiveStringList(strlist) || strlist.isEmpty())
+    if (!getCoreContext()->SendReceiveStringList(strlist) || strlist.isEmpty())
         return false;
 
     if (strlist[0].isEmpty() || !strlist[0].at(0).isNumber())
@@ -214,7 +214,7 @@ bool RemoteGetMemStats(int &totalMB, int &freeMB, int &totalVM, int &freeVM)
 {
     QStringList strlist(QString("QUERY_MEMSTATS"));
 
-    if (gCoreContext->SendReceiveStringList(strlist) && strlist.size() >= 4)
+    if (getCoreContext()->SendReceiveStringList(strlist) && strlist.size() >= 4)
     {
         totalMB = strlist[0].toInt();
         freeMB  = strlist[1].toInt();

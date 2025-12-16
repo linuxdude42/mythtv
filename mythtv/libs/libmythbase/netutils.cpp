@@ -17,7 +17,7 @@ bool findTreeGrabberInDB(const QString& commandline,
                   "AND type = :TYPE AND tree = 1;");
     QFileInfo fi(commandline);
     query.bindValue(":COMMAND", fi.fileName());
-    query.bindValue(":HOST", gCoreContext->GetHostName());
+    query.bindValue(":HOST", getCoreContext()->GetHostName());
     query.bindValue(":TYPE", type);
     if (!query.exec() || !query.isActive())
     {
@@ -37,7 +37,7 @@ bool findSearchGrabberInDB(const QString& commandline,
                   "AND type = :TYPE AND search = 1;");
     QFileInfo fi(commandline);
     query.bindValue(":COMMAND", fi.fileName());
-    query.bindValue(":HOST", gCoreContext->GetHostName());
+    query.bindValue(":HOST", getCoreContext()->GetHostName());
     query.bindValue(":TYPE", type);
     if (!query.exec() || !query.isActive())
     {
@@ -59,7 +59,7 @@ GrabberScript* findTreeGrabberByCommand(const QString& commandline,
                   "AND tree = 1;");
     QFileInfo fi(commandline);
     query.bindValue(":COMMAND", fi.fileName());
-    query.bindValue(":HOST", gCoreContext->GetHostName());
+    query.bindValue(":HOST", getCoreContext()->GetHostName());
     query.bindValue(":TYPE", type);
     if (!query.exec() || !query.isActive()) {
         MythDB::DBError("Tree find in db", query);
@@ -91,7 +91,7 @@ GrabberScript* findSearchGrabberByCommand(const QString& commandline,
                   "search = 1;");
     QFileInfo fi(commandline);
     query.bindValue(":COMMAND", fi.fileName());
-    query.bindValue(":HOST", gCoreContext->GetHostName());
+    query.bindValue(":HOST", getCoreContext()->GetHostName());
     query.bindValue(":TYPE", type);
     if (!query.exec() || !query.isActive()) {
         MythDB::DBError("Search find in db", query);
@@ -153,7 +153,7 @@ GrabberScript::scriptList findAllDBTreeGrabbersByHost(ArticleType type)
                   "version,search,tree FROM internetcontent "
                   "WHERE host = :HOST AND type = :TYPE "
                   "AND tree = 1 ORDER BY name;");
-    query.bindValue(":HOST", gCoreContext->GetHostName());
+    query.bindValue(":HOST", getCoreContext()->GetHostName());
     query.bindValue(":TYPE", type);
     if (!query.exec() || !query.isActive()) {
         MythDB::DBError("Tree find in db", query);
@@ -188,7 +188,7 @@ GrabberScript::scriptList findAllDBSearchGrabbers(ArticleType type)
                   "version,search,tree FROM internetcontent "
                   "WHERE host = :HOST AND type = :TYPE "
                   "AND search = 1 ORDER BY name;");
-    query.bindValue(":HOST", gCoreContext->GetHostName());
+    query.bindValue(":HOST", getCoreContext()->GetHostName());
     query.bindValue(":TYPE", type);
     if (!query.exec() || !query.isActive()) {
         MythDB::DBError("Search find in db", query);
@@ -264,7 +264,7 @@ bool insertGrabberInDB(const QString &name, const QString &thumbnail,
     query.bindValue(":SEARCH", search);
     query.bindValue(":TREE", tree);
     query.bindValue(":PODCAST", podcast);
-    query.bindValue(":HOST", gCoreContext->GetHostName());
+    query.bindValue(":HOST", getCoreContext()->GetHostName());
     if (!query.exec() || !query.isActive()) {
         MythDB::DBError("netcontent: inserting in DB", query);
         return false;
@@ -302,7 +302,7 @@ bool removeGrabberFromDB(const QString &commandline, const bool search)
     }
     QFileInfo fi(commandline);
     query.bindValue(":COMMAND", fi.fileName());
-    query.bindValue(":HOST", gCoreContext->GetHostName());
+    query.bindValue(":HOST", getCoreContext()->GetHostName());
     if (!query.exec() || !query.isActive()) {
         MythDB::DBError("netcontent: delete from db", query);
         return false;

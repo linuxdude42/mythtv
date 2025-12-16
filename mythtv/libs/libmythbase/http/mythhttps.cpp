@@ -46,7 +46,8 @@ bool MythHTTPS::InitSSLServer(QSslConfiguration& Config)
         configdir.chop(1);
     configdir.append(QStringLiteral("/certificates/"));
 
-    auto hostKeyPath = gCoreContext->GetSetting("hostSSLKey", "");
+    MythCoreContext *cctx = getCoreContext();
+    auto hostKeyPath = cctx->GetSetting("hostSSLKey", "");
     if (hostKeyPath.isEmpty())
         hostKeyPath = configdir + "key.pem";
 
@@ -70,7 +71,7 @@ bool MythHTTPS::InitSSLServer(QSslConfiguration& Config)
         return false;
     }
 
-    auto hostCertPath = gCoreContext->GetSetting("hostSSLCertificate", "");
+    auto hostCertPath = cctx->GetSetting("hostSSLCertificate", "");
     if (hostCertPath.isEmpty())
         hostCertPath = configdir + "cert.pem";
 
@@ -101,7 +102,7 @@ bool MythHTTPS::InitSSLServer(QSslConfiguration& Config)
         return false;
     }
 
-    auto caCertPath = gCoreContext->GetSetting("caSSLCertificate", "");
+    auto caCertPath = cctx->GetSetting("caSSLCertificate", "");
     auto CACertList = QSslCertificate::fromPath(caCertPath);
     if (!CACertList.isEmpty())
     {

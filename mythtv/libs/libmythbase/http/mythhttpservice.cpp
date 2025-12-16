@@ -83,10 +83,11 @@ HTTPResponse MythHTTPService::HTTPRequest(const HTTPRequest2& Request)
 
     // Ensure that a valid login has been done if "authentication required" is enabled
     // Myth/LoginUser is exempt from this requirement
-    QString authReqOption = gCoreContext->GetSetting("APIAuthReqd","NONE");
+    MythCoreContext *cctx = getCoreContext();
+    QString authReqOption = cctx->GetSetting("APIAuthReqd","NONE");
     bool authReq = false;
     if (authReqOption == "REMOTE") {
-        if (!gCoreContext->IsLocalSubnet(Request->m_peerAddress, false))
+        if (!cctx->IsLocalSubnet(Request->m_peerAddress, false))
             authReq = true;
     }
     else if (authReqOption == "ALL") {
@@ -95,7 +96,7 @@ HTTPResponse MythHTTPService::HTTPRequest(const HTTPRequest2& Request)
     QString authorization = MythHTTP::GetHeader(Request->m_headers, "authorization").trimmed();
     if (authorization.isEmpty())
             authorization = Request->m_queries.value("authorization",{});
-    MythSessionManager *sessionManager = gCoreContext->GetSessionManager();
+    MythSessionManager *sessionManager = cctx->GetSessionManager();
     // methods /Myth/LoginUser and /Myth/GetConnectionInfo do not require authentication
     if ( ! (Request->m_path == "/Myth/"
             && (method == "LoginUser" || method == "GetConnectionInfo")) )

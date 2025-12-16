@@ -5,12 +5,12 @@
 MythWebSocketEvent::MythWebSocketEvent()
 {
     setObjectName("MythWebSocketEvent");
-    gCoreContext->addListener(this);
+    getCoreContext()->addListener(this);
 }
 
 MythWebSocketEvent::~MythWebSocketEvent()
 {
-    gCoreContext->removeListener(this);
+    getCoreContext()->removeListener(this);
 }
 
 bool MythWebSocketEvent::HandleRawTextMessage(const DataPayloads& Payloads)

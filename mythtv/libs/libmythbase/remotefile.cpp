@@ -33,20 +33,20 @@ static bool RemoteSendReceiveStringList(const QString &host, QStringList &strlis
 {
     bool ok = false;
 
-    if (gCoreContext->IsMasterBackend())
+    MythCoreContext *cctx = getCoreContext();
+    if (cctx->IsMasterBackend())
     {
         // since the master backend cannot connect back around to
         // itself, and the libraries do not have access to the list
         // of connected slave backends to query an existing connection
         // start up a new temporary connection directly to the slave
         // backend to query the file list
-        QString ann = QString("ANN Playback %1 0")
-                        .arg(gCoreContext->GetHostName());
-        QString addr = gCoreContext->GetBackendServerIP(host);
-        int port = gCoreContext->GetBackendServerPort(host);
+        QString ann = QString("ANN Playback %1 0").arg(cctx->GetHostName());
+        QString addr = cctx->GetBackendServerIP(host);
+        int port = cctx->GetBackendServerPort(host);
         bool mismatch = false;
 
-        MythSocket *sock = gCoreContext->ConnectCommandSocket(
+        MythSocket *sock = cctx->ConnectCommandSocket(
                                             addr, port, ann, &mismatch);
         if (sock)
         {
@@ -60,7 +60,7 @@ static bool RemoteSendReceiveStringList(const QString &host, QStringList &strlis
     }
     else
     {
-        ok = gCoreContext->SendReceiveStringList(strlist);
+        ok = cctx->SendReceiveStringList(strlist);
     }
 
     return ok;
@@ -119,6 +119,8 @@ bool RemoteFile::isLocal(void) const
 
 MythSocket *RemoteFile::openSocket(bool control)
 {
+    MythCoreContext *cctx = getCoreContext();
+
     QUrl qurl(m_path);
     QString dir;
 
@@ -143,7 +145,7 @@ MythSocket *RemoteFile::openSocket(bool control)
 
     if (port <= 0)
     {
-        port = gCoreContext->GetBackendServerPort(host);
+        port = cctx->GetBackendServerPort(host);
     }
 
     if (!lsock->ConnectToHost(host, port))
@@ -159,7 +161,7 @@ MythSocket *RemoteFile::openSocket(bool control)
     QStringList strlist;
 
 #ifndef IGNORE_PROTO_VER_MISMATCH
-    if (!gCoreContext->CheckProtoVersion(lsock, 5s))
+    if (!cctx->CheckProtoVersion(lsock, 5s))
     {
         LOG(VB_GENERAL, LOG_ERR, loc +
             QString("Failed validation to server %1:%2").arg(host).arg(port));
@@ -441,7 +443,7 @@ bool RemoteFile::DeleteFile(const QString &url)
     strlist << filename;
     strlist << sgroup;
 
-    gCoreContext->SendReceiveStringList(strlist);
+    getCoreContext()->SendReceiveStringList(strlist);
 
     if (!strlist.isEmpty() && strlist[0] == "1")
         result = true;
@@ -468,7 +470,8 @@ bool RemoteFile::Exists(const QString &url, struct stat *fileinfo)
     QString sgroup   = qurl.userName();
     QString host     = qurl.host();
 
-    if (isLocal(url) || gCoreContext->IsThisBackend(host))
+    MythCoreContext *cctx = getCoreContext();
+    if (isLocal(url) || cctx->IsThisBackend(host))
     {
        LOG(VB_FILE, LOG_INFO,
            QString("RemoteFile::Exists(): looking for local file: %1").arg(url));
@@ -478,7 +481,7 @@ bool RemoteFile::Exists(const QString &url, struct stat *fileinfo)
 
         if (url.startsWith("myth:"))
         {
-            StorageGroup sGroup(sgroup, gCoreContext->GetHostName());
+            StorageGroup sGroup(sgroup, cctx->GetHostName());
             fullFilePath = sGroup.FindFile(filename);
             if (!fullFilePath.isEmpty())
                 fileExists = true;
@@ -733,7 +736,7 @@ bool RemoteFile::MoveFile (const QString& src, const QString& dst, bool overwrit
     QStringList strlist("MOVE_FILE");
     strlist << srcUrl.userName() << srcUrl.path() << dstUrl.path();
 
-    gCoreContext->SendReceiveStringList(strlist);
+    getCoreContext()->SendReceiveStringList(strlist);
 
     if (!strlist.isEmpty() && strlist[0] == "1")
         return true;
@@ -1257,7 +1260,7 @@ QDateTime RemoteFile::LastModified(const QString &url)
     strlist << sgroup;
     strlist << filename;
 
-    gCoreContext->SendReceiveStringList(strlist);
+    getCoreContext()->SendReceiveStringList(strlist);
 
     if (strlist.size() > 1) {
         if (!strlist[1].isEmpty() && (strlist[1].toInt() != -1))
@@ -1319,15 +1322,16 @@ QStringList RemoteFile::FindFileList(const QString& filename, const QString& hos
     QStringList strList;
     QString hostName = host;
 
+    MythCoreContext *cctx = getCoreContext();
     if (hostName.isEmpty())
-        hostName = gCoreContext->GetMasterHostName();
+        hostName = cctx->GetMasterHostName();
 
     // if we are looking for the file on this host just search the local storage group first
-    if (gCoreContext->IsThisBackend(hostName))
+    if (cctx->IsThisBackend(hostName))
     {
         // We could have made it this far with an IP when we really want
         // a hostname
-        hostName = gCoreContext->GetHostName();
+        hostName = cctx->GetHostName();
         StorageGroup sgroup(storageGroup, hostName);
 
         if (useRegex)
@@ -1347,8 +1351,8 @@ QStringList RemoteFile::FindFileList(const QString& filename, const QString& hos
             QStringList filteredFiles = files.filter(QRegularExpression(fi.fileName()));
             for (const QString& file : std::as_const(filteredFiles))
             {
-                strList << MythCoreContext::GenMythURL(gCoreContext->GetHostName(),
-                                                       gCoreContext->GetBackendServerPort(),
+                strList << MythCoreContext::GenMythURL(cctx->GetHostName(),
+                                                       cctx->GetBackendServerPort(),
                                                        fi.path() + '/' + file,
                                                        storageGroup);
             }
@@ -1358,7 +1362,7 @@ QStringList RemoteFile::FindFileList(const QString& filename, const QString& hos
             if (!sgroup.FindFile(filename).isEmpty())
             {
                 strList << MythCoreContext::GenMythURL(hostName,
-                                                       gCoreContext->GetBackendServerPort(hostName),
+                                                       cctx->GetBackendServerPort(hostName),
                                                        filename, storageGroup);
             }
         }
@@ -1368,13 +1372,13 @@ QStringList RemoteFile::FindFileList(const QString& filename, const QString& hos
     }
 
     // if we didn't find any files ask the master BE to find it
-    if (strList.isEmpty() && !gCoreContext->IsMasterBackend())
+    if (strList.isEmpty() && !cctx->IsMasterBackend())
     {
         strList << "QUERY_FINDFILE" << hostName << storageGroup << filename
                 << (useRegex ? "1" : "0")
                 << "1";
 
-        if (gCoreContext->SendReceiveStringList(strList))
+        if (cctx->SendReceiveStringList(strList))
         {
             if (!strList.empty() && !strList[0].isEmpty() &&
                 strList[0] != "NOT FOUND" && !strList[0].startsWith("ERROR: "))
@@ -1464,7 +1468,7 @@ static QString downloadRemoteFile(const QString &cmd, const QString &url,
     strlist << storageGroup;
     strlist << filename;
 
-    bool ok = gCoreContext->SendReceiveStringList(strlist);
+    bool ok = getCoreContext()->SendReceiveStringList(strlist);
 
     if (!ok || strlist.size() < 2 || strlist[0] != "OK")
     {

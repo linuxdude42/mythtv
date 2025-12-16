@@ -52,7 +52,7 @@ void MythTranslation::load_real(const QString &module_name)
 
     if (lang == "en")
     {
-        gCoreContext->OverrideSettingForSession("Language", "en_US");
+        getCoreContext()->OverrideSettingForSession("Language", "en_US");
         lang = "en_us";
     }
 
@@ -87,7 +87,7 @@ void MythTranslation::unload(const QString &module_name)
 
 bool MythTranslation::LanguageChanged(void)
 {
-    QString currentLanguage = gCoreContext->GetSetting("Language");
+    QString currentLanguage = getCoreContext()->GetSetting("Language");
     bool ret = false;
     if (!currentLanguage.isEmpty() && currentLanguage.compare(d.m_language))
         ret = true;

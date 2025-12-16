@@ -130,7 +130,7 @@ QString toString(const QDateTime &raw_dt, uint format)
         if (!result.isEmpty())
             result.append(", ");
 
-        QString timeformat = gCoreContext->GetSetting("TimeFormat", "h:mm AP");
+        QString timeformat = getCoreContext()->GetSetting("TimeFormat", "h:mm AP");
         result += datetime.time().toString(timeformat);
     }
 
@@ -151,11 +151,12 @@ QString toString(const QDate date, uint format)
 
     if (format & kDateEither)
     {
+        MythCoreContext *cctx = getCoreContext();
         QString stringformat;
         if (format & kDateShort)
-            stringformat = gCoreContext->GetSetting("ShortDateFormat", "ddd d");
+            stringformat = cctx->GetSetting("ShortDateFormat", "ddd d");
         else
-            stringformat = gCoreContext->GetSetting("DateFormat", "ddd d MMMM");
+            stringformat = cctx->GetSetting("DateFormat", "ddd d MMMM");
 
         if (format & kAddYear)
         {
@@ -182,7 +183,7 @@ QString toString(const QDate date, uint format)
         }
 
         if (result.isEmpty())
-            result = gCoreContext->GetQLocale().toString(date, stringformat);
+            result = cctx->GetQLocale().toString(date, stringformat);
     }
 
     return result;

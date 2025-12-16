@@ -189,7 +189,7 @@ bool MythPower::RequestFeature(Feature Request, bool Delay)
     // N.B Always check for a new user delay value as this class is persistent.
     // Default is user preference, limited by the maximum supported system value
     // and possibly overriden by the maximum delay requested by other Myth classes.
-    auto user = gCoreContext->GetDurSetting<std::chrono::seconds>("EXIT_SHUTDOWN_DELAY", 3s);
+    auto user = getCoreContext()->GetDurSetting<std::chrono::seconds>("EXIT_SHUTDOWN_DELAY", 3s);
     auto delay = std::clamp(user, m_maxRequestedDelay, m_maxSupportedDelay);
 
     LOG(VB_GENERAL, LOG_DEBUG, LOC + QString("Delay: %1 User: %2 Requested: %3 Supported: %4")

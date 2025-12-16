@@ -72,7 +72,7 @@ MythHTTPSocket::MythHTTPSocket(qintptr Socket, bool SSL, MythHTTPConfig Config)
     connect(&m_timer, &QTimer::timeout, this, &MythHTTPSocket::Timeout);
     m_timer.start(m_config.m_timeout);
 
-    if (!gCoreContext->CheckSubnet(m_socket))
+    if (!getCoreContext()->CheckSubnet(m_socket))
         Stop();
 
     // Setup root services handler - a service for services

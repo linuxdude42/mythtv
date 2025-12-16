@@ -205,7 +205,7 @@ void HouseKeeperTask::QueryLast(void)
             query.prepare("SELECT lastrun,lastsuccess FROM housekeeping"
                           " WHERE tag = :TAG"
                           "   AND hostname = :HOST");
-            query.bindValue(":HOST", gCoreContext->GetHostName());
+            query.bindValue(":HOST", getCoreContext()->GetHostName());
         }
 
         query.bindValue(":TAG", m_dbTag);
@@ -222,6 +222,8 @@ void HouseKeeperTask::QueryLast(void)
 
 QDateTime HouseKeeperTask::UpdateLastRun(const QDateTime& last, bool successful)
 {
+    MythCoreContext *cctx = getCoreContext();
+
     m_lastRun = last;
     if (successful)
         m_lastSuccess = last;
@@ -249,7 +251,7 @@ QDateTime HouseKeeperTask::UpdateLastRun(const QDateTime& last, bool successful)
         }
 
         if (m_scope == kHKLocal)
-            query.bindValue(":HOST", gCoreContext->GetHostName());
+            query.bindValue(":HOST", cctx->GetHostName());
         query.bindValue(":TAG", m_dbTag);
         query.bindValue(":TIME", MythDate::as_utc(m_lastRun));
         query.bindValue(":STIME", MythDate::as_utc(m_lastSuccess));
@@ -280,7 +282,7 @@ QDateTime HouseKeeperTask::UpdateLastRun(const QDateTime& last, bool successful)
             }
 
             if (m_scope == kHKLocal)
-                query.bindValue(":HOST", gCoreContext->GetHostName());
+                query.bindValue(":HOST", cctx->GetHostName());
             query.bindValue(":TAG", m_dbTag);
             query.bindValue(":TIME", MythDate::as_utc(m_lastRun));
             query.bindValue(":STIME", MythDate::as_utc(m_lastSuccess));
@@ -298,10 +300,10 @@ QDateTime HouseKeeperTask::UpdateLastRun(const QDateTime& last, bool successful)
         msg = QString("HOUSE_KEEPER_SUCCESSFUL %1 %2 %3");
     else
         msg = QString("HOUSE_KEEPER_RUNNING %1 %2 %3");
-    msg = msg.arg(gCoreContext->GetHostName(),
+    msg = msg.arg(cctx->GetHostName(),
                   m_dbTag,
                   MythDate::toString(last, MythDate::ISODate));
-    gCoreContext->SendEvent(MythEvent(msg));
+    cctx->SendEvent(MythEvent(msg));
     m_lastUpdate = MythDate::current();
 
     return last;
@@ -588,7 +590,7 @@ HouseKeeper::HouseKeeper(void)
 
 HouseKeeper::~HouseKeeper(void)
 {
-    gCoreContext->removeListener(this);
+    getCoreContext()->removeListener(this);
 
     if (m_timer)
     {
@@ -688,7 +690,8 @@ void HouseKeeper::Start(void)
                   "  FROM `housekeeping`"
                   " WHERE `hostname` = :HOST"
                   "    OR `hostname` IS NULL");
-    query.bindValue(":HOST", gCoreContext->GetHostName());
+    MythCoreContext *cctx = getCoreContext();
+    query.bindValue(":HOST", cctx->GetHostName());
 
     if (!query.exec())
         MythDB::DBError("HouseKeeper::Run", query);
@@ -705,7 +708,7 @@ void HouseKeeper::Start(void)
         }
     }
 
-    gCoreContext->addListener(this);
+    cctx->addListener(this);
 
     for (auto it = m_taskMap.cbegin(); it != m_taskMap.cend(); ++it)
     {
@@ -860,7 +863,7 @@ void HouseKeeper::customEvent(QEvent *e)
             {
                 if ((m_taskMap[tag]->GetScope() == kHKGlobal) ||
                         ((m_taskMap[tag]->GetScope() == kHKLocal) &&
-                         (gCoreContext->GetHostName() == hostname)))
+                         (getCoreContext()->GetHostName() == hostname)))
                 {
                     // task being run in the same scope as us.
                     // update the run time so we don't attempt to run

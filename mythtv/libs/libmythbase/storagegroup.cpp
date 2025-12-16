@@ -170,7 +170,7 @@ void StorageGroup::Init(const QString &group, const QString &hostname,
     if (allowFallback && m_dirlist.empty())
     {
         QString msg = "Unable to find any Storage Group Directories.  ";
-        QString tmpDir = gCoreContext->GetSetting("RecordFilePrefix");
+        QString tmpDir = getCoreContext()->GetSetting("RecordFilePrefix");
         if (tmpDir != "")
         {
             msg += QString("Using old 'RecordFilePrefix' value of '%1'")
@@ -637,7 +637,7 @@ QString StorageGroup::FindFileDir(const QString &filename)
     {
         // Not found in any dir, so try RecordFilePrefix if it exists
         QString tmpFile =
-            gCoreContext->GetSetting("RecordFilePrefix") + "/" + filename;
+            getCoreContext()->GetSetting("RecordFilePrefix") + "/" + filename;
         checkFile.setFile(tmpFile);
         if (checkFile.exists() || checkFile.isSymLink())
             result = tmpFile;
@@ -714,7 +714,7 @@ void StorageGroup::CheckAllStorageGroupDirs(void)
     query.prepare("SELECT groupname, dirname "
                   "FROM storagegroup "
                   "WHERE hostname = :HOSTNAME;");
-    query.bindValue(":HOSTNAME", gCoreContext->GetHostName());
+    query.bindValue(":HOSTNAME", getCoreContext()->GetHostName());
     if (!query.exec() || !query.isActive())
     {
         MythDB::DBError("StorageGroup::CheckAllStorageGroupDirs()", query);
@@ -880,7 +880,7 @@ QString StorageGroup::generate_file_url(const QString &storage_group,
                                         const QString &host,
                                         const QString &path)
 {
-    return MythCoreContext::GenMythURL(host, gCoreContext->GetBackendServerPort(host),
+    return MythCoreContext::GenMythURL(host, getCoreContext()->GetBackendServerPort(host),
         path, StorageGroup::GetGroupToUse(host, storage_group));
 
 }
@@ -903,20 +903,20 @@ bool StorageGroup::remoteGetFileList(const QString& host, const QString& path, Q
 
     bool ok = false;
 
-    if (gCoreContext->IsMasterBackend())
+    MythCoreContext *cctx = getCoreContext();
+    if (cctx->IsMasterBackend())
     {
         // since the master backend cannot connect back around to
         // itself, and the libraries do not have access to the list
         // of connected slave backends to query an existing connection
         // start up a new temporary connection directly to the slave
         // backend to query the file list
-        QString ann = QString("ANN Playback %1 0")
-                        .arg(gCoreContext->GetHostName());
-        QString addr = gCoreContext->GetBackendServerIP(host);
-        int port = gCoreContext->GetBackendServerPort(host);
+        QString ann = QString("ANN Playback %1 0").arg(cctx->GetHostName());
+        QString addr = cctx->GetBackendServerIP(host);
+        int port = cctx->GetBackendServerPort(host);
         bool mismatch = false;
 
-        MythSocket *sock = gCoreContext->ConnectCommandSocket(
+        MythSocket *sock = cctx->ConnectCommandSocket(
                                             addr, port, ann, &mismatch);
         if (sock)
         {
@@ -930,7 +930,7 @@ bool StorageGroup::remoteGetFileList(const QString& host, const QString& path, Q
     }
     else
     {
-        ok = gCoreContext->SendReceiveStringList(*list);
+        ok = cctx->SendReceiveStringList(*list);
     }
 
     // Should the SLAVE UNREACH test be here ?

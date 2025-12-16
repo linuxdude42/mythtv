@@ -32,20 +32,20 @@ void iso639_clear_language_list(void)
  */
 QStringList iso639_get_language_list(void)
 {
+    MythCoreContext *cctx = getCoreContext();
     if (s_languages.empty())
     {
         for (uint i = 0; true; i++)
         {
             QString q = QString("ISO639Language%1").arg(i);
-            QString lang = gCoreContext->GetSetting(q, "").toLower();
+            QString lang = cctx->GetSetting(q, "").toLower();
             if (lang.isEmpty())
                 break;
             s_languages << lang;
         }
         if (s_languages.empty())
         {
-            QString s3 = iso639_str2_to_str3(
-                                        gCoreContext->GetLanguage().toLower());
+            QString s3 = iso639_str2_to_str3(cctx->GetLanguage().toLower());
             if (!s3.isEmpty())
                 s_languages << s3;
         }

@@ -131,7 +131,8 @@ bool MSqlDatabase::isOpen()
 
 bool MSqlDatabase::OpenDatabase(bool skipdb)
 {
-    if (gCoreContext->GetDB()->IsDatabaseIgnored() && m_name != "dbtest")
+    MythCoreContext *cctx = getCoreContext();
+    if (cctx->GetDB()->IsDatabaseIgnored() && m_name != "dbtest")
         return false;
     if (!m_db.isValid())
     {
@@ -180,7 +181,7 @@ bool MSqlDatabase::OpenDatabase(bool skipdb)
         connected = m_db.open();
 
         if (!connected && m_dbparms.m_wolEnabled
-            && gCoreContext->IsWOLAllowed())
+            && cctx->IsWOLAllowed())
         {
             int trycount = 0;
 
@@ -390,7 +391,8 @@ void MDBManager::PurgeIdleConnections(bool leaveOne)
 {
     QMutexLocker locker(&m_lock);
 
-    leaveOne = leaveOne || (gCoreContext && gCoreContext->IsUIThread());
+    MythCoreContext *cctx = getCoreContext();
+    leaveOne = leaveOne || (cctx && cctx->IsUIThread());
 
     QDateTime now = MythDate::current();
     DBList &list = m_pool[QThread::currentThread()];

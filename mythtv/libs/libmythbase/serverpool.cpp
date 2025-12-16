@@ -86,7 +86,9 @@ void ServerPool::SelectDefaultListen(bool force)
     naList_4.clear();
     naList_6.clear();
 
-    if (gCoreContext->GetBoolSetting("ListenOnAllIps",true))
+
+    MythCoreContext *cctx = getCoreContext();
+    if (cctx->GetBoolSetting("ListenOnAllIps",true))
     {
         QNetworkAddressEntry entry;
         entry.setIp(QHostAddress(QHostAddress::AnyIPv4));
@@ -97,17 +99,17 @@ void ServerPool::SelectDefaultListen(bool force)
     }
 
     // populate stored IPv4 and IPv6 addresses
-    QHostAddress config_v4(gCoreContext->resolveSettingAddress(
+    QHostAddress config_v4(cctx->resolveSettingAddress(
                                            "BackendServerIP",
                                            QString(),
                                            MythCoreContext::ResolveIPv4, true));
     bool v4IsSet = config_v4.isNull();
-    QHostAddress config_v6(gCoreContext->resolveSettingAddress(
+    QHostAddress config_v6(cctx->resolveSettingAddress(
                                            "BackendServerIP6",
                                            QString(),
                                            MythCoreContext::ResolveIPv6, true));
     bool v6IsSet = config_v6.isNull();
-    bool allowLinkLocal = gCoreContext->GetBoolSetting("AllowLinkLocal", true);
+    bool allowLinkLocal = cctx->GetBoolSetting("AllowLinkLocal", true);
 
     // loop through all available interfaces
     QList<QNetworkInterface> IFs = QNetworkInterface::allInterfaces();
@@ -339,7 +341,7 @@ QList<QHostAddress> ServerPool::DefaultListenIPv6(void)
 QList<QHostAddress> ServerPool::DefaultBroadcast(void)
 {
     QList<QHostAddress> blist;
-    if (!gCoreContext->GetBoolSetting("ListenOnAllIps",true))
+    if (!getCoreContext()->GetBoolSetting("ListenOnAllIps",true))
     {
         blist << DefaultBroadcastIPv4();
         blist << DefaultBroadcastIPv6();
@@ -395,18 +397,19 @@ void ServerPool::close(void)
 bool ServerPool::listen(QList<QHostAddress> addrs, quint16 port,
                         bool requireall, PoolServerType servertype)
 {
+    MythCoreContext *cctx = getCoreContext();
     m_port = port;
     for (const auto & qha : std::as_const(addrs))
     {
         // If IPV4 support is disabled and this is an IPV4 address,
         // bypass this address
         if (qha.protocol() == QAbstractSocket::IPv4Protocol
-          && ! gCoreContext->GetBoolSetting("IPv4Support",true))
+          && ! cctx->GetBoolSetting("IPv4Support",true))
             continue;
         // If IPV6 support is disabled and this is an IPV6 address,
         // bypass this address
         if (qha.protocol() == QAbstractSocket::IPv6Protocol
-          && ! gCoreContext->GetBoolSetting("IPv6Support",true))
+          && ! cctx->GetBoolSetting("IPv6Support",true))
             continue;
 
         auto *server = new PrivTcpServer(this, servertype);
@@ -495,18 +498,19 @@ bool ServerPool::listen(quint16 port, bool requireall,
 bool ServerPool::bind(QList<QHostAddress> addrs, quint16 port,
                       bool requireall)
 {
+    MythCoreContext *cctx = getCoreContext();
     m_port = port;
     for (const auto & qha : std::as_const(addrs))
     {
         // If IPV4 support is disabled and this is an IPV4 address,
         // bypass this address
         if (qha.protocol() == QAbstractSocket::IPv4Protocol
-          && ! gCoreContext->GetBoolSetting("IPv4Support",true))
+          && ! cctx->GetBoolSetting("IPv4Support",true))
             continue;
         // If IPV6 support is disabled and this is an IPV6 address,
         // bypass this address
         if (qha.protocol() == QAbstractSocket::IPv6Protocol
-          && ! gCoreContext->GetBoolSetting("IPv6Support",true))
+          && ! cctx->GetBoolSetting("IPv6Support",true))
             continue;
 
         QNetworkAddressEntry host;
@@ -685,7 +689,7 @@ void ServerPool::newTcpConnection(qintptr socket)
 
     auto *qsock = new QTcpSocket(this);
     if (qsock->setSocketDescriptor(socket)
-       && gCoreContext->CheckSubnet(qsock))
+        && getCoreContext()->CheckSubnet(qsock))
     {
         emit newConnection(qsock);
     }
@@ -709,7 +713,7 @@ void ServerPool::newUdpDatagram(void)
 
         socket->readDatagram(buffer.data(), buffer.size(),
                              &sender, &senderPort);
-        if (gCoreContext->CheckSubnet(sender))
+        if (getCoreContext()->CheckSubnet(sender))
             emit newDatagram(buffer, sender, senderPort);
     }
 }

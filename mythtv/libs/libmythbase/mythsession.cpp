@@ -345,12 +345,13 @@ MythUserSession MythSessionManager::CreateUserSession(uint userId,
     QString clientIdentifier = client;
     if (clientIdentifier.isEmpty())
     {
+        MythCoreContext *cctx = getCoreContext();
         QString type = "Master";
-        if (!gCoreContext->IsMasterBackend())
+        if (!cctx->IsMasterBackend())
             type = "Slave";
 
         clientIdentifier =
-            QString("%1_%2").arg(type, gCoreContext->GetHostName());
+            QString("%1_%2").arg(type, cctx->GetHostName());
     }
 
     session.m_sessionClient = clientIdentifier;

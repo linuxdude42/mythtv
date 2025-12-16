@@ -1019,7 +1019,7 @@ void MythDB::WriteDelayedSettings(void)
     if (!HaveValidDatabase())
         return;
 
-    if (!gCoreContext->IsUIThread())
+    if (!getCoreContext()->IsUIThread())
         return;
 
     while (!d->m_delayedSettings.isEmpty())

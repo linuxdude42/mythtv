@@ -128,19 +128,20 @@ void MythHTTPServer::Init()
     Stopped();
 
     // Decide on the ports to use
-    if (gCoreContext->IsFrontend())
+    MythCoreContext *cctx = getCoreContext();
+    if (cctx->IsFrontend())
     {
         m_config.m_port = XmlConfiguration().GetValue("UPnP/MythFrontend/ServicePort", 6547);
         // I don't think there is an existing setting for this
-        m_config.m_sslPort = static_cast<uint16_t>(gCoreContext->GetNumSetting("FrontendSSLPort", m_config.m_port + 10));
+        m_config.m_sslPort = static_cast<uint16_t>(cctx->GetNumSetting("FrontendSSLPort", m_config.m_port + 10));
 
     }
-    else if (gCoreContext->IsBackend())
+    else if (cctx->IsBackend())
     {
-        m_config.m_port    = static_cast<uint16_t>(gCoreContext->GetBackendStatusPort());
+        m_config.m_port    = static_cast<uint16_t>(cctx->GetBackendStatusPort());
         // Additional port, may be removed later
         m_config.m_port_2  = m_config.m_port + 200;
-        m_config.m_sslPort = static_cast<uint16_t>(gCoreContext->GetNumSetting("BackendSSLPort", m_config.m_port + 10));
+        m_config.m_sslPort = static_cast<uint16_t>(cctx->GetNumSetting("BackendSSLPort", m_config.m_port + 10));
     }
     else
     {
@@ -175,15 +176,15 @@ void MythHTTPServer::Init()
     m_config.m_serverName = QString("MythTV/%1 %2 UPnP/1.0").arg(version, server);
 
     // Retrieve language
-    m_config.m_language = gCoreContext->GetLanguageAndVariant().replace("_", "-");
+    m_config.m_language = cctx->GetLanguageAndVariant().replace("_", "-");
 
     // Get master backend details for Origin checks
-    m_masterIPAddress  = gCoreContext->GetMasterServerIP();
-    m_masterStatusPort = gCoreContext->GetMasterServerStatusPort();
-    m_masterSSLPort    = gCoreContext->GetNumSetting("BackendSSLPort", m_masterStatusPort + 10);
+    m_masterIPAddress  = cctx->GetMasterServerIP();
+    m_masterStatusPort = cctx->GetMasterServerStatusPort();
+    m_masterSSLPort    = cctx->GetNumSetting("BackendSSLPort", m_masterStatusPort + 10);
 
     // Get keep alive timeout
-    auto timeout = gCoreContext->GetNumSetting("HTTP/KeepAliveTimeoutSecs", HTTP_SOCKET_TIMEOUT_MS / 1000);
+    auto timeout = cctx->GetNumSetting("HTTP/KeepAliveTimeoutSecs", HTTP_SOCKET_TIMEOUT_MS / 1000);
     m_config.m_timeout = static_cast<std::chrono::milliseconds>(timeout * 1000);
 }
 
@@ -521,7 +522,7 @@ void MythHTTPServer::BuildOrigins()
     QHostInfo::lookupHost(m_masterIPAddress, this, &MythHTTPServer::MasterResolved);
 
     // Add configured overrides - are these still needed?
-    QStringList extras = gCoreContext->GetSetting("AllowedOriginsList", QString(
+    QStringList extras = getCoreContext()->GetSetting("AllowedOriginsList", QString(
                                                   "https://chromecast.mythtv.org"
                                                   )).split(",");
     for (const auto & extra : std::as_const(extras))
