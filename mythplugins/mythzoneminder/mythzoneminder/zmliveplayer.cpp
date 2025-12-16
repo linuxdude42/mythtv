@@ -67,7 +67,7 @@ bool ZMLivePlayer::Create(void)
     }
     else
     {
-        if (!initMonitorLayout(gCoreContext->GetNumSetting("ZoneMinderLiveLayout", 1)))
+        if (!initMonitorLayout(getCoreContext()->GetNumSetting("ZoneMinderLiveLayout", 1)))
             return false;
     }
 
@@ -158,7 +158,8 @@ bool ZMLivePlayer::initMonitorLayout(int layout)
 
 ZMLivePlayer::~ZMLivePlayer()
 {
-    gCoreContext->SaveSetting("ZoneMinderLiveLayout", m_monitorLayout);
+    MythCoreContext *cctx = getCoreContext();
+    cctx->SaveSetting("ZoneMinderLiveLayout", m_monitorLayout);
 
     MythMainWindow::RestoreScreensaver();
     GetMythMainWindow()->PauseIdleTimer(false);
@@ -173,13 +174,13 @@ ZMLivePlayer::~ZMLivePlayer()
             s += QString("%1").arg(p->getMonitor()->id);
         }
 
-        gCoreContext->SaveSetting("ZoneMinderLiveCameras", s);
+        cctx->SaveSetting("ZoneMinderLiveCameras", s);
 
         delete m_players;
     }
     else
     {
-        gCoreContext->SaveSetting("ZoneMinderLiveCameras", "");
+        cctx->SaveSetting("ZoneMinderLiveCameras", "");
     }
 
     delete m_frameTimer;
@@ -398,7 +399,7 @@ void ZMLivePlayer::setMonitorLayout(int layout, bool restore)
     if (m_alarmMonitor != -1)
         monList.append(QString::number(m_alarmMonitor));
     else
-        monList = gCoreContext->GetSetting("ZoneMinderLiveCameras", "").split(",");
+        monList = getCoreContext()->GetSetting("ZoneMinderLiveCameras", "").split(",");
 
     m_monitorLayout = layout;
 

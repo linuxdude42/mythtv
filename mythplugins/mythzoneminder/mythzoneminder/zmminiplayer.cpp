@@ -29,7 +29,7 @@ ZMMiniPlayer::ZMMiniPlayer(MythScreenStack *parent)
 
 ZMMiniPlayer::~ZMMiniPlayer(void)
 {
-    gCoreContext->removeListener(this);
+    getCoreContext()->removeListener(this);
 
     // Timers are deleted by Qt
     m_displayTimer->disconnect();
@@ -62,7 +62,7 @@ bool ZMMiniPlayer::Create(void)
 
     m_displayTimer->start(10s);
 
-    gCoreContext->addListener(this);
+    getCoreContext()->addListener(this);
 
     return true;
 }

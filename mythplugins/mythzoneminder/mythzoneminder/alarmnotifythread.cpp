@@ -59,7 +59,7 @@ void AlarmNotifyThread::run()
                         {
                             // we can't show a popup from the AlarmNotifyThread so send
                             // a message to ZMClient to do it for us
-                            gCoreContext->dispatch(MythEvent(QString("ZONEMINDER_NOTIFICATION %1").arg(mon->id)));
+                            getCoreContext()->dispatch(MythEvent(QString("ZONEMINDER_NOTIFICATION %1").arg(mon->id)));
                         }
                     }
                 }

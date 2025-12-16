@@ -29,7 +29,7 @@ ZMClient::ZMClient()
     setObjectName("ZMClient");
     connect(m_retryTimer, &QTimer::timeout,   this, &ZMClient::restartConnection);
 
-    gCoreContext->addListener(this);
+    getCoreContext()->addListener(this);
 }
 
 ZMClient *ZMClient::m_zmclient = nullptr;
@@ -45,8 +45,9 @@ bool ZMClient::setupZMClient(void)
 {
     QString zmserver_host;
 
-    zmserver_host = gCoreContext->GetSetting("ZoneMinderServerIP", "");
-    int zmserver_port = gCoreContext->GetNumSetting("ZoneMinderServerPort", -1);
+    MythCoreContext *cctx = getCoreContext();
+    zmserver_host = cctx->GetSetting("ZoneMinderServerIP", "");
+    int zmserver_port = cctx->GetNumSetting("ZoneMinderServerPort", -1);
 
     // don't try to connect if we don't have a valid host or port
     if (zmserver_host.isEmpty() || zmserver_port == -1)
@@ -238,7 +239,7 @@ void ZMClient::shutdown()
 
 ZMClient::~ZMClient()
 {
-    gCoreContext->removeListener(this);
+    getCoreContext()->removeListener(this);
 
     m_zmclient = nullptr;
 
@@ -910,7 +911,7 @@ void ZMClient::doGetMonitorList(void)
     }
 
     // get list of monitor id's that need monitoring
-    QString s = gCoreContext->GetSetting("ZoneMinderNotificationMonitors");
+    QString s = getCoreContext()->GetSetting("ZoneMinderNotificationMonitors");
     QStringList notificationMonitors = s.split(",");
 
     for (int x = 0; x < monitorCount; x++)
@@ -965,7 +966,7 @@ void ZMClient::saveNotificationMonitors(void)
         }
     }
 
-    gCoreContext->SaveSetting("ZoneMinderNotificationMonitors", s);
+    getCoreContext()->SaveSetting("ZoneMinderNotificationMonitors", s);
 }
 
 void ZMClient::customEvent (QEvent* event)
