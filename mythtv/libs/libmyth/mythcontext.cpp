@@ -196,7 +196,8 @@ static void exec_program_tv_cb(const QString &cmd)
         strlist << "LOCK_TUNER";
     }
 
-    gCoreContext->SendReceiveStringList(strlist);
+    MythCoreContext *cctx = getCoreContext();
+    cctx->SendReceiveStringList(strlist);
     int cardid = strlist[0].toInt();
 
     if (cardid >= 0)
@@ -208,7 +209,7 @@ static void exec_program_tv_cb(const QString &cmd)
         myth_system(s);
 
         strlist = QStringList(QString("FREE_TUNER %1").arg(cardid));
-        gCoreContext->SendReceiveStringList(strlist);
+        cctx->SendReceiveStringList(strlist);
     }
     else
     {
@@ -242,7 +243,7 @@ static void exec_program_tv_cb(const QString &cmd)
 
 static void configplugin_cb(const QString &cmd)
 {
-    MythPluginManager *pmanager = gCoreContext->GetPluginManager();
+    MythPluginManager *pmanager = getCoreContext()->GetPluginManager();
     if (!pmanager)
         return;
 
@@ -255,7 +256,7 @@ static void configplugin_cb(const QString &cmd)
 
 static void plugin_cb(const QString &cmd)
 {
-    MythPluginManager *pmanager = gCoreContext->GetPluginManager();
+    MythPluginManager *pmanager = getCoreContext()->GetPluginManager();
     if (!pmanager)
         return;
 
@@ -310,7 +311,7 @@ void MythContext::Impl::TempMainWindow()
 
 #ifdef Q_OS_DARWIN
     // Qt 4.4 has window-focus problems
-    gCoreContext->OverrideSettingForSession("RunFrontendInWindow", "1");
+    getCoreContext()->OverrideSettingForSession("RunFrontendInWindow", "1");
 #endif
     GetMythUI()->Init();
     MythMainWindow *mainWindow = MythMainWindow::getMainWindow(false);
@@ -364,14 +365,15 @@ bool MythContext::Impl::Init(const bool gui,
                               const bool disableAutoDiscovery,
                               const bool ignoreDB)
 {
-    gCoreContext->GetDB()->IgnoreDatabase(ignoreDB);
+    MythCoreContext *cctx = getCoreContext();
+    cctx->GetDB()->IgnoreDatabase(ignoreDB);
     m_gui = gui;
     if (gui)
     {
         m_GUISettingsCache.loadOverrides();
     }
 
-    if (gCoreContext->IsFrontend())
+    if (cctx->IsFrontend())
         m_needsBackend = true;
 
     // Creates screen saver control if we will have a GUI
@@ -390,13 +392,13 @@ bool MythContext::Impl::Init(const bool gui,
 
     // Prompt for language if this is a first time install and
     // we didn't already do so.
-    if (m_gui && !gCoreContext->GetDB()->HaveSchema())
+    if (m_gui && !cctx->GetDB()->HaveSchema())
     {
         TempMainWindow();
         LanguagePrompt();
     }
-    gCoreContext->InitLocale();
-    gCoreContext->SaveLocaleDefaults();
+    cctx->InitLocale();
+    cctx->SaveLocaleDefaults();
 
     // Close GUI Startup Window.
     if (m_guiStartup)
@@ -507,7 +509,7 @@ bool MythContext::Impl::FindDatabaseChoose(bool loaded, bool manualSelect, bool 
             // If this is a backend, No longer prompt for database.
             // Instead allow the web server to start so that the
             // database can be set up there
-            if (gCoreContext->IsBackend()
+            if (getCoreContext()->IsBackend()
                 || !PromptForDatabaseParams(failure))
             {
                 LOG(VB_GENERAL, LOG_DEBUG, "FindDatabase() - failed");
@@ -668,7 +670,7 @@ QString MythContext::Impl::setLocalHostName(QString hostname)
     LOG(VB_GENERAL, LOG_INFO, QString("Using a profile name of: '%1' (Usually the "
                                       "same as this host's name.)")
                                       .arg(hostname));
-    gCoreContext->SetLocalHostname(hostname);
+    getCoreContext()->SetLocalHostname(hostname);
 
     return hostname;
 }
@@ -810,7 +812,8 @@ QString MythContext::Impl::TestDBconnection(bool prompt)
     static const std::array<const QString, 7> kGuiStatuses
         {"start", "dbAwake", "dbStarted", "dbConnects", "beWOL", "beAwake", "success"};
 
-    auto secondsStartupScreenDelay = gCoreContext->GetDurSetting<std::chrono::seconds>("StartupScreenDelay", 2s);
+    MythCoreContext *cctx = getCoreContext();
+    auto secondsStartupScreenDelay = cctx->GetDurSetting<std::chrono::seconds>("StartupScreenDelay", 2s);
     auto msStartupScreenDelay = std::chrono::duration_cast<std::chrono::milliseconds>(secondsStartupScreenDelay);
     DatabaseParams dbParams = GetMythDB()->GetDatabaseParams();
     do
@@ -927,12 +930,12 @@ QString MythContext::Impl::TestDBconnection(bool prompt)
             case st_dbConnects:
                 if (m_needsBackend)
                 {
-                    beWOLCmd = gCoreContext->GetSetting("WOLbackendCommand", "");
+                    beWOLCmd = cctx->GetSetting("WOLbackendCommand", "");
                     if (!beWOLCmd.isEmpty())
                     {
-                        wakeupTime += gCoreContext->GetDurSetting<std::chrono::seconds>
+                        wakeupTime += cctx->GetDurSetting<std::chrono::seconds>
                             ("WOLbackendReconnectWaitTime", 0s);
-                        attempts += gCoreContext->GetNumSetting
+                        attempts += cctx->GetNumSetting
                             ("WOLbackendConnectRetry", 0);
                         useTimeout = wakeupTime;
                         if (m_gui && !m_guiStartup && attempt == 0)
@@ -948,9 +951,9 @@ QString MythContext::Impl::TestDBconnection(bool prompt)
                     startupState = st_success;
                     break;
                 }
-                masterserver = gCoreContext->GetSetting
+                masterserver = cctx->GetSetting
                     ("MasterServerName");
-                backendIP = gCoreContext->GetSettingOnHost
+                backendIP = cctx->GetSettingOnHost
                     ("BackendServerAddr", masterserver);
                 backendPort = MythCoreContext::GetMasterServerPort();
                 [[fallthrough]];
@@ -1082,7 +1085,7 @@ void MythContext::Impl::SilenceDBerrors()
 {
     // This silences any DB errors from Get*Setting(),
     // (which is the vast majority of them)
-    gCoreContext->GetDB()->SetSuppressDBMessages(true);
+    getCoreContext()->GetDB()->SetSuppressDBMessages(true);
 
     // Save the configured hostname, so that we can
     // still display it in the DatabaseSettings screens
@@ -1105,7 +1108,7 @@ void MythContext::Impl::EnableDBerrors() const
         GetMythDB()->SetDatabaseParams(dbParams);
     }
 
-    gCoreContext->GetDB()->SetSuppressDBMessages(false);
+    getCoreContext()->GetDB()->SetSuppressDBMessages(false);
 }
 
 
@@ -1400,7 +1403,7 @@ void MythContext::Impl::ShowConnectionFailurePopup(bool persistent)
 
     // When WOL is disallowed, standy mode,
     // we should not show connection failures.
-    if (!gCoreContext->IsWOLAllowed())
+    if (!getCoreContext()->IsWOLAllowed())
         return;
 
     m_lastCheck = now.addMSecs(5000); // don't refresh notification more than every 5s
@@ -1497,8 +1500,9 @@ bool GUISettingsCache::save()
     for (const auto & setting : kSettings)
     {
         QString cacheValue = config.GetValue("Settings/" + setting, QString());
-        gCoreContext->ClearOverrideSettingForSession(setting);
-        QString value = gCoreContext->GetSetting(setting, QString());
+        MythCoreContext *cctx = getCoreContext();
+        cctx->ClearOverrideSettingForSession(setting);
+        QString value = cctx->GetSetting(setting, QString());
         if (value != cacheValue)
         {
             config.SetValue("Settings/" + setting, value);
@@ -1519,30 +1523,32 @@ bool GUISettingsCache::save()
 
 void GUISettingsCache::loadOverrides() const
 {
+    MythCoreContext *cctx = getCoreContext();
     auto config = XmlConfiguration(m_cacheFilename); // read only
     for (const auto & setting : kSettings)
     {
-        if (!gCoreContext->GetSetting(setting, QString()).isEmpty())
+        if (!cctx->GetSetting(setting, QString()).isEmpty())
             continue;
         QString value = config.GetValue("Settings/" + setting, QString());
         if (!value.isEmpty())
-            gCoreContext->OverrideSettingForSession(setting, value);
+            cctx->OverrideSettingForSession(setting, value);
     }
     // Prevent power off TV after temporary window
-    gCoreContext->OverrideSettingForSession("PowerOffTVAllowed", nullptr);
+    cctx->OverrideSettingForSession("PowerOffTVAllowed", nullptr);
 
     MythTranslation::load("mythfrontend");
 }
 
 void GUISettingsCache::clearOverrides()
 {
-    QString language = gCoreContext->GetSetting("Language", QString());
+    MythCoreContext *cctx = getCoreContext();
+    QString language = cctx->GetSetting("Language", QString());
     for (const auto & setting : kSettings)
-        gCoreContext->ClearOverrideSettingForSession(setting);
+        cctx->ClearOverrideSettingForSession(setting);
     // Restore power off TV setting
-    gCoreContext->ClearOverrideSettingForSession("PowerOffTVAllowed");
+    cctx->ClearOverrideSettingForSession("PowerOffTVAllowed");
 
-    if (language != gCoreContext->GetSetting("Language", QString()))
+    if (language != cctx->GetSetting("Language", QString()))
         MythTranslation::load("mythfrontend");
 }
 
@@ -1674,8 +1680,9 @@ bool MythContext::Init(const bool gui,
         saveSettingsCache();
     }
 
-    gCoreContext->ActivateSettingsCache(true);
-    gCoreContext->InitPower();
+    MythCoreContext *cctx = getCoreContext();
+    cctx->ActivateSettingsCache(true);
+    cctx->InitPower();
 
     return true;
 }
@@ -1693,7 +1700,7 @@ MythContext::~MythContext()
     }
 
     SignalHandler::Done();
-    gCoreContext->InitPower(false /*destroy*/);
+    getCoreContext()->InitPower(false /*destroy*/);
     if (MThreadPool::globalInstance()->activeThreadCount())
         LOG(VB_GENERAL, LOG_INFO, "Waiting for threads to exit.");
 
