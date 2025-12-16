@@ -163,13 +163,15 @@ void WebSocketWorker::CloseConnection()
 
 void WebSocketWorker::SetupSocket()
 {
+    MythCoreContext *cctx = getCoreContext();
+
     if (m_connectionType == kSSLServer)
     {
 
 #ifndef QT_NO_OPENSSL
         auto *pSslSocket = new QSslSocket();
         if (pSslSocket->setSocketDescriptor(m_socketFD)
-           && gCoreContext->CheckSubnet(pSslSocket))
+           && cctx->CheckSubnet(pSslSocket))
         {
             pSslSocket->setSslConfiguration(m_sslConfig);
             pSslSocket->startServerEncryption();
@@ -203,7 +205,7 @@ void WebSocketWorker::SetupSocket()
     {
         m_socket = new QTcpSocket();
         m_socket->setSocketDescriptor(m_socketFD);
-        if (!gCoreContext->CheckSubnet(m_socket))
+        if (!cctx->CheckSubnet(m_socket))
         {
             delete m_socket;
             m_socket = nullptr;

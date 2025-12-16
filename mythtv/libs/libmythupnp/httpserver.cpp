@@ -171,6 +171,8 @@ HttpServer::~HttpServer()
 
 void HttpServer::LoadSSLConfig()
 {
+    MythCoreContext *cctx = getCoreContext();
+
 #ifndef QT_NO_OPENSSL
     m_sslConfig = QSslConfiguration::defaultConfiguration();
 
@@ -198,7 +200,7 @@ void HttpServer::LoadSSLConfig()
     m_sslConfig.setCiphers(secureCiphers);
 #endif
 
-    QString hostKeyPath = gCoreContext->GetSetting("hostSSLKey", "");
+    QString hostKeyPath = cctx->GetSetting("hostSSLKey", "");
 
     if (hostKeyPath.isEmpty()) // No key, assume no SSL
         return;
@@ -221,7 +223,7 @@ void HttpServer::LoadSSLConfig()
         return;
     }
 
-    QString hostCertPath = gCoreContext->GetSetting("hostSSLCertificate", "");
+    QString hostCertPath = cctx->GetSetting("hostSSLCertificate", "");
     QSslCertificate hostCert;
     QList<QSslCertificate> certList = QSslCertificate::fromPath(hostCertPath);
     if (!certList.isEmpty())
@@ -249,7 +251,7 @@ void HttpServer::LoadSSLConfig()
         return;
     }
 
-    QString caCertPath = gCoreContext->GetSetting("caSSLCertificate", "");
+    QString caCertPath = cctx->GetSetting("caSSLCertificate", "");
     QList< QSslCertificate > CACertList = QSslCertificate::fromPath(caCertPath);
 
     if (!CACertList.isEmpty())
@@ -423,7 +425,7 @@ uint HttpServer::GetSocketTimeout(HTTPRequest* pRequest) const
     m_rwlock.unlock();
 
     if (timeout < 0)
-        timeout = gCoreContext->GetNumSetting("HTTP/KeepAliveTimeoutSecs", 10);
+        timeout = getCoreContext()->GetNumSetting("HTTP/KeepAliveTimeoutSecs", 10);
 
     return timeout;
 }
@@ -461,6 +463,7 @@ void HttpWorker::run(void)
     LOG(VB_HTTP, LOG_DEBUG,
         QString("HttpWorker::run() socket=%1 -- begin").arg(m_socket));
 
+    MythCoreContext        *cctx = getCoreContext();
     bool                    bKeepAlive = true;
     HTTPRequest            *pRequest   = nullptr;
     QTcpSocket             *pSocket    = nullptr;
@@ -474,7 +477,7 @@ void HttpWorker::run(void)
 #ifndef QT_NO_OPENSSL
         auto *pSslSocket = new QSslSocket();
         if (pSslSocket->setSocketDescriptor(m_socket)
-           && gCoreContext->CheckSubnet(pSslSocket))
+           && cctx->CheckSubnet(pSslSocket))
         {
             pSslSocket->setSslConfiguration(m_sslConfig);
             pSslSocket->startServerEncryption();
@@ -514,7 +517,7 @@ void HttpWorker::run(void)
     {
         pSocket = new QTcpSocket();
         pSocket->setSocketDescriptor(m_socket);
-        if (!gCoreContext->CheckSubnet(pSocket))
+        if (!cctx->CheckSubnet(pSocket))
         {
             delete pSocket;
             pSocket = nullptr;

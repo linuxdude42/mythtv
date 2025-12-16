@@ -108,8 +108,9 @@ bool UPnp::Initialize( QList<QHostAddress> &sIPAddrList, int nServicePort, HttpS
     }
 
     g_IPAddrList   = sIPAddrList;
-    bool ipv4 = gCoreContext->GetBoolSetting("IPv4Support",true);
-    bool ipv6 = gCoreContext->GetBoolSetting("IPv6Support",true);
+    MythCoreContext *cctx = getCoreContext();
+    bool ipv4 = cctx->GetBoolSetting("IPv4Support",true);
+    bool ipv6 = cctx->GetBoolSetting("IPv6Support",true);
 
     for (int it = 0; it < g_IPAddrList.size(); ++it)
     {
@@ -288,7 +289,7 @@ void UPnp::FormatRedirectResponse( HTTPRequest   *pRequest,
     QStringList sItems = pRequest->m_sRawRequest.split( ' ' );
     QString sUrl = "http://" + pRequest->GetLastHeader( "host" ) + sItems[1];
     QUrl url( sUrl );
-    QString ipAddress = gCoreContext->GetSettingOnHost
+    QString ipAddress = getCoreContext()->GetSettingOnHost
                             ("BackendServerAddr",hostName,hostName);
     url.setHost( ipAddress );
 

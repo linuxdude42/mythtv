@@ -108,7 +108,7 @@ QString DLNAProfileName(const QString &mimeType, const QSize resolution,
     // HACK This is just temporary until we start storing more video
     // information in the database for each file and can determine this
     // stuff 'properly'
-    QString sCountryCode = gCoreContext->GetLocale()->GetCountryCode();
+    QString sCountryCode = getCoreContext()->GetLocale()->GetCountryCode();
     bool isNorthAmerica = (sCountryCode == "us" || sCountryCode == "ca" ||
                             sCountryCode == "mx"); // North America (NTSC/ATSC)
 

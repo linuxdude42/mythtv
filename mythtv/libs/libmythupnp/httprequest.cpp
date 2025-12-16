@@ -193,6 +193,7 @@ HttpRequestType HTTPRequest::SetRequestType( const QString &sType )
 
 QString HTTPRequest::BuildResponseHeader( long long nSize )
 {
+    MythCoreContext *cctx = getCoreContext();
     QString sHeader;
     QString sContentType = (m_eResponseType == ResponseTypeOther) ?
                             m_sResponseTypeText : GetResponseType();
@@ -211,7 +212,7 @@ QString HTTPRequest::BuildResponseHeader( long long nSize )
     if (m_bKeepAlive)
     {
         if (m_nKeepAliveTimeout == 0s) // Value wasn't passed in by the server, so go with the configured value
-            m_nKeepAliveTimeout = gCoreContext->GetDurSetting<std::chrono::seconds>("HTTP/KeepAliveTimeoutSecs", 10s);
+            m_nKeepAliveTimeout = cctx->GetDurSetting<std::chrono::seconds>("HTTP/KeepAliveTimeoutSecs", 10s);
         SetResponseHeader("Keep-Alive", QString("timeout=%1").arg(m_nKeepAliveTimeout.count()));
     }
 
@@ -221,7 +222,7 @@ QString HTTPRequest::BuildResponseHeader( long long nSize )
     //-----------------------------------------------------------------------
     if (m_eResponseType != ResponseTypeHeader) // No entity headers
     {
-        SetResponseHeader("Content-Language", gCoreContext->GetLanguageAndVariant().replace("_", "-"));
+        SetResponseHeader("Content-Language", cctx->GetLanguageAndVariant().replace("_", "-"));
         SetResponseHeader("Content-Type", sContentType);
 
         // Default to 'inline' but we should support 'attachment' when it would
@@ -1306,7 +1307,7 @@ bool HTTPRequest::ParseRequest()
         if (m_mapCookies.contains("sessionToken"))
         {
             QString sessionToken = m_mapCookies["sessionToken"];
-            MythSessionManager *sessionManager = gCoreContext->GetSessionManager();
+            MythSessionManager *sessionManager = getCoreContext()->GetSessionManager();
             MythUserSession session = sessionManager->GetSession(sessionToken);
 
             if (session.IsValid())
@@ -1883,7 +1884,7 @@ bool HTTPRequest::BasicAuthentication()
     if (sUsername == "nouser") // Special logout username
         return false;
 
-    MythSessionManager *sessionManager = gCoreContext->GetSessionManager();
+    MythSessionManager *sessionManager = getCoreContext()->GetSessionManager();
     if (!MythSessionManager::IsValidUser(sUsername))
     {
         LOG(VB_GENERAL, LOG_WARNING, "Authorization attempt with invalid username");
@@ -2011,7 +2012,7 @@ bool HTTPRequest::DigestAuthentication()
         return false;
     }
 
-    MythSessionManager *sessionManager = gCoreContext->GetSessionManager();
+    MythSessionManager *sessionManager = getCoreContext()->GetSessionManager();
     if (!MythSessionManager::IsValidUser(paramMap["username"]))
     {
         LOG(VB_GENERAL, LOG_WARNING, "Authorization attempt with invalid username");
@@ -2248,15 +2249,16 @@ void HTTPRequest::AddCORSHeaders( const QString &sOrigin )
 
     QStringList allowedOrigins;
 
-    int serverStatusPort = gCoreContext->GetMasterServerStatusPort();
-    int backendSSLPort = gCoreContext->GetNumSetting( "BackendSSLPort",
+    MythCoreContext *cctx = getCoreContext();
+    int serverStatusPort = cctx->GetMasterServerStatusPort();
+    int backendSSLPort = cctx->GetNumSetting( "BackendSSLPort",
                          serverStatusPort + 10);
 
     QString masterAddrPort = QString("%1:%2")
-        .arg(gCoreContext->GetMasterServerIP())
+        .arg(cctx->GetMasterServerIP())
         .arg(serverStatusPort);
     QString masterTLSAddrPort = QString("%1:%2")
-        .arg(gCoreContext->GetMasterServerIP())
+        .arg(cctx->GetMasterServerIP())
         .arg(backendSSLPort);
 
     allowedOrigins << QString("http://%1").arg(masterAddrPort);
@@ -2272,7 +2274,7 @@ void HTTPRequest::AddCORSHeaders( const QString &sOrigin )
     }
 
     QStringList allowedOriginsList =
-        gCoreContext->GetSetting("AllowedOriginsList", QString(
+        cctx->GetSetting("AllowedOriginsList", QString(
             "https://chromecast.mythtv.org")).split(",");
 
     for (const auto & origin : std::as_const(allowedOriginsList))

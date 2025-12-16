@@ -7,12 +7,12 @@
 WebSocketMythEvent::WebSocketMythEvent()
 {
     setObjectName("WebSocketMythEvent");
-    gCoreContext->addListener(this);
+    getCoreContext()->addListener(this);
 }
 
 WebSocketMythEvent::~WebSocketMythEvent()
 {
-    gCoreContext->removeListener(this);
+    getCoreContext()->removeListener(this);
 }
 
 bool WebSocketMythEvent::HandleTextFrame(const WebSocketFrame &frame)
