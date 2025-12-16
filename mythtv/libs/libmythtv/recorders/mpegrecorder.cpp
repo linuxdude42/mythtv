@@ -290,8 +290,9 @@ void MpegRecorder::SetOptionsFromProfile(RecordingProfile *profile,
     SetOption("vbidevice", vbidev);
     SetOption("audiodevice", audiodev);
 
-    SetOption("tvformat", gCoreContext->GetSetting("TVFormat"));
-    SetOption("vbiformat", gCoreContext->GetSetting("VbiFormat"));
+    MythCoreContext *cctx = getCoreContext();
+    SetOption("tvformat", cctx->GetSetting("TVFormat"));
+    SetOption("vbiformat", cctx->GetSetting("VbiFormat"));
 
     SetIntOption(profile, "mpeg2bitrate");
     SetIntOption(profile, "mpeg2maxbitrate");

@@ -170,7 +170,7 @@ void ScanWizard::SetPaneDefaults(const QString &cardid_inputname)
     {
         if (freqtable == "default")
         {
-            freqtable = gCoreContext->GetSetting("FreqTable");
+            freqtable = getCoreContext()->GetSetting("FreqTable");
         }
         QString table;
         table = (freqtable == "us-bcast"    ) ? "us"      : table;

@@ -294,9 +294,10 @@ bool AudioOutputCA::OpenDevice()
 
     if (m_internalVol && m_setInitialVol)
     {
-        QString controlLabel = gCoreContext->GetSetting("MixerControl", "PCM");
+        MythCoreContext *cctx = getCoreContext();
+        QString controlLabel = cctx->GetSetting("MixerControl", "PCM");
         controlLabel += "MixerVolume";
-        SetCurrentVolume(gCoreContext->GetNumSetting(controlLabel, 80));
+        SetCurrentVolume(cctx->GetNumSetting(controlLabel, 80));
     }
 
     return true;

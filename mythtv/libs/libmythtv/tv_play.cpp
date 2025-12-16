@@ -271,7 +271,7 @@ void TV::StopPlayback()
     PrepareToExitPlayer(__LINE__);
     SetExitPlayer(true, true);
     ReturnPlayerLock();
-    gCoreContext->TVInWantingPlayback(true);
+    getCoreContext()->TVInWantingPlayback(true);
 }
 
 /*! \brief Start playback of media
@@ -286,6 +286,7 @@ void TV::StopPlayback()
  */
 bool TV::StartTV(ProgramInfo* TVRec, uint Flags, const ChannelInfoList& Selection)
 {
+    MythCoreContext *cctx = getCoreContext();
     int refs = 0;
     TV* tv = AcquireRelease(refs, true, true);
     // handle existing TV object atomically
@@ -293,7 +294,7 @@ bool TV::StartTV(ProgramInfo* TVRec, uint Flags, const ChannelInfoList& Selectio
     {
         AcquireRelease(refs, false);
         LOG(VB_GENERAL, LOG_WARNING, LOC + "Already have a TV object.");
-        gCoreContext->emitTVPlaybackAborted();
+        cctx->emitTVPlaybackAborted();
         return false;
     }
 
@@ -321,7 +322,7 @@ bool TV::StartTV(ProgramInfo* TVRec, uint Flags, const ChannelInfoList& Selectio
         LOG(VB_GENERAL, LOG_ERR, LOC + "Failed initializing TV");
         AcquireRelease(refs, false);
         delete curProgram;
-        gCoreContext->emitTVPlaybackAborted();
+        cctx->emitTVPlaybackAborted();
         return false;
     }
 
@@ -333,7 +334,7 @@ bool TV::StartTV(ProgramInfo* TVRec, uint Flags, const ChannelInfoList& Selectio
     }
 
     // Notify others that we are about to play
-    gCoreContext->WantingPlayback(tv);
+    cctx->WantingPlayback(tv);
 
     QString playerError;
     while (!quitAll)
@@ -365,7 +366,7 @@ bool TV::StartTV(ProgramInfo* TVRec, uint Flags, const ChannelInfoList& Selectio
             {
                 startSysEventSent = true;
                 startLivetvEventSent = true;
-                gCoreContext->SendSystemEvent("LIVETV_STARTED");
+                cctx->SendSystemEvent("LIVETV_STARTED");
             }
 
             LOG(VB_PLAYBACK, LOG_DEBUG, LOC + "tv->LiveTV() -- end");
@@ -383,7 +384,7 @@ bool TV::StartTV(ProgramInfo* TVRec, uint Flags, const ChannelInfoList& Selectio
         tv->SetInPlayList(inPlaylist);
         tv->setUnderNetworkControl(initByNetworkCommand);
 
-        gCoreContext->emitTVPlaybackStarted();
+        cctx->emitTVPlaybackStarted();
 
         // Process Events
         LOG(VB_GENERAL, LOG_INFO, LOC + "Entering main playback loop.");
@@ -422,8 +423,8 @@ bool TV::StartTV(ProgramInfo* TVRec, uint Flags, const ChannelInfoList& Selectio
     bool allowrerecord = tv->GetAllowRerecord();
     bool deleterecording = tv->m_requestDelete;
     AcquireRelease(refs, false);
-    gCoreContext->emitTVPlaybackStopped();
-    gCoreContext->TVInWantingPlayback(false);
+    cctx->emitTVPlaybackStopped();
+    cctx->TVInWantingPlayback(false);
 
     if (curProgram)
     {
@@ -437,7 +438,7 @@ bool TV::StartTV(ProgramInfo* TVRec, uint Flags, const ChannelInfoList& Selectio
             list.push_back("0"); // do not force delete
             list.push_back(allowrerecord ? "1" : "0");
             MythEvent me("LOCAL_PBB_DELETE_RECORDINGS", list);
-            gCoreContext->dispatch(me);
+            cctx->dispatch(me);
         }
         else if (curProgram->IsRecording())
         {
@@ -449,7 +450,7 @@ bool TV::StartTV(ProgramInfo* TVRec, uint Flags, const ChannelInfoList& Selectio
     }
     else if (startSysEventSent)
     {
-        gCoreContext->SendSystemEvent("PLAY_STOPPED");
+        cctx->SendSystemEvent("PLAY_STOPPED");
     }
 
     if (!playerError.isEmpty())
@@ -463,7 +464,7 @@ bool TV::StartTV(ProgramInfo* TVRec, uint Flags, const ChannelInfoList& Selectio
     }
 
     if (startLivetvEventSent)
-        gCoreContext->SendSystemEvent("LIVETV_ENDED");
+        cctx->SendSystemEvent("LIVETV_ENDED");
 
     LOG(VB_PLAYBACK, LOG_DEBUG, LOC + "-- end");
 
@@ -569,7 +570,7 @@ void TV::InitKeys()
     QString testKey = MythMainWindow::GetKey("TV Playback", ACTION_PAUSE);
     if (testKey != "?")
     {
-        int alternate = gCoreContext->GetNumSetting("AltClearSavedPosition",0);
+        int alternate = getCoreContext()->GetNumSetting("AltClearSavedPosition",0);
         QString selectKeys = MythMainWindow::GetKey("Global", ACTION_SELECT);
         if (selectKeys != "?")
         {
@@ -1134,8 +1135,9 @@ void TV::InitFromDB()
 
     m_vbimode = VBIMode::Parse(!feVBI.isEmpty() ? feVBI : beVBI);
 
-    gCoreContext->addListener(this);
-    gCoreContext->RegisterForPlayback(this, &TV::StopPlayback);
+    MythCoreContext *cctx = getCoreContext();
+    cctx->addListener(this);
+    cctx->RegisterForPlayback(this, &TV::StopPlayback);
 }
 
 /*! \brief Performs instance initialization, returns true on success.
@@ -1168,7 +1170,7 @@ bool TV::Init()
     {
         int gui_width = 0;
         int gui_height = 0;
-        gCoreContext->GetResolutionSetting("Gui", gui_width, gui_height);
+        getCoreContext()->GetResolutionSetting("Gui", gui_width, gui_height);
         fullscreen |= (0 == gui_width && 0 == gui_height);
     }
 
@@ -1231,8 +1233,9 @@ TV::~TV()
     BrowseStop();
     BrowseWait();
 
-    gCoreContext->removeListener(this);
-    gCoreContext->UnregisterForPlayback(this);
+    MythCoreContext *cctx = getCoreContext();
+    cctx->removeListener(this);
+    cctx->UnregisterForPlayback(this);
 
     if (m_mainWindow)
     {
@@ -1360,7 +1363,7 @@ void TV::UpdateChannelList(int GroupID)
     m_channelGroupChannelList = list;
 
     if (m_dbRememberLastChannelGroup)
-        gCoreContext->SaveSetting("ChannelGroupDefault", m_channelGroupId);
+        getCoreContext()->SaveSetting("ChannelGroupDefault", m_channelGroupId);
 }
 
 TVState TV::GetState() const
@@ -1913,7 +1916,7 @@ int TV::Playback(const ProgramInfo& ProgInfo)
     m_jumpToProgram = false;
     m_allowRerecord = false;
     m_requestDelete = false;
-    gCoreContext->TVInWantingPlayback(false);
+    getCoreContext()->TVInWantingPlayback(false);
 
     GetPlayerReadLock();
     if (m_playerContext.GetState() != kState_None)
@@ -1989,6 +1992,7 @@ void TV::HandleStateChange()
         return;
     }
 
+    MythCoreContext *cctx = getCoreContext();
     bool changed = false;
 
     m_playerContext.LockState();
@@ -2028,7 +2032,7 @@ void TV::HandleStateChange()
 
         uint chanid = m_initialChanID;
         if (!chanid)
-            chanid = static_cast<uint>(gCoreContext->GetNumSetting("DefaultChanid", 0));
+            chanid = static_cast<uint>(cctx->GetNumSetting("DefaultChanid", 0));
 
         if (chanid && !IsTunablePriv(chanid))
             chanid = 0;
@@ -2195,7 +2199,7 @@ void TV::HandleStateChange()
                 {
                     QString message = "COMMFLAG_REQUEST ";
                     message += m_playerContext.m_playingInfo->MakeUniqueKey();
-                    gCoreContext->SendMessage(message);
+                    cctx->SendMessage(message);
                 }
                 m_playerContext.UnlockPlayingInfo(__FILE__, __LINE__);
             }
@@ -4592,6 +4596,7 @@ void TV::ProcessNetworkControlCommand(const QString &Command)
     }
     else if (tokens.size() >= 3 && tokens[1] == "QUERY")
     {
+        MythCoreContext *cctx = getCoreContext();
         if (tokens[2] == "POSITION")
         {
             if (!m_player)
@@ -4756,14 +4761,14 @@ void TV::ProcessNetworkControlCommand(const QString &Command)
 
             QString message = QString("NETWORK_CONTROL ANSWER %1").arg(infoStr);
             MythEvent me(message);
-            gCoreContext->dispatch(me);
+            cctx->dispatch(me);
         }
         else if (tokens[2] == "VOLUME")
         {
             QString infoStr = QString("%1%").arg(m_audioState.m_volume);
             QString message = QString("NETWORK_CONTROL ANSWER %1").arg(infoStr);
             MythEvent me(message);
-            gCoreContext->dispatch(me);
+            cctx->dispatch(me);
         }
     }
 }
@@ -4800,6 +4805,7 @@ void TV::DoPlay()
         return;
     }
 
+    MythCoreContext *cctx = getCoreContext();
     float time = 0.0;
 
     if (m_playerContext.m_ffRewState || (m_playerContext.m_ffRewSpeed != 0) ||
@@ -4811,7 +4817,7 @@ void TV::DoPlay()
             SendMythSystemPlayEvent("PLAY_UNPAUSED", m_playerContext.m_playingInfo);
 
         m_player->Play(m_playerContext.m_tsNormal, true);
-        gCoreContext->emitTVPlaybackUnpaused();
+        cctx->emitTVPlaybackUnpaused();
         m_playerContext.m_ffRewSpeed = 0;
     }
     m_playerContext.UnlockDeletePlayer(__FILE__, __LINE__);
@@ -4822,7 +4828,7 @@ void TV::DoPlay()
     MythMainWindow::DisableScreensaver();
 
     SetSpeedChangeTimer(0ms, __LINE__);
-    gCoreContext->emitTVPlaybackPlaying();
+    cctx->emitTVPlaybackPlaying();
 }
 
 float TV::DoTogglePauseStart()
@@ -4931,7 +4937,8 @@ void TV::DoTogglePause(bool ShowOSD)
     if (!ignore)
         DoTogglePauseFinish(DoTogglePauseStart(), ShowOSD);
     // Emit Pause or Unpaused signal
-    paused ? gCoreContext->emitTVPlaybackUnpaused() : gCoreContext->emitTVPlaybackPaused();
+    MythCoreContext *cctx = getCoreContext();
+    paused ? cctx->emitTVPlaybackUnpaused() : cctx->emitTVPlaybackPaused();
 }
 
 bool TV::DoPlayerSeek(float Time)
@@ -5122,16 +5129,17 @@ void TV::DoSeek(float Time, const QString &Msg, bool TimeIsOffset, bool HonorCut
 
 void TV::DoSeekAbsolute(long long Seconds, bool HonorCutlist)
 {
+    MythCoreContext *cctx = getCoreContext();
     m_playerContext.LockDeletePlayer(__FILE__, __LINE__);
     if (!m_player)
     {
         m_playerContext.UnlockDeletePlayer(__FILE__, __LINE__);
-        gCoreContext->emitTVPlaybackSought(-1);
+        cctx->emitTVPlaybackSought(-1);
         return;
     }
     m_playerContext.UnlockDeletePlayer(__FILE__, __LINE__);
     DoSeek(Seconds, tr("Jump To"), /*timeIsOffset*/false, HonorCutlist);
-    gCoreContext->emitTVPlaybackSought(Seconds);
+    cctx->emitTVPlaybackSought(Seconds);
 }
 
 void TV::DoArbSeek(ArbSeekWhence Whence, bool HonorCutlist)
@@ -7624,7 +7632,7 @@ void TV::customEvent(QEvent *Event)
         {
             QString msg = "COMMFLAG_REQUEST ";
             msg += ProgramInfo::MakeUniqueKey(evchanid, evrecstartts);
-            gCoreContext->SendMessage(msg);
+            getCoreContext()->SendMessage(msg);
         }
         ReturnPlayerLock();
     }
@@ -7761,7 +7769,7 @@ void TV::HandleOSDClosed(int OSDType)
             break;
         case kOSDFunctionalType_AudioSyncAdjust:
             m_audiosyncAdjustment = false;
-            gCoreContext->SaveSetting("AudioSyncOffset", QString::number(m_audioState.m_audioOffset.count()));
+            getCoreContext()->SaveSetting("AudioSyncOffset", QString::number(m_audioState.m_audioOffset.count()));
             break;
         case kOSDFunctionalType_SubtitleZoomAdjust:
             m_subtitleZoomAdjustment = false;
@@ -8179,7 +8187,7 @@ void TV::OSDDialogEvent(int Result, const QString& Text, QString Action)
     {
         SetInPlayList(false);
         MythEvent xe("CANCEL_PLAYLIST");
-        gCoreContext->dispatch(xe);
+        getCoreContext()->dispatch(xe);
     }
     else if (Action == ACTION_JUMPFFWD)
     {
@@ -9480,7 +9488,7 @@ void TV::FillOSDMenuJumpRec(const QString &Category, int Level, const QString &S
     QMutexLocker locker(&m_progListsLock);
     m_progLists.clear();
     std::vector<ProgramInfo*> *infoList = RemoteGetRecordedList(0);
-    bool LiveTVInAllPrograms = gCoreContext->GetBoolSetting("LiveTVInAllPrograms",false);
+    bool LiveTVInAllPrograms = getCoreContext()->GetBoolSetting("LiveTVInAllPrograms",false);
     if (infoList)
     {
         QList<QString> titles_seen;
@@ -10284,7 +10292,7 @@ void TV::ShowOSDPromptDeleteRecording(const QString& Title, bool Force)
                 pginfo.QueryIsInUse(byWho);
                 for (int i = 0; (i + 2) < byWho.size(); i += 3)
                 {
-                    if (byWho[i + 1] == gCoreContext->GetHostName() && byWho[i].contains(kPlayerInUseID))
+                    if (byWho[i + 1] == getCoreContext()->GetHostName() && byWho[i].contains(kPlayerInUseID))
                         continue;
                     if (byWho[i].contains(kRecorderInUseID))
                         continue;

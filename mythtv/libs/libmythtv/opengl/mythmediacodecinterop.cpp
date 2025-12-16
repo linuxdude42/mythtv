@@ -67,7 +67,7 @@ bool MythMediaCodecInterop::Initialise(QSize Size)
     if (!m_openglContext)
         return false;
 
-    if (!gCoreContext->IsUIThread())
+    if (!getCoreContext()->IsUIThread())
     {
         LOG(VB_GENERAL, LOG_ERR, LOC + "Must be created in UI thread");
         return false;

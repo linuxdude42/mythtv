@@ -655,7 +655,7 @@ void RecordingRule::ToMap(InfoMap &infoMap, uint date_format) const
         {
             int daynum = ((m_findday + 5) % 7) + 1;
             findfrom = QString("%1, %2")
-		 .arg(gCoreContext->GetQLocale().dayName(daynum, QLocale::ShortFormat),
+                .arg(getCoreContext()->GetQLocale().dayName(daynum, QLocale::ShortFormat),
                       findfrom);
         }
         infoMap["subtitle"] = tr("(%1 or later) %3",

@@ -363,7 +363,6 @@ AvFormatDecoder::AvFormatDecoder(MythPlayer *parent,
                                  const ProgramInfo &pginfo,
                                  PlayerFlags flags)
     : DecoderBase(parent, pginfo),
-      m_isDbIgnored(gCoreContext->IsDatabaseIgnored()),
       m_avcParser(new AVCParser()),
       m_playerFlags(flags),
       // Closed Caption & Teletext decoders
@@ -373,6 +372,9 @@ AvFormatDecoder::AvFormatDecoder(MythPlayer *parent,
       m_itv(parent->GetInteractiveTV()),
       m_audioSamples((uint8_t *)av_mallocz(AudioOutput::kMaxSizeBuffer))
 {
+    MythCoreContext *cctx = getCoreContext();
+    m_isDbIgnored = cctx->IsDatabaseIgnored();
+
     // this will be deleted and recreated once decoder is set up
     m_mythCodecCtx = new MythCodecContext(this, kCodec_NONE);
 
@@ -383,7 +385,7 @@ AvFormatDecoder::AvFormatDecoder(MythPlayer *parent,
     m_audioIn.m_sampleSize = -32;// force SetupAudioStream to run once
 
     AvFormatDecoder::SetIdrOnlyKeyframes(true);
-    m_audioReadAhead = gCoreContext->GetDurSetting<std::chrono::milliseconds>("AudioReadAhead", 100ms);
+    m_audioReadAhead = cctx->GetDurSetting<std::chrono::milliseconds>("AudioReadAhead", 100ms);
 
     LOG(VB_PLAYBACK, LOG_INFO, LOC + QString("PlayerFlags: 0x%1, AudioReadAhead: %2 msec")
         .arg(m_playerFlags, 0, 16).arg(m_audioReadAhead.count()));
@@ -924,7 +926,7 @@ int AvFormatDecoder::OpenFile(MythMediaBuffer *Buffer, bool novideo,
     }
 
     if (strcmp(fmt->name, "mpegts") == 0 &&
-        gCoreContext->GetBoolSetting("FFMPEGTS", false))
+        getCoreContext()->GetBoolSetting("FFMPEGTS", false))
     {
         const AVInputFormat *fmt2 = av_find_input_format("mpegts-ffmpeg");
         if (fmt2)
@@ -4297,7 +4299,7 @@ int AvFormatDecoder::AutoSelectAudioTrack(void)
                 }
 
                 // Try to get the language track for the preferred language for audio
-                QString language_key_convert = iso639_str2_to_str3(gCoreContext->GetAudioLanguage());
+                QString language_key_convert = iso639_str2_to_str3(getCoreContext()->GetAudioLanguage());
                 uint language_key = iso639_str3_to_key(language_key_convert);
                 uint canonical_key = iso639_key_to_canonical_key(language_key);
 

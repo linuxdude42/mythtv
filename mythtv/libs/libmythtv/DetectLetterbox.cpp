@@ -11,12 +11,12 @@ static constexpr int8_t HORIZONTAL_THRESHOLD      { 4 }; // How tolerant are we 
 
 DetectLetterbox::DetectLetterbox()
 {
-    int dbAdjustFill = gCoreContext->GetNumSetting("AdjustFill", 0);
+    int dbAdjustFill = getCoreContext()->GetNumSetting("AdjustFill", 0);
     m_isDetectLetterbox = dbAdjustFill >= kAdjustFill_AutoDetect_DefaultOff;
     m_detectLetterboxDefaultMode =
             static_cast<AdjustFillMode>(std::max(static_cast<int>(kAdjustFill_Off),
                                         dbAdjustFill - kAdjustFill_AutoDetect_DefaultOff));
-    m_detectLetterboxLimit = gCoreContext->GetNumSetting("DetectLeterboxLimit", 75);
+    m_detectLetterboxLimit = getCoreContext()->GetNumSetting("DetectLeterboxLimit", 75);
 }
 
 /** \fn DetectLetterbox::Detect(VideoFrame*)

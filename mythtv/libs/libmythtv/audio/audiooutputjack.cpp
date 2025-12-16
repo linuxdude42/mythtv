@@ -514,9 +514,10 @@ void AudioOutputJACK::VolumeInit(void)
     int volume = 100;
     if (m_setInitialVol)
     {
-        QString controlLabel = gCoreContext->GetSetting("MixerControl", "PCM");
+        MythCoreContext *cctx = getCoreContext();
+        QString controlLabel = cctx->GetSetting("MixerControl", "PCM");
         controlLabel += "MixerVolume";
-        volume = gCoreContext->GetNumSetting(controlLabel, 80);
+        volume = cctx->GetNumSetting(controlLabel, 80);
     }
 
     m_chanVolumes.fill(volume);

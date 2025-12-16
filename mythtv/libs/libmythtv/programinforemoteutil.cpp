@@ -13,7 +13,7 @@
 
 static uint RemoteGetRecordingList(std::vector<ProgramInfo *> &reclist, QStringList &strList)
 {
-    if (!gCoreContext->SendReceiveStringList(strList) || strList.isEmpty())
+    if (!getCoreContext()->SendReceiveStringList(strList) || strList.isEmpty())
         return 0;
 
     int numrecordings = strList[0].toInt();
@@ -75,7 +75,7 @@ bool RemoteDeleteRecording(uint recordingID, bool forceMetadataDelete,
              forgetHistory ? "FORGET" : "NO_FORGET");
     QStringList strlist(cmd);
 
-    if ((!gCoreContext->SendReceiveStringList(strlist) || strlist.isEmpty()) ||
+    if ((!getCoreContext()->SendReceiveStringList(strlist) || strlist.isEmpty()) ||
         (strlist[0].toInt() == -2))
         result = false;
 
@@ -93,11 +93,12 @@ bool RemoteDeleteRecording(uint recordingID, bool forceMetadataDelete,
 bool RemoteUndeleteRecording(uint recordingID)
 {
     // FIXME: Remove when UNDELETE_RECORDING has been updated to use recording id
+    MythCoreContext *cctx = getCoreContext();
     ProgramInfo recInfo(recordingID);
     bool result = false;
 
 #if 0
-    if (!gCoreContext->GetNumSetting("AutoExpireInsteadOfDelete", 0))
+    if (!cctx->GetNumSetting("AutoExpireInsteadOfDelete", 0))
         return result;
 #endif
 
@@ -105,7 +106,7 @@ bool RemoteUndeleteRecording(uint recordingID)
     strlist.push_back(QString::number(recInfo.GetChanID()));
     strlist.push_back(recInfo.GetRecordingStartTime().toString(Qt::ISODate));
 
-    gCoreContext->SendReceiveStringList(strlist);
+    cctx->SendReceiveStringList(strlist);
 
     if (!strlist.isEmpty() && strlist[0].toInt() == 0)
         result = true;
@@ -155,7 +156,7 @@ QDateTime RemoteGetPreviewIfModified(
     strlist << QString::number(200 * 1024); // max size of preview file
     pginfo.ToStringList(strlist);
 
-    if (!gCoreContext->SendReceiveStringList(strlist) ||
+    if (!getCoreContext()->SendReceiveStringList(strlist) ||
         strlist.isEmpty() || strlist[0] == "ERROR")
     {
         LOG(VB_GENERAL, LOG_ERR, loc + "Remote error" +

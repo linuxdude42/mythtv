@@ -1042,6 +1042,7 @@ void MythMediaBuffer::run(void)
                     CalcReadAheadThresh();
                 }
 
+                MythCoreContext *cctx = getCoreContext();
                 if (m_liveTVChain)
                 {
                     if (!m_setSwitchToNext && !m_ignoreLiveEOF && m_liveTVChain->HasNext())
@@ -1052,7 +1053,7 @@ void MythMediaBuffer::run(void)
                         m_liveTVChain->SwitchToNext(true);
                         m_setSwitchToNext = true;
                     }
-                    else if (gCoreContext->IsRegisteredFileForWrite(m_filename))
+                    else if (cctx->IsRegisteredFileForWrite(m_filename))
                     {
                         LOG(VB_FILE, LOG_DEBUG, LOC +
                             QString("EOF encountered, but %1 still being written to")
@@ -1063,7 +1064,7 @@ void MythMediaBuffer::run(void)
                         m_generalWait.wait(&m_rwLock, 60);
                     }
                 }
-                else if (gCoreContext->IsRegisteredFileForWrite(m_filename))
+                else if (cctx->IsRegisteredFileForWrite(m_filename))
                 {
                     LOG(VB_FILE, LOG_DEBUG, LOC +
                         QString("EOF encountered, but %1 still being written to")

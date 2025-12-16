@@ -55,9 +55,9 @@ class SystemEventThread : public QRunnable
         if (m_event.isEmpty())
             return;
 
-        gCoreContext->SendMessage(
+        getCoreContext()->SendMessage(
             QString("SYSTEM_EVENT_RESULT %1 SENDER %2 RESULT %3")
-                    .arg(m_event, gCoreContext->GetHostName(),
+            .arg(m_event, getCoreContext()->GetHostName(),
                          QString::number(result)));
     }
 
@@ -71,22 +71,22 @@ class SystemEventThread : public QRunnable
 /** \fn MythSystemEventHandler::MythSystemEventHandler(void)
  *  \brief Null Constructor
  *
- *  Adds this object as a gCoreContext event listener.
+ *  Adds this object as a CoreContext event listener.
  */
 MythSystemEventHandler::MythSystemEventHandler(void)
 {
     setObjectName("MythSystemEventHandler");
-    gCoreContext->addListener(this);
+    getCoreContext()->addListener(this);
 }
 
 /** \fn MythSystemEventHandler::~MythSystemEventHandler()
  *  \brief Destructor
  *
- *  Removes this object as a gCoreContext event listener.
+ *  Removes this object as a CoreContext event listener.
  */
 MythSystemEventHandler::~MythSystemEventHandler()
 {
-    gCoreContext->removeListener(this);
+    getCoreContext()->removeListener(this);
 }
 
 /** \fn MythSystemEventHandler::SubstituteMatches(const QStringList &tokens,
@@ -252,6 +252,8 @@ QString MythSystemEventHandler::EventNameToSetting(const QString &name)
  */
 void MythSystemEventHandler::customEvent(QEvent *e)
 {
+    MythCoreContext *cctx = getCoreContext();
+
     if (e->type() == MythEvent::kMythEventMessage)
     {
         auto *me = dynamic_cast<MythEvent *>(e);
@@ -266,8 +268,8 @@ void MythSystemEventHandler::customEvent(QEvent *e)
         // the master backend as regular SYSTEM_EVENT messages.
         if (msg.startsWith("GLOBAL_SYSTEM_EVENT "))
         {
-            gCoreContext->SendMessage(msg.mid(7) +
-                QString(" SENDER %1").arg(gCoreContext->GetHostName()));
+            cctx->SendMessage(msg.mid(7) +
+                QString(" SENDER %1").arg(cctx->GetHostName()));
             return;
         }
 
@@ -280,13 +282,13 @@ void MythSystemEventHandler::customEvent(QEvent *e)
         // Return if this event is for another host
         if ((tokens.size() >= 4) &&
             (tokens[2] == "HOST") &&
-            (tokens[3] != gCoreContext->GetHostName()))
+            (tokens[3] != cctx->GetHostName()))
             return;
 
         QString cmd;
 
         // See if this system has a command that runs for all system events
-        cmd = gCoreContext->GetSetting("EventCmdAll");
+        cmd = cctx->GetSetting("EventCmdAll");
         if (!cmd.isEmpty())
         {
             SubstituteMatches(tokens, cmd);
@@ -297,7 +299,7 @@ void MythSystemEventHandler::customEvent(QEvent *e)
         }
 
         // Check for an EventCmd for this particular event
-        cmd = gCoreContext->GetSetting(EventNameToSetting(tokens[1]));
+        cmd = cctx->GetSetting(EventNameToSetting(tokens[1]));
         if (!cmd.isEmpty())
         {
             SubstituteMatches(tokens, cmd);
@@ -325,7 +327,7 @@ void SendMythSystemRecEvent(const QString &msg, const RecordingInfo *pginfo)
     if (pginfo)
     {
         uint cardid = pginfo->GetInputID();
-        gCoreContext->SendSystemEvent(
+        getCoreContext()->SendSystemEvent(
             QString("%1 CARDID %2 CHANID %3 STARTTIME %4 RECSTATUS %5 "
                     "VIDEODEVICE %6 VBIDEVICE %7")
             .arg(msg).arg(cardid)
@@ -352,9 +354,9 @@ void SendMythSystemPlayEvent(const QString &msg, const ProgramInfo *pginfo)
 {
     if (pginfo)
     {
-        gCoreContext->SendSystemEvent(
+        getCoreContext()->SendSystemEvent(
             QString("%1 HOSTNAME %2 CHANID %3 STARTTIME %4")
-                    .arg(msg, gCoreContext->GetHostName())
+            .arg(msg, getCoreContext()->GetHostName())
                     .arg(pginfo->GetChanID())
                     .arg(pginfo->GetRecordingStartTime(MythDate::ISODate)));
     }

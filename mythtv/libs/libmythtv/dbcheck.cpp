@@ -363,8 +363,10 @@ bool UpgradeTVDatabaseSchema(const bool upgradeAllowed,
                              const bool upgradeIfNoUI,
                              [[maybe_unused]] const bool informSystemd)
 {
+    MythCoreContext *cctx = getCoreContext();
+
 #ifdef IGNORE_SCHEMA_VER_MISMATCH
-    QString dbver = gCoreContext->GetSetting("DBSchemaVer");
+    QString dbver = cctx->GetSetting("DBSchemaVer");
     if (dbver != currentDatabaseVersion)
         LOG(VB_GENERAL, LOG_INFO,
             QString("Ignoring database changes between %1 and %2.")
@@ -374,7 +376,7 @@ bool UpgradeTVDatabaseSchema(const bool upgradeAllowed,
     // Suppress DB messages and turn of the settings cache,
     // These are likely to confuse the users and the code, respectively.
     GetMythDB()->SetSuppressDBMessages(true);
-    gCoreContext->ActivateSettingsCache(false);
+    cctx->ActivateSettingsCache(false);
 
     // Get the schema upgrade lock
     MSqlQuery query(MSqlQuery::InitCon());
@@ -394,7 +396,7 @@ bool UpgradeTVDatabaseSchema(const bool upgradeAllowed,
         if (informSystemd)
             db_sd_notify("failed to get schema upgrade lock");
         GetMythDB()->SetSuppressDBMessages(false);
-        gCoreContext->ActivateSettingsCache(true);
+        cctx->ActivateSettingsCache(true);
         return false;
     }
 
@@ -407,7 +409,7 @@ bool UpgradeTVDatabaseSchema(const bool upgradeAllowed,
     if (informSystemd)
         db_sd_notify(success ? "success" : "failed");
     GetMythDB()->SetSuppressDBMessages(false);
-    gCoreContext->ActivateSettingsCache(true);
+    cctx->ActivateSettingsCache(true);
     DBUtil::UnlockSchema(query);
     return success;
 }
@@ -470,7 +472,8 @@ static bool tryUpgradeTVDatabaseSchema(bool upgradeAllowed, bool upgradeIfNoUI, 
  */
 static bool doUpgradeTVDatabaseSchema(void)
 {
-    QString dbver = gCoreContext->GetSetting("DBSchemaVer");
+    MythCoreContext *cctx = getCoreContext();
+    QString dbver = cctx->GetSetting("DBSchemaVer");
     if (dbver == currentDatabaseVersion)
     {
         return true;
@@ -491,7 +494,7 @@ static bool doUpgradeTVDatabaseSchema(void)
     {
         if (!InitializeMythSchema())
             return false;
-        dbver = gCoreContext->GetSetting("DBSchemaVer");
+        dbver = cctx->GetSetting("DBSchemaVer");
     }
 
     if (dbver.isEmpty() || dbver.toInt() <  1027)

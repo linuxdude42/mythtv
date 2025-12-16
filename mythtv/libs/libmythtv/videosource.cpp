@@ -106,7 +106,7 @@ void VideoSourceSelector::Load(void)
     }
 
     query.prepare(querystr);
-    query.bindValue(":HOSTNAME", gCoreContext->GetHostName());
+    query.bindValue(":HOSTNAME", getCoreContext()->GetHostName());
 
     if (!query.exec() || !query.isActive() || query.size() <= 0)
         return;
@@ -153,7 +153,7 @@ void VideoSourceShow::Load(void)
         "      videosource.sourceid = :SOURCEID ";
 
     query.prepare(querystr);
-    query.bindValue(":HOSTNAME", gCoreContext->GetHostName());
+    query.bindValue(":HOSTNAME", getCoreContext()->GetHostName());
     query.bindValue(":SOURCEID", m_initialSourceId);
 
     if (!query.exec() || !query.isActive())
@@ -578,7 +578,7 @@ TransFreqTableSelector::TransFreqTableSelector(uint _sourceid) :
 
 void TransFreqTableSelector::Load(void)
 {
-    int idx1 = getValueIndex(gCoreContext->GetSetting("FreqTable"));
+    int idx1 = getValueIndex(getCoreContext()->GetSetting("FreqTable"));
     if (idx1 >= 0)
         setValue(idx1);
 
@@ -619,7 +619,7 @@ void TransFreqTableSelector::Save(void)
 
     if ((m_loadedFreqTable == getValue()) ||
         ((m_loadedFreqTable.toLower() == "default") &&
-         (getValue() == gCoreContext->GetSetting("FreqTable"))))
+         (getValue() == getCoreContext()->GetSetting("FreqTable"))))
     {
         return;
     }
@@ -2739,7 +2739,7 @@ void CaptureCard::fillSelections(GroupSetting *setting)
         "ORDER BY cardid";
 
     query.prepare(qstr);
-    query.bindValue(":HOSTNAME", gCoreContext->GetHostName());
+    query.bindValue(":HOSTNAME", getCoreContext()->GetHostName());
 
     if (!query.exec())
     {
@@ -2809,7 +2809,7 @@ void CaptureCard::Save(void)
         {
             uint groupid =
                 CardUtil::CreateDeviceInputGroup(cardid, type,
-                                                 gCoreContext->GetHostName(), dev);
+                                                 getCoreContext()->GetHostName(), dev);
             CardUtil::LinkInputGroup(cardid, groupid);
             CardUtil::UnlinkInputGroup(0, groupid);
         }
@@ -2913,7 +2913,7 @@ CaptureCard::Hostname::Hostname(const CaptureCard &parent) :
     StandardSetting(new CaptureCardDBStorage(this, parent, "hostname"))
 {
     setVisible(false);
-    setValue(gCoreContext->GetHostName());
+    setValue(getCoreContext()->GetHostName());
 }
 
 CaptureCard::Hostname::~Hostname()
@@ -3248,7 +3248,7 @@ void StartingChannel::SetSourceID(const QString &sourceid)
 
     // If there are channels sort them, then add theme
     // (selecting the old start channel if it is there).
-    QString order = gCoreContext->GetSetting("ChannelOrdering", "channum");
+    QString order = getCoreContext()->GetSetting("ChannelOrdering", "channum");
     ChannelUtil::SortChannels(channels, order);
     bool has_visible = false;
     for (size_t i = 0; i < channels.size() && !has_visible; i++)
@@ -3722,7 +3722,7 @@ void CaptureCardEditor::ShowDeleteAllCaptureCardsDialogOnHost() const
 {
     ShowOkPopup(
         tr("Are you sure you want to delete "
-           "ALL capture cards on %1?").arg(gCoreContext->GetHostName()),
+           "ALL capture cards on %1?").arg(getCoreContext()->GetHostName()),
         this, &CaptureCardEditor::DeleteAllCaptureCardsOnHost,
         true);
 }
@@ -3757,6 +3757,8 @@ void CaptureCardEditor::DeleteAllCaptureCards(bool doDelete)
 
 void CaptureCardEditor::DeleteAllCaptureCardsOnHost(bool doDelete)
 {
+    MythCoreContext *cctx = getCoreContext();
+
     if (!doDelete)
         return;
 
@@ -3766,14 +3768,14 @@ void CaptureCardEditor::DeleteAllCaptureCardsOnHost(bool doDelete)
         "SELECT cardid "
         "FROM capturecard "
         "WHERE hostname = :HOSTNAME");
-    cards.bindValue(":HOSTNAME", gCoreContext->GetHostName());
+    cards.bindValue(":HOSTNAME", cctx->GetHostName());
 
     if (!cards.exec() || !cards.isActive())
     {
         ShowOkPopup(
             tr("Error getting list of cards for this host. "
                "Unable to delete capturecards for %1")
-            .arg(gCoreContext->GetHostName()));
+            .arg(cctx->GetHostName()));
 
         MythDB::DBError("Selecting cardids for deletion", cards);
         return;
@@ -3796,7 +3798,7 @@ void CaptureCardEditor::Load(void)
     clearSettings();
     AddSelection(QObject::tr("(New capture card)"), &CaptureCardEditor::AddNewCard);
     AddSelection(QObject::tr("(Delete all capture cards on %1)")
-                 .arg(gCoreContext->GetHostName()),
+                 .arg(getCoreContext()->GetHostName()),
                  &CaptureCardEditor::ShowDeleteAllCaptureCardsDialogOnHost);
     AddSelection(QObject::tr("(Delete all capture cards)"),
                  &CaptureCardEditor::ShowDeleteAllCaptureCardsDialog);
@@ -3881,7 +3883,7 @@ void CardInputEditor::Load(void)
         "WHERE hostname = :HOSTNAME "
         "      AND parentid = 0 "
         "ORDER BY cardid");
-    query.bindValue(":HOSTNAME", gCoreContext->GetHostName());
+    query.bindValue(":HOSTNAME", getCoreContext()->GetHostName());
 
     if (!query.exec())
     {

@@ -44,7 +44,8 @@ MHInteractionChannel::EStatus MHInteractionChannel::status()
         return kInactive;
     }
 
-    if (!gCoreContext->GetBoolSetting("EnableMHEG", false))
+    MythCoreContext *cctx = getCoreContext();
+    if (!cctx->GetBoolSetting("EnableMHEG", false))
         return kDisabled;
 
     QStringList opts = qEnvironmentVariable("MYTHMHEG").split(':');
@@ -52,7 +53,7 @@ MHInteractionChannel::EStatus MHInteractionChannel::status()
         return kDisabled;
     if (opts.contains("ice", Qt::CaseInsensitive))
         return kActive;
-    return gCoreContext->GetBoolSetting("EnableMHEGic", true) ? kActive : kDisabled;
+    return cctx->GetBoolSetting("EnableMHEGic", true) ? kActive : kDisabled;
 }
 
 static inline bool isCached(const QUrl& url)

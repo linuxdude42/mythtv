@@ -236,8 +236,9 @@ void MythPlayerOverlayUI::UpdateSliderInfo(osdInfo &Info, bool PaddedFields)
         Info.text[relPrefix + "totaltime"] = text2;
         Info.text[relPrefix + "remainingtime"] = islive ? QString() : text3;
         Info.text[relPrefix + "behindtime"] = islive ? text3 : QString();
-        QString dtformat = gCoreContext->GetSetting("DateFormat", "ddd MMMM d yyyy")
-            + ", " + gCoreContext->GetSetting("TimeFormat", "hh:mm");
+        MythCoreContext *cctx = getCoreContext();
+        QString dtformat = cctx->GetSetting("DateFormat", "ddd MMMM d yyyy")
+            + ", " + cctx->GetSetting("TimeFormat", "hh:mm");
 
         if ((m_playerCtx->GetState() == kState_WatchingPreRecorded) ||
             (m_playerCtx->GetState() == kState_WatchingRecording  ))

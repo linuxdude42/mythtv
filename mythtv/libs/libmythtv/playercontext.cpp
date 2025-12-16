@@ -68,7 +68,7 @@ void PlayerContext::SetInitialTVState(bool islivetv)
     }
     else if (m_playingInfo)
     {
-        int overrecordseconds = gCoreContext->GetNumSetting("RecordOverTime");
+        int overrecordseconds = getCoreContext()->GetNumSetting("RecordOverTime");
         QDateTime curtime = MythDate::current();
         QDateTime recendts = m_playingInfo->GetRecordingEndTime()
             .addSecs(overrecordseconds);
@@ -390,7 +390,7 @@ QString PlayerContext::GetFilters(const QString &baseFilters) const
     QString filters     = baseFilters;
     QString chanFilters;
 
-    if (gCoreContext->IsDatabaseIgnored())
+    if (getCoreContext()->IsDatabaseIgnored())
         return baseFilters;
 
     LockPlayingInfo(__FILE__, __LINE__);
@@ -493,7 +493,7 @@ void PlayerContext::SetTVChain(LiveTVChain *chain)
     m_tvchain = chain;
 
     if (m_tvchain)
-        m_tvchain->InitializeNewChain(gCoreContext->GetHostName());
+        m_tvchain->InitializeNewChain(getCoreContext()->GetHostName());
 }
 
 void PlayerContext::SetRingBuffer(MythMediaBuffer *Buffer)
@@ -512,7 +512,7 @@ void PlayerContext::SetRingBuffer(MythMediaBuffer *Buffer)
  */
 void PlayerContext::SetPlayingInfo(const ProgramInfo *info)
 {
-    bool ignoreDB = gCoreContext->IsDatabaseIgnored();
+    bool ignoreDB = getCoreContext()->IsDatabaseIgnored();
 
     QMutexLocker locker(&m_playingInfoLock);
 

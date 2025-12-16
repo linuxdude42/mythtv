@@ -299,7 +299,7 @@ MythVideoProfile::MythVideoProfile()
     QMutexLocker locker(&kSafeLock);
     InitStatics();
 
-    QString hostname    = gCoreContext->GetHostName();
+    QString hostname    = getCoreContext()->GetHostName();
     QString cur_profile = GetDefaultProfileName(hostname);
     uint    groupid     = GetProfileGroupID(cur_profile, hostname);
 
@@ -893,7 +893,8 @@ QStringList MythVideoProfile::GetProfiles(const QString &HostName)
 
 QString MythVideoProfile::GetDefaultProfileName(const QString &HostName)
 {
-    auto tmp = gCoreContext->GetSettingOnHost("DefaultVideoPlaybackProfile", HostName);
+    MythCoreContext *cctx = getCoreContext();
+    auto tmp = cctx->GetSettingOnHost("DefaultVideoPlaybackProfile", HostName);
     QStringList profiles = GetProfiles(HostName);
     tmp = (profiles.contains(tmp)) ? tmp : QString();
 
@@ -904,7 +905,7 @@ QString MythVideoProfile::GetDefaultProfileName(const QString &HostName)
 
         tmp = (profiles.contains("Normal")) ? "Normal" : tmp;
         if (!tmp.isEmpty())
-            gCoreContext->SaveSettingOnHost("DefaultVideoPlaybackProfile", tmp, HostName);
+            cctx->SaveSettingOnHost("DefaultVideoPlaybackProfile", tmp, HostName);
     }
 
     return tmp;
@@ -912,7 +913,7 @@ QString MythVideoProfile::GetDefaultProfileName(const QString &HostName)
 
 void MythVideoProfile::SetDefaultProfileName(const QString &ProfileName, const QString &HostName)
 {
-    gCoreContext->SaveSettingOnHost("DefaultVideoPlaybackProfile", ProfileName, HostName);
+    getCoreContext()->SaveSettingOnHost("DefaultVideoPlaybackProfile", ProfileName, HostName);
 }
 
 uint MythVideoProfile::GetProfileGroupID(const QString &ProfileName,
@@ -1323,7 +1324,7 @@ void MythVideoProfile::InitStatics(bool Reinit /*= false*/)
 {
     QMutexLocker locker(&kSafeLock);
 
-    if (!gCoreContext->IsUIThread())
+    if (!getCoreContext()->IsUIThread())
     {
         if (!kSafeInitialized)
             LOG(VB_GENERAL, LOG_ERR, LOC + "Cannot initialise video profiles from this thread");

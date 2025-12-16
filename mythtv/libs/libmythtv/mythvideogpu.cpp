@@ -31,7 +31,7 @@ MythVideoGPU::MythVideoGPU(MythRender *Render, MythVideoColourSpace* ColourSpace
                 this, &MythVideoGPU::UpdateColourSpace);
     }
 
-    m_stereoMode = gCoreContext->GetBoolSetting("DiscardStereo3D", true) ?
+    m_stereoMode = getCoreContext()->GetBoolSetting("DiscardStereo3D", true) ?
                     kStereoscopicModeSideBySideDiscard : kStereoscopicModeIgnore3D;
     LOG(VB_PLAYBACK, LOG_INFO, LOC + QString("Discard stereoscopic fields: %1")
         .arg(m_stereoMode == kStereoscopicModeIgnore3D ? "No" : "Yes"));

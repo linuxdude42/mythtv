@@ -172,7 +172,7 @@ inline MythCodecContext::CodecProfile MediaCodecToMythProfile(int Codec, int Pro
 
 int MythMediaCodecContext::InitialiseDecoder(AVCodecContext *Context)
 {
-    if (!Context || !gCoreContext->IsUIThread())
+    if (!Context || !getCoreContext()->IsUIThread())
         return -1;
 
     // The interop must have a reference to the ui player so it can be deleted

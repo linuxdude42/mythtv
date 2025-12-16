@@ -607,7 +607,7 @@ bool ChannelBase::InitializeInput(void)
     }
 
     m_channels = ChannelUtil::GetChannels(m_sourceId, false);
-    QString order = gCoreContext->GetSetting("ChannelOrdering", "channum");
+    QString order = getCoreContext()->GetSetting("ChannelOrdering", "channum");
     ChannelUtil::SortChannels(m_channels, order);
 
     if (!IsExternalChannelChangeSupported() &&
@@ -684,7 +684,7 @@ bool ChannelBase::CheckChannel(const QString &channum) const
         "      capturecard.hostname  = :HOSTNAME");
     query.bindValue(":CHANNUM",  channum);
     query.bindValue(":INPUTID",   m_inputId);
-    query.bindValue(":HOSTNAME", gCoreContext->GetHostName());
+    query.bindValue(":HOSTNAME", getCoreContext()->GetHostName());
 
     if (!query.exec() || !query.isActive())
     {

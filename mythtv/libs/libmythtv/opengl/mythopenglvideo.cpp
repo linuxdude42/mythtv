@@ -52,7 +52,7 @@ MythOpenGLVideo::MythOpenGLVideo(MythRenderOpenGL* Render, MythVideoColourSpace*
     m_extraFeatures = m_openglRender->GetExtraFeatures();
     m_valid = true;
 
-    m_chromaUpsamplingFilter = gCoreContext->GetBoolSetting("ChromaUpsamplingFilter", true);
+    m_chromaUpsamplingFilter = getCoreContext()->GetBoolSetting("ChromaUpsamplingFilter", true);
     LOG(VB_PLAYBACK, LOG_INFO, LOC + QString("Chroma upsampling filter %1")
         .arg(m_chromaUpsamplingFilter ? "enabled" : "disabled"));
 }

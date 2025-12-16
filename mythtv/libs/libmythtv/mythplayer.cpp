@@ -92,12 +92,13 @@ MythPlayer::MythPlayer(PlayerContext* Context, PlayerFlags Flags)
 #endif
     m_deleteMap.SetPlayerContext(m_playerCtx);
 
-    m_vbiMode = VBIMode::Parse(gCoreContext->GetSetting("VbiFormat"));
-    m_captionsEnabledbyDefault = gCoreContext->GetBoolSetting("DefaultCCMode");
-    m_endExitPrompt      = gCoreContext->GetNumSetting("EndOfRecordingExitPrompt");
+    MythCoreContext *cctx = getCoreContext();
+    m_vbiMode = VBIMode::Parse(cctx->GetSetting("VbiFormat"));
+    m_captionsEnabledbyDefault = cctx->GetBoolSetting("DefaultCCMode");
+    m_endExitPrompt      = cctx->GetNumSetting("EndOfRecordingExitPrompt");
 
     // Get VBI page number
-    QString mypage = gCoreContext->GetSetting("VBIpageNr", "888");
+    QString mypage = cctx->GetSetting("VBIpageNr", "888");
     bool valid = false;
     uint tmp = mypage.toInt(&valid, 16);
     m_ttPageNum = (valid) ? tmp : m_ttPageNum;
@@ -538,14 +539,15 @@ int MythPlayer::OpenFile(int Retries)
     m_deleteMap.TrackerReset(m_bookmarkSeek);
     m_deleteMap.TrackerWantsToJump(m_bookmarkSeek, m_bookmarkSeek);
 
-    if (!gCoreContext->IsDatabaseIgnored() &&
+    MythCoreContext *cctx = getCoreContext();
+    if (!cctx->IsDatabaseIgnored() &&
         m_playerCtx->m_playingInfo->QueryAutoExpire() == kLiveTVAutoExpire)
     {
-        gCoreContext->SaveSetting("DefaultChanid",
+        cctx->SaveSetting("DefaultChanid",
                                   static_cast<int>(m_playerCtx->m_playingInfo->GetChanID()));
         QString callsign = m_playerCtx->m_playingInfo->GetChannelSchedulingID();
         QString channum = m_playerCtx->m_playingInfo->GetChanNum();
-        gCoreContext->SaveSetting("DefaultChanKeys", callsign + "[]:[]" + channum);
+        cctx->SaveSetting("DefaultChanKeys", callsign + "[]:[]" + channum);
         if (m_playerCtx->m_recorder && m_playerCtx->m_recorder->IsValidRecorder())
         {
             uint cardid = static_cast<uint>(m_playerCtx->m_recorder->GetRecorderNumber());
@@ -779,7 +781,7 @@ bool MythPlayer::PrebufferEnoughFrames(int min_buffers)
         m_bufferingLastMsg = QTime::currentTime();
         if (waited_for > 7s && m_audio.IsBufferAlmostFull()
             && m_framesPlayed < 5
-            && gCoreContext->GetBoolSetting("MusicChoiceEnabled", false))
+            && getCoreContext()->GetBoolSetting("MusicChoiceEnabled", false))
         {
             m_playerFlags = static_cast<PlayerFlags>(m_playerFlags | kMusicChoice);
             LOG(VB_GENERAL, LOG_NOTICE, LOC + "Music Choice program detected - disabling AV Sync.");
@@ -1317,7 +1319,7 @@ uint64_t MythPlayer::GetBookmark(void)
 {
     uint64_t bookmark = 0;
 
-    if (gCoreContext->IsDatabaseIgnored() ||
+    if (getCoreContext()->IsDatabaseIgnored() ||
         (m_playerCtx->m_buffer && !m_playerCtx->m_buffer->IsBookmarkAllowed()))
         bookmark = 0;
     else

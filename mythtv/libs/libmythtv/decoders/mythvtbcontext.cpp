@@ -131,7 +131,7 @@ MythCodecID MythVTBContext::GetSupportedCodec(AVCodecContext **Context,
 
 int MythVTBContext::InitialiseDecoder(AVCodecContext *Context)
 {
-    if (!gCoreContext->IsUIThread())
+    if (!getCoreContext()->IsUIThread())
         return -1;
 
     // The interop must have a reference to the ui player so it can be deleted

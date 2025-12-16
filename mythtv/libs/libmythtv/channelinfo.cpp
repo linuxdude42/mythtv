@@ -193,10 +193,11 @@ QString ChannelInfo::GetFormatted(ChannelFormat format) const
 {
     QString tmp;
 
+    MythCoreContext *cctx = getCoreContext();
     if (format & kChannelLong)
-        tmp = gCoreContext->GetSetting("LongChannelFormat", "<num> <name>");
+        tmp = cctx->GetSetting("LongChannelFormat", "<num> <name>");
     else // kChannelShort
-        tmp = gCoreContext->GetSetting("ChannelFormat", "<num> <sign>");
+        tmp = cctx->GetSetting("ChannelFormat", "<num> <sign>");
 
 
     if (tmp.isEmpty())

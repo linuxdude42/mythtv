@@ -64,8 +64,9 @@ void ImportRecorder::SetOptionsFromProfile([[maybe_unused]] RecordingProfile *pr
     else
         SetOption("videodevice", "unknown file");
 
-    SetOption("tvformat",    gCoreContext->GetSetting("TVFormat"));
-    SetOption("vbiformat",   gCoreContext->GetSetting("VbiFormat"));
+    MythCoreContext *cctx = getCoreContext();
+    SetOption("tvformat",    cctx->GetSetting("TVFormat"));
+    SetOption("vbiformat",   cctx->GetSetting("VbiFormat"));
 }
 
 void UpdateFS(int pc, void* ir);
@@ -127,10 +128,11 @@ void ImportRecorder::run(void)
         ctx->SetRingBuffer(buffer);
         ctx->SetPlayer(cfp);
 
-        m_cfp=cfp;
-        gCoreContext->RegisterFileForWrite(m_ringBuffer->GetFilename());
+        MythCoreContext *cctx = getCoreContext();
+        m_cfp=cfp; 
+        cctx->RegisterFileForWrite(m_ringBuffer->GetFilename());
         cfp->RebuildSeekTable(false,UpdateFS,this);
-        gCoreContext->UnregisterFileForWrite(m_ringBuffer->GetFilename());
+        cctx->UnregisterFileForWrite(m_ringBuffer->GetFilename());
         m_cfp=nullptr;
 
         delete ctx;

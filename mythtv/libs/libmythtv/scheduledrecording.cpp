@@ -4,17 +4,18 @@
 
 void ScheduledRecording::SendReschedule(const QStringList &request)
 {
-    if (gCoreContext->IsBackend())
+    MythCoreContext *cctx = getCoreContext();
+    if (cctx->IsBackend())
     {
         MythEvent me(QString("RESCHEDULE_RECORDINGS"), request);
-        gCoreContext->dispatch(me);
+        cctx->dispatch(me);
     }
     else
     {
         QStringList slist;
         slist << QString("RESCHEDULE_RECORDINGS");
         slist << request;
-        if (!gCoreContext->SendReceiveStringList(slist))
+        if (!cctx->SendReceiveStringList(slist))
         {
             LOG(VB_GENERAL, LOG_ERR,
                 QString("Error rescheduling %1 in "

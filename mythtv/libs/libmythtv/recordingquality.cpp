@@ -64,13 +64,14 @@ RecordingQuality::RecordingQuality(
     }
 
     // account for late start
+    MythCoreContext *cctx = getCoreContext();
     int start_gap = (first.isValid()) ? start.secsTo(first) : 0;
-    if (start_gap >  gCoreContext->GetNumSetting("MaxStartGap", 15))
+    if (start_gap >  cctx->GetNumSetting("MaxStartGap", 15))
         m_recordingGaps.push_front(RecordingGap(start, first));
 
     // account for missing end
     int end_gap = (latest.isValid()) ? latest.secsTo(end) : 0;
-    if (end_gap > gCoreContext->GetNumSetting("MaxEndGap", 15))
+    if (end_gap > cctx->GetNumSetting("MaxEndGap", 15))
         m_recordingGaps.push_back(RecordingGap(latest, end));
 
     std::stable_sort(m_recordingGaps.begin(), m_recordingGaps.end());
@@ -108,7 +109,7 @@ void RecordingQuality::AddTSStatistics(
 bool RecordingQuality::IsDamaged(void) const
 {
     return (m_overallScore * 100) <
-        gCoreContext->GetNumSetting("MinimumRecordingQuality", 95);
+        getCoreContext()->GetNumSetting("MinimumRecordingQuality", 95);
 }
 
 QString RecordingQuality::toStringXML(void) const

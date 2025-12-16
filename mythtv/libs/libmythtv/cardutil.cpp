@@ -289,7 +289,7 @@ bool CardUtil::IsTunerShared(uint inputidA, uint inputidB)
 bool CardUtil::IsInputTypePresent(const QString &rawtype, QString hostname)
 {
     if (hostname.isEmpty())
-        hostname = gCoreContext->GetHostName();
+        hostname = getCoreContext()->GetHostName();
 
     MSqlQuery query(MSqlQuery::InitCon());
     QString qstr =
@@ -400,7 +400,7 @@ QStringList CardUtil::GetVideoDevices(const QString &rawtype, QString hostname)
     QStringList list;
 
     if (hostname.isEmpty())
-        hostname = gCoreContext->GetHostName();
+        hostname = getCoreContext()->GetHostName();
 
     MSqlQuery query(MSqlQuery::InitCon());
     QString qstr =
@@ -1310,7 +1310,7 @@ std::vector<uint> CardUtil::GetInputIDs(const QString& videodevice,
     std::vector<uint> list;
 
     if (hostname.isEmpty())
-        hostname = gCoreContext->GetHostName();
+        hostname = getCoreContext()->GetHostName();
 
     MSqlQuery query(MSqlQuery::InitCon());
     QString qstr =
@@ -2455,7 +2455,7 @@ InputNames CardUtil::GetConfiguredDVBInputs(const QString &device)
         "      AND videodevice = :DEVICE "
         "      AND parentid = 0 "
         "      AND inputname <> 'None'");
-    query.bindValue(":HOSTNAME", gCoreContext->GetHostName());
+    query.bindValue(":HOSTNAME", getCoreContext()->GetHostName());
     query.bindValue(":DEVICE", device);
 
     if (!query.exec() || !query.isActive())

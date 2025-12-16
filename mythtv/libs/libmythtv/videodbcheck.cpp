@@ -288,19 +288,20 @@ static bool InitializeVideoSchema(void)
 
 bool doUpgradeVideoDatabaseSchema(void)
 {
-    QString dbver = gCoreContext->GetSetting("mythvideo.DBSchemaVer");
+    MythCoreContext *cctx = getCoreContext();
+    QString dbver = cctx->GetSetting("mythvideo.DBSchemaVer");
     if (dbver == finalVideoDatabaseVersion)
     {
         return true;
     }
 
-    QString olddbver = gCoreContext->GetSetting("VideoDBSchemaVer");
-    QString dvddbver = gCoreContext->GetSetting("DVDDBSchemaVer");
+    QString olddbver = cctx->GetSetting("VideoDBSchemaVer");
+    QString dvddbver = cctx->GetSetting("DVDDBSchemaVer");
     if (dbver.isEmpty() && olddbver.isEmpty() && dvddbver.isEmpty())
     {
         if (!InitializeVideoSchema())
             return false;
-        dbver = gCoreContext->GetSetting("mythvideo.DBSchemaVer");
+        dbver = cctx->GetSetting("mythvideo.DBSchemaVer");
     }
 
     if (dbver.isEmpty() || dbver.toInt() <  minimumVideoDatabaseVersion.toInt())

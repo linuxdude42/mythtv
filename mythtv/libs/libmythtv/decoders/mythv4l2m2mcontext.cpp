@@ -500,7 +500,7 @@ AVPixelFormat MythV4L2M2MContext::GetV4L2RequestFormat(AVCodecContext *Context, 
 
 int MythV4L2M2MContext::InitialiseV4L2RequestContext(AVCodecContext *Context)
 {
-    if (!Context || !gCoreContext->IsUIThread())
+    if (!Context || !getCoreContext()->IsUIThread())
         return -1;
 
     // N.B. Interop support should already have been checked

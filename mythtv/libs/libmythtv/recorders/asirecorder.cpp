@@ -65,7 +65,7 @@ void ASIRecorder::SetOptionsFromProfile(RecordingProfile *profile,
     // We don't want to call DTVRecorder::SetOptionsFromProfile() since
     // we do not have a "recordingtype" in our profile.
     DTVRecorder::SetOption("videodevice", videodev);
-    DTVRecorder::SetOption("tvformat", gCoreContext->GetSetting("TVFormat"));
+    DTVRecorder::SetOption("tvformat", getCoreContext()->GetSetting("TVFormat"));
     SetIntOption(profile, "recordmpts");
 }
 

@@ -266,7 +266,7 @@ void OSD::SetText(const QString &Window, const InfoMap &Map, OSDTimeout Timeout)
             if (!iconpath.isEmpty())
             {
                 QString iconurl =
-                                gCoreContext->GetMasterHostPrefix("ChannelIcons",
+                    getCoreContext()->GetMasterHostPrefix("ChannelIcons",
                                                                   iconpath);
 
                 icon->SetFilename(iconurl);

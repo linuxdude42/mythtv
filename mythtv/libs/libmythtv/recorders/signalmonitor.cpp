@@ -358,7 +358,7 @@ void SignalMonitor::run(void)
         {
             QStringList slist = GetStatusList();
             MythEvent me(QString("SIGNAL %1").arg(m_inputid), slist);
-            gCoreContext->dispatch(me);
+            getCoreContext()->dispatch(me);
         }
 
         locker.relock();
@@ -373,7 +373,7 @@ void SignalMonitor::run(void)
     {
         QStringList slist = GetStatusList();
         MythEvent me(QString("SIGNAL %1").arg(m_inputid), slist);
-        gCoreContext->dispatch(me);
+        getCoreContext()->dispatch(me);
     }
     locker.relock();
 

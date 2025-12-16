@@ -187,7 +187,7 @@ bool MythVideoOutputOpenGL::Init(const QSize VideoDim, const QSize VideoDispDim,
         return false;
     }
 
-    if (!gCoreContext->IsUIThread())
+    if (!getCoreContext()->IsUIThread())
     {
         LOG(VB_GENERAL, LOG_ERR, LOC + "Cannot initialise OpenGL video from this thread");
         return false;

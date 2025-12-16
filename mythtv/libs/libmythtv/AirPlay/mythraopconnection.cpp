@@ -195,7 +195,7 @@ void MythRAOPConnection::CleanUp(void)
     // Tell listeners we're done
     if (m_playbackStarted)
     {
-        gCoreContext->emitTVPlaybackStopped();
+        getCoreContext()->emitTVPlaybackStopped();
     }
 }
 
@@ -239,7 +239,7 @@ bool MythRAOPConnection::Init(void)
         return false;
 
     // use internal volume control
-    m_allowVolumeControl = gCoreContext->GetBoolSetting("MythControlsVolume", true);
+    m_allowVolumeControl = getCoreContext()->GetBoolSetting("MythControlsVolume", true);
 
     // start the watchdog timer to auto delete the client after a period of inactivity
     m_watchdogTimer = new QTimer();
@@ -999,7 +999,8 @@ void MythRAOPConnection::ProcessRequest(const QStringList &header,
             .arg(RTPseq).arg(RTPtimestamp));
     }
 
-    if (gCoreContext->GetBoolSetting("AirPlayPasswordEnabled", false))
+    MythCoreContext *cctx = getCoreContext();
+    if (cctx->GetBoolSetting("AirPlayPasswordEnabled", false))
     {
         if (m_nonce.isEmpty())
         {
@@ -1015,7 +1016,7 @@ void MythRAOPConnection::ProcessRequest(const QStringList &header,
 
         QByteArray auth;
         if (DigestMd5Response(tags["Authorization"], option, m_nonce,
-                              gCoreContext->GetSetting("AirPlayPassword"),
+                              cctx->GetSetting("AirPlayPassword"),
                               auth) == auth)
         {
             LOG(VB_PLAYBACK, LOG_INFO, LOC + "RAOP client authenticated");
@@ -1238,7 +1239,7 @@ void MythRAOPConnection::ProcessRequest(const QStringList &header,
             auto *dev = qobject_cast<MythRAOPDevice*>(parent());
             if (dev != nullptr)
                 dev->DeleteAllClients(this);
-            gCoreContext->WantingPlayback(parent());
+            cctx->WantingPlayback(parent());
             m_playbackStarted = true;
 
             int control_port = 0;
@@ -1786,9 +1787,10 @@ bool MythRAOPConnection::OpenAudioDevice(void)
 {
     CloseAudioDevice();
 
-    QString passthru = gCoreContext->GetBoolSetting("PassThruDeviceOverride", false)
-                        ? gCoreContext->GetSetting("PassThruOutputDevice") : QString();
-    QString device = gCoreContext->GetSetting("AudioOutputDevice");
+    MythCoreContext *cctx = getCoreContext();
+    QString passthru = cctx->GetBoolSetting("PassThruDeviceOverride", false)
+                        ? cctx->GetSetting("PassThruOutputDevice") : QString();
+    QString device = cctx->GetSetting("AudioOutputDevice");
 
     m_audio = AudioOutput::OpenAudio(device, passthru, FORMAT_S16, m_channels,
                                      AV_CODEC_ID_NONE, m_frameRate, AUDIOOUTPUT_MUSIC,
@@ -1903,7 +1905,7 @@ void MythRAOPConnection::SendNotification(bool update)
     n->SetId(m_id);
     n->SetParent(this);
     n->SetDuration(5s);
-    n->SetFullScreen(gCoreContext->GetBoolSetting("AirPlayFullScreen"));
+    n->SetFullScreen(getCoreContext()->GetBoolSetting("AirPlayFullScreen"));
     GetNotificationCenter()->Queue(*n);
     m_firstSend = true;
     delete n;

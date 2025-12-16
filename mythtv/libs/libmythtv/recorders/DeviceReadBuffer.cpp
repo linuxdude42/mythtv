@@ -109,7 +109,7 @@ bool DeviceReadBuffer::Setup(const QString &streamName, int streamfd,
 
     m_readQuanta   = (readQuanta) ? readQuanta : m_readQuanta;
     m_devBufferCount = deviceBufferCount;
-    m_size          = gCoreContext->GetNumSetting(
+    m_size          = getCoreContext()->GetNumSetting(
         "HDRingbufferSize", static_cast<int>(50 * m_readQuanta)) * 1024_UZ;
     m_used          = 0;
     m_devReadSize = m_readQuanta * (m_usingPoll ? 256 : 48);

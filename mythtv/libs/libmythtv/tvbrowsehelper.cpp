@@ -74,7 +74,7 @@ void TVBrowseHelper::BrowseWait()
 /// \note This may only be called from the UI thread.
 bool TVBrowseHelper::BrowseStart(bool SkipBrowse)
 {
-    if (!gCoreContext->IsUIThread())
+    if (!getCoreContext()->IsUIThread())
         return false;
 
     QMutexLocker locker(&m_browseLock);
@@ -114,7 +114,7 @@ bool TVBrowseHelper::BrowseStart(bool SkipBrowse)
  */
 void TVBrowseHelper::BrowseEnd(bool ChangeChannel)
 {
-    if (!gCoreContext->IsUIThread())
+    if (!getCoreContext()->IsUIThread())
         return;
 
     QMutexLocker locker(&m_browseLock);
@@ -139,7 +139,7 @@ void TVBrowseHelper::BrowseEnd(bool ChangeChannel)
 
 void TVBrowseHelper::BrowseDispInfo(const BrowseInfo& Browseinfo)
 {
-    if (!gCoreContext->IsUIThread())
+    if (!getCoreContext()->IsUIThread())
         return;
 
     if (!BrowseStart(true))
@@ -164,7 +164,7 @@ void TVBrowseHelper::BrowseDispInfo(BrowseDirection Direction)
 
 void TVBrowseHelper::BrowseChannel(const QString& Channum)
 {
-    if (!gCoreContext->IsUIThread())
+    if (!getCoreContext()->IsUIThread())
         return;
 
     if (m_dbBrowseAllTuners)

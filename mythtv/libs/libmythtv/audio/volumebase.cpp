@@ -59,17 +59,19 @@ class VolumeWriteBackThread : public MThread
         RunProlog();
 
         static constexpr std::chrono::milliseconds holdoff { 500ms }; // min ms between Db writes
-        QString controlLabel = gCoreContext->GetSetting("MixerControl", "PCM");
+        QString controlLabel = getCoreContext()->GetSetting("MixerControl", "PCM");
         controlLabel += "MixerVolume";
 
         QMutexLocker lock(&m_mutex);
-        while (gCoreContext && !gCoreContext->IsExiting())
+        while (auto *cctx = getCoreContext())
         {
+            if (cctx->IsExiting())
+                break;
             int volume = m_volume;
             lock.unlock();
 
             // Update the dbase with the new volume
-            gCoreContext->SaveSetting(controlLabel, volume);
+            cctx->SaveSetting(controlLabel, volume);
 
             // Ignore further volume changes for the holdoff period
             setTerminationEnabled(true);
@@ -98,9 +100,11 @@ QMutex VolumeWriteBackThread::s_mutex;
 
 VolumeBase::VolumeBase()
 {
-    m_internalVol = gCoreContext->GetBoolSetting("MythControlsVolume", true);
+    MythCoreContext *cctx = getCoreContext();
+
+    m_internalVol = cctx->GetBoolSetting("MythControlsVolume", true);
     m_swvol = m_swvolSetting =
-        (gCoreContext->GetSetting("MixerDevice", "default").toLower() == "software");
+        (cctx->GetSetting("MixerDevice", "default").toLower() == "software");
 }
 
 bool VolumeBase::SWVolume(void) const

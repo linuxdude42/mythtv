@@ -16,7 +16,7 @@ AudioPlayer::AudioPlayer(MythPlayer *parent, bool muted)
   : m_parent(parent),
     m_mutedOnCreation(muted)
 {
-    m_controlsVolume = gCoreContext->GetBoolSetting("MythControlsVolume", true);
+    m_controlsVolume = getCoreContext()->GetBoolSetting("MythControlsVolume", true);
 }
 
 AudioPlayer::~AudioPlayer()

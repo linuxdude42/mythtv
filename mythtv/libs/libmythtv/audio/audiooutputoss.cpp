@@ -305,14 +305,15 @@ void AudioOutputOSS::VolumeInit()
 {
     m_mixerFd = -1;
 
-    QString device = gCoreContext->GetSetting("MixerDevice", "/dev/mixer");
+    MythCoreContext *cctx = getCoreContext();
+    QString device = cctx->GetSetting("MixerDevice", "/dev/mixer");
     if (device.toLower() == "software")
         return;
 
     QByteArray dev = device.toLatin1();
     m_mixerFd = open(dev.constData(), O_RDONLY);
 
-    QString controlLabel = gCoreContext->GetSetting("MixerControl", "PCM");
+    QString controlLabel = cctx->GetSetting("MixerControl", "PCM");
 
     if (controlLabel == "Master")
         m_control = SOUND_MIXER_VOLUME;
@@ -327,13 +328,13 @@ void AudioOutputOSS::VolumeInit()
 
     if (m_setInitialVol)
     {
-        int volume = gCoreContext->GetNumSetting("MasterMixerVolume", 80);
+        int volume = cctx->GetNumSetting("MasterMixerVolume", 80);
         int tmpVol = (volume << 8) + volume;
         int ret = ioctl(m_mixerFd, MIXER_WRITE(SOUND_MIXER_VOLUME), &tmpVol);
         if (ret < 0)
             LOG(VB_GENERAL, LOG_ERR, LOC + QString("Error Setting initial Master Volume") + ENO);
 
-        volume = gCoreContext->GetNumSetting("PCMMixerVolume", 80);
+        volume = cctx->GetNumSetting("PCMMixerVolume", 80);
         tmpVol = (volume << 8) + volume;
         ret = ioctl(m_mixerFd, MIXER_WRITE(SOUND_MIXER_PCM), &tmpVol);
         if (ret < 0)

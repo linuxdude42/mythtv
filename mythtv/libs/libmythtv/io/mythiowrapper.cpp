@@ -416,7 +416,7 @@ int MythDirOpen(const char *DirName)
 
         list << path << "1";
 
-        bool ok = gCoreContext->SendReceiveStringList(list);
+        bool ok = getCoreContext()->SendReceiveStringList(list);
 
         if ((!ok) || ((list.size() == 1) && (list[0] == "EMPTY LIST")))
             list.clear();

@@ -17,7 +17,7 @@ MythPlayerCaptionsUI::MythPlayerCaptionsUI(MythMainWindow* MainWindow, TV* Tv, P
     // Register state type for signalling
     qRegisterMetaType<MythCaptionsState>();
 
-    m_itvEnabled = gCoreContext->GetBoolSetting("EnableMHEG", false);
+    m_itvEnabled = getCoreContext()->GetBoolSetting("EnableMHEG", false);
 
     // Connect outgoing
     connect(this, &MythPlayerCaptionsUI::CaptionsStateChanged, m_tv, &TV::CaptionsStateChanged);

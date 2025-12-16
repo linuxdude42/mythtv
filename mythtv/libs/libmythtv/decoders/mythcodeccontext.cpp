@@ -146,7 +146,7 @@ QStringList MythCodecContext::GetDecoderDescription(void)
 
 void MythCodecContext::GetDecoders(RenderOptions &Opts, bool Reinit /*=false*/)
 {
-    if (!gCoreContext->IsUIThread())
+    if (!getCoreContext()->IsUIThread())
     {
         LOG(VB_GENERAL, LOG_ERR, LOC + "Must be called from UI thread");
         return;
@@ -465,7 +465,7 @@ void MythCodecContext::DeviceContextFinished(AVHWDeviceContext* Context)
 
 void MythCodecContext::DestroyInterop(MythInteropGPU* Interop)
 {
-    if (gCoreContext->IsUIThread())
+    if (getCoreContext()->IsUIThread())
     {
         Interop->DecrRef();
         return;
@@ -528,7 +528,7 @@ int MythCodecContext::InitialiseDecoder(AVCodecContext *Context, CreateHWDecoder
 {
     if (!Context || !Callback)
         return -1;
-    if (gCoreContext->IsUIThread())
+    if (getCoreContext()->IsUIThread())
         return Callback(Context);
 
     // Callback to MythPlayer (which will fail without a MythPlayer instance)
@@ -545,7 +545,7 @@ int MythCodecContext::InitialiseDecoder2(AVCodecContext *Context, CreateHWDecode
 {
     if (!Context || !Callback)
         return -1;
-    if (gCoreContext->IsUIThread())
+    if (getCoreContext()->IsUIThread())
         return Callback(Context);
 
     // Callback to MythPlayer (which will fail without a MythPlayer instance)

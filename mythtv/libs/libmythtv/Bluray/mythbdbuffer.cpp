@@ -384,8 +384,9 @@ bool MythBDBuffer::OpenFile(const QString &Filename, std::chrono::milliseconds /
     bd_set_player_setting(m_bdnav, BLURAY_PLAYER_SETTING_PARENTAL, 99);
 
     // Set preferred language to FE guide language
-    std::string langpref = gCoreContext->GetSetting("ISO639Language0", "eng").toLatin1().data();
-    QString QScountry    = gCoreContext->GetLocale()->GetCountryCode().toLower();
+    MythCoreContext *cctx = getCoreContext();
+    std::string langpref = cctx->GetSetting("ISO639Language0", "eng").toLatin1().data();
+    QString QScountry    = cctx->GetLocale()->GetCountryCode().toLower();
     std::string country  = QScountry.toLatin1().data();
     bd_set_player_setting_str(m_bdnav, BLURAY_PLAYER_SETTING_AUDIO_LANG, langpref.c_str());
     // Set preferred presentation graphics language to the FE guide language
@@ -395,7 +396,7 @@ bool MythBDBuffer::OpenFile(const QString &Filename, std::chrono::milliseconds /
     // Set player country code via MythLocale. (not a region setting)
     bd_set_player_setting_str(m_bdnav, BLURAY_PLAYER_SETTING_COUNTRY_CODE, country.c_str());
 
-    uint32_t regioncode = static_cast<uint32_t>(gCoreContext->GetNumSetting("BlurayRegionCode"));
+    uint32_t regioncode = static_cast<uint32_t>(cctx->GetNumSetting("BlurayRegionCode"));
     if (regioncode > 0)
         bd_set_player_setting(m_bdnav, BLURAY_PLAYER_SETTING_REGION_CODE, regioncode);
 

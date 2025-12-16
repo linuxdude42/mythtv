@@ -79,7 +79,7 @@ PreviewGenerator::PreviewGenerator(const ProgramInfo *pginfo,
 {
     // Qt requires that a receiver have the same thread affinity as the QThread
     // sending the event, which is used to dispatch MythEvents sent by
-    // gCoreContext->dispatchNow(me)
+    // getCoreContext()->dispatchNow(me)
     moveToThread(QApplication::instance()->thread());
 }
 
@@ -145,7 +145,7 @@ bool PreviewGenerator::RunReal(void)
     {
         ok = true;
         msg = QString("Generated on %1 in %2 seconds, starting at %3")
-            .arg(gCoreContext->GetHostName())
+            .arg(getCoreContext()->GetHostName())
             .arg(te.elapsed()*0.001)
             .arg(tm.toString(Qt::ISODate));
     }
@@ -294,7 +294,7 @@ bool PreviewGenerator::Run(void)
             {
                 LOG(VB_PLAYBACK, LOG_INFO, LOC + "Preview process ran ok.");
                 msg = QString("Generated on %1 in %2 seconds, starting at %3")
-                    .arg(gCoreContext->GetHostName())
+                    .arg(getCoreContext()->GetHostName())
                     .arg(te.elapsed()*0.001)
                     .arg(tm.toString(Qt::ISODate));
             }
@@ -383,10 +383,11 @@ bool PreviewGenerator::RemotePreviewRun(void)
     strlist.push_back(QString::number(m_outSize.width()));
     strlist.push_back(QString::number(m_outSize.height()));
 
-    gCoreContext->addListener(this);
+    MythCoreContext *cctx = getCoreContext();
+    cctx->addListener(this);
     m_pixmapOk = false;
 
-    bool ok = gCoreContext->SendReceiveStringList(strlist);
+    bool ok = cctx->SendReceiveStringList(strlist);
     if (!ok || strlist.empty() || (strlist[0] != "OK"))
     {
         if (!ok)
@@ -400,7 +401,7 @@ bool PreviewGenerator::RemotePreviewRun(void)
                 "Remote Preview failed, reason given: " + strlist[1]);
         }
 
-        gCoreContext->removeListener(this);
+        cctx->removeListener(this);
 
         return false;
     }
@@ -415,7 +416,7 @@ bool PreviewGenerator::RemotePreviewRun(void)
     if (!m_gotReply)
         LOG(VB_GENERAL, LOG_NOTICE, LOC + "RemotePreviewRun() -- no reply..");
 
-    gCoreContext->removeListener(this);
+    cctx->removeListener(this);
 
     return m_pixmapOk;
 }
@@ -656,7 +657,7 @@ bool PreviewGenerator::LocalPreviewRun(void)
     {
         std::chrono::seconds startEarly = 0s;
         std::chrono::seconds programDuration = 0s;
-        auto preroll = gCoreContext->GetDurSetting<std::chrono::seconds>("RecordPreRoll", 0s);
+        auto preroll = getCoreContext()->GetDurSetting<std::chrono::seconds>("RecordPreRoll", 0s);
         if (m_programInfo.GetScheduledStartTime().isValid() &&
             m_programInfo.GetScheduledEndTime().isValid() &&
             (m_programInfo.GetScheduledStartTime() !=

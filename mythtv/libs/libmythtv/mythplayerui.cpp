@@ -322,7 +322,7 @@ void MythPlayerUI::EventLoop()
             message += QString("%1").arg(m_playerCtx->m_playingInfo->GetChanID()) +
                 " " + m_playerCtx->m_playingInfo->MakeUniqueKey();
             m_playerCtx->UnlockPlayingInfo(__FILE__, __LINE__);
-            gCoreContext->SendMessage(message);
+            getCoreContext()->SendMessage(message);
         }
         else
         {

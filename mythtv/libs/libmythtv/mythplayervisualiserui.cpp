@@ -24,7 +24,7 @@ MythPlayerVisualiserUI::MythPlayerVisualiserUI(MythMainWindow *MainWindow, TV *T
     connect(this, &MythPlayerVisualiserUI::VisualiserStateChanged, m_tv, &TV::VisualiserStateChanged);
 
 
-    m_defaultVisualiser = gCoreContext->GetSetting("AudioVisualiser", "");
+    m_defaultVisualiser = getCoreContext()->GetSetting("AudioVisualiser", "");
     m_uiScreenRect = m_mainWindow->GetUIScreenRect();
     if (m_render)
     {

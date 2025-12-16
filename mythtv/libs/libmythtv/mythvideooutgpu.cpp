@@ -753,7 +753,7 @@ void MythVideoOutputGPU::ResizeForVideo(QSize Size)
         {
             int gui_width = 0;
             int gui_height = 0;
-            gCoreContext->GetResolutionSetting("Gui", gui_width, gui_height);
+            getCoreContext()->GetResolutionSetting("Gui", gui_width, gui_height);
             fullscreen |= (0 == gui_width && 0 == gui_height);
         }
 

@@ -1495,7 +1495,7 @@ void RecordingProfile::FiltersChanged(const QString &val)
 bool RecordingProfile::loadByType(const QString &name, const QString &card,
                                   [[maybe_unused]] const QString &videodev)
 {
-    QString hostname = gCoreContext->GetHostName().toLower();
+    QString hostname = getCoreContext()->GetHostName().toLower();
     QString cardtype = card;
     uint profileId = 0;
 
@@ -1607,7 +1607,7 @@ void RecordingProfile::CompleteLoad(int profileId, const QString &type,
         }
 #endif
 
-        QString tvFormat = gCoreContext->GetSetting("TVFormat");
+        QString tvFormat = getCoreContext()->GetSetting("TVFormat");
         // TODO: When mpegrecorder is removed, don't check for "HDPVR' anymore...
         if (type != "HDPVR" &&
             (!m_v4l2util

@@ -193,7 +193,7 @@ bool DVBChannel::Open(DVBChannel *who)
 
     LOG(VB_CHANNEL, LOG_INFO, LOC + "Opening DVB channel");
 
-    m_legacyFe = gCoreContext->GetDVBv3();
+    m_legacyFe = getCoreContext()->GetDVBv3();
     if (m_legacyFe)
     {
         LOG(VB_CHANNEL, LOG_INFO, LOC + "Use legacy DVBv3 API");

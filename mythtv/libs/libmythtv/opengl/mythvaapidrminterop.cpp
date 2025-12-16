@@ -24,7 +24,7 @@ MythVAAPIInteropDRM::MythVAAPIInteropDRM(MythPlayerUI *Player, MythRenderOpenGL*
   : MythVAAPIInterop(Player, Context, Type),
     MythEGLDMABUF(Context)
 {
-    QString device = gCoreContext->GetSetting("VAAPIDevice");
+    QString device = getCoreContext()->GetSetting("VAAPIDevice");
     if (device.isEmpty())
         device = "/dev/dri/renderD128";
     m_drmFile.setFileName(device);

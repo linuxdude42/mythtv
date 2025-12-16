@@ -401,9 +401,10 @@ AudioOutputBase::AudioOutputBase(const AudioSettings &settings) :
     if (m_mainDevice.startsWith("AudioTrack:"))
         m_usesSpdif = false;
     // Handle override of SRC quality settings
-    if (gCoreContext->GetBoolSetting("SRCQualityOverride", false))
+    MythCoreContext *cctx = getCoreContext();
+    if (cctx->GetBoolSetting("SRCQualityOverride", false))
     {
-        m_srcQuality = gCoreContext->GetNumSetting("SRCQuality", QUALITY_MEDIUM);
+        m_srcQuality = cctx->GetNumSetting("SRCQuality", QUALITY_MEDIUM);
         // Extra test to keep backward compatibility with earlier SRC setting
         m_srcQuality = std::min<int>(m_srcQuality, QUALITY_HIGH);
 
@@ -465,7 +466,7 @@ void AudioOutputBase::InitSettings(const AudioSettings &settings)
     m_configuredChannels = m_maxChannels;
 
     m_upmixDefault = m_maxChannels > 2 ?
-        gCoreContext->GetBoolSetting("AudioDefaultUpmix", false) :
+        getCoreContext()->GetBoolSetting("AudioDefaultUpmix", false) :
         false;
     if (settings.m_upmixer == 1) // music, upmixer off
         m_upmixDefault = false;
@@ -578,7 +579,7 @@ bool AudioOutputBase::CanPassthrough(int samplerate, int channels,
     ret &= m_outputSettingsDigital->IsSupportedRate(samplerate);
     // if we must resample to 48kHz ; we can't passthrough
     ret &= (samplerate == 48000) ||
-             !gCoreContext->GetBoolSetting("Audio48kOverride", false);
+        !getCoreContext()->GetBoolSetting("Audio48kOverride", false);
     // Don't know any cards that support spdif clocked at < 44100
     // Some US cable transmissions have 2ch 32k AC-3 streams
     ret &= samplerate >= 44100;
@@ -797,6 +798,7 @@ AudioOutputSettings *AudioOutputBase::OutputSettings(bool digital)
  */
 void AudioOutputBase::Reconfigure(const AudioSettings &orig_settings)
 {
+    MythCoreContext *cctx     = getCoreContext();
     AudioSettings settings    = orig_settings;
     int  lsource_channels     = settings.m_channels;
     int  lconfigured_channels = m_configuredChannels;
@@ -987,7 +989,7 @@ void AudioOutputBase::Reconfigure(const AudioSettings &orig_settings)
     // Force resampling if we are encoding to AC3 and sr > 48k
     // or if 48k override was checked in settings
     if ((m_sampleRate != 48000 &&
-         gCoreContext->GetBoolSetting("Audio48kOverride", false)) ||
+         cctx->GetBoolSetting("Audio48kOverride", false)) ||
          (m_enc && (m_sampleRate > 48000)))
     {
         LOG(VB_AUDIO, LOG_INFO, LOC + "Forcing resample to 48 kHz");
@@ -1135,9 +1137,9 @@ void AudioOutputBase::Reconfigure(const AudioSettings &orig_settings)
     if (m_setInitialVol && m_internalVol && SWVolume())
     {
         LOG(VB_AUDIO, LOG_INFO, LOC + "Software volume enabled");
-        m_volumeControl  = gCoreContext->GetSetting("MixerControl", "PCM");
+        m_volumeControl  = cctx->GetSetting("MixerControl", "PCM");
         m_volumeControl += "MixerVolume";
-        m_volume = gCoreContext->GetNumSetting(m_volumeControl, 80);
+        m_volume = cctx->GetNumSetting(m_volumeControl, 80);
     }
 
     VolumeBase::SetChannels(m_configuredChannels);
@@ -1146,7 +1148,7 @@ void AudioOutputBase::Reconfigure(const AudioSettings &orig_settings)
 
     if (m_needsUpmix && m_configuredChannels > 2)
     {
-        m_surroundMode = gCoreContext->GetNumSetting("AudioUpmixType", QUALITY_HIGH);
+        m_surroundMode = cctx->GetNumSetting("AudioUpmixType", QUALITY_HIGH);
         m_upmixer = new FreeSurround(m_sampleRate, m_source == AUDIOOUTPUT_VIDEO,
                                    (FreeSurround::SurroundMode)m_surroundMode);
         LOG(VB_AUDIO, LOG_INFO, LOC + QString("Create %1 quality upmixer done")
@@ -1499,7 +1501,7 @@ void AudioOutputBase::SetSWVolume(int new_volume, bool save)
 {
     m_volume = new_volume;
     if (save && m_volumeControl != nullptr)
-        gCoreContext->SaveSetting(m_volumeControl, m_volume);
+        getCoreContext()->SaveSetting(m_volumeControl, m_volume);
 }
 
 /**

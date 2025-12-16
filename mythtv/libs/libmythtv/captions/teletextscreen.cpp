@@ -660,7 +660,7 @@ void TeletextScreen::DrawStatus()
 bool TeletextScreen::InitialiseFont()
 {
     static bool s_initialised = false;
-    //QString font = gCoreContext->GetSetting("DefaultSubtitleFont", "FreeMono");
+    //QString font = getCoreContext()->GetSetting("DefaultSubtitleFont", "FreeMono");
     if (s_initialised)
     {
         return true;

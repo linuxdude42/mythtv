@@ -126,10 +126,11 @@ LinuxFirewireDevice::LinuxFirewireDevice(
     m_bufsz(av_buffer_size_in_bytes),
     m_useP2P(use_p2p), m_priv(new LFDPriv())
 {
+    MythCoreContext *cctx = getCoreContext();
     if (!m_bufsz)
-        m_bufsz = gCoreContext->GetNumSetting("HDRingbufferSize");
+        m_bufsz = cctx->GetNumSetting("HDRingbufferSize");
 
-    m_dbResetDisabled = gCoreContext->GetBoolSetting("DisableFirewireReset", false);
+    m_dbResetDisabled = cctx->GetBoolSetting("DisableFirewireReset", false);
 
     UpdateDeviceList();
 }

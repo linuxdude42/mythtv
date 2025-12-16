@@ -381,7 +381,7 @@ bool MythNVDECInterop::CreateCUDAPriv(MythRenderOpenGL* GLContext, CudaFunctions
 bool MythNVDECInterop::CreateCUDAContext(MythRenderOpenGL* GLContext, CudaFunctions*& CudaFuncs,
                                          CUcontext& CudaContext)
 {
-    if (!gCoreContext->IsUIThread())
+    if (!getCoreContext()->IsUIThread())
     {
         LOG(VB_GENERAL, LOG_ERR, LOC + "Must create CUDA context from main thread");
         return false;

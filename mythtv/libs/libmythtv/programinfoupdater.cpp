@@ -58,6 +58,7 @@ void ProgramInfoUpdater::run(void)
         m_lock.lock();
 
         // send adds and deletes in the order they were queued
+        MythCoreContext *cctx = getCoreContext();
         for (auto & pi : m_needsAddDelete)
         {
             if (kPIAdd != pi.m_action && kPIDelete != pi.m_action)
@@ -68,7 +69,7 @@ void ProgramInfoUpdater::run(void)
                 .arg(type).arg(pi.m_recordedid);
 
             workDone = true;
-            gCoreContext->SendMessage(msg);
+            cctx->SendMessage(msg);
         }
         m_needsAddDelete.clear();
 
@@ -92,7 +93,7 @@ void ProgramInfoUpdater::run(void)
             }
 
             workDone = true;
-            gCoreContext->SendMessage(msg);
+            cctx->SendMessage(msg);
         }
         m_needsUpdate.clear();
 

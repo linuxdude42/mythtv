@@ -44,7 +44,7 @@ AudioOutputALSA::AudioOutputALSA(const AudioSettings &settings) :
              * AES2 = source and channel unspecified
              * AES3 = sample rate unspecified
              */
-        bool s48k = gCoreContext->GetBoolSetting("SPDIFRateOverride", false);
+        bool s48k = getCoreContext()->GetBoolSetting("SPDIFRateOverride", false);
         QString iecarg = QString("AES0=6,AES1=0x82,AES2=0x00") +
             (s48k ? QString() : QString(",AES3=0x01"));
         QString iecarg2 = QString("AES0=6 AES1=0x82 AES2=0x00") +
@@ -483,7 +483,7 @@ bool AudioOutputALSA::OpenDevice()
     }
 
     // buffer 0.5s worth of samples
-    uint buffer_time = gCoreContext->GetNumSetting("ALSABufferOverride", 500) * 1000;
+    uint buffer_time = getCoreContext()->GetNumSetting("ALSABufferOverride", 500) * 1000;
 
     uint period_time = 4; // aim for an interrupt every (1/4th of buffer_time)
 
@@ -896,17 +896,19 @@ void AudioOutputALSA::SetVolumeChannel(int channel, int volume)
 
 bool AudioOutputALSA::OpenMixer(void)
 {
+    MythCoreContext *cctx = getCoreContext();
+
     if (!m_pcmHandle)
     {
         LOG(VB_GENERAL, LOG_ERR, LOC + "mixer setup without a pcm");
         return false;
     }
-    m_mixer.device = gCoreContext->GetSetting("MixerDevice", "default");
+    m_mixer.device = cctx->GetSetting("MixerDevice", "default");
     m_mixer.device = m_mixer.device.remove(QString("ALSA:"));
     if (m_mixer.device.toLower() == "software")
         return true;
 
-    m_mixer.control = gCoreContext->GetSetting("MixerControl", "PCM");
+    m_mixer.control = cctx->GetSetting("MixerControl", "PCM");
 
     QString mixer_device_tag = QString("mixer device %1").arg(m_mixer.device);
 
@@ -991,9 +993,9 @@ bool AudioOutputALSA::OpenMixer(void)
     {
         int initial_vol = 80;
         if (m_mixer.control == "PCM")
-            initial_vol = gCoreContext->GetNumSetting("PCMMixerVolume", 80);
+            initial_vol = cctx->GetNumSetting("PCMMixerVolume", 80);
         else
-            initial_vol = gCoreContext->GetNumSetting("MasterMixerVolume", 80);
+            initial_vol = cctx->GetNumSetting("MasterMixerVolume", 80);
         for (int ch = 0; ch < m_channels; ++ch)
             SetVolumeChannel(ch, initial_vol);
     }

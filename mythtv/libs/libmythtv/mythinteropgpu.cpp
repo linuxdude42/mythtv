@@ -11,7 +11,7 @@
 MythInteropGPU::InteropMap MythInteropGPU::GetTypes(MythRender* Render)
 {
     InteropMap result;
-    if (!gCoreContext->IsUIThread())
+    if (!getCoreContext()->IsUIThread())
         return result;
 
 #if CONFIG_OPENGL

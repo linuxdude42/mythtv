@@ -53,12 +53,13 @@ const float MythVideoBounds::kManualZoomMinVerticalZoom   = 0.25F;
 const int   MythVideoBounds::kManualZoomMaxMove           = 50;
 
 MythVideoBounds::MythVideoBounds()
-  : m_dbMove( { gCoreContext->GetNumSetting("xScanDisplacement", 0),
-                gCoreContext->GetNumSetting("yScanDisplacement", 0) }),
-    m_dbUseGUISize(gCoreContext->GetBoolSetting("GuiSizeForTV", false)),
-    m_dbAspectOverride(static_cast<AspectOverrideMode>(gCoreContext->GetNumSetting("AspectOverride", 0))),
-    m_dbAdjustFill(static_cast<AdjustFillMode>(gCoreContext->GetNumSetting("AdjustFill", 0)))
 {
+    MythCoreContext *cctx = getCoreContext();
+    m_dbMove = { cctx->GetNumSetting("xScanDisplacement", 0),
+                 cctx->GetNumSetting("yScanDisplacement", 0) };
+    m_dbUseGUISize = cctx->GetBoolSetting("GuiSizeForTV", false);
+    m_dbAspectOverride = static_cast<AspectOverrideMode>(cctx->GetNumSetting("AspectOverride", 0));
+    m_dbAdjustFill = static_cast<AdjustFillMode>(cctx->GetNumSetting("AdjustFill", 0));
 }
 
 /*! \brief Send out latest state to listeners.
@@ -586,8 +587,9 @@ void MythVideoBounds::SetVideoScalingAllowed(bool Change)
 
     if (Change)
     {
-        m_dbVertScale = gCoreContext->GetNumSetting("VertScanPercentage", 0) * 0.01F;
-        m_dbHorizScale = gCoreContext->GetNumSetting("HorizScanPercentage", 0) * 0.01F;
+        MythCoreContext *cctx = getCoreContext();
+        m_dbVertScale = cctx->GetNumSetting("VertScanPercentage", 0) * 0.01F;
+        m_dbHorizScale = cctx->GetNumSetting("HorizScanPercentage", 0) * 0.01F;
         m_dbScalingAllowed = true;
     }
     else
@@ -881,11 +883,12 @@ void MythVideoBounds::ToggleMoveBottomLine(void)
     else
     {
         const float zf = 0.02F;
-        m_manualMove.setX(gCoreContext->GetNumSetting("OSDMoveXBottomLine", 0));
-        m_manualMove.setY(gCoreContext->GetNumSetting("OSDMoveYBottomLine", 5));
-        float h = static_cast<float>(gCoreContext->GetNumSetting("OSDScaleHBottomLine", 100)) / 100.0F;
+        MythCoreContext *cctx = getCoreContext();
+        m_manualMove.setX(cctx->GetNumSetting("OSDMoveXBottomLine", 0));
+        m_manualMove.setY(cctx->GetNumSetting("OSDMoveYBottomLine", 5));
+        float h = static_cast<float>(cctx->GetNumSetting("OSDScaleHBottomLine", 100)) / 100.0F;
         m_manualHorizScale = snap(h, 1.0F, zf / 2.0F);
-        float v = static_cast<float>(gCoreContext->GetNumSetting("OSDScaleVBottomLine", 112)) / 100.0F;
+        float v = static_cast<float>(cctx->GetNumSetting("OSDScaleVBottomLine", 112)) / 100.0F;
         m_manualVertScale = snap(v, 1.0F, zf / 2.0F);
         m_bottomLine = true;
     }
@@ -905,10 +908,11 @@ void MythVideoBounds::ToggleMoveBottomLine(void)
 
 void MythVideoBounds::SaveBottomLine(void)
 {
-    gCoreContext->SaveSetting("OSDMoveXBottomLine", m_manualMove.x());
-    gCoreContext->SaveSetting("OSDMoveYBottomLine", m_manualMove.y());
-    gCoreContext->SaveSetting("OSDScaleHBottomLine", static_cast<int>(m_manualHorizScale * 100.0F));
-    gCoreContext->SaveSetting("OSDScaleVBottomLine", static_cast<int>(m_manualVertScale * 100.0F));
+    MythCoreContext *cctx = getCoreContext();
+    cctx->SaveSetting("OSDMoveXBottomLine", m_manualMove.x());
+    cctx->SaveSetting("OSDMoveYBottomLine", m_manualMove.y());
+    cctx->SaveSetting("OSDScaleHBottomLine", static_cast<int>(m_manualHorizScale * 100.0F));
+    cctx->SaveSetting("OSDScaleVBottomLine", static_cast<int>(m_manualVertScale * 100.0F));
 
     emit UpdateOSDMessage("Current 'Manual Zoom' saved for 'BottomLine'.");
 }

@@ -107,6 +107,8 @@ HTTPLiveStream::HTTPLiveStream(QString srcFile, uint16_t width, uint16_t height,
     m_created(MythDate::current()),
     m_lastModified(MythDate::current())
 {
+    MythCoreContext *cctx = getCoreContext();
+
     if ((m_width == 0) && (m_height == 0))
         m_width = 640;
 
@@ -122,7 +124,7 @@ HTTPLiveStream::HTTPLiveStream(QString srcFile, uint16_t width, uint16_t height,
     if (m_audioOnlyBitrate == 0)
         m_audioOnlyBitrate = 64000;
 
-    m_sourceHost = gCoreContext->GetHostName();
+    m_sourceHost = cctx->GetHostName();
 
     QFileInfo finfo(m_sourceFile);
     m_outBase = finfo.fileName() +
@@ -134,7 +136,7 @@ HTTPLiveStream::HTTPLiveStream(QString srcFile, uint16_t width, uint16_t height,
     m_fullURL     = m_httpPrefix + m_outBase + ".m3u8";
     m_relativeURL = m_httpPrefixRel + m_outBase + ".m3u8";
 
-    StorageGroup sgroup("Streaming", gCoreContext->GetHostName());
+    StorageGroup sgroup("Streaming", cctx->GetHostName());
     m_outDir = sgroup.GetFirstDir();
     QDir outDir(m_outDir);
 
@@ -277,7 +279,7 @@ int HTTPLiveStream::AddStream(void)
         query.bindValue(":STATUSMESSAGE",
             QString("Waiting for mythtranscode startup."));
         query.bindValue(":SOURCEFILE", m_sourceFile);
-        query.bindValue(":SOURCEHOST", gCoreContext->GetHostName());
+        query.bindValue(":SOURCEHOST", getCoreContext()->GetHostName());
         query.bindValue(":SOURCEWIDTH", 0);
         query.bindValue(":SOURCEHEIGHT", 0);
         query.bindValue(":OUTDIR", m_outDir);
@@ -737,6 +739,8 @@ bool HTTPLiveStream::LoadFromDB(void)
 
 void HTTPLiveStream::SetOutputVars(void)
 {
+    MythCoreContext *cctx = getCoreContext();
+
     m_outBaseEncoded = QString(QUrl::toPercentEncoding(m_outBase, "", " "));
 
     m_outFile        = m_outBase + ".av";
@@ -750,17 +754,17 @@ void HTTPLiveStream::SetOutputVars(void)
             QString(".ao_%1kA").arg(m_audioOnlyBitrate/1000);
     }
 
-    m_httpPrefix = gCoreContext->GetSetting("HTTPLiveStreamPrefix", QString(
+    m_httpPrefix = cctx->GetSetting("HTTPLiveStreamPrefix", QString(
         "http://%1:%2/StorageGroup/Streaming/")
-        .arg(gCoreContext->GetMasterServerIP())
-        .arg(gCoreContext->GetMasterServerStatusPort()));
+        .arg(cctx->GetMasterServerIP())
+        .arg(cctx->GetMasterServerStatusPort()));
 
     if (!m_httpPrefix.endsWith("/"))
         m_httpPrefix.append("/");
 
-    if (!gCoreContext->GetSetting("HTTPLiveStreamPrefixRel").isEmpty())
+    if (!cctx->GetSetting("HTTPLiveStreamPrefixRel").isEmpty())
     {
-        m_httpPrefixRel = gCoreContext->GetSetting("HTTPLiveStreamPrefixRel");
+        m_httpPrefixRel = cctx->GetSetting("HTTPLiveStreamPrefixRel");
         if (!m_httpPrefix.endsWith("/"))
             m_httpPrefix.append("/");
     }

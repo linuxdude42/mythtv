@@ -233,7 +233,7 @@ bool MythFileBuffer::OpenFile(const QString &Filename, std::chrono::milliseconds
                 lasterror = 2;
                 close(m_fd2);
                 m_fd2 = -1;
-                if (ret == 0 && openAttempts > 5 && !gCoreContext->IsRegisteredFileForWrite(m_filename))
+                if (ret == 0 && openAttempts > 5 && !getCoreContext()->IsRegisteredFileForWrite(m_filename))
                 {
                     // file won't grow, abort early
                     break;

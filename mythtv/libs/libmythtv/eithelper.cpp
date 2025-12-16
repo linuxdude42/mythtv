@@ -40,14 +40,15 @@ static void init_fixup(FixupMap &fix);
 EITHelper::EITHelper(uint cardnum) :
     m_cardnum(cardnum)
 {
-    m_chunkSize = gCoreContext->GetNumSetting("EITEventChunkSize", 20);
+    MythCoreContext *cctx = getCoreContext();
+    m_chunkSize = cctx->GetNumSetting("EITEventChunkSize", 20);
     m_queueSize = std::min(m_chunkSize * 50, kMaxQueueSize);
     LOG(VB_EIT, LOG_INFO, LOC_ID +
         QString("EITHelper chunk size %1 and queue size %2 events")
             .arg(m_chunkSize).arg(m_queueSize));
 
     // Save EIT cache in database table eit_cache iff true
-    bool persistent = gCoreContext->GetBoolSetting("EITCachePersistent", true);
+    bool persistent = cctx->GetBoolSetting("EITCachePersistent", true);
     s_eitCache->SetPersistent(persistent);
     LOG(VB_EIT, LOG_INFO, LOC_ID +
         QString("EITCache %1")

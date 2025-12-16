@@ -93,7 +93,7 @@ ChannelImporter::ChannelImporter(bool gui, bool interactive,
         m_success(success),
         m_serviceRequirements(service_requirements)
 {
-    if (gCoreContext->IsBackend() && m_useGui)
+    if (getCoreContext()->IsBackend() && m_useGui)
     {
         m_useWeb = true;
         m_pWeb = ChannelScannerWeb::getInstance();

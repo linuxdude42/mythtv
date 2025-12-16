@@ -82,7 +82,7 @@ static CardUtil::INPUT_TYPES get_cardtype(uint sourceid)
         "      capturecard.parentid = 0         AND "
         "      capturecard.hostname = :HOSTNAME");
     query.bindValue(":SOURCEID", sourceid);
-    query.bindValue(":HOSTNAME", gCoreContext->GetHostName());
+    query.bindValue(":HOSTNAME", getCoreContext()->GetHostName());
 
     if (!query.exec() || !query.isActive())
     {

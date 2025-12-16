@@ -31,10 +31,11 @@ bool RemoteEncoder::Setup(void)
     {
         LOG(VB_NETWORK, LOG_DEBUG, "RemoteEncoder::Setup(): Connecting...");
 
+        MythCoreContext *cctx = getCoreContext();
         QString ann = QString("ANN Playback %1 %2")
-            .arg(gCoreContext->GetHostName()).arg(static_cast<int>(false));
+            .arg(cctx->GetHostName()).arg(static_cast<int>(false));
 
-        m_controlSock = gCoreContext->ConnectCommandSocket(
+        m_controlSock = cctx->ConnectCommandSocket(
             m_remotehost, m_remoteport, ann);
 
         if (m_controlSock)

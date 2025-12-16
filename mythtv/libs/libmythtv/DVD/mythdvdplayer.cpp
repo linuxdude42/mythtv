@@ -377,7 +377,7 @@ void MythDVDPlayer::SetBookmark(bool Clear)
 
 uint64_t MythDVDPlayer::GetBookmark(void)
 {
-    if (gCoreContext->IsDatabaseIgnored() || !m_playerCtx->m_buffer->IsDVD())
+    if (getCoreContext()->IsDatabaseIgnored() || !m_playerCtx->m_buffer->IsDVD())
         return 0;
 
     QString name;

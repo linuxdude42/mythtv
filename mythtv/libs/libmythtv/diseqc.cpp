@@ -318,7 +318,7 @@ bool DiSEqCDevTree::Load(const QString &device)
         "WHERE hostname = :HOSTNAME AND "
         "      videodevice = :VIDEODEVICE "
         "LIMIT 1");
-    query.bindValue(":HOSTNAME", gCoreContext->GetHostName());
+    query.bindValue(":HOSTNAME", getCoreContext()->GetHostName());
     query.bindValue(":VIDEODEVICE", device);
 
     uint cardid = 0;
@@ -467,7 +467,7 @@ bool DiSEqCDevTree::Store(uint cardid, const QString &device)
         "      videodevice = :VIDEODEVICE) "
         "      OR cardid = :CARDID");
     query0.bindValue(":DEVID",  devid);
-    query0.bindValue(":HOSTNAME", gCoreContext->GetHostName());
+    query0.bindValue(":HOSTNAME", getCoreContext()->GetHostName());
     query0.bindValue(":VIDEODEVICE", device);
     query0.bindValue(":CARDID", cardid);
     if (!query0.exec())
@@ -2037,8 +2037,9 @@ double DiSEqCDevRotor::CalculateAzimuth(double angle)
     // http://www.angelfire.com/trek/ismail/theory.html
 
     // Earth Station Latitude and Longitude in radians
-    double P  = gCoreContext->GetSetting("Latitude",  "").toDouble() * TO_RADS;
-    double Ue = gCoreContext->GetSetting("Longitude", "").toDouble() * TO_RADS;
+    MythCoreContext *cctx = getCoreContext();
+    double P  = cctx->GetSetting("Latitude",  "").toDouble() * TO_RADS;
+    double Ue = cctx->GetSetting("Longitude", "").toDouble() * TO_RADS;
 
     // Satellite Longitude in radians
     double Us = angle * TO_RADS;

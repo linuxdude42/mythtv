@@ -311,7 +311,7 @@ RecordingInfo::RecordingInfo(
     {
         QMutexLocker locker(&s_staticDataLock);
         if (s_unknownTitle.isEmpty())
-            s_unknownTitle = gCoreContext->GetSetting("UnknownTitle");
+            s_unknownTitle = getCoreContext()->GetSetting("UnknownTitle");
         m_title = s_unknownTitle;
     }
 
@@ -985,7 +985,7 @@ bool RecordingInfo::QueryRecordedIdForKey(int & recordedid,
  */
 void RecordingInfo::StartedRecording(const QString& ext)
 {
-    m_hostname = gCoreContext->GetHostName();
+    m_hostname = getCoreContext()->GetHostName();
 
     if (!InsertRecording(ext))
         return;

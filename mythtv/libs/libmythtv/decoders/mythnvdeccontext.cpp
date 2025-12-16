@@ -142,7 +142,7 @@ MythCodecID MythNVDECContext::GetSupportedCodec(AVCodecContext **Context,
 
 int MythNVDECContext::InitialiseDecoder(AVCodecContext *Context)
 {
-    if (!gCoreContext->IsUIThread() || !Context)
+    if (!getCoreContext()->IsUIThread() || !Context)
         return -1;
 
     // We need a player to release the interop. As we are using direct rendering
@@ -217,7 +217,7 @@ int MythNVDECContext::HwDecoderInit(AVCodecContext *Context)
     if (codec_is_nvdec_dec(m_codecID))
     {
         AVBufferRef *context = MythCodecContext::CreateDevice(AV_HWDEVICE_TYPE_CUDA, nullptr,
-                                                              gCoreContext->GetSetting("NVDECDevice"));
+                                                              getCoreContext()->GetSetting("NVDECDevice"));
         if (context)
         {
             Context->hw_device_ctx = context;
@@ -526,7 +526,7 @@ bool MythNVDECContext::HaveNVDEC(bool Reinit /*=false*/)
     static bool s_available = false;
     if (!s_checked || Reinit)
     {
-        if (gCoreContext->IsUIThread())
+        if (getCoreContext()->IsUIThread())
         {
             const std::vector<MythNVDECCaps>& profiles = MythNVDECContext::GetProfiles();
             if (profiles.empty())

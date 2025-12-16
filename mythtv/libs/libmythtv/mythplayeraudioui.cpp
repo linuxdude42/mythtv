@@ -56,7 +56,7 @@ MythPlayerAudioUI::MythPlayerAudioUI(MythMainWindow* MainWindow, TV *Tv,
 
     // Setup
     MythPlayerAudioUI::SetupAudioOutput(Context->m_tsNormal);
-    auto offset = gCoreContext->GetDurSetting<std::chrono::milliseconds>("AudioSyncOffset", 0ms);
+    auto offset = getCoreContext()->GetDurSetting<std::chrono::milliseconds>("AudioSyncOffset", 0ms);
     MythPlayerAudioUI::AdjustAudioTimecodeOffset(0ms, offset);
 }
 
@@ -177,10 +177,11 @@ void MythPlayerAudioUI::PauseAudioUntilBuffered()
 
 void MythPlayerAudioUI::SetupAudioOutput(float TimeStretch)
 {
-    QString passthru = gCoreContext->GetBoolSetting("PassThruDeviceOverride", false) ?
-                       gCoreContext->GetSetting("PassThruOutputDevice") : QString();
-    m_audio.SetAudioInfo(gCoreContext->GetSetting("AudioOutputDevice"), passthru,
-                             static_cast<uint>(gCoreContext->GetNumSetting("AudioSampleRate", 44100)));
+    MythCoreContext *cctx = getCoreContext();
+    QString passthru = cctx->GetBoolSetting("PassThruDeviceOverride", false) ?
+                       cctx->GetSetting("PassThruOutputDevice") : QString();
+    m_audio.SetAudioInfo(cctx->GetSetting("AudioOutputDevice"), passthru,
+                             static_cast<uint>(cctx->GetNumSetting("AudioSampleRate", 44100)));
     m_audio.SetStretchFactor(TimeStretch);
 }
 

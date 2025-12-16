@@ -423,7 +423,7 @@ void AudioOutputPulseAudio::SetVolumeChannel(int channel, int volume)
 //        until it's decided whether it was ever required
 //     volume = std::clamp(volume, 0, 100);
 
-    if (gCoreContext->GetSetting("MixerControl", "PCM").toLower() == "pcm")
+    if (getCoreContext()->GetSetting("MixerControl", "PCM").toLower() == "pcm")
     {
         uint32_t stream_index = pa_stream_get_index(m_pstream);
         pa_threaded_mainloop_lock(m_mainloop);
@@ -610,7 +610,7 @@ bool AudioOutputPulseAudio::ConnectPlaybackStream(void)
                                      (char*)"under");
     if (m_setInitialVol)
     {
-        int volume = gCoreContext->GetNumSetting("MasterMixerVolume", 80);
+        int volume = getCoreContext()->GetNumSetting("MasterMixerVolume", 80);
         pa_cvolume_set(&m_volumeControl, m_channels,
                        (float)volume * (float)PA_VOLUME_NORM / 100.0F);
     }

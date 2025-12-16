@@ -288,7 +288,7 @@ bool MythDVDBuffer::OpenFile(const QString &Filename, std::chrono::milliseconds 
     }
 
     // Set preferred languages
-    QString lang = gCoreContext->GetSetting("Language").section('_', 0, 0);
+    QString lang = getCoreContext()->GetSetting("Language").section('_', 0, 0);
 
     dvdnav_menu_language_select(m_dvdnav, lang.toLatin1().data());
     dvdnav_audio_language_select(m_dvdnav, lang.toLatin1().data());
@@ -343,7 +343,7 @@ bool MythDVDBuffer::StartFromBeginning(void)
     if (m_dvdnav)
     {
         // Set preferred languages
-        QString lang = gCoreContext->GetSetting("Language").section('_', 0, 0);
+        QString lang = getCoreContext()->GetSetting("Language").section('_', 0, 0);
         LOG(VB_PLAYBACK, LOG_INFO, LOC + QString("Setting DVD languages to %1")
             .arg(lang));
 

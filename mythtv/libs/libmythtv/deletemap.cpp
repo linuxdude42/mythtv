@@ -741,7 +741,7 @@ void DeleteMap::LoadCommBreakMap(frm_dir_map_t &map)
 /// Loads the delete map from the database.
 void DeleteMap::LoadMap(const QString& undoMessage)
 {
-    if (!m_ctx || !m_ctx->m_playingInfo || gCoreContext->IsDatabaseIgnored())
+    if (!m_ctx || !m_ctx->m_playingInfo || getCoreContext()->IsDatabaseIgnored())
         return;
 
     if (!undoMessage.isEmpty())
@@ -757,7 +757,7 @@ void DeleteMap::LoadMap(const QString& undoMessage)
 /// Does nothing and returns false if not.
 bool DeleteMap::LoadAutoSaveMap(void)
 {
-    if (!m_ctx || !m_ctx->m_playingInfo || gCoreContext->IsDatabaseIgnored())
+    if (!m_ctx || !m_ctx->m_playingInfo || getCoreContext()->IsDatabaseIgnored())
         return false;
 
     frm_dir_map_t tmpDeleteMap = m_deleteMap;
@@ -777,7 +777,7 @@ bool DeleteMap::LoadAutoSaveMap(void)
 /// Saves the delete map to the database.
 void DeleteMap::SaveMap(bool isAutoSave)
 {
-    if (!m_ctx || !m_ctx->m_playingInfo || gCoreContext->IsDatabaseIgnored())
+    if (!m_ctx || !m_ctx->m_playingInfo || getCoreContext()->IsDatabaseIgnored())
         return;
 
     if (!isAutoSave)
@@ -878,7 +878,7 @@ uint64_t DeleteMap::GetLastFrame(void) const
  */
 bool DeleteMap::IsSaved(void) const
 {
-    if (!m_ctx || !m_ctx->m_playingInfo || gCoreContext->IsDatabaseIgnored())
+    if (!m_ctx || !m_ctx->m_playingInfo || getCoreContext()->IsDatabaseIgnored())
         return true;
 
     frm_dir_map_t currentMap(m_deleteMap);

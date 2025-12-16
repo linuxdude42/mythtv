@@ -38,12 +38,13 @@
 static constexpr int64_t kRecentInterval {4LL * 60 * 60};
 
 JobQueue::JobQueue(bool master) :
-    m_hostname(gCoreContext->GetHostName()),
+    m_hostname(getCoreContext()->GetHostName()),
     m_runningJobsLock(new QRecursiveMutex()),
     m_isMaster(master),
     m_queueThread(new MThread("JobQueue", this))
 {
-    m_jobQueueCPU = gCoreContext->GetNumSetting("JobQueueCPU", 0);
+    MythCoreContext *cctx = getCoreContext();
+    m_jobQueueCPU = cctx->GetNumSetting("JobQueueCPU", 0);
 
 #if !CONFIG_VALGRIND
     QMutexLocker locker(&m_queueThreadCondLock);
@@ -56,7 +57,7 @@ JobQueue::JobQueue(bool master) :
         "you compiled with the --enable-valgrind option.");
 #endif // CONFIG_VALGRIND
 
-    gCoreContext->addListener(this);
+    cctx->addListener(this);
 }
 
 JobQueue::~JobQueue(void)
@@ -70,7 +71,7 @@ JobQueue::~JobQueue(void)
     delete m_queueThread;
     m_queueThread = nullptr;
 
-    gCoreContext->removeListener(this);
+    getCoreContext()->removeListener(this);
 
     delete m_runningJobsLock;
 }
@@ -176,8 +177,9 @@ void JobQueue::ProcessQueue(void)
         locker.unlock();
 
         bool startedJobAlready = false;
-        auto sleepTime = gCoreContext->GetDurSetting<std::chrono::seconds>("JobQueueCheckFrequency", 30s);
-        int maxJobs = gCoreContext->GetNumSetting("JobQueueMaxSimultaneousJobs", 3);
+        MythCoreContext *cctx = getCoreContext();
+        auto sleepTime = cctx->GetDurSetting<std::chrono::seconds>("JobQueueCheckFrequency", 30s);
+        int maxJobs = cctx->GetNumSetting("JobQueueMaxSimultaneousJobs", 3);
         LOG(VB_JOBQUEUE, LOG_INFO, LOC +
             QString("Currently set to run up to %1 job(s) max.")
                         .arg(maxJobs));
@@ -454,18 +456,18 @@ void JobQueue::ProcessQueue(void)
         {
             if (m_jobsRunning > 0)
             {
-                if (!(gCoreContext->IsBlockingClient()))
+                if (!(cctx->IsBlockingClient()))
                 {
-                    gCoreContext->BlockShutdown();
+                    cctx->BlockShutdown();
                     LOG(VB_JOBQUEUE, LOG_INFO, QString("%1 jobs running. "
                         "Blocking shutdown.").arg(m_jobsRunning));
                 }
             }
             else
             {
-                if (gCoreContext->IsBlockingClient())
+                if (cctx->IsBlockingClient())
                 {
-                    gCoreContext->AllowShutdown();
+                    cctx->AllowShutdown();
                     LOG(VB_JOBQUEUE, LOG_INFO, "No jobs running. "
                                                "Allowing shutdown.");
                 }
@@ -495,7 +497,7 @@ bool JobQueue::QueueRecordingJobs(const RecordingInfo &recinfo, int jobTypes)
     {
         QString jobHost = QString("");
 
-        if (gCoreContext->GetBoolSetting("JobsRunOnRecordHost", false))
+        if (getCoreContext()->GetBoolSetting("JobsRunOnRecordHost", false))
             jobHost = recinfo.GetHostname();
 
         return JobQueue::QueueJobs(
@@ -592,7 +594,8 @@ bool JobQueue::QueueJob(int jobType, uint chanid, const QDateTime &recstartts,
 bool JobQueue::QueueJobs(int jobTypes, uint chanid, const QDateTime &recstartts,
                          const QString& args, const QString& comment, const QString& host)
 {
-    if (gCoreContext->GetBoolSetting("AutoTranscodeBeforeAutoCommflag", false))
+    MythCoreContext *cctx = getCoreContext();
+    if (cctx->GetBoolSetting("AutoTranscodeBeforeAutoCommflag", false))
     {
         if (jobTypes & JOB_METADATA)
             QueueJob(JOB_METADATA, chanid, recstartts, args, comment, host);
@@ -611,7 +614,7 @@ bool JobQueue::QueueJobs(int jobTypes, uint chanid, const QDateTime &recstartts,
         {
             QDateTime schedruntime = MythDate::current();
 
-            int defer = gCoreContext->GetNumSetting("DeferAutoTranscodeDays", 0);
+            int defer = cctx->GetNumSetting("DeferAutoTranscodeDays", 0);
             if (defer)
             {
 #if QT_VERSION < QT_VERSION_CHECK(6,5,0)
@@ -716,7 +719,7 @@ bool JobQueue::PauseJob(int jobID)
 {
     QString message = QString("GLOBAL_JOB PAUSE ID %1").arg(jobID);
     MythEvent me(message);
-    gCoreContext->dispatch(me);
+    getCoreContext()->dispatch(me);
 
     return ChangeJobCmds(jobID, JOB_PAUSE);
 }
@@ -725,7 +728,7 @@ bool JobQueue::ResumeJob(int jobID)
 {
     QString message = QString("GLOBAL_JOB RESUME ID %1").arg(jobID);
     MythEvent me(message);
-    gCoreContext->dispatch(me);
+    getCoreContext()->dispatch(me);
 
     return ChangeJobCmds(jobID, JOB_RESUME);
 }
@@ -734,7 +737,7 @@ bool JobQueue::RestartJob(int jobID)
 {
     QString message = QString("GLOBAL_JOB RESTART ID %1").arg(jobID);
     MythEvent me(message);
-    gCoreContext->dispatch(me);
+    getCoreContext()->dispatch(me);
 
     return ChangeJobCmds(jobID, JOB_RESTART);
 }
@@ -743,7 +746,7 @@ bool JobQueue::StopJob(int jobID)
 {
     QString message = QString("GLOBAL_JOB STOP ID %1").arg(jobID);
     MythEvent me(message);
-    gCoreContext->dispatch(me);
+    getCoreContext()->dispatch(me);
 
     return ChangeJobCmds(jobID, JOB_STOP);
 }
@@ -1123,7 +1126,7 @@ QString JobQueue::JobText(int jobType)
     {
         QString settingName =
             QString("UserJobDesc%1").arg(UserJobTypeToIndex(jobType));
-        return gCoreContext->GetSetting(settingName, settingName);
+        return getCoreContext()->GetSetting(settingName, settingName);
     }
 
     return tr("Unknown Job");
@@ -1152,8 +1155,9 @@ bool JobQueue::InJobRunWindow(std::chrono::minutes orStartsWithinMins)
     bool inTimeWindow = false;
     orStartsWithinMins = orStartsWithinMins < 0min ? 0min : orStartsWithinMins;
 
-    queueStartTimeStr = gCoreContext->GetSetting("JobQueueWindowStart", "00:00");
-    queueEndTimeStr = gCoreContext->GetSetting("JobQueueWindowEnd", "23:59");
+    MythCoreContext *cctx = getCoreContext();
+    queueStartTimeStr = cctx->GetSetting("JobQueueWindowStart", "00:00");
+    queueEndTimeStr = cctx->GetSetting("JobQueueWindowEnd", "23:59");
 
     queueStartTime = QTime::fromString(queueStartTimeStr, "hh:mm");
     if (!queueStartTime.isValid())
@@ -1287,7 +1291,7 @@ int JobQueue::GetJobsInQueue(QMap<int, JobQueueEntry> &jobs, int findJobs)
     QString logInfo;
     int jobCount = 0;
     bool commflagWhileRecording =
-             gCoreContext->GetBoolSetting("AutoCommflagWhileRecording", false);
+        getCoreContext()->GetBoolSetting("AutoCommflagWhileRecording", false);
 
     jobs.clear();
 
@@ -1459,7 +1463,7 @@ bool JobQueue::AllowedToRun(const JobQueueEntry& job)
         }
     }
 
-    return gCoreContext->GetBoolSetting(allowSetting, true);
+    return getCoreContext()->GetBoolSetting(allowSetting, true);
 }
 
 enum JobCmds JobQueue::GetJobCmd(int jobID)
@@ -1571,6 +1575,7 @@ enum JobStatus JobQueue::GetJobStatus(
 
 void JobQueue::RecoverQueue(bool justOld)
 {
+    MythCoreContext *cctx = getCoreContext();
     QMap<int, JobQueueEntry> jobs;
     QString msg;
     QString logInfo;
@@ -1585,7 +1590,7 @@ void JobQueue::RecoverQueue(bool justOld)
     {
         QMap<int, JobQueueEntry>::Iterator it;
         QDateTime oldDate = MythDate::current().addDays(-1);
-        QString hostname = gCoreContext->GetHostName();
+        QString hostname = cctx->GetHostName();
 
         for (it = jobs.begin(); it != jobs.end(); ++it)
         {
@@ -1615,7 +1620,7 @@ void JobQueue::RecoverQueue(bool justOld)
 
                 ChangeJobStatus((*it).id, JOB_QUEUED, "");
                 ChangeJobCmds((*it).id, JOB_RUN);
-                if (!gCoreContext->GetBoolSetting("JobsRunOnRecordHost", false))
+                if (!cctx->GetBoolSetting("JobsRunOnRecordHost", false))
                     ChangeJobHost((*it).id, "");
             }
             else
@@ -1667,12 +1672,13 @@ bool JobQueue::InJobRunWindow(QDateTime jobstarttsRaw)
                                                  jobstarttsRaw.toString()));
     }
 
-    QString hostname(gCoreContext->GetHostName());
+    MythCoreContext *cctx = getCoreContext();
+    QString hostname(cctx->GetHostName());
 
-    QTime windowStart(QTime::fromString(gCoreContext->GetSettingOnHost(
+    QTime windowStart(QTime::fromString(cctx->GetSettingOnHost(
                                     "JobQueueWindowStart", hostname, "00:00")));
 
-    QTime windowEnd(QTime::fromString(gCoreContext->GetSettingOnHost(
+    QTime windowEnd(QTime::fromString(cctx->GetSettingOnHost(
                                     "JobQueueWindowEnd", hostname, "23:59")));
 
     QTime scheduleTime(QTime::fromString(jobstarttsRaw.toString("hh:mm")));
@@ -1801,17 +1807,18 @@ QString JobQueue::GetJobDescription(int jobType)
     QString descSetting =
         QString("UserJobDesc%1").arg(UserJobTypeToIndex(jobType));
 
-    return gCoreContext->GetSetting(descSetting, "Unknown Job");
+    return getCoreContext()->GetSetting(descSetting, "Unknown Job");
 }
 
 QString JobQueue::GetJobCommand(int id, int jobType, ProgramInfo *tmpInfo)
 {
+    MythCoreContext *cctx = getCoreContext();
     QString command;
     MSqlQuery query(MSqlQuery::InitCon());
 
     if (jobType == JOB_TRANSCODE)
     {
-        command = gCoreContext->GetSetting("JobQueueTranscodeCommand");
+        command = cctx->GetSetting("JobQueueTranscodeCommand");
         if (command.trimmed().isEmpty())
             command = "mythtranscode";
 
@@ -1820,7 +1827,7 @@ QString JobQueue::GetJobCommand(int id, int jobType, ProgramInfo *tmpInfo)
     }
     else if (jobType == JOB_COMMFLAG)
     {
-        command = gCoreContext->GetSetting("JobQueueCommFlagCommand");
+        command = cctx->GetSetting("JobQueueCommFlagCommand");
         if (command.trimmed().isEmpty())
             command = "mythcommflag";
 
@@ -1829,7 +1836,7 @@ QString JobQueue::GetJobCommand(int id, int jobType, ProgramInfo *tmpInfo)
     }
     else if (jobType & JOB_USERJOB)
     {
-        command = gCoreContext->GetSetting(
+        command = cctx->GetSetting(
                     QString("UserJob%1").arg(UserJobTypeToIndex(jobType)), "");
     }
 

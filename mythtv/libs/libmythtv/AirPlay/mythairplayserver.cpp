@@ -123,8 +123,9 @@ static const QString NOT_READY { "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n
 
 QString AirPlayHardwareId()
 {
+    MythCoreContext *cctx = getCoreContext();
     QString key = "AirPlayId";
-    QString id = gCoreContext->GetSetting(key);
+    QString id = cctx->GetSetting(key);
     int size = id.size();
     if (size == 12 && id.toUpper() == id)
         return id;
@@ -139,7 +140,7 @@ QString AirPlayHardwareId()
     }
     id = id.toUpper();
 
-    gCoreContext->SaveSetting(key, id);
+    cctx->SaveSetting(key, id);
     return id;
 }
 
@@ -485,7 +486,7 @@ void MythAirplayServer::Start(void)
 
         QByteArray name = m_name.toUtf8();
         name.append(" on ");
-        name.append(gCoreContext->GetHostName().toUtf8());
+        name.append(getCoreContext()->GetHostName().toUtf8());
         QByteArray type = "_airplay._tcp";
         QByteArray txt;
         txt.append(26); txt.append("deviceid="); txt.append(GetMacAddress().toUtf8());
@@ -528,7 +529,7 @@ void MythAirplayServer::newAirplayConnection(QTcpSocket *client)
     LOG(VB_GENERAL, LOG_INFO, LOC + QString("New connection from %1:%2")
         .arg(client->peerAddress().toString()).arg(client->peerPort()));
 
-    gCoreContext->SendSystemEvent(QString("AIRPLAY_NEW_CONNECTION"));
+    getCoreContext()->SendSystemEvent(QString("AIRPLAY_NEW_CONNECTION"));
     m_sockets.append(client);
     connect(client, &QAbstractSocket::disconnected,
             this, qOverload<>(&MythAirplayServer::deleteConnection));
@@ -553,7 +554,7 @@ void MythAirplayServer::deleteConnection(QTcpSocket *socket)
     // must have lock
     LOG(VB_GENERAL, LOG_INFO, LOC + QString("Removing connection %1:%2")
         .arg(socket->peerAddress().toString()).arg(socket->peerPort()));
-    gCoreContext->SendSystemEvent(QString("AIRPLAY_DELETE_CONNECTION"));
+    getCoreContext()->SendSystemEvent(QString("AIRPLAY_DELETE_CONNECTION"));
     m_sockets.removeOne(socket);
 
     QByteArray remove;
@@ -763,7 +764,8 @@ void MythAirplayServer::HandleResponse(APHTTPRequest *req,
         m_connections[session].m_was_playing = playing;
     }
 
-    if (gCoreContext->GetBoolSetting("AirPlayPasswordEnabled", false))
+    MythCoreContext *cctx = getCoreContext();
+    if (cctx->GetBoolSetting("AirPlayPasswordEnabled", false))
     {
         if (m_nonce.isEmpty())
         {
@@ -780,7 +782,7 @@ void MythAirplayServer::HandleResponse(APHTTPRequest *req,
 
         QByteArray auth;
         if (DigestMd5Response(req->GetHeaders()["Authorization"], req->GetMethod(), m_nonce,
-                              gCoreContext->GetSetting("AirPlayPassword"),
+                              cctx->GetSetting("AirPlayPassword"),
                               auth) == auth)
         {
             LOG(VB_GENERAL, LOG_INFO, LOC + "AirPlay client authenticated");
@@ -1224,7 +1226,7 @@ void MythAirplayServer::StartPlayback(const QString &pathname)
     std::vector<CoreWaitInfo> sigs {
         { "TVPlaybackStarted", &MythCoreContext::TVPlaybackStarted },
         { "TVPlaybackAborted", &MythCoreContext::TVPlaybackAborted } };
-    gCoreContext->WaitUntilSignals(sigs);
+    getCoreContext()->WaitUntilSignals(sigs);
     LOG(VB_PLAYBACK, LOG_DEBUG, LOC +
         QString("ACTION_HANDLEMEDIA completed"));
 }
@@ -1244,7 +1246,7 @@ void MythAirplayServer::StopPlayback(void)
         std::vector<CoreWaitInfo> sigs {
             { "TVPlaybackStopped", &MythCoreContext::TVPlaybackStopped },
             { "TVPlaybackAborted", &MythCoreContext::TVPlaybackAborted } };
-        gCoreContext->WaitUntilSignals(sigs);
+        getCoreContext()->WaitUntilSignals(sigs);
         LOG(VB_PLAYBACK, LOG_DEBUG, LOC +
             QString("ACTION_STOP completed"));
     }
@@ -1272,7 +1274,7 @@ void MythAirplayServer::SeekPosition(uint64_t position)
             { "TVPlaybackSought", qOverload<>(&MythCoreContext::TVPlaybackSought) },
             { "TVPlaybackStopped", &MythCoreContext::TVPlaybackStopped },
             { "TVPlaybackAborted", &MythCoreContext::TVPlaybackAborted } };
-        gCoreContext->WaitUntilSignals(sigs);
+        getCoreContext()->WaitUntilSignals(sigs);
         LOG(VB_PLAYBACK, LOG_DEBUG, LOC +
             QString("ACTION_SEEKABSOLUTE completed"));
     }
@@ -1299,7 +1301,7 @@ void MythAirplayServer::PausePlayback(void)
             { "TVPlaybackPaused", &MythCoreContext::TVPlaybackPaused },
             { "TVPlaybackStopped", &MythCoreContext::TVPlaybackStopped },
             { "TVPlaybackAborted", &MythCoreContext::TVPlaybackAborted } };
-        gCoreContext->WaitUntilSignals(sigs);
+        getCoreContext()->WaitUntilSignals(sigs);
         LOG(VB_PLAYBACK, LOG_DEBUG, LOC +
             QString("ACTION_PAUSE completed"));
     }
@@ -1326,7 +1328,7 @@ void MythAirplayServer::UnpausePlayback(void)
             { "TVPlaybackPlaying", &MythCoreContext::TVPlaybackPlaying },
             { "TVPlaybackStopped", &MythCoreContext::TVPlaybackStopped },
             { "TVPlaybackAborted", &MythCoreContext::TVPlaybackAborted } };
-        gCoreContext->WaitUntilSignals(sigs);
+        getCoreContext()->WaitUntilSignals(sigs);
         LOG(VB_PLAYBACK, LOG_DEBUG, LOC +
             QString("ACTION_PLAY completed"));
     }

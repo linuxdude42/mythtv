@@ -65,7 +65,7 @@ void InputSelector::Load(void)
         "      capturecard.sourceid = :SOURCEID            AND "
         "      capturecard.parentid = 0");
 
-    query.bindValue(":HOSTNAME", gCoreContext->GetHostName());
+    query.bindValue(":HOSTNAME", getCoreContext()->GetHostName());
     query.bindValue(":SOURCEID", m_sourceId);
 
     if (!query.exec() || !query.isActive())

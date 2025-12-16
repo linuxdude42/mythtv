@@ -158,6 +158,8 @@ static inline QString Source(const QNetworkReply* reply)
 // Caller must hold m_mutex
 bool NetStream::Request(const QUrl& url)
 {
+    MythCoreContext *cctx = getCoreContext();
+
     if (!IsSupported(url))
     {
         LOG(VB_GENERAL, LOG_WARNING, LOC +
@@ -219,7 +221,7 @@ bool NetStream::Request(const QUrl& url)
         // We need to provide a client certificate for the BBC,  See:
         // openssl s_client -state -prexit -connect securegate.iplayer.bbc.co.uk:443
         // for a list of accepted certificates
-        QString fname = gCoreContext->GetSetting("MhegClientCert", "");
+        QString fname = cctx->GetSetting("MhegClientCert", "");
         if (!fname.isEmpty())
         {
             QFile f1(QFile::exists(fname) ? fname : GetShareDir() + fname);
@@ -240,14 +242,14 @@ bool NetStream::Request(const QUrl& url)
             }
 
             // Get the private key
-            fname = gCoreContext->GetSetting("MhegClientKey", "");
+            fname = cctx->GetSetting("MhegClientKey", "");
             if (!fname.isEmpty())
             {
                 QFile f2(QFile::exists(fname) ? fname : GetShareDir() + fname);
                 if (f2.open(QIODevice::ReadOnly))
                 {
                     QSslKey key(&f2, QSsl::Rsa, QSsl::Pem, QSsl::PrivateKey,
-                        gCoreContext->GetSetting("MhegClientKeyPass", "").toLatin1());
+                        cctx->GetSetting("MhegClientKeyPass", "").toLatin1());
                     if (!key.isNull())
                         ssl.setPrivateKey(key);
                     else
@@ -782,7 +784,7 @@ void NAMThread::run()
     std::unique_ptr<QNetworkDiskCache> cache(new QNetworkDiskCache());
 
     cache->setCacheDirectory(GetConfDir() + "/cache/netstream-" +
-                             gCoreContext->GetHostName());
+                             getCoreContext()->GetHostName());
 
     m_nam->setCache(cache.release());
 

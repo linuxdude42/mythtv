@@ -394,7 +394,7 @@ void TextSubtitleParser::LoadSubtitles(bool inBackground)
         AVDictionary *dict = nullptr;
         if (!isUtf8)
         {
-            encoding = gCoreContext->GetSetting("SubtitleCodec", "utf-8");
+            encoding = getCoreContext()->GetSetting("SubtitleCodec", "utf-8");
             if (encoding != "utf-8")
             {
                 LOG(VB_VBI, LOG_INFO,

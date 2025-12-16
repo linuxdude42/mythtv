@@ -634,7 +634,7 @@ void MHIContext::Reinit(const QRect videoRect, const QRect dispRect, float aspec
 
     // MHEG presumes square pixels
     enum : std::uint8_t { kNone, kHoriz, kBoth };
-    int mode = gCoreContext->GetNumSetting("MhegAspectCorrection", kNone);
+    int mode = getCoreContext()->GetNumSetting("MhegAspectCorrection", kNone);
     auto const aspectd = static_cast<double>(aspect);
     double const vz = (mode == kBoth) ? std::min(1.15, 1. / sqrt(aspectd)) : 1.;
     double const hz = (mode > kNone) ? vz * aspectd : 1.;
@@ -1015,7 +1015,7 @@ bool MHIContext::TuneTo(int channel, int tuneinfo)
 
     // Post an event requesting a channel change.
     MythEvent me(QString("NETWORK_CONTROL CHANID %1").arg(channel));
-    gCoreContext->dispatch(me);
+    getCoreContext()->dispatch(me);
     // Reset the NBI version here to prevent a reboot.
     QMutexLocker locker(&m_dsmccLock);
     m_lastNbiVersion = NBI_VERSION_UNSET;

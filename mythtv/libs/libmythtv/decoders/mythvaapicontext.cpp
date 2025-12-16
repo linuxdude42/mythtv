@@ -229,7 +229,7 @@ AVPixelFormat MythVAAPIContext::GetFormat2(AVCodecContext* Context, const AVPixe
 */
 int MythVAAPIContext::InitialiseContext(AVCodecContext* Context)
 {
-    if (!Context || !gCoreContext->IsUIThread())
+    if (!Context || !getCoreContext()->IsUIThread())
         return -1;
 
     // The interop must have a reference to the ui player so it can be deleted
@@ -367,7 +367,7 @@ int MythVAAPIContext::InitialiseContext2(AVCodecContext* Context)
         return -1;
 
     auto * device = MythCodecContext::CreateDevice(AV_HWDEVICE_TYPE_VAAPI, nullptr,
-                                                   gCoreContext->GetSetting("VAAPIDevice"));
+                                                   getCoreContext()->GetSetting("VAAPIDevice"));
     Context->hw_frames_ctx = av_hwframe_ctx_alloc(device);
     if (!Context->hw_frames_ctx)
     {
@@ -419,7 +419,7 @@ QString MythVAAPIContext::HaveVAAPI(bool ReCheck /*= false*/)
     s_checked = true;
 
     auto * context = MythCodecContext::CreateDevice(AV_HWDEVICE_TYPE_VAAPI, nullptr,
-                                                    gCoreContext->GetSetting("VAAPIDevice"));
+                                                    getCoreContext()->GetSetting("VAAPIDevice"));
     if (context)
     {
         auto * hwdevice = reinterpret_cast<AVHWDeviceContext*>(context->data);
@@ -496,7 +496,7 @@ const VAAPIProfiles& MythVAAPIContext::GetProfiles()
     };
 
     auto * hwdevicectx = MythCodecContext::CreateDevice(AV_HWDEVICE_TYPE_VAAPI, nullptr,
-                                                        gCoreContext->GetSetting("VAAPIDevice"));
+                                                        getCoreContext()->GetSetting("VAAPIDevice"));
     if(!hwdevicectx)
         return s_profiles;
 

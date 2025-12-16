@@ -153,7 +153,7 @@ void PreviewGeneratorQueue::GetPreviewImage(
         return;
     }
 
-    if (gCoreContext->GetNumSetting("JobAllowPreview", 1) == 0)
+    if (getCoreContext()->GetNumSetting("JobAllowPreview", 1) == 0)
         return;
 
     QStringList extra;

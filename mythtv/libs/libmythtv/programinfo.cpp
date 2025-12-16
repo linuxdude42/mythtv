@@ -708,7 +708,7 @@ ProgramInfo::ProgramInfo(const QString &_pathname)
 
     uint _chanid = 0;
     QDateTime _recstartts;
-    if (!gCoreContext->IsDatabaseIgnored() &&
+    if (!getCoreContext()->IsDatabaseIgnored() &&
         QueryKeyFromPathname(_pathname, _chanid, _recstartts) &&
         LoadProgramFromRecorded(_chanid, _recstartts))
     {
@@ -817,7 +817,7 @@ ProgramInfo::ProgramInfo(const QString &_title, uint _chanid,
     if (m_title.isEmpty())
     {
         QString channelFormat =
-            gCoreContext->GetSetting("ChannelFormat", "<num> <sign>");
+            getCoreContext()->GetSetting("ChannelFormat", "<num> <sign>");
 
         m_title = QString("%1 - %2").arg(ChannelText(channelFormat),
             MythDate::toString(m_startTs, MythDate::kTime));
@@ -1592,13 +1592,14 @@ void ProgramInfo::ToMap(InfoMap &progMap,
                         uint star_range,
                         uint date_format) const
 {
-    QLocale locale = gCoreContext->GetQLocale();
+    MythCoreContext *cctx = getCoreContext();
+    QLocale locale = cctx->GetQLocale();
     // NOTE: Format changes and relevant additions made here should be
     //       reflected in RecordingRule
     QString channelFormat =
-        gCoreContext->GetSetting("ChannelFormat", "<num> <sign>");
+        cctx->GetSetting("ChannelFormat", "<num> <sign>");
     QString longChannelFormat =
-        gCoreContext->GetSetting("LongChannelFormat", "<num> <name>");
+        cctx->GetSetting("LongChannelFormat", "<num> <name>");
 
     QDateTime timeNow = MythDate::current();
 
@@ -2577,7 +2578,8 @@ QString ProgramInfo::GetPlaybackURL(
     if (basename.isEmpty())
         return "";
 
-    bool checklocal = !gCoreContext->GetBoolSetting("AlwaysStreamFiles", false) ||
+    MythCoreContext *cctx = getCoreContext();
+    bool checklocal = !cctx->GetBoolSetting("AlwaysStreamFiles", false) ||
                       forceCheckLocal;
 
     if (IsVideo())
@@ -2625,7 +2627,7 @@ QString ProgramInfo::GetPlaybackURL(
                 QString("GetPlaybackURL: File is local: '%1'") .arg(tmpURL));
             return tmpURL;
         }
-        if (m_hostname == gCoreContext->GetHostName())
+        if (m_hostname == cctx->GetHostName())
         {
             LOG(VB_GENERAL, LOG_ERR, LOC +
                 QString("GetPlaybackURL: '%1' should be local, but it can "
@@ -2639,10 +2641,10 @@ QString ProgramInfo::GetPlaybackURL(
 
     // Check to see if we should stream from the master backend
     if ((checkMaster) &&
-        (gCoreContext->GetBoolSetting("MasterBackendOverride", false)) &&
+        (cctx->GetBoolSetting("MasterBackendOverride", false)) &&
         (RemoteCheckFile(this, false)))
     {
-        tmpURL = MythCoreContext::GenMythURL(gCoreContext->GetMasterHostName(),
+        tmpURL = MythCoreContext::GenMythURL(cctx->GetMasterHostName(),
                                              MythCoreContext::GetMasterServerPort(),
                                              basename);
 
@@ -2653,7 +2655,7 @@ QString ProgramInfo::GetPlaybackURL(
 
     // Fallback to streaming from the backend the recording was created on
     tmpURL = MythCoreContext::GenMythURL(m_hostname,
-                                         gCoreContext->GetBackendServerPort(m_hostname),
+                                         cctx->GetBackendServerPort(m_hostname),
                                          basename);
 
     LOG(VB_FILE, LOG_INFO, LOC +
@@ -3287,7 +3289,7 @@ bool ProgramInfo::QueryIsDeleteCandidate(bool one_playback_allowed) const
     if (!IsRecording())
         return false;
 
-    // gCoreContext->GetNumSetting("AutoExpireInsteadOfDelete", 0) &&
+    // getCoreContext()->GetNumSetting("AutoExpireInsteadOfDelete", 0) &&
     if (GetRecordingGroup() != "Deleted" && GetRecordingGroup() != "LiveTV")
         return true;
 
@@ -4667,7 +4669,7 @@ bool ProgramInfo::QueryAverageScanProgressive(void) const
  */
 std::chrono::milliseconds ProgramInfo::QueryTotalDuration(void) const
 {
-    if (gCoreContext->IsDatabaseIgnored())
+    if (getCoreContext()->IsDatabaseIgnored())
         return 0ms;
 
     auto msec = std::chrono::milliseconds(load_markup_datum(MARK_DURATION_MS, m_chanId, m_recStartTs));
@@ -5155,9 +5157,10 @@ uint ProgramInfo::QueryTranscoderID(void) const
  */
 QString ProgramInfo::DiscoverRecordingDirectory(void)
 {
+    MythCoreContext *cctx = getCoreContext();
     if (!IsLocal())
     {
-        if (!gCoreContext->IsBackend())
+        if (!cctx->IsBackend())
             return "";
 
         QString path = GetPlaybackURL(false, true);
@@ -5171,7 +5174,7 @@ QString ProgramInfo::DiscoverRecordingDirectory(void)
     }
 
     QFileInfo testFile(m_pathname);
-    if (testFile.exists() || (gCoreContext->GetHostName() == m_hostname))
+    if (testFile.exists() || (cctx->GetHostName() == m_hostname))
     {
         // we may be recording this file and it may not exist yet so we need
         // to do some checking to see what is in pathname
@@ -5213,6 +5216,7 @@ void ProgramInfo::MarkAsInUse(bool inuse, const QString& usedFor)
     if (!IsRecording())
         return;
 
+    MythCoreContext *cctx = getCoreContext();
     bool notifyOfChange = false;
 
     if (inuse &&
@@ -5285,7 +5289,7 @@ void ProgramInfo::MarkAsInUse(bool inuse, const QString& usedFor)
             "      hostname = :HOSTNAME AND recusage  = :RECUSAGE");
         query.bindValue(":CHANID",    m_chanId);
         query.bindValue(":STARTTIME", m_recStartTs);
-        query.bindValue(":HOSTNAME",  gCoreContext->GetHostName());
+        query.bindValue(":HOSTNAME",  cctx->GetHostName());
         query.bindValue(":RECUSAGE",  m_inUseForWhat);
 
         if (!query.exec())
@@ -5312,7 +5316,7 @@ void ProgramInfo::MarkAsInUse(bool inuse, const QString& usedFor)
         "      hostname = :HOSTNAME AND recusage  = :RECUSAGE");
     query.bindValue(":CHANID",    m_chanId);
     query.bindValue(":STARTTIME", m_recStartTs);
-    query.bindValue(":HOSTNAME",  gCoreContext->GetHostName());
+    query.bindValue(":HOSTNAME",  cctx->GetHostName());
     query.bindValue(":RECUSAGE",  m_inUseForWhat);
 
     if (!query.exec())
@@ -5332,7 +5336,7 @@ void ProgramInfo::MarkAsInUse(bool inuse, const QString& usedFor)
             "      hostname = :HOSTNAME AND recusage  = :RECUSAGE");
         query.bindValue(":CHANID",     m_chanId);
         query.bindValue(":STARTTIME",  m_recStartTs);
-        query.bindValue(":HOSTNAME",   gCoreContext->GetHostName());
+        query.bindValue(":HOSTNAME",   cctx->GetHostName());
         query.bindValue(":RECUSAGE",   m_inUseForWhat);
         query.bindValue(":UPDATETIME", inUseTime);
 
@@ -5352,11 +5356,11 @@ void ProgramInfo::MarkAsInUse(bool inuse, const QString& usedFor)
             "  :UPDATETIME,   :RECHOST,   :RECDIR)");
         query.bindValue(":CHANID",     m_chanId);
         query.bindValue(":STARTTIME",  m_recStartTs);
-        query.bindValue(":HOSTNAME",   gCoreContext->GetHostName());
+        query.bindValue(":HOSTNAME",   cctx->GetHostName());
         query.bindValue(":RECUSAGE",   m_inUseForWhat);
         query.bindValue(":UPDATETIME", inUseTime);
         query.bindValue(":RECHOST",
-                        m_hostname.isEmpty() ? gCoreContext->GetHostName()
+                        m_hostname.isEmpty() ? cctx->GetHostName()
                                              : m_hostname);
         query.bindValue(":RECDIR",     recDir);
 
@@ -5647,7 +5651,8 @@ QStringList ProgramInfo::LoadFromScheduler(
 {
     QStringList slist;
 
-    MythScheduler *sched = gCoreContext->GetScheduler();
+    MythCoreContext *cctx = getCoreContext();
+    MythScheduler *sched = cctx->GetScheduler();
     if (sched && tmptable.isEmpty())
     {
         sched->GetAllPending(slist);
@@ -5667,7 +5672,7 @@ QStringList ProgramInfo::LoadFromScheduler(
         QString("QUERY_GETALLPENDING") :
         QString("QUERY_GETALLPENDING %1 %2").arg(tmptable).arg(recordid));
 
-    if (!gCoreContext->SendReceiveStringList(slist) || slist.size() < 2)
+    if (!cctx->SendReceiveStringList(slist) || slist.size() < 2)
     {
         LOG(VB_GENERAL, LOG_ALERT,
                  "LoadFromScheduler(): Error querying master.");
@@ -5857,7 +5862,7 @@ bool LoadFromProgram(ProgramList &destination,
     {
         queryStr += " ORDER BY program.starttime, ";
         QString chanorder =
-            gCoreContext->GetSetting("ChannelOrdering", "channum");
+            getCoreContext()->GetSetting("ChannelOrdering", "channum");
         if (chanorder != "channum")
             queryStr += chanorder + " ";
         else // approximation which the DB can handle
@@ -6031,7 +6036,7 @@ bool LoadFromOldRecorded(ProgramList &destination, const QString &sql,
     else if (!hasLimit)
     {
         // For performance reasons we have to have an upper limit
-        int nLimit = gCoreContext->GetNumSetting("PrevRecLimit", 20000);
+        int nLimit = getCoreContext()->GetNumSetting("PrevRecLimit", 20000);
         // For sanity sake at least 100
         nLimit = std::max(nLimit, 100);
         querystr += QString("LIMIT %1 ").arg(nLimit);
@@ -6166,8 +6171,9 @@ bool LoadFromRecorded(
 {
     destination.clear();
 
+    MythCoreContext *cctx = getCoreContext();
     QDateTime   rectime    = MythDate::current().addSecs(
-        -gCoreContext->GetNumSetting("RecordOverTime"));
+        -cctx->GetNumSetting("RecordOverTime"));
 
     // ----------------------------------------------------------------------
 
@@ -6324,7 +6330,7 @@ bool LoadFromRecorded(
 
         QString hostname = query.value(15).toString();
         if (hostname.isEmpty())
-            hostname = gCoreContext->GetHostName();
+            hostname = cctx->GetHostName();
 
         RecStatus::Type recstatus = RecStatus::Recorded;
         QDateTime recstartts = MythDate::as_utc(query.value(24).toDateTime());
@@ -6687,7 +6693,7 @@ bool RemoteCheckFile(ProgramInfo *pginfo, bool checkSlaves)
     strlist << QString::number((int)checkSlaves);
     pginfo->ToStringList(strlist);
 
-    if (!gCoreContext->SendReceiveStringList(strlist) ||
+    if (!getCoreContext()->SendReceiveStringList(strlist) ||
         (strlist.size() < 2) || !strlist[0].toInt())
         return false;
 

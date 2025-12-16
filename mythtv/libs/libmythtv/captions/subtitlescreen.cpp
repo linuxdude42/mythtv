@@ -1455,25 +1455,26 @@ void SubtitleScreen::EnableSubtitles(int type, bool forced_only)
         SetVisible(m_subtitleType != kDisplayNone);
         SetArea(MythRect());
     }
+    MythCoreContext *cctx = getCoreContext();
     if (!forced_only || m_family.isEmpty()) {
         switch (m_subtitleType)
         {
         case kDisplayTextSubtitle:
         case kDisplayRawTextSubtitle:
             m_family = kSubFamilyText;
-            m_textFontZoom  = gCoreContext->GetNumSetting("OSDCC708TextZoom", 100);
+            m_textFontZoom  = cctx->GetNumSetting("OSDCC708TextZoom", 100);
             break;
         case kDisplayCC608:
             m_family = kSubFamily608;
-            m_textFontZoom  = gCoreContext->GetNumSetting("OSDCC708TextZoom", 100);
+            m_textFontZoom  = cctx->GetNumSetting("OSDCC708TextZoom", 100);
             break;
         case kDisplayCC708:
             m_family = kSubFamily708;
-            m_textFontZoom  = gCoreContext->GetNumSetting("OSDCC708TextZoom", 100);
+            m_textFontZoom  = cctx->GetNumSetting("OSDCC708TextZoom", 100);
             break;
         case kDisplayAVSubtitle:
             m_family = kSubFamilyAV;
-            m_textFontZoom = gCoreContext->GetNumSetting("OSDAVSubZoom", 100);
+            m_textFontZoom = cctx->GetNumSetting("OSDAVSubZoom", 100);
             break;
         }
     }
@@ -1581,11 +1582,12 @@ void SubtitleScreen::DisplayDVDButton(AVSubtitle* dvdButton, QRect &buttonPos)
 
 void SubtitleScreen::SetZoom(int percent)
 {
+    MythCoreContext *cctx = getCoreContext();
     m_textFontZoom = percent;
     if (m_family == kSubFamilyAV)
-        gCoreContext->SaveSetting("OSDAVSubZoom", percent);
+        cctx->SaveSetting("OSDAVSubZoom", percent);
     else
-        gCoreContext->SaveSetting("OSDCC708TextZoom", percent);
+        cctx->SaveSetting("OSDCC708TextZoom", percent);
 }
 
 int SubtitleScreen::GetZoom(void) const

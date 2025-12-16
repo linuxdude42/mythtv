@@ -59,7 +59,7 @@ DTVRecorder::DTVRecorder(TVRec *rec) :
     DTVRecorder::ResetForNewFile();
 
     m_minimumRecordingQuality =
-        gCoreContext->GetNumSetting("MinimumRecordingQuality", 95);
+        getCoreContext()->GetNumSetting("MinimumRecordingQuality", 95);
 
     m_containerFormat = formatMPEG2_TS;
 }
@@ -115,7 +115,7 @@ void DTVRecorder::SetOptionsFromProfile(RecordingProfile *profile,
                                         const QString& /*audiodev*/, const QString& /*vbidev*/)
 {
     SetOption("videodevice", videodev);
-    DTVRecorder::SetOption("tvformat", gCoreContext->GetSetting("TVFormat"));
+    DTVRecorder::SetOption("tvformat", getCoreContext()->GetSetting("TVFormat"));
     SetStrOption(profile, "recordingtype");
     SetIntOption(profile, "recordmpts");
 }

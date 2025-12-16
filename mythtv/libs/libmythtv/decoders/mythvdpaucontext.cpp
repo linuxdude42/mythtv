@@ -33,7 +33,7 @@ MythVDPAUContext::MythVDPAUContext(DecoderBase *Parent, MythCodecID CodecID)
 /// \brief Create a VDPAU device for use with direct rendering.
 int MythVDPAUContext::InitialiseContext(AVCodecContext* Context)
 {
-    if (!gCoreContext->IsUIThread() || !Context)
+    if (!getCoreContext()->IsUIThread() || !Context)
         return -1;
 
     // The interop must have a reference to the ui player so it can be deleted

@@ -41,12 +41,13 @@ MythVideoColourSpace::MythVideoColourSpace()
   : ReferenceCounter("Colour"),
     m_updatesDisabled(false)
 {
-    m_dbSettings[kPictureAttribute_Brightness] = gCoreContext->GetNumSetting("PlaybackBrightness", 50);
-    m_dbSettings[kPictureAttribute_Contrast]   = gCoreContext->GetNumSetting("PlaybackContrast",   50);
-    m_dbSettings[kPictureAttribute_Colour]     = gCoreContext->GetNumSetting("PlaybackColour",     50);
-    m_dbSettings[kPictureAttribute_Hue]        = gCoreContext->GetNumSetting("PlaybackHue",        0);
-    m_dbSettings[kPictureAttribute_Range]      = static_cast<int>(gCoreContext->GetBoolSetting("GUIRGBLevels", true));
-    m_primariesMode = toPrimariesMode(gCoreContext->GetSetting("ColourPrimariesMode", "auto"));
+    MythCoreContext *cctx = getCoreContext();
+    m_dbSettings[kPictureAttribute_Brightness] = cctx->GetNumSetting("PlaybackBrightness", 50);
+    m_dbSettings[kPictureAttribute_Contrast]   = cctx->GetNumSetting("PlaybackContrast",   50);
+    m_dbSettings[kPictureAttribute_Colour]     = cctx->GetNumSetting("PlaybackColour",     50);
+    m_dbSettings[kPictureAttribute_Hue]        = cctx->GetNumSetting("PlaybackHue",        0);
+    m_dbSettings[kPictureAttribute_Range]      = static_cast<int>(cctx->GetBoolSetting("GUIRGBLevels", true));
+    m_primariesMode = toPrimariesMode(cctx->GetSetting("ColourPrimariesMode", "auto"));
 
     SetBrightness(m_dbSettings[kPictureAttribute_Brightness]);
     SetContrast(m_dbSettings[kPictureAttribute_Contrast]);
@@ -523,7 +524,7 @@ void MythVideoColourSpace::SaveValue(PictureAttribute AttributeType, int Value)
         dbName = "PlaybackHue";
 
     if (!dbName.isEmpty())
-        gCoreContext->SaveSetting(dbName, Value);
+        getCoreContext()->SaveSetting(dbName, Value);
 
     m_dbSettings[AttributeType] = Value;
 }

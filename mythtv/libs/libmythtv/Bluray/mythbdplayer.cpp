@@ -395,7 +395,7 @@ void MythBDPlayer::SetBookmark(bool Clear)
 uint64_t MythBDPlayer::GetBookmark(void)
 {
     uint64_t frames = 0;
-    if (gCoreContext->IsDatabaseIgnored() || !m_playerCtx->m_buffer->IsBD())
+    if (getCoreContext()->IsDatabaseIgnored() || !m_playerCtx->m_buffer->IsBD())
         return frames;
 
     m_playerCtx->LockPlayingInfo(__FILE__, __LINE__);

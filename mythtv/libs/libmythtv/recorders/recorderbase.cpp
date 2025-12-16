@@ -423,7 +423,7 @@ void RecorderBase::SetRecordingStatus(RecStatus::Type status,
                     .arg(m_curRecording->GetScheduledStartTime(MythDate::ISODate))
                     .arg(status)
                     .arg(m_curRecording->GetRecordingEndTime(MythDate::ISODate)));
-        gCoreContext->dispatch(me);
+        getCoreContext()->dispatch(me);
     }
 }
 

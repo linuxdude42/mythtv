@@ -155,6 +155,8 @@ void MythRAOPDevice::Stop(void)
 
 bool MythRAOPDevice::RegisterForBonjour(void)
 {
+    MythCoreContext *cctx = getCoreContext();
+
     // announce service
     m_bonjour = new BonjourRegister(this);
 
@@ -167,7 +169,7 @@ bool MythRAOPDevice::RegisterForBonjour(void)
     name.append("@");
     name.append(m_name.toUtf8());
     name.append(" on ");
-    name.append(gCoreContext->GetHostName().toUtf8());
+    name.append(cctx->GetHostName().toUtf8());
     QByteArray type = "_raop._tcp";
     QByteArray txt;
     txt.append(6); txt.append("tp=UDP");
@@ -179,7 +181,7 @@ bool MythRAOPDevice::RegisterForBonjour(void)
     txt.append(4); txt.append("ch=2");      // audio channels
     txt.append(5); txt.append("ss=16");     // sample size
     txt.append(8); txt.append("sr=44100");  // sample rate
-    if (gCoreContext->GetBoolSetting("AirPlayPasswordEnabled"))
+    if (cctx->GetBoolSetting("AirPlayPasswordEnabled"))
     {
         txt.append(7); txt.append("pw=true");
     }
@@ -211,7 +213,8 @@ void MythRAOPDevice::newRaopConnection(QTcpSocket *client)
     LOG(VB_GENERAL, LOG_INFO, LOC + QString("New connection from %1:%2")
         .arg(client->peerAddress().toString()).arg(client->peerPort()));
 
-    gCoreContext->SendSystemEvent(QString("AIRTUNES_NEW_CONNECTION"));
+    MythCoreContext *cctx = getCoreContext();
+    cctx->SendSystemEvent(QString("AIRTUNES_NEW_CONNECTION"));
     MythNotification n(tr("New Connection"), tr("AirTunes"),
                        tr("from %1:%2").arg(client->peerAddress().toString()).arg(client->peerPort()));
     // Don't show it during playback
@@ -224,7 +227,7 @@ void MythRAOPDevice::newRaopConnection(QTcpSocket *client)
     {
         m_clients.append(obj);
         connect(client, &QAbstractSocket::disconnected, this, &MythRAOPDevice::deleteClient);
-        gCoreContext->RegisterForPlayback(this, &MythRAOPDevice::TVPlaybackStarting);
+        cctx->RegisterForPlayback(this, &MythRAOPDevice::TVPlaybackStarting);
         return;
     }
 
@@ -242,7 +245,7 @@ void MythRAOPDevice::deleteClient(void)
     QList<MythRAOPConnection *>::iterator it = m_clients.begin();
 
     MythNotification n(tr("Client disconnected"), tr("AirTunes"));
-    gCoreContext->SendSystemEvent(QString("AIRTUNES_DELETE_CONNECTION"));
+    getCoreContext()->SendSystemEvent(QString("AIRTUNES_DELETE_CONNECTION"));
     // Don't show it during playback
     n.SetVisibility(n.GetVisibility() & ~MythNotification::kPlayback);
     GetNotificationCenter()->Queue(n);

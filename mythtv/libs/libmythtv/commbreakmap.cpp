@@ -9,14 +9,17 @@
 #define LOC QString("CommBreakMap: ")
 
 CommBreakMap::CommBreakMap(void)
-  : m_autocommercialskip(static_cast<CommSkipMode>(gCoreContext->GetNumSetting("AutoCommercialSkip", kCommSkipOff))),
-    m_commrewindamount(gCoreContext->GetDurSetting<std::chrono::seconds>("CommRewindAmount",0s)),
-    m_commnotifyamount(gCoreContext->GetDurSetting<std::chrono::seconds>("CommNotifyAmount",0s)),
-    m_lastIgnoredManualSkip(MythDate::current().addSecs(-10)),
-    m_maxskip(gCoreContext->GetDurSetting<std::chrono::seconds>("MaximumCommercialSkip", 1h)),
-    m_maxShortMerge(gCoreContext->GetDurSetting<std::chrono::seconds>("MergeShortCommBreaks", 0s)),
+  : m_lastIgnoredManualSkip(MythDate::current().addSecs(-10)),
     m_commBreakIter(m_commBreakMap.end())
-{    
+{
+    MythCoreContext *cctx = getCoreContext();
+
+    m_autocommercialskip = static_cast<CommSkipMode>(cctx->GetNumSetting("AutoCommercialSkip", kCommSkipOff));
+    m_commrewindamount = cctx->GetDurSetting<std::chrono::seconds>("CommRewindAmount",0s);
+    m_commnotifyamount = cctx->GetDurSetting<std::chrono::seconds>("CommNotifyAmount",0s);
+    m_maxskip = cctx->GetDurSetting<std::chrono::seconds>("MaximumCommercialSkip", 1h);
+    m_maxShortMerge = cctx->GetDurSetting<std::chrono::seconds>("MergeShortCommBreaks", 0s);
+    
 }
 
 CommSkipMode CommBreakMap::GetAutoCommercialSkip(void) const
