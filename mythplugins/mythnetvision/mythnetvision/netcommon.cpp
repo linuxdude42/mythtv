@@ -34,8 +34,9 @@ QString GetThumbnailFilename(const QString& url, const QString& title)
 
 QString GetMythXMLURL(void)
 {
-    QString MasterIP = gCoreContext->GetMasterServerIP();
-    int MasterStatusPort = gCoreContext->GetMasterServerStatusPort();
+    MythCoreContext *cctx = getCoreContext();
+    QString MasterIP = cctx->GetMasterServerIP();
+    int MasterStatusPort = cctx->GetMasterServerStatusPort();
 
     return QString("http://%1:%2/InternetContent/").arg(MasterIP)
         .arg(MasterStatusPort);

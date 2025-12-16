@@ -49,11 +49,12 @@ NetTree::NetTree(DialogType type, MythScreenStack *parent, const char *name)
       m_gdt(new GrabberDownloadThread(this)), m_type(type)
 {
     connect(m_gdt, &GrabberDownloadThread::finished, this, &NetTree::DoTreeRefresh);
-    m_updateFreq = gCoreContext->GetNumSetting(
+    MythCoreContext *cctx = getCoreContext();
+    m_updateFreq = cctx->GetNumSetting(
                        "mythNetTree.updateFreq", 6);
-    m_rssAutoUpdate = gCoreContext->GetBoolSetting(
+    m_rssAutoUpdate = cctx->GetBoolSetting(
                        "mythnetvision.rssBackgroundFetch", false);
-    m_treeAutoUpdate = gCoreContext->GetBoolSetting(
+    m_treeAutoUpdate = cctx->GetBoolSetting(
                        "mythnetvision.backgroundFetch", false);
 }
 
@@ -509,7 +510,7 @@ void NetTree::SwitchView()
 
     if (nettree->Create())
     {
-        gCoreContext->SaveSetting("mythnetvision.ViewMode", m_type);
+        getCoreContext()->SaveSetting("mythnetvision.ViewMode", m_type);
         MythScreenStack *screenStack = GetScreenStack();
         screenStack->AddScreen(nettree);
         screenStack->PopScreen(this, false, false);
@@ -933,14 +934,14 @@ void NetTree::UpdateTrees()
 void NetTree::ToggleRSSUpdates()
 {
     m_rssAutoUpdate = !m_rssAutoUpdate;
-    gCoreContext->SaveBoolSetting("mythnetvision.rssBackgroundFetch",
+    getCoreContext()->SaveBoolSetting("mythnetvision.rssBackgroundFetch",
                                   m_rssAutoUpdate);
 }
 
 void NetTree::ToggleTreeUpdates()
 {
     m_treeAutoUpdate = !m_treeAutoUpdate;
-    gCoreContext->SaveBoolSetting("mythnetvision.backgroundFetch",
+    getCoreContext()->SaveBoolSetting("mythnetvision.backgroundFetch",
                                   m_treeAutoUpdate);
 }
 

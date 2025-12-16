@@ -40,7 +40,7 @@ static int RunNetTree(void)
 {
     MythScreenStack *mainStack = GetMythMainWindow()->GetMainStack();
 
-    DialogType type = static_cast<DialogType>(gCoreContext->GetNumSetting(
+    DialogType type = static_cast<DialogType>(getCoreContext()->GetNumSetting(
                        "mythnetvision.ViewMode", DLG_TREE));
 
     auto *nettree = new NetTree(type, mainStack, "mythnettree");

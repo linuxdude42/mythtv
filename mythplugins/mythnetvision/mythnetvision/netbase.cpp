@@ -20,7 +20,7 @@ NetBase::NetBase(MythScreenStack *parent, const char *name)
       m_popupStack(GetMythMainWindow()->GetStack("popup stack")),
       m_imageDownload(new MetadataImageDownload(this))
 {
-    gCoreContext->addListener(this);
+    getCoreContext()->addListener(this);
 }
 
 NetBase::~NetBase()
@@ -35,7 +35,7 @@ NetBase::~NetBase()
     delete m_imageDownload;
     m_imageDownload = nullptr;
 
-    gCoreContext->removeListener(this);
+    getCoreContext()->removeListener(this);
 }
 
 void NetBase::Init()
@@ -139,8 +139,9 @@ void NetBase::ShowWebVideo()
         if (url.isEmpty())
             return;
 
-        QString browser = gCoreContext->GetSetting("WebBrowserCommand", "");
-        QString zoom = gCoreContext->GetSetting("WebBrowserZoomLevel", "1.0");
+        MythCoreContext *cctx = getCoreContext();
+        QString browser = cctx->GetSetting("WebBrowserCommand", "");
+        QString zoom = cctx->GetSetting("WebBrowserZoomLevel", "1.0");
 
         if (browser.isEmpty())
         {
@@ -288,7 +289,7 @@ void NetBase::DoDownloadAndPlay()
                                                item->GetMediaURL());
 
     QString finalFilename = StorageGroup::generate_file_url("Default",
-                                              gCoreContext->GetMasterHostName(),
+                                              getCoreContext()->GetMasterHostName(),
                                               baseFilename);
 
     LOG(VB_GENERAL, LOG_INFO, QString("Downloading %1 to %2")
