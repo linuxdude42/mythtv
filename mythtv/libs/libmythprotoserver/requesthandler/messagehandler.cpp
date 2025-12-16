@@ -6,12 +6,13 @@
 
 MessageHandler::MessageHandler(void)
 {
-    if (!gCoreContext)
+    MythCoreContext *cctx = getCoreContext();
+    if (!cctx)
     {
         LOG(VB_GENERAL, LOG_ERR, "MessageHandler started with no CoreContext!");
         return;
     }
-    gCoreContext->addListener(this);
+    cctx->addListener(this);
 }
 
 void MessageHandler::customEvent(QEvent *e)
@@ -19,7 +20,7 @@ void MessageHandler::customEvent(QEvent *e)
     if (e->type() != MythEvent::kMythEventMessage)
         return;
 
-    if (!gCoreContext->IsMasterBackend())
+    if (!getCoreContext()->IsMasterBackend())
         // only master backend should forward events
         return;
 
@@ -61,15 +62,16 @@ bool MessageHandler::HandleInbound(SocketHandler *sock, QStringList &slist)
     for (uint i = 2; i < (uint) slist.size(); i++)
         extra_data.push_back(slist[i]);
 
+    MythCoreContext *cctx = getCoreContext();
     if (extra_data.empty())
     {
         MythEvent me(message);
-        gCoreContext->dispatch(me);
+        cctx->dispatch(me);
     }
     else
     {
         MythEvent me(message, extra_data);
-        gCoreContext->dispatch(me);
+        cctx->dispatch(me);
     }
 
     res << "OK";
@@ -100,7 +102,7 @@ bool MessageHandler::HandleOutbound(SocketHandler */*sock*/, QStringList &slist)
     for (; iter != slist.cend(); ++iter)
         extra_data << *iter;
     MythEvent me(message, extra_data);
-    gCoreContext->dispatch(me);
+    getCoreContext()->dispatch(me);
     return true;
 }
 

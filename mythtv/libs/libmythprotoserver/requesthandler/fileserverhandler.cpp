@@ -246,7 +246,7 @@ bool FileServerHandler::HandleAnnounce(MythSocket *socket,
         if (wantgroup.isEmpty())
             wantgroup = "Default";
 
-        StorageGroup sgroup(wantgroup, gCoreContext->GetHostName(), false);
+        StorageGroup sgroup(wantgroup, getCoreContext()->GetHostName(), false);
         QString dir = sgroup.FindNextDirMostFree();
         if (dir.isEmpty())
         {
@@ -442,7 +442,7 @@ bool FileServerHandler::HandleQueryFreeSpaceSummary(SocketHandler *socket)
 
 FileSystemInfoList FileServerHandler::QueryFileSystems(void)
 {
-    const QString localHostName = gCoreContext->GetHostName(); // cache this
+    const QString localHostName = getCoreContext()->GetHostName(); // cache this
     QStringList groups(StorageGroup::kSpecialGroups);
     groups.removeAll("LiveTV");
     QString specialGroups = groups.join("', '");
@@ -578,7 +578,7 @@ bool FileServerHandler::HandleQueryFileExists(SocketHandler *socket,
         return true;
     }
 
-    StorageGroup sgroup(storageGroup, gCoreContext->GetHostName());
+    StorageGroup sgroup(storageGroup, getCoreContext()->GetHostName());
     QString fullname = sgroup.FindFile(filename);
 
     if (!fullname.isEmpty())
@@ -626,8 +626,9 @@ bool FileServerHandler::HandleQueryFileExists(SocketHandler *socket,
 bool FileServerHandler::HandleQueryFileHash(SocketHandler *socket,
                                             QStringList &slist)
 {
+    MythCoreContext *cctx = getCoreContext();
     QString storageGroup = "Default";
-    QString hostname     = gCoreContext->GetHostName();
+    QString hostname     = cctx->GetHostName();
     QString filename     = "";
     QStringList res;
 
@@ -660,10 +661,10 @@ bool FileServerHandler::HandleQueryFileHash(SocketHandler *socket,
 
     QString hash = "";
 
-    if (gCoreContext->IsThisHost(hostname))
+    if (cctx->IsThisHost(hostname))
     {
         // looking for file on me, return directly
-        StorageGroup sgroup(storageGroup, gCoreContext->GetHostName());
+        StorageGroup sgroup(storageGroup, cctx->GetHostName());
         QString fullname = sgroup.FindFile(filename);
         hash = FileHash(fullname);
     }
@@ -787,7 +788,8 @@ bool FileServerHandler::HandleGetFileList(SocketHandler *socket,
         return true;
     }
 
-    QString host = gCoreContext->GetHostName();
+    MythCoreContext *cctx = getCoreContext();
+    QString host = cctx->GetHostName();
     QString wantHost = slist[1];
     QString groupname = slist[2];
     QString path = slist[3];
@@ -797,7 +799,7 @@ bool FileServerHandler::HandleGetFileList(SocketHandler *socket,
                 "path = %3 wanthost = %4")
             .arg(groupname, host, path, wantHost));
 
-    if (gCoreContext->IsThisHost(wantHost))
+    if (cctx->IsThisHost(wantHost))
     {
         StorageGroup sg(groupname, host);
         LOG(VB_FILE, LOG_INFO, "Getting local info");
@@ -863,11 +865,12 @@ bool FileServerHandler::HandleFileQuery(SocketHandler *socket,
     LOG(VB_FILE, LOG_DEBUG, QString("HandleSGFileQuery: myth://%1@%2/%3")
                              .arg(groupname, wantHost, filename));
 
-    if (gCoreContext->IsThisHost(wantHost))
+    MythCoreContext *cctx = getCoreContext();
+    if (cctx->IsThisHost(wantHost))
     {
         // handle request locally
         LOG(VB_FILE, LOG_DEBUG, QString("Getting local info"));
-        StorageGroup sg(groupname, gCoreContext->GetHostName());
+        StorageGroup sg(groupname, cctx->GetHostName());
         res = sg.GetFileInfo(filename);
 
         if (res.count() == 0)
@@ -1009,7 +1012,7 @@ bool FileServerHandler::HandleQueryFileTransfer(SocketHandler *socket,
     {
         // return size and if the file is not opened for writing
         res << QString::number(ft->GetFileSize());
-        res << QString::number(static_cast<int>(!gCoreContext->IsRegisteredFileForWrite(ft->GetFileName())));
+        res << QString::number(static_cast<int>(!getCoreContext()->IsRegisteredFileForWrite(ft->GetFileName())));
     }
     else
     {
@@ -1025,6 +1028,7 @@ bool FileServerHandler::HandleQueryFileTransfer(SocketHandler *socket,
 bool FileServerHandler::HandleDownloadFile(SocketHandler *socket,
                                            QStringList &slist)
 {
+    MythCoreContext *cctx = getCoreContext();
     QStringList res;
 
     if (slist.size() != 4)
@@ -1038,7 +1042,7 @@ bool FileServerHandler::HandleDownloadFile(SocketHandler *socket,
     QString srcURL = slist[1];
     QString storageGroup = slist[2];
     QString filename = slist[3];
-    StorageGroup sgroup(storageGroup, gCoreContext->GetHostName(), false);
+    StorageGroup sgroup(storageGroup, cctx->GetHostName(), false);
     QString outDir = sgroup.FindNextDirMostFree();
     QString outFile;
 
@@ -1075,7 +1079,7 @@ bool FileServerHandler::HandleDownloadFile(SocketHandler *socket,
         if (GetMythDownloadManager()->download(srcURL, outFile))
         {
             res << "OK"
-                << gCoreContext->GetMasterHostPrefix(storageGroup)
+                << cctx->GetMasterHostPrefix(storageGroup)
                        + filename;
         }
         else
@@ -1087,12 +1091,12 @@ bool FileServerHandler::HandleDownloadFile(SocketHandler *socket,
     {
         QMutexLocker locker(&m_downloadURLsLock);
         m_downloadURLs[outFile] =
-            gCoreContext->GetMasterHostPrefix(storageGroup) +
+            cctx->GetMasterHostPrefix(storageGroup) +
             StorageGroup::GetRelativePathname(outFile);
 
         GetMythDownloadManager()->queueDownload(srcURL, outFile, this);
         res << "OK"
-            << gCoreContext->GetMasterHostPrefix(storageGroup) + filename;
+            << cctx->GetMasterHostPrefix(storageGroup) + filename;
     }
 
     socket->WriteStringList(res);

@@ -51,7 +51,7 @@ bool BaseRequestHandler::HandleAnnounce(MythSocket *socket,
                                     .arg(commands[1]));
     LOG(VB_GENERAL, LOG_NOTICE, QString("adding: %1 as a client (events: %2)")
                                .arg(commands[2]).arg(eventlevel));
-    gCoreContext->SendSystemEvent(QString("CLIENT_CONNECTED HOSTNAME %1")
+    getCoreContext()->SendSystemEvent(QString("CLIENT_CONNECTED HOSTNAME %1")
                                   .arg(commands[2]));
 
     return true;
@@ -153,7 +153,7 @@ bool BaseRequestHandler::HandleQueryHostname(SocketHandler *sock)
 {
     QStringList strlist;
 
-    strlist << gCoreContext->GetHostName();
+    strlist << getCoreContext()->GetHostName();
 
     sock->WriteStringList(strlist);
     return true;

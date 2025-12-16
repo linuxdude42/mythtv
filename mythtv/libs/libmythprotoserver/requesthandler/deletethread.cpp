@@ -28,8 +28,9 @@
 DeleteThread::DeleteThread(void) :
     MThread("Delete")
 {
-    m_slow = (bool) gCoreContext->GetNumSetting("TruncateDeletesSlowly", 0);
-    m_link = (bool) gCoreContext->GetNumSetting("DeletesFollowLinks", 0);
+    MythCoreContext *cctx = getCoreContext();
+    m_slow = (bool) cctx->GetNumSetting("TruncateDeletesSlowly", 0);
+    m_link = (bool) cctx->GetNumSetting("DeletesFollowLinks", 0);
 }
 
 void DeleteThread::run(void)
@@ -38,7 +39,7 @@ void DeleteThread::run(void)
 
     LOG(VB_FILE, LOG_DEBUG, "Spawning new delete thread.");
 
-    while (gCoreContext && m_run)
+    while (getCoreContext() && m_run)
     {
         // loop through any stored files every half second 
         ProcessNew();
