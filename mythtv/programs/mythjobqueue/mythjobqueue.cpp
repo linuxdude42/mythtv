@@ -84,7 +84,7 @@ int main(int argc, char *argv[])
 
     cmdline.ApplySettingsOverride();
 
-    if (!gCoreContext->ConnectToMasterServer())
+    if (!getCoreContext()->ConnectToMasterServer())
     {
         LOG(VB_GENERAL, LOG_ERR, LOC + "Failed to connect to master server");
         return GENERIC_EXIT_CONNECT_ERROR;
