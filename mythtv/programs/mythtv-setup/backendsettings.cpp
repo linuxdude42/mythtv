@@ -793,8 +793,9 @@ static GlobalTextEditSetting *JobQueueCommFlagCommand()
 
 static HostCheckBoxSetting *JobAllowUserJob(uint job_num)
 {
+    MythCoreContext *cctx = getCoreContext();
     QString dbStr = QString("JobAllowUserJob%1").arg(job_num);
-    QString desc  = gCoreContext->GetSetting(QString("UserJobDesc%1").arg(job_num));
+    QString desc  = cctx->GetSetting(QString("UserJobDesc%1").arg(job_num));
     QString label = QObject::tr("Allow %1 jobs").arg(desc);
 
     auto *bc = new HostCheckBoxSetting(dbStr);
@@ -804,7 +805,7 @@ static HostCheckBoxSetting *JobAllowUserJob(uint job_num)
     // It would be nice to disable inactive jobs,
     // but enabling them currently requires a restart of mythtv-setup
     // after entering the job command string. Will improve this logic later:
-    // if (QString(gCoreContext->GetSetting(QString("UserJob%1").arg(job_num)))
+    // if (QString(cctx->GetSetting(QString("UserJob%1").arg(job_num)))
     //            .length() == 0)
     //     bc->setEnabled(false);
     bc->setHelpText(QObject::tr("If enabled, allow jobs of this type to "
@@ -1087,7 +1088,7 @@ void BackendSettings::masterBackendChanged()
         return;
     bool ismasterchecked = m_isMasterBackend->boolValue();
     if (ismasterchecked)
-        m_masterServerName->setValue(gCoreContext->GetHostName());
+        m_masterServerName->setValue(getCoreContext()->GetHostName());
     else
         m_masterServerName->setValue(m_priorMasterName);
 }
@@ -1148,6 +1149,8 @@ void BackendSettings::listenChanged()
 
 void BackendSettings::Load(void)
 {
+    MythCoreContext *cctx = getCoreContext();
+
     m_isLoaded=false;
     GroupSetting::Load();
 
@@ -1161,10 +1164,10 @@ void BackendSettings::Load(void)
     bool newInstall=false;
     if (mastername.isEmpty())
     {
-        mastername = gCoreContext->GetHostName();
+        mastername = cctx->GetHostName();
         newInstall=true;
     }
-    bool ismaster = (mastername == gCoreContext->GetHostName());
+    bool ismaster = (mastername == cctx->GetHostName());
     m_isMasterBackend->setValue(ismaster);
     m_priorMasterName = mastername;
     m_isLoaded=true;

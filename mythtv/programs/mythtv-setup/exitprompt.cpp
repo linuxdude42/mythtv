@@ -36,7 +36,7 @@ ExitPrompter::~ExitPrompter()
 
 void ExitPrompter::masterPromptExit()
 {
-    if (gCoreContext->IsMasterHost() && needsMFDBReminder())
+    if (getCoreContext()->IsMasterHost() && needsMFDBReminder())
     {
         QString label = tr("If you've added or altered channels,"
                            " please run 'mythfilldatabase' on the"
@@ -146,9 +146,10 @@ void ExitPrompter::customEvent(QEvent *event)
 void ExitPrompter::quit()
 {
     // If the backend was stopped restart it here
-    if (gCoreContext->GetSetting("AutoRestartBackend") == "1")
+    MythCoreContext *cctx = getCoreContext();
+    if (cctx->GetSetting("AutoRestartBackend") == "1")
     {
-        QString commandString = gCoreContext->GetSetting("BackendStartCommand");
+        QString commandString = cctx->GetSetting("BackendStartCommand");
         if (!commandString.isEmpty())
         {
             LOG(VB_GENERAL, LOG_ERR, "backendrestart"+commandString);
@@ -160,7 +161,7 @@ void ExitPrompter::quit()
         // No need to run this if the backend has just restarted
         if (MythCoreContext::BackendIsRunning())
         {
-            gCoreContext->SendMessage("CLEAR_SETTINGS_CACHE");
+            cctx->SendMessage("CLEAR_SETTINGS_CACHE");
         }
     }
 

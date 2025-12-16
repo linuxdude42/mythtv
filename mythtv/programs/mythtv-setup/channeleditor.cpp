@@ -637,7 +637,7 @@ static bool check_cardsource(int sourceid, QString &sourcename)
         "WHERE capturecard.sourceid = :SOURCEID AND "
         "      capturecard.hostname = :HOSTNAME");
     query.bindValue(":SOURCEID", sourceid);
-    query.bindValue(":HOSTNAME", gCoreContext->GetHostName());
+    query.bindValue(":HOSTNAME", getCoreContext()->GetHostName());
 
     if (!query.exec() || !query.isActive())
     {

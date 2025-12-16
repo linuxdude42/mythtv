@@ -18,7 +18,7 @@ class ExpertSettingsEditor : public RawSettingsEditor
         query.prepare("SELECT value, data "
                         "FROM settings "
                         "WHERE hostname = :HOSTNAME");
-        query.bindValue(":HOSTNAME", gCoreContext->GetHostName());
+        query.bindValue(":HOSTNAME", getCoreContext()->GetHostName());
 
         if (query.exec())
         {

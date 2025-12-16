@@ -37,7 +37,7 @@ StartPrompter::~StartPrompter()
 void StartPrompter::handleStart()
 {
     // Offer to stop the backend if sensible
-    if (MythCoreContext::BackendIsRunning() && gCoreContext->IsMasterHost())
+    if (MythCoreContext::BackendIsRunning() && getCoreContext()->IsMasterHost())
     {
         backendRunningPrompt();
     }
@@ -46,27 +46,29 @@ void StartPrompter::handleStart()
 void StartPrompter::leaveBackendRunning()
 {
     LOG(VB_GENERAL, LOG_INFO, "Continuing with backend running");
-    gCoreContext->OverrideSettingForSession("AutoRestartBackend", "0");
+    getCoreContext()->OverrideSettingForSession("AutoRestartBackend", "0");
 }
 
 void StartPrompter::stopBackend()
 {
     LOG(VB_GENERAL, LOG_INFO, "Trying to stop backend");
 
-    QString commandString = gCoreContext->GetSetting("BackendStopCommand");
+    MythCoreContext *cctx = getCoreContext();
+    QString commandString = cctx->GetSetting("BackendStopCommand");
     if (!commandString.isEmpty())
     {
         myth_system(commandString);
     }
-    gCoreContext->OverrideSettingForSession("AutoRestartBackend", "1");
+    cctx->OverrideSettingForSession("AutoRestartBackend", "1");
 }
 
 void StartPrompter::backendRunningPrompt(void)
 {
+    MythCoreContext *cctx = getCoreContext();
     bool backendIsRecording = false;
     // Get recording status
-    if (!gCoreContext->IsConnectedToMaster() &&
-        gCoreContext->ConnectToMasterServer(false))
+    if (!cctx->IsConnectedToMaster() &&
+        cctx->ConnectToMasterServer(false))
     {
         backendIsRecording = RemoteGetRecordingStatus(nullptr, false);
     }
@@ -99,7 +101,7 @@ void StartPrompter::backendRunningPrompt(void)
 
     m_d->m_stk->AddScreen(dia);
 
-    QString commandString = gCoreContext->GetSetting("BackendStopCommand");
+    QString commandString = cctx->GetSetting("BackendStopCommand");
     if (!commandString.isEmpty())
     {
         // Only show option to stop backend if command is defined.

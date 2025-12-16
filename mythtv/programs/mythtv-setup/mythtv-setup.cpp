@@ -193,7 +193,7 @@ static bool resetTheme(QString themedir, const QString &badtheme)
         QString("Overriding broken theme '%1' with '%2'")
                 .arg(badtheme, themename));
 
-    gCoreContext->OverrideSettingForSession("Theme", themename);
+    getCoreContext()->OverrideSettingForSession("Theme", themename);
     themedir = GetMythUI()->FindThemeDir(themename);
 
     MythTranslation::reload();
@@ -205,7 +205,7 @@ static bool resetTheme(QString themedir, const QString &badtheme)
 static int reloadTheme(void)
 {
     GetMythUI()->InitThemeHelper();
-    QString themename = gCoreContext->GetSetting("Theme", DEFAULT_UI_THEME);
+    QString themename = getCoreContext()->GetSetting("Theme", DEFAULT_UI_THEME);
     QString themedir = GetMythUI()->FindThemeDir(themename);
     if (themedir.isEmpty())
     {
@@ -516,7 +516,7 @@ int main(int argc, char *argv[])
 
     MythTranslation::load("mythfrontend");
 
-    QString themename = gCoreContext->GetSetting("Theme", DEFAULT_UI_THEME);
+    QString themename = getCoreContext()->GetSetting("Theme", DEFAULT_UI_THEME);
     QString themedir = GetMythUI()->FindThemeDir(themename);
     if (themedir.isEmpty())
     {

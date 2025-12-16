@@ -28,7 +28,7 @@ ImportIconsWizard::ImportIconsWizard(MythScreenStack *parent, bool fRefresh,
                                      int sourceid, QString channelname)
                   :MythScreenType(parent, "ChannelIconImporter"),
     m_strChannelname(std::move(channelname)), m_fRefresh(fRefresh), m_sourceId(sourceid),
-    m_url(gCoreContext->GetSetting("ServicesRepositoryURL",
+    m_url(getCoreContext()->GetSetting("ServicesRepositoryURL",
                                    "https://services.mythtv.org") + "/channel-icon")
 
 {

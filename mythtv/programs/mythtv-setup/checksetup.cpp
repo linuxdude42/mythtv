@@ -71,10 +71,11 @@ bool checkStoragePaths(QStringList &probs)
         return true;
     }
 
+    MythCoreContext *cctx = getCoreContext();
     query.prepare("SELECT groupname, dirname "
                   "FROM storagegroup "
                   "WHERE hostname = :HOSTNAME;");
-    query.bindValue(":HOSTNAME", gCoreContext->GetHostName());
+    query.bindValue(":HOSTNAME", cctx->GetHostName());
     if (!query.exec() || !query.isActive())
     {
         MythDB::DBError("checkStoragePaths", query);
@@ -82,7 +83,7 @@ bool checkStoragePaths(QStringList &probs)
     }
     if (query.size() < 1)
     {
-        if (gCoreContext->IsMasterHost())
+        if (cctx->IsMasterHost())
         {
             // Master backend must have a defined Default SG
             QString trMesg =
@@ -131,7 +132,7 @@ bool checkImageStoragePaths(QStringList &probs)
     query.prepare("SELECT groupname "
                   "FROM storagegroup "
                   "WHERE hostname = :HOSTNAME;");
-    query.bindValue(":HOSTNAME", gCoreContext->GetHostName());
+    query.bindValue(":HOSTNAME", getCoreContext()->GetHostName());
     if (!query.exec() || !query.isActive())
     {
         MythDB::DBError("checkImageStoragePaths", query);
