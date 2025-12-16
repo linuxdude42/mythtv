@@ -94,16 +94,17 @@ int main(int argc, char *argv[])
 
     cmdline.ApplySettingsOverride();
 
-    gCoreContext->SetAsBackend(true); // blocks the event connection
+    MythCoreContext *cctx = getCoreContext();
+    cctx->SetAsBackend(true); // blocks the event connection
     ms_sd_notify("STATUS=Connecting to master server.");
-    if (!gCoreContext->ConnectToMasterServer())
+    if (!cctx->ConnectToMasterServer())
     {
         LOG(VB_GENERAL, LOG_ERR, LOC + "Failed to connect to master server");
         return GENERIC_EXIT_CONNECT_ERROR;
     }
 
-    int     port = gCoreContext->GetBackendServerPort();
-    if (gCoreContext->GetBackendServerIP().isEmpty())
+    int     port = cctx->GetBackendServerPort();
+    if (cctx->GetBackendServerIP().isEmpty())
     {
         std::cerr << "No setting found for this machine's BackendServerIP.\n"
                   << "Please run setup on this machine and modify the first page\n"

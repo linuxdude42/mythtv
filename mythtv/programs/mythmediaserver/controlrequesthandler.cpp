@@ -16,7 +16,7 @@ bool ControlRequestHandler::AnnounceSocket(void)
         return false;
 
     QString ann = QString("ANN MediaServer %1")
-                        .arg(gCoreContext->GetHostName());
+        .arg(getCoreContext()->GetHostName());
     QStringList strlist(ann);
     
     return m_socket->Announce(strlist);
