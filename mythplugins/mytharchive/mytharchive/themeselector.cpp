@@ -241,7 +241,7 @@ QString DVDThemeSelector::loadFile(const QString &filename)
 
 void DVDThemeSelector::loadConfiguration(void)
 {
-    QString theme = gCoreContext->GetSetting("MythBurnMenuTheme", "");
+    QString theme = getCoreContext()->GetSetting("MythBurnMenuTheme", "");
     theme = theme.replace(QString("_"), QString(" "));
     m_themeSelector->MoveToNamedPosition(theme);
 }
@@ -250,5 +250,5 @@ void DVDThemeSelector::saveConfiguration(void)
 {
     QString theme = m_themeSelector->GetValue();
     theme = theme.replace(QString(" "), QString("_"));
-    gCoreContext->SaveSetting("MythBurnMenuTheme", theme);
+    getCoreContext()->SaveSetting("MythBurnMenuTheme", theme);
 }

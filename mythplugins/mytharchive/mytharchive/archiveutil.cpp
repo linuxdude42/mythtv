@@ -45,7 +45,8 @@ std::vector<ArchiveDestination> ArchiveDestinations
 
 QString getTempDirectory(bool showError)
 {
-    QString tempDir = gCoreContext->GetSetting("MythArchiveTempDir", "");
+    MythCoreContext *cctx = getCoreContext();
+    QString tempDir = cctx->GetSetting("MythArchiveTempDir", "");
 
     if (tempDir == "" && showError)
     {
@@ -61,7 +62,7 @@ QString getTempDirectory(bool showError)
     if (!tempDir.endsWith("/"))
     {
         tempDir += "/";
-        gCoreContext->SaveSetting("MythArchiveTempDir", tempDir);
+        cctx->SaveSetting("MythArchiveTempDir", tempDir);
     }
 
     return tempDir;
@@ -200,7 +201,7 @@ ProgramInfo *getProgramInfoForFile(const QString &inFile)
 
 bool getFileDetails(ArchiveItem *a)
 {
-    QString tempDir = gCoreContext->GetSetting("MythArchiveTempDir", "");
+    QString tempDir = getCoreContext()->GetSetting("MythArchiveTempDir", "");
 
     if (!tempDir.endsWith("/"))
         tempDir += "/";

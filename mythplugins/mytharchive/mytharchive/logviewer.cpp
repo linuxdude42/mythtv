@@ -81,17 +81,19 @@ void showLogViewer(void)
 }
 
 LogViewer::LogViewer(MythScreenStack *parent)
-    : MythScreenType(parent, "logviewer"),
-      m_autoUpdate(gCoreContext->GetBoolSetting("LogViewerAutoUpdate", true)),
-      m_updateTime(gCoreContext->GetDurSetting<std::chrono::seconds>(
-                       "LogViewerUpdateTime", DEFAULT_UPDATE_TIME))
+    : MythScreenType(parent, "logviewer")
 {
+    MythCoreContext *cctx = getCoreContext();
+    m_autoUpdate = cctx->GetBoolSetting("LogViewerAutoUpdate", true);
+    m_updateTime = cctx->GetDurSetting<std::chrono::seconds>(
+        "LogViewerUpdateTime", DEFAULT_UPDATE_TIME);
 }
 
 LogViewer::~LogViewer(void)
 {
-    gCoreContext->SaveDurSetting("LogViewerUpdateTime", m_updateTime);
-    gCoreContext->SaveSetting("LogViewerAutoUpdate", m_autoUpdate ? "1" : "0");
+    MythCoreContext *cctx = getCoreContext();
+    cctx->SaveDurSetting("LogViewerUpdateTime", m_updateTime);
+    cctx->SaveSetting("LogViewerAutoUpdate", m_autoUpdate ? "1" : "0");
     delete m_updateTimer;
 }
 
@@ -188,7 +190,7 @@ void LogViewer::updateLogItem(MythUIButtonListItem *item)
 
 void LogViewer::cancelClicked(void)
 {
-    QString tempDir = gCoreContext->GetSetting("MythArchiveTempDir", "");
+    QString tempDir = getCoreContext()->GetSetting("MythArchiveTempDir", "");
     QFile lockFile(tempDir + "/logs/mythburncancel.lck");
 
     if (!lockFile.open(QIODevice::WriteOnly | QIODevice::Truncate))
@@ -249,7 +251,7 @@ QString LogViewer::getSetting(const QString &key)
         query.prepare("SELECT data FROM settings WHERE value = :VALUE "
                 "AND hostname = :HOSTNAME ;");
         query.bindValue(":VALUE", key);
-        query.bindValue(":HOSTNAME", gCoreContext->GetHostName());
+        query.bindValue(":HOSTNAME", getCoreContext()->GetHostName());
 
         if (query.exec() && query.next())
         {

@@ -435,9 +435,10 @@ std::vector<VideoInfo *> *VideoSelector::getVideoListFromDB(void)
             else
             {
                 // if the file is on this host then we should be able to find it locally
-                if (host == gCoreContext->GetHostName())
+                MythCoreContext *cctx = getCoreContext();
+                if (host == cctx->GetHostName())
                 {
-                    StorageGroup videoGroup("Videos", gCoreContext->GetHostName(), false);
+                    StorageGroup videoGroup("Videos", cctx->GetHostName(), false);
                     info->filename = videoGroup.FindFile(filename);
 
                     // sanity check the file exists

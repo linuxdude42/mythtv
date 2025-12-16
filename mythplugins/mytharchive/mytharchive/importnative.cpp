@@ -168,12 +168,12 @@ static bool loadDetailsFromXML(const QString &filename, FileDetails *details)
 ArchiveFileSelector::ArchiveFileSelector(MythScreenStack *parent) :
     FileSelector(parent, nullptr, FSTYPE_FILE, "", "*.xml")
 {
-    m_curDirectory = gCoreContext->GetSetting("MythNativeLoadFilename", "/");
+    m_curDirectory = getCoreContext()->GetSetting("MythNativeLoadFilename", "/");
 }
 
 ArchiveFileSelector::~ArchiveFileSelector(void)
 {
-    gCoreContext->SaveSetting("MythNativeLoadFilename", m_curDirectory);
+    getCoreContext()->SaveSetting("MythNativeLoadFilename", m_curDirectory);
 }
 
 bool ArchiveFileSelector::Create(void)
@@ -397,7 +397,7 @@ void ImportNative::finishedPressed()
     }
 
     QString commandline;
-    QString tempDir = gCoreContext->GetSetting("MythArchiveTempDir", "");
+    QString tempDir = getCoreContext()->GetSetting("MythArchiveTempDir", "");
     QString chanID = m_localChanIDText->GetText();
 
     if (chanID == "")

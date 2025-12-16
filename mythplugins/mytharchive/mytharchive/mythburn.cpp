@@ -227,6 +227,7 @@ void MythBurn::updateSizeBar(void)
 
 void MythBurn::loadEncoderProfiles()
 {
+    MythCoreContext *cctx = getCoreContext();
     auto *item = new EncoderProfile;
     item->name = "NONE";
     item->description = "";
@@ -237,7 +238,7 @@ void MythBurn::loadEncoderProfiles()
     // first look in the ConfDir (~/.mythtv)
     QString filename = GetConfDir() +
             "/MythArchive/ffmpeg_dvd_" +
-            ((gCoreContext->GetSetting("MythArchiveVideoFormat", "pal")
+            ((cctx->GetSetting("MythArchiveVideoFormat", "pal")
                 .toLower() == "ntsc") ? "ntsc" : "pal") + ".xml";
 
     if (!QFile::exists(filename))
@@ -245,7 +246,7 @@ void MythBurn::loadEncoderProfiles()
         // not found yet so use the default profiles
         filename = GetShareDir() +
             "mytharchive/encoder_profiles/ffmpeg_dvd_" +
-            ((gCoreContext->GetSetting("MythArchiveVideoFormat", "pal")
+            ((cctx->GetSetting("MythArchiveVideoFormat", "pal")
                 .toLower() == "ntsc") ? "ntsc" : "pal") + ".xml";
     }
 
@@ -512,13 +513,14 @@ EncoderProfile *MythBurn::getDefaultProfile(ArchiveItem *item)
     if (!item)
         return m_profileList.at(0);
 
+    MythCoreContext *cctx = getCoreContext();
     EncoderProfile *profile = nullptr;
 
     // is the file an mpeg2 file?
     if (item->videoCodec.toLower() == "mpeg2video (main)")
     {
         // does the file already have a valid DVD resolution?
-        if (gCoreContext->GetSetting("MythArchiveVideoFormat", "pal").toLower()
+        if (cctx->GetSetting("MythArchiveVideoFormat", "pal").toLower()
                     == "ntsc")
         {
             if ((item->videoWidth == 720 && item->videoHeight == 480) ||
@@ -547,7 +549,7 @@ EncoderProfile *MythBurn::getDefaultProfile(ArchiveItem *item)
     {
         // file needs re-encoding - use default profile setting
         QString defaultProfile =
-                gCoreContext->GetSetting("MythArchiveDefaultEncProfile", "SP");
+                cctx->GetSetting("MythArchiveDefaultEncProfile", "SP");
 
         for (auto *x : std::as_const(m_profileList))
             if (x->name == defaultProfile)
@@ -644,11 +646,12 @@ void MythBurn::createConfigFile(const QString &filename)
 
 void MythBurn::loadConfiguration(void)
 {
-    m_theme = gCoreContext->GetSetting("MythBurnMenuTheme", "");
-    m_bCreateISO = (gCoreContext->GetSetting("MythBurnCreateISO", "0") == "1");
-    m_bDoBurn = (gCoreContext->GetSetting("MythBurnBurnDVDr", "1") == "1");
-    m_bEraseDvdRw = (gCoreContext->GetSetting("MythBurnEraseDvdRw", "0") == "1");
-    m_saveFilename = gCoreContext->GetSetting("MythBurnSaveFilename", "");
+    MythCoreContext *cctx = getCoreContext();
+    m_theme = cctx->GetSetting("MythBurnMenuTheme", "");
+    m_bCreateISO = (cctx->GetSetting("MythBurnCreateISO", "0") == "1");
+    m_bDoBurn = (cctx->GetSetting("MythBurnBurnDVDr", "1") == "1");
+    m_bEraseDvdRw = (cctx->GetSetting("MythBurnEraseDvdRw", "0") == "1");
+    m_saveFilename = cctx->GetSetting("MythBurnSaveFilename", "");
 
     while (!m_archiveList.isEmpty())
          delete m_archiveList.takeFirst();
@@ -917,7 +920,7 @@ void MythBurn::runScript()
     commandline += " -l " + logDir + "/progress.log";           // progress log
     commandline += " > "  + logDir + "/mythburn.log 2>&1 &";    // Logs
 
-    gCoreContext->SaveSetting("MythArchiveLastRunStatus", "Running");
+    getCoreContext()->SaveSetting("MythArchiveLastRunStatus", "Running");
 
     uint flags = kMSRunBackground | kMSDontBlockInputDevs | 
                  kMSDontDisableDrawing;
@@ -983,7 +986,7 @@ void MythBurn::handleAddVideo()
 
 void MythBurn::handleAddFile()
 {
-    QString filter = gCoreContext->GetSetting("MythArchiveFileFilter",
+    QString filter = getCoreContext()->GetSetting("MythArchiveFileFilter",
                                           "*.mpg *.mpeg *.mov *.avi *.nuv");
 
     MythScreenStack *mainStack = GetMythMainWindow()->GetMainStack();
@@ -1091,7 +1094,7 @@ BurnMenu::BurnMenu(void)
 
 void BurnMenu::start(void)
 {
-    if (!gCoreContext->GetSetting("MythArchiveLastRunStatus").startsWith("Success"))
+    if (!getCoreContext()->GetSetting("MythArchiveLastRunStatus").startsWith("Success"))
     {
         showWarningDialog(tr("Cannot burn a DVD.\n"
                              "The last run failed to create a DVD."));
@@ -1151,7 +1154,7 @@ void BurnMenu::doBurn(int mode)
 
     QString sArchiveFormat = QString::number(mode);
     bool bEraseDVDRW = (mode == 2);
-    bool bNativeFormat = gCoreContext->GetSetting("MythArchiveLastRunType")
+    bool bNativeFormat = getCoreContext()->GetSetting("MythArchiveLastRunType")
                              .startsWith("Native");
 
     commandline = "mytharchivehelper --burndvd --mediatype " + sArchiveFormat +

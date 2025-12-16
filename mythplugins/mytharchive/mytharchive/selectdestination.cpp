@@ -148,6 +148,7 @@ void SelectDestination::handleCancel()
 
 void SelectDestination::loadConfiguration(void)
 {
+    MythCoreContext *cctx = getCoreContext();
     bool bCreateISO = false;
     bool bDoBurn = false;
     bool bEraseDvdRw = false;
@@ -156,19 +157,19 @@ void SelectDestination::loadConfiguration(void)
 
     if (m_nativeMode)
     {
-        bCreateISO = (gCoreContext->GetSetting("MythNativeCreateISO", "0") == "1");
-        bDoBurn = (gCoreContext->GetSetting("MythNativeBurnDVDr", "1") == "1");
-        bEraseDvdRw = (gCoreContext->GetSetting("MythNativeEraseDvdRw", "0") == "1");
-        saveFilename = gCoreContext->GetSetting("MythNativeSaveFilename", "");
-        destinationType = gCoreContext->GetNumSetting("MythNativeDestinationType", 0);
+        bCreateISO = (cctx->GetSetting("MythNativeCreateISO", "0") == "1");
+        bDoBurn = (cctx->GetSetting("MythNativeBurnDVDr", "1") == "1");
+        bEraseDvdRw = (cctx->GetSetting("MythNativeEraseDvdRw", "0") == "1");
+        saveFilename = cctx->GetSetting("MythNativeSaveFilename", "");
+        destinationType = cctx->GetNumSetting("MythNativeDestinationType", 0);
     }
     else
     {
-        bCreateISO = (gCoreContext->GetSetting("MythBurnCreateISO", "0") == "1");
-        bDoBurn = (gCoreContext->GetSetting("MythBurnBurnDVDr", "1") == "1");
-        bEraseDvdRw = (gCoreContext->GetSetting("MythBurnEraseDvdRw", "0") == "1");
-        saveFilename = gCoreContext->GetSetting("MythBurnSaveFilename", "");
-        destinationType = gCoreContext->GetNumSetting("MythBurnDestinationType", 0);
+        bCreateISO = (cctx->GetSetting("MythBurnCreateISO", "0") == "1");
+        bDoBurn = (cctx->GetSetting("MythBurnBurnDVDr", "1") == "1");
+        bEraseDvdRw = (cctx->GetSetting("MythBurnEraseDvdRw", "0") == "1");
+        saveFilename = cctx->GetSetting("MythBurnSaveFilename", "");
+        destinationType = cctx->GetNumSetting("MythBurnDestinationType", 0);
     }
 
     m_createISOCheck->SetCheckState((bCreateISO ? MythUIStateType::Full : MythUIStateType::Off));
@@ -183,27 +184,28 @@ void SelectDestination::loadConfiguration(void)
 
 void SelectDestination::saveConfiguration(void)
 {
+    MythCoreContext *cctx = getCoreContext();
     if (m_nativeMode)
     {
-        gCoreContext->SaveSetting("MythNativeCreateISO",
+        cctx->SaveSetting("MythNativeCreateISO",
             (m_createISOCheck->GetCheckState() == MythUIStateType::Full ? "1" : "0"));
-        gCoreContext->SaveSetting("MythNativeBurnDVDr",
+        cctx->SaveSetting("MythNativeBurnDVDr",
             (m_doBurnCheck->GetCheckState() == MythUIStateType::Full ? "1" : "0"));
-        gCoreContext->SaveSetting("MythNativeEraseDvdRw",
+        cctx->SaveSetting("MythNativeEraseDvdRw",
             (m_eraseDvdRwCheck->GetCheckState() == MythUIStateType::Full ? "1" : "0"));
-        gCoreContext->SaveSetting("MythNativeSaveFilename", m_filenameEdit->GetText());
-        gCoreContext->SaveSetting("MythNativeDestinationType", m_destinationSelector->GetCurrentPos());
+        cctx->SaveSetting("MythNativeSaveFilename", m_filenameEdit->GetText());
+        cctx->SaveSetting("MythNativeDestinationType", m_destinationSelector->GetCurrentPos());
     }
     else
     {
-        gCoreContext->SaveSetting("MythBurnCreateISO",
+        cctx->SaveSetting("MythBurnCreateISO",
             (m_createISOCheck->GetCheckState() == MythUIStateType::Full ? "1" : "0"));
-        gCoreContext->SaveSetting("MythBurnBurnDVDr",
+        cctx->SaveSetting("MythBurnBurnDVDr",
             (m_doBurnCheck->GetCheckState() == MythUIStateType::Full ? "1" : "0"));
-        gCoreContext->SaveSetting("MythBurnEraseDvdRw",
+        cctx->SaveSetting("MythBurnEraseDvdRw",
             (m_eraseDvdRwCheck->GetCheckState() == MythUIStateType::Full ? "1" : "0"));
-        gCoreContext->SaveSetting("MythBurnSaveFilename", m_filenameEdit->GetText());
-        gCoreContext->SaveSetting("MythBurnDestinationType", m_destinationSelector->GetCurrentPos());
+        cctx->SaveSetting("MythBurnSaveFilename", m_filenameEdit->GetText());
+        cctx->SaveSetting("MythBurnDestinationType", m_destinationSelector->GetCurrentPos());
     }
 }
 

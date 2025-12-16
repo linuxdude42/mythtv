@@ -18,7 +18,7 @@ const QString MythArchiveVersionName = "ArchiveDBSchemaVer";
 
 bool UpgradeArchiveDatabaseSchema(void)
 {
-    QString dbver = gCoreContext->GetSetting("ArchiveDBSchemaVer");
+    QString dbver = getCoreContext()->GetSetting("ArchiveDBSchemaVer");
 
     if (dbver == currentDatabaseVersion)
         return true;
