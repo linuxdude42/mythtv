@@ -63,13 +63,14 @@ int mythplugin_init(const char *libversion)
                                             MYTH_BINARY_VERSION))
         return -1;
 
-    gCoreContext->ActivateSettingsCache(false);
+    MythCoreContext *cctx = getCoreContext();
+    cctx->ActivateSettingsCache(false);
     InitializeDatabase();
-    gCoreContext->ActivateSettingsCache(true);
+    cctx->ActivateSettingsCache(true);
 
     setupKeys();
 
-    if (gCoreContext->GetBoolSetting("weatherbackgroundfetch", false))
+    if (cctx->GetBoolSetting("weatherbackgroundfetch", false))
     {
         srcMan = new SourceManager();
         srcMan->startTimers();

@@ -24,7 +24,7 @@ const QString MythWeatherVersionName = "WeatherDBSchemaVer";
  */
 bool InitializeDatabase()
 {
-    QString dbver = gCoreContext->GetSetting("WeatherDBSchemaVer");
+    QString dbver = getCoreContext()->GetSetting("WeatherDBSchemaVer");
 
     if (dbver == currentDatabaseVersion)
         return true;

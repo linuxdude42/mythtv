@@ -22,7 +22,7 @@
 Weather::Weather(MythScreenStack *parent, const QString &name, SourceManager *srcMan)
     : MythScreenType(parent, name),
       m_weatherStack(new MythScreenStack(GetMythMainWindow(), "weather stack")),
-      m_nextpageInterval(gCoreContext->GetDurSetting<std::chrono::seconds>("weatherTimeout", 10s)),
+      m_nextpageInterval(getCoreContext()->GetDurSetting<std::chrono::seconds>("weatherTimeout", 10s)),
       m_nextPageTimer(new QTimer(this))
 {
     if (!srcMan)
@@ -127,7 +127,7 @@ bool Weather::SetupScreens()
             "SELECT screen_id, container, units, draworder FROM weatherscreens "
             " WHERE hostname = :HOST ORDER BY draworder;";
     db.prepare(query);
-    db.bindValue(":HOST", gCoreContext->GetHostName());
+    db.bindValue(":HOST", getCoreContext()->GetHostName());
     if (!db.exec())
     {
         MythDB::DBError("Selecting weather screens.", db);

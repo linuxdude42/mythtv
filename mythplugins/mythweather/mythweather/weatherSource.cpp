@@ -209,13 +209,14 @@ ScriptInfo *WeatherSource::ProbeScript(const QFileInfo &fi)
     if (!WeatherSource::ProbeInfo(info))
         return nullptr;
 
+    QString hostname = getCoreContext()->GetHostName();
     MSqlQuery db(MSqlQuery::InitCon());
     QString query =
             "SELECT sourceid, source_name, update_timeout, retrieve_timeout, "
             "path, author, version, email, types FROM weathersourcesettings "
             "WHERE hostname = :HOST AND source_name = :NAME;";
     db.prepare(query);
-    db.bindValue(":HOST", gCoreContext->GetHostName());
+    db.bindValue(":HOST", hostname);
     db.bindValue(":NAME", info.name);
 
     if (!db.exec())
@@ -283,7 +284,7 @@ ScriptInfo *WeatherSource::ProbeScript(const QFileInfo &fi)
         }
         db.prepare(query);
         db.bindValue(":NAME", info.name);
-        db.bindValue(":HOST", gCoreContext->GetHostName());
+        db.bindValue(":HOST", hostname);
         db.bindValue(":UPDATETO", QString::number(info.updateTimeout.count()));
         db.bindValue(":RETTO", QString::number(info.scriptTimeout.count()));
         db.bindValue(":PATH", info.program);
@@ -302,7 +303,7 @@ ScriptInfo *WeatherSource::ProbeScript(const QFileInfo &fi)
         // a little annoying, but look at what we just inserted to get the id
         // number, not sure if we really need it, but better safe than sorry.
         db.prepare(query);
-        db.bindValue(":HOST", gCoreContext->GetHostName());
+        db.bindValue(":HOST", hostname);
         db.bindValue(":NAME", info.name);
         if (!db.exec())
         {

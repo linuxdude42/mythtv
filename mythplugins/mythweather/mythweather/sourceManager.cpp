@@ -45,7 +45,7 @@ bool SourceManager::findScriptsDB()
             "WHERE hostname = :HOST;";
 
     db.prepare(query);
-    db.bindValue(":HOST", gCoreContext->GetHostName());
+    db.bindValue(":HOST", getCoreContext()->GetHostName());
     if (!db.exec())
     {
         MythDB::DBError("Finding weather source scripts for host", db);
@@ -118,7 +118,7 @@ bool SourceManager::findScripts()
 
     db.prepare("SELECT sourceid, path FROM weathersourcesettings "
                "WHERE hostname = :HOST;");
-    db.bindValue(":HOST", gCoreContext->GetHostName());
+    db.bindValue(":HOST", getCoreContext()->GetHostName());
     if (!db.exec())
         MythDB::DBError("SourceManager::findScripts - select", db);
     QStringList toRemove;
@@ -173,7 +173,7 @@ void SourceManager::setupSources()
         "FROM weatherdatalayout,weatherscreens "
         "WHERE weatherscreens.screen_id = weatherscreens_screen_id AND "
         "      weatherscreens.hostname = :HOST");
-    db.bindValue(":HOST", gCoreContext->GetHostName());
+    db.bindValue(":HOST", getCoreContext()->GetHostName());
     if (!db.exec())
     {
         MythDB::DBError("Finding weather sources for this host", db);
