@@ -735,7 +735,7 @@ static int transUnlink(const QString& filename, ProgramInfo *pginfo)
     if (!pginfo->GetStorageGroup().isEmpty() &&
         !hostname.isEmpty())
     {
-        int port = gCoreContext->GetBackendServerPort(hostname);
+        int port = getCoreContext()->GetBackendServerPort(hostname);
         QString basename = filename.section('/', -1);
         QString uri = MythCoreContext::GenMythURL(hostname, port, basename,
                                                   pginfo->GetStorageGroup());
@@ -928,10 +928,11 @@ static void CompleteJob(int jobID, ProgramInfo *pginfo, bool useCutlist,
                     .arg(tmpfile, newfile) + ENO);
         }
 
-        if (!gCoreContext->GetBoolSetting("SaveTranscoding", false) || forceDelete)
+        MythCoreContext *cctx = getCoreContext();
+        if (!cctx->GetBoolSetting("SaveTranscoding", false) || forceDelete)
         {
             bool followLinks =
-                gCoreContext->GetBoolSetting("DeletesFollowLinks", false);
+                cctx->GetBoolSetting("DeletesFollowLinks", false);
 
             LOG(VB_FILE, LOG_INFO,
                 QString("mythtranscode: About to unlink/delete file: %1")

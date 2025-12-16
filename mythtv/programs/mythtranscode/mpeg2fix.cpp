@@ -798,7 +798,7 @@ bool MPEG2fixup::InitAV(const QString& inputfile, const char *type, int64_t offs
     }
 
     if (m_inputFC->iformat && strcmp(m_inputFC->iformat->name, "mpegts") == 0 &&
-        gCoreContext->GetBoolSetting("FFMPEGTS", false))
+        getCoreContext()->GetBoolSetting("FFMPEGTS", false))
     {
         fmt = av_find_input_format("mpegts-ffmpeg");
         if (fmt)
