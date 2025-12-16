@@ -282,9 +282,10 @@ ProgramRecPriority::ProgramRecPriority(MythScreenStack *parent,
                                        const QString &name)
                    : ScheduleCommon(parent, name)
 {
-    m_sortType = (SortType)gCoreContext->GetNumSetting("ProgramRecPrioritySorting",
+    MythCoreContext *cctx = getCoreContext();
+    m_sortType = (SortType)cctx->GetNumSetting("ProgramRecPrioritySorting",
                                                  (int)byTitle);
-    m_reverseSort = gCoreContext->GetBoolSetting("ProgramRecPriorityReverse", false);
+    m_reverseSort = cctx->GetBoolSetting("ProgramRecPriorityReverse", false);
 }
 
 bool ProgramRecPriority::Create()
@@ -357,10 +358,9 @@ bool ProgramRecPriority::keyPressEvent(QKeyEvent *event)
         else if (action == "ESCAPE")
         {
             saveRecPriority();
-            gCoreContext->SaveSetting("ProgramRecPrioritySorting",
-                                    (int)m_sortType);
-            gCoreContext->SaveSetting("ProgramRecPriorityReverse",
-                                    (int)m_reverseSort);
+            MythCoreContext *cctx = getCoreContext();
+            cctx->SaveSetting("ProgramRecPrioritySorting", (int)m_sortType);
+            cctx->SaveSetting("ProgramRecPriorityReverse", (int)m_reverseSort);
             Close();
         }
         else if (action == "1")

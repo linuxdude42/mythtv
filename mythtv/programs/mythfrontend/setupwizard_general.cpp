@@ -168,7 +168,8 @@ void GeneralSetupWizard::OnSubmitPromptReturn(bool submit)
 
 void GeneralSetupWizard::slotView(void)
 {
-    if (gCoreContext->GetSetting("HardwareProfilePublicUUID").isEmpty())
+    MythCoreContext *cctx = getCoreContext();
+    if (cctx->GetSetting("HardwareProfilePublicUUID").isEmpty())
     {
         ShowOkPopup(tr("You haven't submitted your hardware profile yet! "
                        "Please submit your profile to visit it online."));
@@ -182,8 +183,8 @@ void GeneralSetupWizard::slotView(void)
     if (url.isEmpty())
         return;
 
-    QString browser = gCoreContext->GetSetting("WebBrowserCommand", "");
-    QString zoom = gCoreContext->GetSetting("WebBrowserZoomLevel", "1.0");
+    QString browser = cctx->GetSetting("WebBrowserCommand", "");
+    QString zoom = cctx->GetSetting("WebBrowserZoomLevel", "1.0");
 
     if (browser.isEmpty())
     {
@@ -213,7 +214,7 @@ void GeneralSetupWizard::slotView(void)
 
 void GeneralSetupWizard::slotDelete(void)
 {
-    if (gCoreContext->GetSetting("HardwareProfileUUID").isEmpty())
+    if (getCoreContext()->GetSetting("HardwareProfileUUID").isEmpty())
     {
         ShowOkPopup(tr("You haven't submitted your hardware profile yet!"));
         return;

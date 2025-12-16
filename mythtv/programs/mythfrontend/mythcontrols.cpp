@@ -118,7 +118,7 @@ bool MythControls::Create(void)
 
     BuildFocusList();
 
-    LoadData(gCoreContext->GetHostName());
+    LoadData(getCoreContext()->GetHostName());
 
     /* start off with the actions by contexts view */
     m_currentView = kActionsByContext;

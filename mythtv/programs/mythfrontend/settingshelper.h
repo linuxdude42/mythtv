@@ -26,7 +26,7 @@
                 QString("SettingHelper::RunProlog called: %1").arg(m_settingsPage));
 
             GetMythUI()->AddCurrentLocation("Setup");
-            gCoreContext->ActivateSettingsCache(false);
+            getCoreContext()->ActivateSettingsCache(false);
         }
 
         void RunEpilog(void)
@@ -36,13 +36,14 @@
 
             GetMythUI()->RemoveCurrentLocation();
 
-            gCoreContext->ActivateSettingsCache(true);
+            getCoreContext()->ActivateSettingsCache(true);
 
             // tell the backend the settings may have changed
-            gCoreContext->SendMessage("CLEAR_SETTINGS_CACHE");
+            MythCoreContext *cctx = getCoreContext();
+            cctx->SendMessage("CLEAR_SETTINGS_CACHE");
 
             // tell the frontend the settings may have changed
-            gCoreContext->dispatch(MythEvent(QString("CLEAR_SETTINGS_CACHE")));
+            cctx->dispatch(MythEvent(QString("CLEAR_SETTINGS_CACHE")));
 
             if (m_settingsPage == "settings general" ||
                 m_settingsPage == "settings generalrecpriorities")

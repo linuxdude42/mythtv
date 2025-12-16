@@ -69,15 +69,16 @@ private:
 ThemeChooser::ThemeChooser(MythScreenStack *parent,
                            const QString &name) : MythScreenType(parent, name)
 {
-    gCoreContext->addListener(this);
+    MythCoreContext *cctx = getCoreContext();
+    cctx->addListener(this);
 
-    StorageGroup sgroup("Themes", gCoreContext->GetHostName());
+    StorageGroup sgroup("Themes", cctx->GetHostName());
     m_userThemeDir = sgroup.GetFirstDir(true);
 }
 
 ThemeChooser::~ThemeChooser()
 {
-    gCoreContext->removeListener(this);
+    getCoreContext()->removeListener(this);
 }
 
 static bool sortThemeNames(const QFileInfo &s1, const QFileInfo &s2)
@@ -208,10 +209,11 @@ void ThemeChooser::Load(void)
 bool ThemeChooser::LoadVersion(const QString &version,
                                QStringList &themesSeen, bool alert_user)
 {
+    MythCoreContext *cctx = getCoreContext();
     QString remoteThemesFile = GetConfDir();
     remoteThemesFile.append("/tmp/themes.zip");
     QString themeSite = QString("%1/%2")
-                            .arg(gCoreContext->GetSetting("ThemeRepositoryURL",
+                            .arg(cctx->GetSetting("ThemeRepositoryURL",
                                                           "http://themes.mythtv.org/themes/repository"),
                                  version);
     QString destdir = GetCacheDir().append("/themechooser");
@@ -219,7 +221,7 @@ bool ThemeChooser::LoadVersion(const QString &version,
     QDir remoteThemesDir(versiondir);
 
     int downloadFailures =
-        gCoreContext->GetNumSetting("ThemeInfoDownloadFailures", 0);
+        cctx->GetNumSetting("ThemeInfoDownloadFailures", 0);
     if (QFile::exists(remoteThemesFile))
     {
         QFileInfo finfo(remoteThemesFile);
@@ -276,7 +278,7 @@ bool ThemeChooser::LoadVersion(const QString &version,
             QFile::remove(remoteThemesFile);
 
             downloadFailures++;
-            gCoreContext->SaveSetting("ThemeInfoDownloadFailures",
+            cctx->SaveSetting("ThemeInfoDownloadFailures",
                                       downloadFailures);
 
             if (!result)
@@ -387,7 +389,7 @@ bool ThemeChooser::LoadVersion(const QString &version,
 
 void ThemeChooser::Init(void)
 {
-    QString curTheme = gCoreContext->GetSetting("Theme");
+    QString curTheme = getCoreContext()->GetSetting("Theme");
     ThemeInfo *themeinfo = nullptr;
     ThemeInfo *curThemeInfo = nullptr;
     MythUIButtonListItem *item = nullptr;
@@ -539,7 +541,7 @@ void ThemeChooser::showPopupMenu(void)
         }
     }
 
-    if (gCoreContext->GetBoolSetting("ThemeUpdateNofications", true))
+    if (getCoreContext()->GetBoolSetting("ThemeUpdateNofications", true))
     {
         m_popupMenu->AddButton(tr("Disable Theme Update Notifications"),
                                &ThemeChooser::toggleThemeUpdateNotifications);
@@ -630,17 +632,18 @@ void ThemeChooser::toggleFullscreenPreview(void)
 
 void ThemeChooser::toggleThemeUpdateNotifications(void)
 {
-    if (gCoreContext->GetBoolSetting("ThemeUpdateNofications", true))
-        gCoreContext->SaveSettingOnHost("ThemeUpdateNofications", "0", "");
+    MythCoreContext *cctx = getCoreContext();
+    if (cctx->GetBoolSetting("ThemeUpdateNofications", true))
+        cctx->SaveSettingOnHost("ThemeUpdateNofications", "0", "");
     else
-        gCoreContext->SaveSettingOnHost("ThemeUpdateNofications", "1", "");
+        cctx->SaveSettingOnHost("ThemeUpdateNofications", "1", "");
 }
 
 void ThemeChooser::refreshDownloadableThemes(void)
 {
     LOG(VB_GUI, LOG_INFO, LOC + "Forcing remote theme list refresh");
     m_refreshDownloadableThemes = true;
-    gCoreContext->SaveSetting("ThemeInfoDownloadFailures", 0);
+    getCoreContext()->SaveSetting("ThemeInfoDownloadFailures", 0);
     ReloadInBackground();
 }
 
@@ -677,10 +680,11 @@ void ThemeChooser::saveAndReload(MythUIButtonListItem *item)
         QFileInfo qfile(downloadURL);
         QString baseName = qfile.fileName();
 
-        if (!gCoreContext->GetSetting("ThemeDownloadURL").isEmpty())
+        MythCoreContext *cctx = getCoreContext();
+        if (!cctx->GetSetting("ThemeDownloadURL").isEmpty())
         {
             QStringList tokens =
-                gCoreContext->GetSetting("ThemeDownloadURL")
+                cctx->GetSetting("ThemeDownloadURL")
                     .split(";", Qt::SkipEmptyParts);
             QString origURL = downloadURL;
             downloadURL.replace(tokens[0], tokens[1]);
@@ -702,7 +706,7 @@ void ThemeChooser::saveAndReload(MythUIButtonListItem *item)
     }
     else
     {
-        gCoreContext->SaveSetting("Theme", info->GetDirectoryName());
+        getCoreContext()->SaveSetting("Theme", info->GetDirectoryName());
         GetMythMainWindow()->JumpTo("Reload Theme");
     }
 }
@@ -892,9 +896,10 @@ void ThemeChooser::customEvent(QEvent *e)
             QString event = QString("THEME_INSTALLED PATH %1")
                                 .arg(m_userThemeDir +
                                      m_downloadTheme->GetDirectoryName());
-            gCoreContext->SendSystemEvent(event);
+            MythCoreContext *cctx = getCoreContext();
+            cctx->SendSystemEvent(event);
 
-            gCoreContext->SaveSetting("Theme", m_downloadTheme->GetDirectoryName());
+            cctx->SaveSetting("Theme", m_downloadTheme->GetDirectoryName());
 
             // Send a message to ourself so we trigger a reload our next chance
             auto *me2 = new MythEvent("THEME_RELOAD");
@@ -988,12 +993,13 @@ ThemeUpdateChecker::ThemeUpdateChecker(void) : m_updateTimer(new QTimer(this))
         m_mythVersions << QString::number(major);
     }
 
-    m_infoPackage = MythCoreContext::GenMythURL(gCoreContext->GetMasterHostName(),
+    MythCoreContext *cctx = getCoreContext();
+    m_infoPackage = MythCoreContext::GenMythURL(cctx->GetMasterHostName(),
                                                 MythCoreContext::GetMasterServerPort(),
                                                 "remotethemes/themes.zip",
                                                 "Temp");
 
-    gCoreContext->SaveSetting("ThemeUpdateStatus", "");
+    cctx->SaveSetting("ThemeUpdateStatus", "");
 
     connect(m_updateTimer, &QTimer::timeout, this, &ThemeUpdateChecker::checkForUpdate);
 
@@ -1033,12 +1039,13 @@ void ThemeUpdateChecker::checkForUpdate(void)
     {
         QStringList::iterator Iversion;
 
+        MythCoreContext *cctx = getCoreContext();
         for (Iversion = m_mythVersions.begin();
              Iversion != m_mythVersions.end(); ++Iversion)
         {
 
             QString remoteThemeDir =
-                MythCoreContext::GenMythURL(gCoreContext->GetMasterHostName(),
+                MythCoreContext::GenMythURL(cctx->GetMasterHostName(),
                                             MythCoreContext::GetMasterServerPort(),
                                             QString("remotethemes/%1/%2")
                                                 .arg(*Iversion,
@@ -1096,7 +1103,7 @@ void ThemeUpdateChecker::checkForUpdate(void)
                     m_lastKnownThemeVersion =
                         QString("%1-%2.%3").arg(GetMythUI()->GetThemeName()).arg(rmtMaj).arg(rmtMin);
 
-                    QString status = gCoreContext->GetSetting("ThemeUpdateStatus");
+                    QString status = cctx->GetSetting("ThemeUpdateStatus");
                     QString currentLocation = GetMythUI()->GetCurrentLocation(false, true);
 
                     if ((!status.startsWith(m_lastKnownThemeVersion)) &&
@@ -1107,7 +1114,7 @@ void ThemeUpdateChecker::checkForUpdate(void)
                                                .arg(locMin);
                         m_newVersion = QString("%1.%2").arg(rmtMaj).arg(rmtMin);
 
-                        gCoreContext->SaveSetting("ThemeUpdateStatus",
+                        cctx->SaveSetting("ThemeUpdateStatus",
                                                   m_lastKnownThemeVersion + " notified");
 
                         QString message = tr("Version %1 of the %2 theme is now "

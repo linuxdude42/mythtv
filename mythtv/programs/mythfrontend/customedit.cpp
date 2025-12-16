@@ -32,14 +32,14 @@ CustomEdit::CustomEdit(MythScreenStack *parent, ProgramInfo *pginfo)
     m_seSuffix = QString(" (%1)").arg(tr("stored search"));
     m_exSuffix = QString(" (%1)").arg(tr("stored example"));
 
-    gCoreContext->addListener(this);
+    getCoreContext()->addListener(this);
 }
 
 CustomEdit::~CustomEdit(void)
 {
     delete m_pginfo;
 
-    gCoreContext->removeListener(this);
+    getCoreContext()->removeListener(this);
 }
 
 bool CustomEdit::Create()

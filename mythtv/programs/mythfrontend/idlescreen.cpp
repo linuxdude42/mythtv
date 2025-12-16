@@ -24,7 +24,7 @@ IdleScreen::IdleScreen(MythScreenStack *parent)
               :MythScreenType(parent, "standbymode"),
               m_updateScreenTimer(new QTimer(this))
 {
-    gCoreContext->addListener(this);
+    getCoreContext()->addListener(this);
     GetMythMainWindow()->EnterStandby();
 
     connect(m_updateScreenTimer, &QTimer::timeout,
@@ -35,7 +35,7 @@ IdleScreen::IdleScreen(MythScreenStack *parent)
 IdleScreen::~IdleScreen()
 {
     GetMythMainWindow()->ExitStandby();
-    gCoreContext->removeListener(this);
+    getCoreContext()->removeListener(this);
 
     if (m_updateScreenTimer)
         m_updateScreenTimer->disconnect();
@@ -84,11 +84,12 @@ bool IdleScreen::CheckConnectionToServer(void)
 
     bool bRes = false;
 
-    if (gCoreContext->IsConnectedToMaster())
+    MythCoreContext *cctx = getCoreContext();
+    if (cctx->IsConnectedToMaster())
         bRes = true;
     else
     {
-        if (gCoreContext->SafeConnectToMasterServer(false))
+        if (cctx->SafeConnectToMasterServer(false))
             bRes = true;
     }
 
@@ -227,7 +228,7 @@ bool IdleScreen::UpdateScheduledList()
 
     m_scheduledList.clear();
 
-    if (!gCoreContext->IsConnectedToMaster())
+    if (!getCoreContext()->IsConnectedToMaster())
     {
         return false;
     }
@@ -266,16 +267,17 @@ void IdleScreen::customEvent(QEvent* event)
         }
         else if (me->Message().startsWith("SHUTDOWN_NOW"))
         {
-            if (gCoreContext->IsFrontendOnly())
+            MythCoreContext *cctx = getCoreContext();
+            if (cctx->IsFrontendOnly())
             {
                 // does the user want to shutdown this frontend only machine
                 // when the BE shuts down?
-                if (gCoreContext->GetNumSetting("ShutdownWithMasterBE", 0) == 1)
+                if (cctx->GetNumSetting("ShutdownWithMasterBE", 0) == 1)
                 {
                      LOG(VB_GENERAL, LOG_NOTICE,
                          "Backend has gone offline, Shutting down frontend");
                      QString poweroff_cmd =
-                        gCoreContext->GetSetting("MythShutdownPowerOff", "");
+                        cctx->GetSetting("MythShutdownPowerOff", "");
                      if (!poweroff_cmd.isEmpty())
                          myth_system(poweroff_cmd);
                 }

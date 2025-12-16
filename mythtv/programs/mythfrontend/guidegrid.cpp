@@ -412,9 +412,11 @@ void GuideGrid::RunProgramGuide(uint chanid, const QString &channum,
                                 TV *player, bool embedVideo,
                                 bool allowFinder, int changrpid)
 {
-    // which channel group should we default to
+    MythCoreContext *cctx = getCoreContext();
+
+// which channel group should we default to
     if (changrpid == -2)
-        changrpid = gCoreContext->GetNumSetting("ChannelGroupDefault", -1);
+        changrpid = cctx->GetNumSetting("ChannelGroupDefault", -1);
 
     // check there are some channels setup
     ChannelInfoList channels = ChannelUtil::GetChannels(
@@ -461,7 +463,7 @@ void GuideGrid::RunProgramGuide(uint chanid, const QString &channum,
     QString actualChannum = channum;
     if (chanid == 0 && actualChannum.isEmpty())
     {
-        uint defaultChanid = gCoreContext->GetNumSetting("DefaultChanid", 0);
+        uint defaultChanid = cctx->GetNumSetting("DefaultChanid", 0);
         if (defaultChanid && TV::IsTunable(defaultChanid))
             chanid = defaultChanid;
     }
@@ -487,20 +489,22 @@ GuideGrid::GuideGrid(MythScreenStack *parent,
                      TV *player, bool embedVideo,
                      bool allowFinder, int changrpid)
   : ScheduleCommon(parent, "guidegrid"),
-    m_selectRecThreshold(gCoreContext->GetDurSetting<std::chrono::minutes>("SelChangeRecThreshold", 16min)),
     m_allowFinder(allowFinder),
     m_startChanID(chanid),
     m_startChanNum(std::move(channum)),
-    m_sortReverse(gCoreContext->GetBoolSetting("EPGSortReverse", false)),
     m_player(player),
     m_embedVideo(embedVideo),
-    m_channelOrdering(gCoreContext->GetSetting("ChannelOrdering", "channum")),
     m_updateTimer(new QTimer(this)),
     m_threadPool("GuideGridHelperPool"),
     m_changrpid(changrpid),
     m_changrplist(ChannelGroup::GetChannelGroups(false)),
     m_channelGroupListManual(ChannelGroup::GetManualChannelGroups(true))
 {
+    MythCoreContext *cctx = getCoreContext();
+    m_selectRecThreshold = cctx->GetDurSetting<std::chrono::minutes>("SelChangeRecThreshold", 16min);
+    m_sortReverse = cctx->GetBoolSetting("EPGSortReverse", false);
+    m_channelOrdering = cctx->GetSetting("ChannelOrdering", "channum");
+
     connect(m_updateTimer, &QTimer::timeout, this, &GuideGrid::updateTimeout);
 
     for (uint i = 0; i < MAX_DISPLAY_CHANS; i++)
@@ -625,7 +629,7 @@ void GuideGrid::Init(void)
     if (m_changroupname)
         m_changroupname->SetText(changrpname);
 
-    gCoreContext->addListener(this);
+    getCoreContext()->addListener(this);
 }
 
 GuideGrid::~GuideGrid()
@@ -635,7 +639,8 @@ GuideGrid::~GuideGrid()
 
     GuideHelper::Wait(this);
 
-    gCoreContext->removeListener(this);
+    MythCoreContext *cctx = getCoreContext();
+    cctx->removeListener(this);
 
     while (!m_programs.empty())
     {
@@ -646,7 +651,7 @@ GuideGrid::~GuideGrid()
 
     m_channelInfos.clear();
 
-    gCoreContext->SaveSetting("EPGSortReverse", m_sortReverse ? "1" : "0");
+    cctx->SaveSetting("EPGSortReverse", m_sortReverse ? "1" : "0");
 
     if (m_player)
     {
@@ -661,8 +666,8 @@ GuideGrid::~GuideGrid()
         m_player->DecrRef();
     }
 
-    if (gCoreContext->GetBoolSetting("ChannelGroupRememberLast", false))
-        gCoreContext->SaveSetting("ChannelGroupDefault", m_changrpid);
+    if (cctx->GetBoolSetting("ChannelGroupRememberLast", false))
+        cctx->SaveSetting("ChannelGroupDefault", m_changrpid);
 }
 
 bool GuideGrid::keyPressEvent(QKeyEvent *event)
@@ -2189,7 +2194,7 @@ void GuideGrid::updateChannelsUI(const QVector<ChannelInfo *> &chinfos,
             if (!chinfo->m_icon.isEmpty())
             {
                 QString iconurl =
-                                gCoreContext->GetMasterHostPrefix("ChannelIcons",
+                                getCoreContext()->GetMasterHostPrefix("ChannelIcons",
                                                                   chinfo->m_icon);
                 item->SetImage(iconurl, "channelicon");
             }
@@ -2223,7 +2228,7 @@ void GuideGrid::updateInfo(void)
         m_channelImage->Reset();
         if (!chinfo->m_icon.isEmpty())
         {
-            QString iconurl = gCoreContext->GetMasterHostPrefix("ChannelIcons",
+            QString iconurl = getCoreContext()->GetMasterHostPrefix("ChannelIcons",
                                                                 chinfo->m_icon);
 
             m_channelImage->SetFilename(iconurl);

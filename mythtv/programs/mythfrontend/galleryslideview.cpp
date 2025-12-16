@@ -35,13 +35,15 @@ GallerySlideView::GallerySlideView(MythScreenStack *parent, const char *name,
       m_mgr(ImageManagerFe::getInstance()),
       m_availableTransitions(GetMythPainter()->SupportsAnimation()),
       m_transition(m_availableTransitions.Select(
-                       gCoreContext->GetNumSetting("GalleryTransitionType",
+                       getCoreContext()->GetNumSetting("GalleryTransitionType",
                                                    kBlendTransition))),
       m_infoList(*this),
-      m_slideShowTime(gCoreContext->GetDurSetting<std::chrono::milliseconds>("GallerySlideShowTime", 3s)),
-      m_showCaptions(gCoreContext->GetBoolSetting("GalleryShowSlideCaptions", true)),
       m_editsAllowed(editsAllowed)
 {
+    MythCoreContext *cctx = getCoreContext();
+    m_slideShowTime = cctx->GetDurSetting<std::chrono::milliseconds>("GallerySlideShowTime", 3s);
+    m_showCaptions = cctx->GetBoolSetting("GalleryShowSlideCaptions", true);
+
     // Detect when transitions finish. Queued signal to allow redraw/pulse to
     // complete before handling event.
     connect(&m_transition, &Transition::finished,
@@ -57,7 +59,7 @@ GallerySlideView::GallerySlideView(MythScreenStack *parent, const char *name,
 
     // Initialise status delay timer
     m_delay.setSingleShot(true);
-    m_delay.setInterval(gCoreContext->GetDurSetting<std::chrono::milliseconds>("GalleryStatusDelay", 0s));
+    m_delay.setInterval(cctx->GetDurSetting<std::chrono::milliseconds>("GalleryStatusDelay", 0s));
     connect(&m_delay, &QTimer::timeout, this, &GallerySlideView::ShowStatus);
 
     MythMainWindow::DisableScreensaver();
@@ -317,7 +319,7 @@ void GallerySlideView::MenuMain()
     else
         menu->AddItem(tr("Start SlideShow"), qOverload<>(&GallerySlideView::Play));
 
-    if (gCoreContext->GetBoolSetting("GalleryRepeat", false))
+    if (getCoreContext()->GetBoolSetting("GalleryRepeat", false))
         menu->AddItem(tr("Turn Repeat Off"), &GallerySlideView::RepeatOff);
     else
         menu->AddItem(tr("Turn Repeat On"), qOverload<>(&GallerySlideView::RepeatOn));
@@ -395,7 +397,8 @@ void GallerySlideView::MenuTransforms(MythMenu &mainMenu)
 */
 void GallerySlideView::Start(ImageSlideShowType type, int parentId, int selectedId)
 {
-    gCoreContext->addListener(this);
+    MythCoreContext *cctx = getCoreContext();
+    cctx->addListener(this);
 
     if (type == kBrowseSlides)
     {
@@ -413,7 +416,7 @@ void GallerySlideView::Start(ImageSlideShowType type, int parentId, int selected
     }
     else
     {
-        int orderInt = gCoreContext->GetNumSetting("GallerySlideOrder", kOrdered);
+        int orderInt = cctx->GetNumSetting("GallerySlideOrder", kOrdered);
 
         SlideOrderType order = (orderInt < kOrdered) || (orderInt > kSeasonal)
                 ? kOrdered
@@ -438,7 +441,7 @@ void GallerySlideView::Start(ImageSlideShowType type, int parentId, int selected
 
 void GallerySlideView::Close()
 {
-    gCoreContext->removeListener(this);
+    getCoreContext()->removeListener(this);
 
     // Stop further loads
     m_slides.Teardown();
@@ -639,7 +642,7 @@ void GallerySlideView::SlideAvailable(int count)
     // and browsing with transitions turned off
     Transition &transition =
             (direction != 0 &&
-             (m_playing || gCoreContext->GetBoolSetting("GalleryBrowseTransition", false)))
+             (m_playing || getCoreContext()->GetBoolSetting("GalleryBrowseTransition", false)))
             ? m_transition : m_updateTransition;
 
     // Reset any zoom before starting transition
@@ -732,7 +735,7 @@ void GallerySlideView::ShowNextSlide(int inc, bool useTransition)
 {
     // Browsing always wraps; slideshows depend on repeat setting
     if (m_playing && m_view->HasNext(inc) == nullptr
-            && !gCoreContext->GetBoolSetting("GalleryRepeat", false))
+        && !getCoreContext()->GetBoolSetting("GalleryRepeat", false))
     {
         // Don't stop due to jumping past end
         if (inc == 1)
@@ -824,5 +827,5 @@ void GallerySlideView::ClearStatus(const Slide &slide)
 
 void GallerySlideView::RepeatOn(int on)
 {
-    gCoreContext->SaveSetting("GalleryRepeat", on);
+    getCoreContext()->SaveSetting("GalleryRepeat", on);
 }

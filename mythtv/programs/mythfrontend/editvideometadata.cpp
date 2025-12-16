@@ -643,7 +643,7 @@ void EditMetadataDialog::FindCoverArt()
     }
     else
     {
-        FindImagePopup(gCoreContext->GetSetting("VideoArtworkDir"),
+        FindImagePopup(getCoreContext()->GetSetting("VideoArtworkDir"),
                 GetConfDir() + "/MythVideo", *this, CEID_COVERARTFILE);
     }
 }
@@ -822,7 +822,7 @@ void EditMetadataDialog::FindBanner()
     }
     else
     {
-        FindImagePopup(gCoreContext->GetSetting("mythvideo.bannerDir"),
+        FindImagePopup(getCoreContext()->GetSetting("mythvideo.bannerDir"),
                 GetConfDir() + "/MythVideo/Banners", *this, CEID_BANNERFILE);
     }
 }
@@ -869,7 +869,7 @@ void EditMetadataDialog::FindFanart()
     }
     else
     {
-        FindImagePopup(gCoreContext->GetSetting("mythvideo.fanartDir"),
+        FindImagePopup(getCoreContext()->GetSetting("mythvideo.fanartDir"),
                 GetConfDir() + "/MythVideo/Fanart", *this, CEID_FANARTFILE);
     }
 }
@@ -916,7 +916,7 @@ void EditMetadataDialog::FindScreenshot()
     }
     else
     {
-        FindImagePopup(gCoreContext->GetSetting("mythvideo.screenshotDir"),
+        FindImagePopup(getCoreContext()->GetSetting("mythvideo.screenshotDir"),
                 GetConfDir() + "/MythVideo/Screenshots",
                 *this, CEID_SCREENSHOTFILE);
     }
@@ -964,7 +964,7 @@ void EditMetadataDialog::FindTrailer()
     }
     else
     {
-        FindVideoFilePopup(gCoreContext->GetSetting("mythvideo.TrailersDir"),
+        FindVideoFilePopup(getCoreContext()->GetSetting("mythvideo.TrailersDir"),
                 GetConfDir() + "/MythVideo/Trailers", *this, CEID_TRAILERFILE);
     }
 }

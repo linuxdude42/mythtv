@@ -360,13 +360,14 @@ namespace
 
 static void startAppearWiz(void)
 {
-    int curX = gCoreContext->GetNumSetting("GuiOffsetX", 0);
-    int curY = gCoreContext->GetNumSetting("GuiOffsetY", 0);
-    int curW = gCoreContext->GetNumSetting("GuiWidth", 0);
-    int curH = gCoreContext->GetNumSetting("GuiHeight", 0);
+    MythCoreContext *cctx = getCoreContext();
+    int curX = cctx->GetNumSetting("GuiOffsetX", 0);
+    int curY = cctx->GetNumSetting("GuiOffsetY", 0);
+    int curW = cctx->GetNumSetting("GuiWidth", 0);
+    int curH = cctx->GetNumSetting("GuiHeight", 0);
 
     bool isWindowed =
-            (gCoreContext->GetNumSetting("RunFrontendInWindow", 0) == 1);
+            (cctx->GetNumSetting("RunFrontendInWindow", 0) == 1);
 
     bool reload = false;
 
@@ -387,15 +388,15 @@ static void startAppearWiz(void)
         if (!wizard->Wait())
         {
             // no reported errors, check for changed geometry parameters
-            gCoreContext->ClearSettingsCache("GuiOffsetX");
-            gCoreContext->ClearSettingsCache("GuiOffsetY");
-            gCoreContext->ClearSettingsCache("GuiWidth");
-            gCoreContext->ClearSettingsCache("GuiHeight");
+            cctx->ClearSettingsCache("GuiOffsetX");
+            cctx->ClearSettingsCache("GuiOffsetY");
+            cctx->ClearSettingsCache("GuiWidth");
+            cctx->ClearSettingsCache("GuiHeight");
 
-            if ((curX != gCoreContext->GetNumSetting("GuiOffsetX", 0)) ||
-                (curY != gCoreContext->GetNumSetting("GuiOffsetY", 0)) ||
-                (curW != gCoreContext->GetNumSetting("GuiWidth", 0)) ||
-                (curH != gCoreContext->GetNumSetting("GuiHeight", 0)))
+            if ((curX != cctx->GetNumSetting("GuiOffsetX", 0)) ||
+                (curY != cctx->GetNumSetting("GuiOffsetY", 0)) ||
+                (curW != cctx->GetNumSetting("GuiWidth", 0)) ||
+                (curH != cctx->GetNumSetting("GuiHeight", 0)))
                     reload = true;
         }
 
@@ -422,7 +423,7 @@ static void startKeysSetup()
 static void startGuide(void)
 {
     uint chanid = 0;
-    QString channum = gCoreContext->GetSetting("DefaultTVChannel");
+    QString channum = getCoreContext()->GetSetting("DefaultTVChannel");
     QDateTime startTime;
     GuideGrid::RunProgramGuide(chanid, channum, startTime, nullptr, false, true, -2);
 }
@@ -668,8 +669,9 @@ static void startTVNormal(void)
 
     // Get the default channel keys (callsign(0) and channum(1)) and
     // use them to generate the ordered list of channels.
-    QStringList keylist = gCoreContext->GetSettingOnHost(
-        "DefaultChanKeys", gCoreContext->GetHostName()).split("[]:[]");
+    MythCoreContext *cctx = getCoreContext();
+    QStringList keylist = cctx->GetSettingOnHost(
+        "DefaultChanKeys", cctx->GetHostName()).split("[]:[]");
     while (keylist.size() < 2)
         keylist << "";
     uint dummy = 0;
@@ -745,7 +747,7 @@ static void RunVideoScreen(VideoDialog::DialogType type, bool fromJump = false)
     }
 
     VideoDialog::BrowseType browse = static_cast<VideoDialog::BrowseType>(
-                         gCoreContext->GetNumSetting("mythvideo.db_group_type",
+        getCoreContext()->GetNumSetting("mythvideo.db_group_type",
                                                  VideoDialog::BRS_FOLDER));
 
     if (!video_list)
@@ -790,8 +792,9 @@ static void playDisc()
 {
     // Check for Bluray
     LOG(VB_MEDIA, LOG_DEBUG, "Checking for BluRay medium");
+    MythCoreContext *cctx = getCoreContext();
     const QString bluray_mountpoint =
-            gCoreContext->GetSetting("BluRayMountpoint", "/media/cdrom");
+            cctx->GetSetting("BluRayMountpoint", "/media/cdrom");
     QDir bdtest(bluray_mountpoint + "/BDMV");
     const bool isBD = (bdtest.exists() || MythCDROM::inspectImage(bluray_mountpoint) == MythCDROM::kBluray);
     if (isBD)
@@ -830,7 +833,7 @@ static void playDisc()
 
         //  Get the command string to play a DVD
         QString command_string =
-                gCoreContext->GetSetting("mythdvd.DVDPlayerCommand");
+                cctx->GetSetting("mythdvd.DVDPlayerCommand");
         if ((command_string.indexOf("internal", 0, Qt::CaseInsensitive) > -1) ||
             (command_string.length() < 1))
         {
@@ -859,10 +862,10 @@ static void playDisc()
             //
             command_string = command_string.replace("%d", dvd_device);
         }
-        gCoreContext->emitTVPlaybackStarted();
+        cctx->emitTVPlaybackStarted();
         GetMythMainWindow()->PauseIdleTimer(true);
         myth_system(command_string);
-        gCoreContext->emitTVPlaybackStopped();
+        cctx->emitTVPlaybackStopped();
         GetMythMainWindow()->PauseIdleTimer(false);
         if (GetMythMainWindow())
         {
@@ -903,7 +906,7 @@ static void handleDVDMedia(MythMediaDevice *dvd, bool /*forcePlayback*/)
     if (!dvd->isUsable()) // This isn't infallible, on some drives both a mount and libudf fail
         return;
 
-    switch (gCoreContext->GetNumSetting("DVDOnInsertDVD", 1))
+    switch (getCoreContext()->GetNumSetting("DVDOnInsertDVD", 1))
     {
         case 0 : // Do nothing
         case 1 : // Display menu (mythdvd)*/
@@ -939,7 +942,7 @@ static void handleGalleryMedia(MythMediaDevice *dev, bool forcePlayback)
         }
     }
 
-    if (forcePlayback || gCoreContext->GetBoolSetting("GalleryAutoLoad", false))
+    if (forcePlayback || getCoreContext()->GetBoolSetting("GalleryAutoLoad", false))
     {
         LOG(VB_GUI, LOG_INFO, "Main: Autostarting Gallery for new media");
         GetMythMainWindow()->JumpTo(JUMP_GALLERY_DEFAULT);
@@ -1255,7 +1258,7 @@ static void TVMenuCallback(void * /* data */, QString &selection)
     }
     else if (sel == "video_settings_general")
     {
-        RunSettingsCompletion::Create(gCoreContext->
+        RunSettingsCompletion::Create(getCoreContext()->
                 GetBoolSetting("VideoAggressivePC", false));
     }
     else if (sel == "video_settings_player")
@@ -1550,11 +1553,12 @@ static bool resetTheme(QString themedir, const QString &badtheme)
     LOG(VB_GENERAL, LOG_WARNING, QString("Overriding broken theme '%1' with '%2'")
         .arg(badtheme, themename));
 
-    gCoreContext->OverrideSettingForSession("Theme", themename);
+    MythCoreContext *cctx = getCoreContext();
+    cctx->OverrideSettingForSession("Theme", themename);
     themedir = GetMythUI()->FindThemeDir(themename);
 
     MythTranslation::reload();
-    gCoreContext->ReInitLocale();
+    cctx->ReInitLocale();
     GetMythMainWindow()->Init();
 
     return RunMenu(themedir, themename);
@@ -1616,7 +1620,8 @@ static int reloadTheme(void)
     return 0;
 #else
     GetMythUI()->InitThemeHelper();
-    QString themename = gCoreContext->GetSetting("Theme", DEFAULT_UI_THEME);
+    MythCoreContext *cctx = getCoreContext();
+    QString themename = cctx->GetSetting("Theme", DEFAULT_UI_THEME);
     QString themedir  = GetMythUI()->FindThemeDir(themename);
     if (themedir.isEmpty())
     {
@@ -1624,7 +1629,7 @@ static int reloadTheme(void)
         return GENERIC_EXIT_NO_THEME;
     }
 
-    gCoreContext->ReInitLocale();
+    cctx->ReInitLocale();
     MythTranslation::reload();
     GetMythMainWindow()->SetEffectsEnabled(false);
     if (g_menu)
@@ -1813,16 +1818,17 @@ static void SetFuncPtrs(void)
  */
 static void clearAllKeys(void)
 {
+    MythCoreContext *cctx = getCoreContext();
     MSqlQuery query(MSqlQuery::InitCon());
 
     query.prepare("DELETE FROM keybindings "
                   "WHERE hostname = :HOSTNAME;");
-    query.bindValue(":HOSTNAME", gCoreContext->GetHostName());
+    query.bindValue(":HOSTNAME", cctx->GetHostName());
     if (!query.exec())
         MythDB::DBError("Deleting keybindings", query);
     query.prepare("DELETE FROM jumppoints "
                   "WHERE hostname = :HOSTNAME;");
-    query.bindValue(":HOSTNAME", gCoreContext->GetHostName());
+    query.bindValue(":HOSTNAME", cctx->GetHostName());
     if (!query.exec())
         MythDB::DBError("Deleting jumppoints", query);
 }
@@ -1867,7 +1873,7 @@ static void CleanupMyOldInUsePrograms(void)
 
     query.prepare("DELETE FROM inuseprograms "
                   "WHERE hostname = :HOSTNAME and recusage = 'player' ;");
-    query.bindValue(":HOSTNAME", gCoreContext->GetHostName());
+    query.bindValue(":HOSTNAME", getCoreContext()->GetHostName());
     if (!query.exec())
         MythDB::DBError("CleanupMyOldInUsePrograms", query);
 }
@@ -1882,16 +1888,17 @@ static bool WasAutomaticStart(void)
     {
         QDateTime startupTime = QDateTime();
 
-        if( gCoreContext->IsMasterHost() )
+        MythCoreContext *cctx = getCoreContext();
+        if( cctx->IsMasterHost() )
         {
-            QString s = gCoreContext->GetSetting("MythShutdownWakeupTime", "");
+            QString s = cctx->GetSetting("MythShutdownWakeupTime", "");
             if (!s.isEmpty())
                 startupTime = MythDate::fromString(s);
 
             // if we don't have a valid startup time assume we were started manually
             if (startupTime.isValid())
             {
-                auto startupSecs = gCoreContext->GetDurSetting<std::chrono::seconds>("StartupSecsBeforeRecording");
+                auto startupSecs = cctx->GetDurSetting<std::chrono::seconds>("StartupSecsBeforeRecording");
                 startupSecs = std::max(startupSecs, 15 * 60s);
                 // If we started within 'StartupSecsBeforeRecording' OR 15 minutes
                 // of the saved wakeup time assume we either started automatically
@@ -1902,7 +1909,7 @@ static bool WasAutomaticStart(void)
                     LOG(VB_GENERAL, LOG_INFO,
                         "Close to auto-start time, AUTO-Startup assumed");
 
-                    QString str = gCoreContext->GetSetting("MythFillSuggestedRunTime");
+                    QString str = cctx->GetSetting("MythFillSuggestedRunTime");
                     QDateTime guideRunTime = MythDate::fromString(str);
                     if (MythDate::secsInPast(guideRunTime) < startupSecs)
                     {
@@ -1920,7 +1927,7 @@ static bool WasAutomaticStart(void)
         }
         else
         {
-            QString wakeupCmd = gCoreContext->GetSetting("WakeUpCommand");
+            QString wakeupCmd = cctx->GetSetting("WakeUpCommand");
 
             // A slave backend that has no wakeup command cannot be woken
             // automatically so can be ignored.
@@ -1934,7 +1941,7 @@ static bool WasAutomaticStart(void)
                 {
                     // Find the first recording to be recorded
                     // on this machine
-                    QString hostname = gCoreContext->GetHostName();
+                    QString hostname = cctx->GetHostName();
                     for (auto *prog : progList)
                     {
                         if ((prog->GetRecordingStatus() == RecStatus::WillRecord ||
@@ -2058,13 +2065,14 @@ Q_DECL_EXPORT int main(int argc, char **argv)
 
     fe_sd_notify("STATUS=Connecting to database.");
     MythContext context {MYTH_BINARY_VERSION, true};
-    gCoreContext->SetAsFrontend(true);
+    MythCoreContext *cctx = getCoreContext();
+    cctx->SetAsFrontend(true);
 
     cmdline.ApplySettingsOverride();
     if (!context.Init(true, bPromptForBackend, bBypassAutoDiscovery))
     {
         LOG(VB_GENERAL, LOG_ERR, "Failed to init MythContext, exiting.");
-        gCoreContext->SetExiting(true);
+        cctx->SetExiting(true);
         return GENERIC_EXIT_NO_MYTHCONTEXT;
     }
     context.setCleanup(cleanup);
@@ -2105,11 +2113,11 @@ Q_DECL_EXPORT int main(int argc, char **argv)
         AppearanceSettings as;
         as.Save();
 
-        gCoreContext->SaveSetting("Theme", DEFAULT_UI_THEME);
-        gCoreContext->GetDB()->ClearSetting("Language");
-        gCoreContext->GetDB()->ClearSettingOnHost("Language", nullptr);
-        gCoreContext->GetDB()->ClearSetting("Country");
-        gCoreContext->GetDB()->ClearSettingOnHost("Country", nullptr);
+        cctx->SaveSetting("Theme", DEFAULT_UI_THEME);
+        cctx->GetDB()->ClearSetting("Language");
+        cctx->GetDB()->ClearSettingOnHost("Language", nullptr);
+        cctx->GetDB()->ClearSetting("Country");
+        cctx->GetDB()->ClearSettingOnHost("Country", nullptr);
 
         LOG(VB_GENERAL, LOG_NOTICE, "Appearance settings and language have "
                                     "been reset to defaults. You will need to "
@@ -2119,7 +2127,7 @@ Q_DECL_EXPORT int main(int argc, char **argv)
     }
 
 #if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
-    int maxImageSize = gCoreContext->GetNumSetting("ImageMaximumSize", -1);
+    int maxImageSize = cctx->GetNumSetting("ImageMaximumSize", -1);
     if (maxImageSize >=0)
         QImageReader::setAllocationLimit(maxImageSize);
 #endif
@@ -2141,18 +2149,18 @@ Q_DECL_EXPORT int main(int argc, char **argv)
     }
 
 #if CONFIG_LIBDNS_SD
-    // this needs to come after gCoreContext has been initialised
+    // this needs to come after cctx has been initialised
     // (for hostname) - hence it is not in MediaRenderer
     QScopedPointer<BonjourRegister> bonjour(new BonjourRegister());
     if (bonjour.data())
     {
         fe_sd_notify("STATUS=Registering frontend with bonjour");
         QByteArray dummy;
-        int port = gCoreContext->GetNumSetting("UPnP/MythFrontend/ServicePort", 6547);
+        int port = cctx->GetNumSetting("UPnP/MythFrontend/ServicePort", 6547);
         // frontend upnp server is now ServicePort + 4 (default 6551)
         port += 4;
         QByteArray name("Mythfrontend on ");
-        name.append(gCoreContext->GetHostName().toUtf8());
+        name.append(cctx->GetHostName().toUtf8());
         bonjour->Register(port, "_mythfrontend._tcp",
                                  name, dummy);
     }
@@ -2167,7 +2175,7 @@ Q_DECL_EXPORT int main(int argc, char **argv)
     MythTranslation::load("mythfrontend");
 
     fe_sd_notify("STATUS=Loading themes");
-    QString themename = gCoreContext->GetSetting("Theme", DEFAULT_UI_THEME);
+    QString themename = cctx->GetSetting("Theme", DEFAULT_UI_THEME);
 
     QString themedir = GetMythUI()->FindThemeDir(themename);
     if (themedir.isEmpty())
@@ -2177,7 +2185,7 @@ Q_DECL_EXPORT int main(int argc, char **argv)
         return GENERIC_EXIT_NO_THEME;
     }
 
-    themename = gCoreContext->GetSetting("Theme", DEFAULT_UI_THEME);
+    themename = cctx->GetSetting("Theme", DEFAULT_UI_THEME);
     themedir = GetMythUI()->FindThemeDir(themename);
     if (themedir.isEmpty())
     {
@@ -2201,11 +2209,11 @@ Q_DECL_EXPORT int main(int argc, char **argv)
                                                "Main window title"));
 
 #if CONFIG_AIRPLAY
-    if (gCoreContext->GetBoolSetting("AirPlayEnabled", true))
+    if (cctx->GetBoolSetting("AirPlayEnabled", true))
     {
         fe_sd_notify("STATUS=Initializing AirPlay");
         MythRAOPDevice::Create();
-        if (!gCoreContext->GetBoolSetting("AirPlayAudioOnly", false))
+        if (!cctx->GetBoolSetting("AirPlayAudioOnly", false))
         {
             MythAirplayServer::Create();
         }
@@ -2248,7 +2256,7 @@ Q_DECL_EXPORT int main(int argc, char **argv)
 
     fe_sd_notify("STATUS=Initializing plugins");
     g_pmanager = new MythPluginManager();
-    gCoreContext->SetPluginManager(g_pmanager);
+    cctx->SetPluginManager(g_pmanager);
 
     fe_sd_notify("STATUS=Initializing media monitor");
     MediaMonitor *mon = MediaMonitor::GetMediaMonitor();
@@ -2260,9 +2268,9 @@ Q_DECL_EXPORT int main(int argc, char **argv)
 
     fe_sd_notify("STATUS=Initializing network control");
     NetworkControl *networkControl = nullptr;
-    if (gCoreContext->GetBoolSetting("NetworkControlEnabled", false))
+    if (cctx->GetBoolSetting("NetworkControlEnabled", false))
     {
-        int port = gCoreContext->GetNumSetting("NetworkControlPort", 6546);
+        int port = cctx->GetNumSetting("NetworkControlPort", 6546);
         networkControl = new NetworkControl();
         if (!networkControl->listen(port))
         {
@@ -2284,7 +2292,7 @@ Q_DECL_EXPORT int main(int argc, char **argv)
     }
     fe_sd_notify("STATUS=Loading theme updates");
     std::unique_ptr<ThemeUpdateChecker> themeUpdateChecker;
-    if (gCoreContext->GetBoolSetting("ThemeUpdateNofications", true))
+    if (cctx->GetBoolSetting("ThemeUpdateNofications", true))
         themeUpdateChecker = std::make_unique<ThemeUpdateChecker>();
 
     MythSystemEventHandler sysEventHandler {};
@@ -2388,10 +2396,11 @@ Q_DECL_EXPORT int main(int argc, char **argv)
 void handleSIGUSR1(void)
 {
     LOG(VB_GENERAL, LOG_INFO, "Reloading theme");
-    gCoreContext->SendMessage("CLEAR_SETTINGS_CACHE");
-    gCoreContext->ActivateSettingsCache(false);
+    MythCoreContext *cctx = getCoreContext();
+    cctx->SendMessage("CLEAR_SETTINGS_CACHE");
+    cctx->ActivateSettingsCache(false);
     GetMythMainWindow()->JumpTo("Reload Theme");
-    gCoreContext->ActivateSettingsCache(true);
+    cctx->ActivateSettingsCache(true);
 }
 
 void handleSIGUSR2(void)

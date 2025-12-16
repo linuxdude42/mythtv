@@ -439,8 +439,9 @@ void UPNPScanner::Start()
     m_watchdogTimer->start(10s);
 
     // avoid connecting to the master backend
-    m_masterHost = gCoreContext->GetMasterServerIP();
-    m_masterPort = gCoreContext->GetMasterServerStatusPort();
+    MythCoreContext *cctx = getCoreContext();
+    m_masterHost = cctx->GetMasterServerIP();
+    m_masterPort = cctx->GetMasterServerStatusPort();
 
     m_lock.unlock();
     LOG(VB_GENERAL, LOG_INFO, LOC + "Started");
@@ -932,8 +933,9 @@ void UPNPScanner::AddServer(const QString &usn, const QString &url)
     // sometimes initialisation is too early and m_masterHost is empty
     if (m_masterHost.isEmpty())
     {
-        m_masterHost = gCoreContext->GetMasterServerIP();
-        m_masterPort = gCoreContext->GetMasterServerStatusPort();
+        MythCoreContext *cctx = getCoreContext();
+        m_masterHost = cctx->GetMasterServerIP();
+        m_masterPort = cctx->GetMasterServerStatusPort();
     }
 
     QUrl qurl(url);

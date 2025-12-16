@@ -530,9 +530,10 @@ void VideoList::InvalidateCache(void)
 //////////////////////////////
 VideoListImp::VideoListImp() : m_metadataViewTree("", "top")
 {
-    m_listUnknown = gCoreContext->GetBoolSetting("VideoListUnknownFileTypes", false);
+    MythCoreContext *cctx = getCoreContext();
+    m_listUnknown = cctx->GetBoolSetting("VideoListUnknownFileTypes", false);
 
-    m_loadMetaData = gCoreContext->GetBoolSetting("VideoTreeLoadMetaData", false);
+    m_loadMetaData = cctx->GetBoolSetting("VideoTreeLoadMetaData", false);
 }
 
 void VideoListImp::build_generic_tree(MythGenericTree *dst, meta_dir_node *src,

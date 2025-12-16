@@ -51,18 +51,19 @@ class channelRecPrioritySort
 ChannelRecPriority::ChannelRecPriority(MythScreenStack *parent)
                   : MythScreenType(parent, "ChannelRecPriority")
 {
-    m_sortType = (SortType)gCoreContext->GetNumSetting("ChannelRecPrioritySorting",
+    m_sortType = (SortType)getCoreContext()->GetNumSetting("ChannelRecPrioritySorting",
                                                  (int)byChannel);
 
-    gCoreContext->addListener(this);
+    getCoreContext()->addListener(this);
 }
 
 ChannelRecPriority::~ChannelRecPriority()
 {
     saveRecPriority();
-    gCoreContext->SaveSetting("ChannelRecPrioritySorting",
+    MythCoreContext *cctx = getCoreContext();
+    cctx->SaveSetting("ChannelRecPrioritySorting",
                             (int)m_sortType);
-    gCoreContext->removeListener(this);
+    cctx->removeListener(this);
 }
 
 bool ChannelRecPriority::Create()
@@ -268,7 +269,7 @@ void ChannelRecPriority::FillList(void)
             chaninfo->m_callSign = result.value(3).toString();
             QString iconurl = result.value(4).toString();
             if (!iconurl.isEmpty())
-                iconurl = gCoreContext->GetMasterHostPrefix( "ChannelIcons", iconurl);
+                iconurl = getCoreContext()->GetMasterHostPrefix( "ChannelIcons", iconurl);
             chaninfo->m_icon = iconurl;
             chaninfo->m_recPriority = result.value(5).toInt();
             chaninfo->m_name = result.value(6).toString();
@@ -318,7 +319,7 @@ void ChannelRecPriority::updateList()
 
         if (!chanInfo->m_icon.isEmpty())
         {
-            QString iconUrl = gCoreContext->GetMasterHostPrefix("ChannelIcons",
+            QString iconUrl = getCoreContext()->GetMasterHostPrefix("ChannelIcons",
                                                                 chanInfo->m_icon);
             item->SetImage(iconUrl, "icon");
             item->SetImage(iconUrl);
@@ -405,7 +406,7 @@ void ChannelRecPriority::updateInfo(MythUIButtonListItem *item)
     {
         if (m_iconImage)
         {
-            QString iconUrl = gCoreContext->GetMasterHostPrefix("ChannelIcons", channelItem->m_icon);
+            QString iconUrl = getCoreContext()->GetMasterHostPrefix("ChannelIcons", channelItem->m_icon);
             m_iconImage->SetFilename(iconUrl);
             m_iconImage->Load();
         }

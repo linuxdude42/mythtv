@@ -523,7 +523,7 @@ void EditPowerSearchPopup::initLists(void)
     }
 
     // channel
-    QString channelOrdering = gCoreContext->GetSetting(
+    QString channelOrdering = getCoreContext()->GetSetting(
         "ChannelOrdering", "channum");
 
     m_channels.clear();

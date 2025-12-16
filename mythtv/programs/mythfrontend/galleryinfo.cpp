@@ -246,7 +246,7 @@ void InfoList::Display(ImageItemK &im, const QStringList &tagStrings)
     CreateButton(tr("Name"), tagName);
 
     // Only show non-local hostnames
-    QString host = (tagHost == gCoreContext->GetHostName()) ? "" : tagHost + ":";
+    QString host = (tagHost == getCoreContext()->GetHostName()) ? "" : tagHost + ":";
     QString clone = (im.m_type == kCloneDir) ? tr("(and others)") : "";
     CreateButton(tr("Path"), QString("%1%2 %3").arg(host, tagPath, clone));
 

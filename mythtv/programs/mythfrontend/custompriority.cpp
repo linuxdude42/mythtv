@@ -26,14 +26,14 @@ CustomPriority::CustomPriority(MythScreenStack *parent, ProgramInfo *proginfo)
     else
         m_pginfo = new ProgramInfo();
 
-    gCoreContext->addListener(this);
+    getCoreContext()->addListener(this);
 }
 
 CustomPriority::~CustomPriority(void)
 {
     delete m_pginfo;
 
-    gCoreContext->removeListener(this);
+    getCoreContext()->removeListener(this);
 }
 
 bool CustomPriority::Create()

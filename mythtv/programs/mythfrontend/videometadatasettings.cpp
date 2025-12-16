@@ -46,28 +46,29 @@ bool MetadataSettings::Create()
         return false;
     }
 
+    MythCoreContext *cctx = getCoreContext();
     int unknownSetting =
-        gCoreContext->GetNumSetting("VideoListUnknownFiletypes", 0);
+        cctx->GetNumSetting("VideoListUnknownFiletypes", 0);
     if (unknownSetting == 1)
         m_unknownFileCheck->SetCheckState(MythUIStateType::Full);
 
     int autoMetaSetting =
-        gCoreContext->GetNumSetting("mythvideo.AutoMetaDataScan", 1);
+        cctx->GetNumSetting("mythvideo.AutoMetaDataScan", 1);
     if (autoMetaSetting == 1)
         m_autoMetaUpdateCheck->SetCheckState(MythUIStateType::Full);
 
     int loadMetaSetting =
-        gCoreContext->GetNumSetting("VideoTreeLoadMetaData", 1);
+        cctx->GetNumSetting("VideoTreeLoadMetaData", 1);
     if (loadMetaSetting == 1)
         m_treeLoadsMetaCheck->SetCheckState(MythUIStateType::Full);
 
     int trailerSetting =
-        gCoreContext->GetNumSetting("mythvideo.TrailersRandomEnabled", 0);
+        cctx->GetNumSetting("mythvideo.TrailersRandomEnabled", 0);
     if (trailerSetting == 1)
         m_randomTrailerCheck->SetCheckState(MythUIStateType::Full);
 
     m_trailerSpin->SetRange(0,100,1);
-    m_trailerSpin->SetValue(gCoreContext->GetNumSetting(
+    m_trailerSpin->SetValue(cctx->GetNumSetting(
                            "mythvideo.TrailersRandomCount"));
 
     if (m_randomTrailerCheck->GetCheckState() == MythUIStateType::Full)
@@ -110,28 +111,29 @@ bool MetadataSettings::Create()
 
 void MetadataSettings::slotSave(void)
 {
-    gCoreContext->SaveSetting("mythvideo.TrailersRandomCount",
+    MythCoreContext *cctx = getCoreContext();
+    cctx->SaveSetting("mythvideo.TrailersRandomCount",
                               m_trailerSpin->GetValue());
 
     int listUnknownState = 0;
     if (m_unknownFileCheck->GetCheckState() == MythUIStateType::Full)
         listUnknownState = 1;
-    gCoreContext->SaveSetting("VideoListUnknownFiletypes", listUnknownState);
+    cctx->SaveSetting("VideoListUnknownFiletypes", listUnknownState);
 
     int autoMetaState = 0;
     if (m_autoMetaUpdateCheck->GetCheckState() == MythUIStateType::Full)
         autoMetaState = 1;
-    gCoreContext->SaveSetting("mythvideo.AutoMetaDataScan", autoMetaState);
+    cctx->SaveSetting("mythvideo.AutoMetaDataScan", autoMetaState);
 
     int loadMetaState = 0;
     if (m_treeLoadsMetaCheck->GetCheckState() == MythUIStateType::Full)
         loadMetaState = 1;
-    gCoreContext->SaveSetting("VideoTreeLoadMetaData", loadMetaState);
+    cctx->SaveSetting("VideoTreeLoadMetaData", loadMetaState);
 
     int trailerState = 0;
     if (m_randomTrailerCheck->GetCheckState() == MythUIStateType::Full)
         trailerState = 1;
-    gCoreContext->SaveSetting("mythvideo.TrailersRandomEnabled", trailerState);
+    cctx->SaveSetting("mythvideo.TrailersRandomEnabled", trailerState);
 
     Close();
 }

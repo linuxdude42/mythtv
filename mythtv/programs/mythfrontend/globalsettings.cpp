@@ -122,7 +122,7 @@ static HostTextEditSetting *VAAPIDevice()
     QObject::connect(ge, &HostTextEditSetting::ChangeSaved, ge,
         []()
         {
-            QString device = gCoreContext->GetSetting("VAAPIDevice");
+            QString device = getCoreContext()->GetSetting("VAAPIDevice");
             LOG(VB_GENERAL, LOG_INFO, QString("New VAAPI device (%1) - resetting profiles").arg(device));
             MythVAAPIContext::HaveVAAPI(true);
             MythVideoProfile::InitStatics(true);
@@ -1204,7 +1204,7 @@ PlaybackProfileConfig::PlaybackProfileConfig(QString profilename,
 {
     setVisible(false);
     m_groupId = MythVideoProfile::GetProfileGroupID(
-        m_profileName, gCoreContext->GetHostName());
+        m_profileName, getCoreContext()->GetHostName());
     m_items = MythVideoProfile::LoadDB(m_groupId);
     InitUI(parent);
 }
@@ -1267,7 +1267,7 @@ void PlaybackProfileConfig::Save(void)
     if (m_markForDeletion->boolValue())
     {
         MythVideoProfile::DeleteProfileGroup(m_profileName,
-                                                gCoreContext->GetHostName());
+                                             getCoreContext()->GetHostName());
         return;
     }
 
@@ -1357,7 +1357,7 @@ static HostComboBoxSetting * CurrentPlaybackProfile()
         QCoreApplication::translate("PlaybackProfileConfigs",
                                     "Current Video Playback Profile"));
 
-    QString host = gCoreContext->GetHostName();
+    QString host = getCoreContext()->GetHostName();
     MythVideoProfile::CreateProfiles(host);
     QStringList profiles = MythVideoProfile::GetProfiles(host);
 
@@ -1401,7 +1401,8 @@ void PlaybackSettings::NewPlaybackProfileSlot() const
 
 void PlaybackSettings::CreateNewPlaybackProfileSlot(const QString &name)
 {
-    QString host = gCoreContext->GetHostName();
+    MythCoreContext *cctx = getCoreContext();
+    QString host = cctx->GetHostName();
     QStringList not_ok_list = MythVideoProfile::GetProfiles(host);
 
     if (not_ok_list.contains(name) || name.isEmpty())
@@ -1416,7 +1417,7 @@ void PlaybackSettings::CreateNewPlaybackProfileSlot(const QString &name)
         return;
     }
 
-    MythVideoProfile::CreateProfileGroup(name, gCoreContext->GetHostName());
+    MythVideoProfile::CreateProfileGroup(name, cctx->GetHostName());
     m_playbackProfiles->addTargetedChild(name,
         new PlaybackProfileConfig(name, m_playbackProfiles));
 
@@ -1553,7 +1554,7 @@ static HostComboBoxSetting *MenuTheme()
 #if 0
 static HostComboBoxSetting *DecodeVBIFormat()
 {
-    QString beVBI = gCoreContext->GetSetting("VbiFormat");
+    QString beVBI = getCoreContext()->GetSetting("VbiFormat");
     QString fmt = beVBI.toLower().left(4);
     int sel = (fmt == "pal ") ? 1 : ((fmt == "ntsc") ? 2 : 0);
 
@@ -2430,11 +2431,12 @@ static HostComboBoxSetting *GuiVidModeResolution()
     }
 
     // if no resolution setting, set it with a reasonable initial value
-    if (!scr.empty() && (gCoreContext->GetSetting("GuiVidModeResolution").isEmpty()))
+    MythCoreContext *cctx = getCoreContext();
+    if (!scr.empty() && (cctx->GetSetting("GuiVidModeResolution").isEmpty()))
     {
         int w = 0;
         int h = 0;
-        gCoreContext->GetResolutionSetting("GuiVidMode", w, h);
+        cctx->GetResolutionSetting("GuiVidMode", w, h);
         if ((w <= 0) || (h <= 0))
         {
             w = 640;
@@ -2751,8 +2753,7 @@ static HostComboBoxSetting *MythDateFormatCB()
         sampleStr = AppearanceSettings::tr("Samples are shown using "
                                            "tomorrow's date.");
     }
-
-    QLocale locale = gCoreContext->GetQLocale();
+    QLocale locale = getCoreContext()->GetQLocale();
 
     gc->addSelection(locale.toString(sampdate, "ddd MMM d"), "ddd MMM d");
     gc->addSelection(locale.toString(sampdate, "ddd d MMM"), "ddd d MMM");
@@ -2806,7 +2807,7 @@ static HostComboBoxSetting *MythShortDateFormat()
         sampleStr = AppearanceSettings::tr("Samples are shown using "
                                            "tomorrow's date.");
     }
-    QLocale locale = gCoreContext->GetQLocale();
+    QLocale locale = getCoreContext()->GetQLocale();
 
     gc->addSelection(locale.toString(sampdate, "M/d"), "M/d");
     gc->addSelection(locale.toString(sampdate, "d/M"), "d/M");
@@ -2850,8 +2851,7 @@ static HostComboBoxSetting *MythTimeFormat()
     gc->setLabel(AppearanceSettings::tr("Time format"));
 
     QTime samptime = QTime::currentTime();
-
-    QLocale locale = gCoreContext->GetQLocale();
+    QLocale locale = getCoreContext()->GetQLocale();
 
     gc->addSelection(locale.toString(samptime, "h:mm AP"), "h:mm AP");
     gc->addSelection(locale.toString(samptime, "h:mm ap"), "h:mm ap");
@@ -3240,7 +3240,7 @@ static GlobalComboBoxSetting *MythLanguage()
     QMap<QString, QString> langMap = MythTranslation::getLanguages();
     QStringList langs = langMap.values();
     langs.sort();
-    QString langCode = gCoreContext->GetSetting("Language").toLower();
+    QString langCode = getCoreContext()->GetSetting("Language").toLower();
 
     if (langCode.isEmpty())
         langCode = "en_US";
@@ -3267,11 +3267,12 @@ static GlobalComboBoxSetting *AudioLanguage()
     QMap<QString, QString> langMap = MythTranslation::getLanguages();
     QStringList langs = langMap.values();
     langs.sort();
-    QString langCode = gCoreContext->GetSetting("AudioLanguage").toLower();
+    MythCoreContext *cctx = getCoreContext();
+    QString langCode = cctx->GetSetting("AudioLanguage").toLower();
 
     if (langCode.isEmpty())
     {
-        auto menuLangCode = gCoreContext->GetSetting("Language").toLower();
+        auto menuLangCode = cctx->GetSetting("Language").toLower();
         langCode = menuLangCode.isEmpty() ? "en_US" : menuLangCode;
     }
 
@@ -3292,12 +3293,13 @@ static void ISO639_fill_selections(MythUIComboBoxSetting *widget, uint i)
 {
     widget->clearSelections();
     QString q = QString("ISO639Language%1").arg(i);
-    QString lang = gCoreContext->GetSetting(q, "").toLower();
+    MythCoreContext *cctx = getCoreContext();
+    QString lang = cctx->GetSetting(q, "").toLower();
 
     if ((lang.isEmpty() || lang == "aar") &&
-        !gCoreContext->GetSetting("Language", "").isEmpty())
+        !cctx->GetSetting("Language", "").isEmpty())
     {
-        lang = iso639_str2_to_str3(gCoreContext->GetLanguage().toLower());
+        lang = iso639_str2_to_str3(cctx->GetLanguage().toLower());
     }
 
     QMap<int,QString>::iterator it  = iso639_key_to_english_name.begin();
@@ -4318,7 +4320,7 @@ void MainGeneralSettings::cecChanged(bool /*setting*/)
 void MainGeneralSettings::applyChange()
 {
     QStringList strlist( QString("REFRESH_BACKEND") );
-    gCoreContext->SendReceiveStringList(strlist);
+    getCoreContext()->SendReceiveStringList(strlist);
     LOG(VB_GENERAL, LOG_ERR, QString("%1 called").arg(__FUNCTION__));
     resetMythSortHelper();
 }

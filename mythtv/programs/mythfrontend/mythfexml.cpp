@@ -134,7 +134,7 @@ void MythFEXML::GetScreenShot(HTTPRequest *pRequest)
             .arg(nWidth).arg(nHeight).arg(sFormat));
 
     QString sFileName = QString("/%1/myth-screenshot-XML.%2")
-        .arg(gCoreContext->GetSetting("ScreenShotPath","/tmp"), sFormat);
+        .arg(getCoreContext()->GetSetting("ScreenShotPath","/tmp"), sFormat);
 
     MythMainWindow *window = GetMythMainWindow();
     window->RemoteScreenShot(sFileName, nWidth, nHeight);

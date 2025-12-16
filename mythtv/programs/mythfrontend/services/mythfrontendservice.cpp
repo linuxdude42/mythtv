@@ -44,7 +44,7 @@ class FrontendActions
     FrontendActions()
     {
         // Build action and action descriptions
-        if (auto * bindings = new KeyBindings(gCoreContext->GetHostName()))
+        if (auto * bindings = new KeyBindings(getCoreContext()->GetHostName()))
         {
             QStringList contexts = bindings->GetContexts();
             contexts.sort();
@@ -108,7 +108,7 @@ FrontendStatus* MythFrontendService::GetStatus()
 {
     QVariantMap state;
     MythUIStateTracker::GetFreshState(state);
-    auto* result = new FrontendStatus(gCoreContext->GetHostName(), GetMythSourceVersion(), state);
+    auto* result = new FrontendStatus(getCoreContext()->GetHostName(), GetMythSourceVersion(), state);
     return result;
 }
 
@@ -259,6 +259,7 @@ bool MythFrontendService::IsValidAction(const QString& Action)
 
 bool MythFrontendService::PlayRecording(int RecordedId, int ChanId, const QDateTime& StartTime)
 {
+    MythCoreContext *cctx = getCoreContext();
     QDateTime starttime = StartTime;
 
     if ((RecordedId <= 0) && (ChanId <= 0 || !StartTime.isValid()))
@@ -280,7 +281,7 @@ bool MythFrontendService::PlayRecording(int RecordedId, int ChanId, const QDateT
     {
         QString message = QString("NETWORK_CONTROL STOP");
         MythEvent me(message);
-        gCoreContext->dispatch(me);
+        cctx->dispatch(me);
 
         QElapsedTimer timer;
         timer.start();
@@ -310,7 +311,7 @@ bool MythFrontendService::PlayRecording(int RecordedId, int ChanId, const QDateT
             .arg(ChanId).arg(starttime.toString("yyyyMMddhhmmss"), "12345");
 
         MythEvent me(message);
-        gCoreContext->dispatch(me);
+        cctx->dispatch(me);
         return true;
     }
 

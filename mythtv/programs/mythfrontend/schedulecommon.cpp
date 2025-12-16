@@ -282,7 +282,7 @@ void ScheduleCommon::EditRecording(bool may_watch_now)
 
     RecordingInfo recinfo(*pginfo);
 
-    QString timeFormat = gCoreContext->GetSetting("TimeFormat", "h:mm AP");
+    QString timeFormat = getCoreContext()->GetSetting("TimeFormat", "h:mm AP");
 
     QString message = QString("%1 - %2  %3\n")
         .arg(recinfo.GetRecordingStartTime().toLocalTime().toString(timeFormat),
@@ -577,9 +577,10 @@ void ScheduleCommon::customEvent(QEvent *event)
                 groupBy = ProgGroupBy::ProgramId;
             else if (resulttext == tr("Group By None"))
                 groupBy = ProgGroupBy::None;
-            gCoreContext->SaveSetting("ProgramListGroupBy", (int)groupBy);
+            MythCoreContext *cctx = getCoreContext();
+            cctx->SaveSetting("ProgramListGroupBy", (int)groupBy);
             MythEvent me("GROUPBY_CHANGE");
-            gCoreContext->dispatch(me);
+            cctx->dispatch(me);
         }
     }
 }
@@ -596,7 +597,7 @@ bool ScheduleCommon::IsFindApplicable(const RecordingInfo& recInfo)
 
 ProgGroupBy::Type ScheduleCommon::GetProgramListGroupBy(void)
 {
-    return (ProgGroupBy::Type)gCoreContext->GetNumSetting(
+    return (ProgGroupBy::Type)getCoreContext()->GetNumSetting(
         "ProgramListGroupBy", (int)ProgGroupBy::ChanNum);
 }
 

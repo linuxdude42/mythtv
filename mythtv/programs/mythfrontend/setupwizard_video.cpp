@@ -34,7 +34,7 @@ VideoSetupWizard::VideoSetupWizard(MythScreenStack *parent,
 {
     m_popupStack = GetMythMainWindow()->GetStack("popup stack");
 
-    gCoreContext->addListener(this);
+    getCoreContext()->addListener(this);
 }
 
 bool VideoSetupWizard::Create()
@@ -86,12 +86,12 @@ bool VideoSetupWizard::Create()
 
 VideoSetupWizard::~VideoSetupWizard()
 {
-    gCoreContext->removeListener(this);
+    getCoreContext()->removeListener(this);
 }
 
 void VideoSetupWizard::loadData(void)
 {
-    QStringList profiles = MythVideoProfile::GetProfiles(gCoreContext->GetHostName());
+    QStringList profiles = MythVideoProfile::GetProfiles(getCoreContext()->GetHostName());
 
     for (const auto & prof : std::as_const(profiles))
     {
@@ -99,7 +99,7 @@ void VideoSetupWizard::loadData(void)
         item->SetData(prof);
     }
 
-    QString currentpbp = MythVideoProfile::GetDefaultProfileName(gCoreContext->GetHostName());
+    QString currentpbp = MythVideoProfile::GetDefaultProfileName(getCoreContext()->GetHostName());
     if (!currentpbp.isEmpty())
     {
         MythUIButtonListItem *set =
@@ -131,7 +131,7 @@ void VideoSetupWizard::save(void)
 {
     QString desiredpbp =
         m_playbackProfileButtonList->GetItemCurrent()->GetText();
-    MythVideoProfile::SetDefaultProfileName(desiredpbp, gCoreContext->GetHostName());
+    MythVideoProfile::SetDefaultProfileName(desiredpbp, getCoreContext()->GetHostName());
 }
 
 void VideoSetupWizard::slotPrevious(void)
@@ -154,8 +154,9 @@ bool VideoSetupWizard::keyPressEvent(QKeyEvent *event)
 
 void VideoSetupWizard::testSDVideo(void)
 {
+    MythCoreContext *cctx = getCoreContext();
     QString sdtestfile = StorageGroup::generate_file_url("Temp",
-                              gCoreContext->GetMasterHostName(),
+                              cctx->GetMasterHostName(),
                               VIDEO_SAMPLE_SD_FILENAME);
     QString desiredpbp =
         m_playbackProfileButtonList->GetItemCurrent()->GetText();
@@ -167,7 +168,7 @@ void VideoSetupWizard::testSDVideo(void)
     if (!RemoteFile::Exists(sdtestfile))
     {
         m_testType = ttStandardDefinition;
-        QString url = gCoreContext->GetSetting("ServicesRepositoryURL",
+        QString url = cctx->GetSetting("ServicesRepositoryURL",
                                                "https://services.mythtv.org");
         DownloadSample(url+VIDEO_SAMPLE_SD_LOCATION, VIDEO_SAMPLE_SD_FILENAME);
     }
@@ -179,8 +180,9 @@ void VideoSetupWizard::testSDVideo(void)
 
 void VideoSetupWizard::testHDVideo(void)
 {
+    MythCoreContext *cctx = getCoreContext();
     QString hdtestfile = StorageGroup::generate_file_url("Temp",
-                              gCoreContext->GetMasterHostName(),
+                              cctx->GetMasterHostName(),
                               VIDEO_SAMPLE_HD_FILENAME);
     QString desiredpbp =
         m_playbackProfileButtonList->GetItemCurrent()->GetText();
@@ -192,7 +194,7 @@ void VideoSetupWizard::testHDVideo(void)
     if (!RemoteFile::Exists(hdtestfile))
     {
         m_testType = ttHighDefinition;
-        QString url = gCoreContext->GetSetting("ServicesRepositoryURL",
+        QString url = cctx->GetSetting("ServicesRepositoryURL",
                                                "https://services.mythtv.org");
         DownloadSample(url+VIDEO_SAMPLE_HD_LOCATION, VIDEO_SAMPLE_HD_FILENAME);
     }
@@ -204,13 +206,14 @@ void VideoSetupWizard::testHDVideo(void)
 
 void VideoSetupWizard::playVideoTest(const QString& desc, const QString& title, const QString& file)
 {
+    MythCoreContext *cctx = getCoreContext();
     QString desiredpbp =
         m_playbackProfileButtonList->GetItemCurrent()->GetText();
-    QString currentpbp = MythVideoProfile::GetDefaultProfileName(gCoreContext->GetHostName());
+    QString currentpbp = MythVideoProfile::GetDefaultProfileName(cctx->GetHostName());
 
-    MythVideoProfile::SetDefaultProfileName(desiredpbp, gCoreContext->GetHostName());
+    MythVideoProfile::SetDefaultProfileName(desiredpbp, cctx->GetHostName());
     GetMythMainWindow()->HandleMedia("Internal", file, desc, title);
-    MythVideoProfile::SetDefaultProfileName(currentpbp, gCoreContext->GetHostName());
+    MythVideoProfile::SetDefaultProfileName(currentpbp, cctx->GetHostName());
 }
 
 void VideoSetupWizard::DownloadSample(const QString& url, const QString& dest)

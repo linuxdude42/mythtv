@@ -15,12 +15,14 @@
 #include "exitprompt.h"
 
 ExitPrompter::ExitPrompter()
-  : m_power(MythPower::AcquireRelease(this, true)),
-    m_confirm(gCoreContext->GetBoolSetting("ConfirmPowerEvent", true)),
-    m_haltCommand(gCoreContext->GetSetting("HaltCommand", "")),
-    m_rebootCommand(gCoreContext->GetSetting("RebootCommand", "")),
-    m_suspendCommand(gCoreContext->GetSetting("SuspendCommand", ""))
+  : m_power(MythPower::AcquireRelease(this, true))
 {
+    MythCoreContext *cctx = getCoreContext();
+    m_confirm = cctx->GetBoolSetting("ConfirmPowerEvent", true);
+    m_haltCommand = cctx->GetSetting("HaltCommand", "");
+    m_rebootCommand = cctx->GetSetting("RebootCommand", "");
+    m_suspendCommand = cctx->GetSetting("SuspendCommand", "");
+
     // Log to confirm we are not leaking prompters...
     LOG(VB_GENERAL, LOG_INFO, "Created ExitPrompter");
 }
@@ -163,7 +165,8 @@ void ExitPrompter::MainDialogClosed(const QString& /*unused*/, int Id)
 void ExitPrompter::HandleExit()
 {
     // first of all find out, if this is a frontend only host...
-    bool frontendOnly = gCoreContext->IsFrontendOnly();
+    MythCoreContext *cctx = getCoreContext();
+    bool frontendOnly = cctx->IsFrontendOnly();
 
     // how do you want to quit today?
     bool allowExit     = false;
@@ -189,7 +192,7 @@ void ExitPrompter::HandleExit()
         havesuspend  |= m_power->IsFeatureSupported(MythPower::FeatureSuspend);
     }
 
-    switch (gCoreContext->GetNumSetting("OverrideExitMenu", 0))
+    switch (cctx->GetNumSetting("OverrideExitMenu", 0))
     {
         case 0:
             allowExit = true;
@@ -290,7 +293,7 @@ void ExitPrompter::Confirm(MythPower::Feature Action)
         default: break;
     }
 
-    if (!gCoreContext->IsFrontendOnly())
+    if (!getCoreContext()->IsFrontendOnly())
         msg.prepend(tr("Mythbackend is running on this system. "));
 
     auto *dlg = new MythConfirmationDialog(ss, msg);

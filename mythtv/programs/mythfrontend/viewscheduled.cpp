@@ -39,18 +39,20 @@ void *ViewScheduled::RunViewScheduled(void *player, bool showTV)
 
 ViewScheduled::ViewScheduled(MythScreenStack *parent, TV* player, bool /*showTV*/)
   : ScheduleCommon(parent, "ViewScheduled"),
-    m_showAll(!gCoreContext->GetBoolSetting("ViewSchedShowLevel", false)),
     m_player(player)
 {
-    gCoreContext->addListener(this);
+    MythCoreContext *cctx = getCoreContext();
+    m_showAll = !cctx->GetBoolSetting("ViewSchedShowLevel", false);
+    cctx->addListener(this);
     if (m_player)
         m_player->IncrRef();
 }
 
 ViewScheduled::~ViewScheduled()
 {
-    gCoreContext->removeListener(this);
-    gCoreContext->SaveBoolSetting("ViewSchedShowLevel", !m_showAll);
+    MythCoreContext *cctx = getCoreContext();
+    cctx->removeListener(this);
+    cctx->SaveBoolSetting("ViewSchedShowLevel", !m_showAll);
 
     // if we have a player, we need to tell we are done
     if (m_player)

@@ -170,7 +170,7 @@ GalleryThumbView::GalleryThumbView(MythScreenStack *parent, const char *name)
       m_view(new DirectoryView(kOrdered)),
       m_infoList(*this),
       // Start in edit mode unless a password exists
-      m_editsAllowed(gCoreContext->GetSetting("GalleryPassword").isEmpty())
+      m_editsAllowed(getCoreContext()->GetSetting("GalleryPassword").isEmpty())
 {
     // Hide hidden when edits disallowed
     if (!m_editsAllowed)
@@ -195,7 +195,7 @@ void GalleryThumbView::Close()
 {
     LOG(VB_GUI, LOG_DEBUG, LOC + "Closing Gallery");
 
-    gCoreContext->removeListener(this);
+    getCoreContext()->removeListener(this);
 
     // Cleanup local devices
     m_mgr.CloseDevices();
@@ -261,7 +261,7 @@ bool GalleryThumbView::Create()
     BuildFocusList();
 
     // Initialise list widget with appropriate zoom level for this theme.
-    m_zoomLevel = gCoreContext->GetNumSetting("GalleryZoomLevel", 0);
+    m_zoomLevel = getCoreContext()->GetNumSetting("GalleryZoomLevel", 0);
     SelectZoomWidget(0);
 
     return true;
@@ -368,6 +368,7 @@ bool GalleryThumbView::keyPressEvent(QKeyEvent *event)
  */
 void GalleryThumbView::customEvent(QEvent *event)
 {
+    MythCoreContext *cctx = getCoreContext();
 
     if (event->type() == MythEvent::kMythEventMessage)
     {
@@ -380,7 +381,7 @@ void GalleryThumbView::customEvent(QEvent *event)
 
         // Internal messages contain a hostname. Ignore other FE messages
         QStringList token = mesg.split(' ');
-        if (token.size() >= 2 && token[1] != gCoreContext->GetHostName())
+        if (token.size() >= 2 && token[1] != cctx->GetHostName())
             return;
 
         if (token[0] == "IMAGE_METADATA")
@@ -513,7 +514,7 @@ void GalleryThumbView::customEvent(QEvent *event)
             case 2: slideOrder = kRandom; break;
             case 3: slideOrder = kSeasonal; break;
             }
-            gCoreContext->SaveSetting("GallerySlideOrder", slideOrder);
+            cctx->SaveSetting("GallerySlideOrder", slideOrder);
             LOG(VB_FILE, LOG_DEBUG, LOC + QString("Order %1").arg(slideOrder));
         }
         else if (resultid == "ImageCaptionMenu")
@@ -527,7 +528,7 @@ void GalleryThumbView::customEvent(QEvent *event)
             case 2: captions = kUserCaption; break;
             case 3: captions = kNoCaption;   break;
             }
-            gCoreContext->SaveSetting("GalleryImageCaption", captions);
+            cctx->SaveSetting("GalleryImageCaption", captions);
             BuildImageList();
         }
         else if (resultid == "DirCaptionMenu")
@@ -540,13 +541,13 @@ void GalleryThumbView::customEvent(QEvent *event)
             case 1: captions = kDateCaption; break;
             case 2: captions = kNoCaption;   break;
             }
-            gCoreContext->SaveSetting("GalleryDirCaption", captions);
+            cctx->SaveSetting("GalleryDirCaption", captions);
             BuildImageList();
         }
         else if (resultid == "Password")
         {
             QString password = dce->GetResultText();
-            m_editsAllowed = (password == gCoreContext->GetSetting("GalleryPassword"));
+            m_editsAllowed = (password == cctx->GetSetting("GalleryPassword"));
         }
         else if (buttonnum == 1)
         {
@@ -614,7 +615,7 @@ void GalleryThumbView::Start()
     }
 
     // Only receive events after device/scan status has been established
-    gCoreContext->addListener(this);
+    getCoreContext()->addListener(this);
 
     // Start at Root if devices exist. Otherwise go straight to SG node
     int start = m_mgr.DetectLocalDevices() ? GALLERY_DB_ID : PHOTO_DB_ID;
@@ -754,7 +755,7 @@ void GalleryThumbView::UpdateImageItem(MythUIButtonListItem *item)
 
     // Caption
     QString text;
-    int show = gCoreContext->GetNumSetting(
+    int show = getCoreContext()->GetNumSetting(
                 im->IsFile() ? "GalleryImageCaption"
                              : "GalleryDirCaption");
     switch (show)
@@ -1246,7 +1247,7 @@ void GalleryThumbView::MenuAction(MythMenu *mainMenu)
 
     // Only show import command on root, when defined
     if (selected->m_id == GALLERY_DB_ID
-            && !gCoreContext->GetSetting("GalleryImportCmd").isEmpty())
+        && !getCoreContext()->GetSetting("GalleryImportCmd").isEmpty())
         menu->AddItem(tr("Import"), &GalleryThumbView::Import);
 
     // Only show eject when devices (excluding import) exist
@@ -1266,7 +1267,8 @@ void GalleryThumbView::MenuAction(MythMenu *mainMenu)
 */
 void GalleryThumbView::MenuSlideshow(MythMenu *mainMenu)
 {
-    int order = gCoreContext->GetNumSetting("GallerySlideOrder", kOrdered);
+    MythCoreContext *cctx = getCoreContext();
+    int order = cctx->GetNumSetting("GallerySlideOrder", kOrdered);
 
     QString ordering;
     switch (order)
@@ -1304,7 +1306,7 @@ void GalleryThumbView::MenuSlideshow(MythMenu *mainMenu)
 
     menu->AddItem(tr("Change Order"), nullptr, orderMenu);
 
-    if (gCoreContext->GetBoolSetting("GalleryRepeat", false))
+    if (cctx->GetBoolSetting("GalleryRepeat", false))
         menu->AddItem(tr("Turn Repeat Off"), &GalleryThumbView::RepeatOff);
     else
         menu->AddItem(tr("Turn Repeat On"), &GalleryThumbView::RepeatOn);
@@ -1333,7 +1335,8 @@ void GalleryThumbView::MenuShow(MythMenu *mainMenu)
                       &GalleryThumbView::ShowType);
     }
 
-    int show = gCoreContext->GetNumSetting("GalleryImageCaption");
+    MythCoreContext *cctx = getCoreContext();
+    int show = cctx->GetNumSetting("GalleryImageCaption");
     auto *captionMenu = new MythMenu(tr("Image Captions"), this,
                                      "ImageCaptionMenu");
 
@@ -1344,7 +1347,7 @@ void GalleryThumbView::MenuShow(MythMenu *mainMenu)
 
     menu->AddItem(tr("Image Captions"), nullptr, captionMenu);
 
-    show = gCoreContext->GetNumSetting("GalleryDirCaption");
+    show = cctx->GetNumSetting("GalleryDirCaption");
     captionMenu = new MythMenu(tr("Directory Captions"), this, "DirCaptionMenu");
 
     captionMenu->AddItem(tr("Name"), nullptr, nullptr, show == kNameCaption);
@@ -1675,8 +1678,9 @@ void GalleryThumbView::ShowSettings()
             this,   [this]()
     {
         // Update db view, reset cover cache & reload
-        int sortIm  = gCoreContext->GetNumSetting("GalleryImageOrder");
-        int sortDir = gCoreContext->GetNumSetting("GalleryDirOrder");
+        MythCoreContext *cctx = getCoreContext();
+        int sortIm  = cctx->GetNumSetting("GalleryImageOrder");
+        int sortDir = cctx->GetNumSetting("GalleryDirOrder");
         m_mgr.SetSortOrder(sortIm, sortDir);
         m_view->ClearCache();
         LoadData(m_view->GetParentId());
@@ -1685,7 +1689,7 @@ void GalleryThumbView::ShowSettings()
     connect(config, &GallerySettings::DateChanged,
             this,   [this]()
     {
-        QString date = gCoreContext->GetSetting("GalleryDateFormat");
+        QString date = getCoreContext()->GetSetting("GalleryDateFormat");
         m_mgr.SetDateFormat(date);
         BuildImageList();
     });
@@ -1694,7 +1698,7 @@ void GalleryThumbView::ShowSettings()
             this,   [this]()
     {
         // Request rescan
-        QString exclusions = gCoreContext->GetSetting("GalleryIgnoreFilter");
+        QString exclusions = getCoreContext()->GetSetting("GalleryIgnoreFilter");
         m_view->ClearCache();
         ImageManagerFe::IgnoreDirs(exclusions);
     });
@@ -1707,7 +1711,7 @@ void GalleryThumbView::ShowSettings()
 */
 void GalleryThumbView::DoShowHidden(bool show)
 {
-    gCoreContext->SaveBoolSetting("GalleryShowHidden", show);
+    getCoreContext()->SaveBoolSetting("GalleryShowHidden", show);
 
     // Update Db(s)
     m_mgr.SetVisibility(show);
@@ -1797,7 +1801,7 @@ void GalleryThumbView::ShowPassword()
 */
 void GalleryThumbView::DoShowType(int type)
 {
-    gCoreContext->SaveSetting("GalleryShowType", type);
+    getCoreContext()->SaveSetting("GalleryShowType", type);
 
     // Update Db(s)
     m_mgr.SetType(type);
@@ -1863,7 +1867,7 @@ void GalleryThumbView::SelectZoomWidget(int change)
     // Thus, changing to a theme with fewer zoom levels will not overwrite the
     // setting
     if (change != 0)
-        gCoreContext->SaveSetting("GalleryZoomLevel", m_zoomLevel);
+        getCoreContext()->SaveSetting("GalleryZoomLevel", m_zoomLevel);
 
     // dump the current list widget
     if (m_imageList)
@@ -2171,7 +2175,7 @@ void GalleryThumbView::Import()
     }
 
     // Replace placeholder in command
-    QString cmd = gCoreContext->GetSetting("GalleryImportCmd");
+    QString cmd = getCoreContext()->GetSetting("GalleryImportCmd");
     cmd.replace("%TMPDIR%", path);
 
     // Run command in a separate thread
@@ -2196,5 +2200,5 @@ void GalleryThumbView::Import()
 
 void GalleryThumbView::DoRepeat(int on)
 {
-    gCoreContext->SaveSetting("GalleryRepeat", on);
+    getCoreContext()->SaveSetting("GalleryRepeat", on);
 }

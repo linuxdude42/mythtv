@@ -39,7 +39,7 @@ namespace
         if (tmp.contains("%d"))
         {
             QString default_handler =
-                    gCoreContext->GetSetting("VideoDefaultPlayer");
+                getCoreContext()->GetSetting("VideoDefaultPlayer");
             if (tmp.contains("%s") && default_handler.contains("%s"))
                 default_handler = default_handler.replace("%s", "");
             tmp.replace("%d", default_handler);
@@ -203,7 +203,7 @@ class VideoPlayerCommandPrivate
         if (item)
         {
             QString play_command =
-                   gCoreContext->GetSetting("mythvideo.VideoAlternatePlayer");
+                getCoreContext()->GetSetting("mythvideo.VideoAlternatePlayer");
             QString filename;
 
             if (item->IsHostSet())
@@ -275,7 +275,7 @@ class VideoPlayerCommandPrivate
         if (bd_dir_test.exists())
             extension = "BDMV";
 
-        QString play_command = gCoreContext->GetSetting("VideoDefaultPlayer");
+        QString play_command = getCoreContext()->GetSetting("VideoDefaultPlayer");
 
         const FileAssociations::association_list fa_list =
                 FileAssociations::getFileAssociation().getList();
@@ -407,16 +407,17 @@ VideoPlayerCommand &VideoPlayerCommand::operator=(const VideoPlayerCommand &rhs)
 
 void VideoPlayerCommand::Play() const
 {
+    MythCoreContext *cctx = getCoreContext();
     LCD *lcd = LCD::Get();
 
     if (lcd) {
         lcd->setFunctionLEDs(FUNC_TV, false);
         lcd->setFunctionLEDs(FUNC_MOVIE, true);
     }
-    gCoreContext->WantingPlayback(nullptr);
+    cctx->WantingPlayback(nullptr);
     GetMythMainWindow()->PauseIdleTimer(true);
     m_d->Play();
-    gCoreContext->emitTVPlaybackStopped();
+    cctx->emitTVPlaybackStopped();
     GetMythMainWindow()->PauseIdleTimer(false);
     GetMythMainWindow()->raise();
     GetMythMainWindow()->activateWindow();

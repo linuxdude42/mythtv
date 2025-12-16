@@ -57,13 +57,14 @@ void StatusBoxItem::Start(std::chrono::seconds Interval)
 StatusBox::StatusBox(MythScreenStack *parent)
           : MythScreenType(parent, "StatusBox")
 {
-    m_minLevel = gCoreContext->GetNumSetting("LogDefaultView",5);
+    MythCoreContext *cctx = getCoreContext();
+    m_minLevel = cctx->GetNumSetting("LogDefaultView",5);
 
     QStringList strlist;
     strlist << "QUERY_IS_ACTIVE_BACKEND";
-    strlist << gCoreContext->GetHostName();
+    strlist << cctx->GetHostName();
 
-    gCoreContext->SendReceiveStringList(strlist);
+    cctx->SendReceiveStringList(strlist);
 
     m_isBackendActive = (strlist[0] == "TRUE");
     m_popupStack = GetMythMainWindow()->GetStack("popup stack");
@@ -72,7 +73,7 @@ StatusBox::StatusBox(MythScreenStack *parent)
 StatusBox::~StatusBox(void)
 {
     if (m_logList)
-        gCoreContext->SaveSetting("StatusBoxItemCurrent",
+        getCoreContext()->SaveSetting("StatusBoxItemCurrent",
                                   m_logList->GetCurrentPos());
 }
 
@@ -144,7 +145,7 @@ void StatusBox::Init()
                                     qOverload<>(&StatusBox::doAutoExpireList));
     item->DisplayState("autoexpire", "icon");
 
-    int itemCurrent = gCoreContext->GetNumSetting("StatusBoxItemCurrent", 0);
+    int itemCurrent = getCoreContext()->GetNumSetting("StatusBoxItemCurrent", 0);
     m_categoryList->SetItemCurrent(itemCurrent);
 }
 
@@ -478,19 +479,20 @@ void StatusBox::doListingsStatus()
     if (query.exec() && query.next())
         GuideDataThrough = MythDate::fromString(query.value(0).toString());
 
-    QString tmp = gCoreContext->GetSetting("mythfilldatabaseLastRunStart");
+    MythCoreContext *cctx = getCoreContext();
+    QString tmp = cctx->GetSetting("mythfilldatabaseLastRunStart");
     mfdLastRunStart = MythDate::fromString(tmp);
-    tmp = gCoreContext->GetSetting("mythfilldatabaseLastRunEnd");
+    tmp = cctx->GetSetting("mythfilldatabaseLastRunEnd");
     mfdLastRunEnd = MythDate::fromString(tmp);
-    tmp = gCoreContext->GetSetting("MythFillSuggestedRunTime");
+    tmp = cctx->GetSetting("MythFillSuggestedRunTime");
     mfdNextRunStart = MythDate::fromString(tmp);
 
-    mfdLastRunStatus = gCoreContext->GetSetting("mythfilldatabaseLastRunStatus");
+    mfdLastRunStatus = cctx->GetSetting("mythfilldatabaseLastRunStatus");
 
     AddLogLine(tr("Mythfrontend version: %1 (%2)")
                .arg(GetMythSourcePath(), GetMythSourceVersion()),
                helpmsg);
-    AddLogLine(tr("Database schema version: %1").arg(gCoreContext->GetSetting("DBSchemaVer")));
+    AddLogLine(tr("Database schema version: %1").arg(cctx->GetSetting("DBSchemaVer")));
     AddLogLine(tr("Last mythfilldatabase guide update:"), helpmsg);
     tmp = tr("Started:   %1").arg(
         MythDate::toString(
@@ -797,7 +799,8 @@ void StatusBox::doTunerStatus()
         QStringList strlist( cmd );
         strlist << "GET_STATE";
 
-        gCoreContext->SendReceiveStringList(strlist);
+        MythCoreContext *cctx = getCoreContext();
+        cctx->SendReceiveStringList(strlist);
         int state = strlist[0].toInt();
 
         if (state == kState_Error)
@@ -806,7 +809,7 @@ void StatusBox::doTunerStatus()
             strlist << QString("QUERY_REMOTEENCODER %1").arg(inputid);
             strlist << "GET_SLEEPSTATUS";
 
-            gCoreContext->SendReceiveStringList(strlist);
+            cctx->SendReceiveStringList(strlist);
             int sleepState = strlist[0].toInt();
 
             if (sleepState == -1)
@@ -836,7 +839,7 @@ void StatusBox::doTunerStatus()
         {
             strlist = QStringList( QString("QUERY_RECORDER %1").arg(inputid));
             strlist << "GET_RECORDING";
-            gCoreContext->SendReceiveStringList(strlist);
+            cctx->SendReceiveStringList(strlist);
             ProgramInfo pginfo(strlist);
             if (pginfo.GetChanID())
             {
@@ -1192,7 +1195,8 @@ void StatusBox::doMachineStatus()
     timebox->Start();
 
     // Hostname & IP
-    AddLogLine("   " + tr("Hostname") + ": " + gCoreContext->GetHostName());
+    MythCoreContext *cctx = getCoreContext();
+    AddLogLine("   " + tr("Hostname") + ": " + cctx->GetHostName());
     AddLogLine("   " + tr("OS") + QString(": %1 (%2)").arg(QSysInfo::prettyProductName(),
                                                            QSysInfo::currentCpuArchitecture()));
     AddLogLine("   " + tr("Qt version") + QString(": %1").arg(qVersion()));
@@ -1295,8 +1299,8 @@ void StatusBox::doMachineStatus()
         AddLogLine(line, machineStr);
 
         // Hostname & IP
-        line = "   " + tr("Hostname") + ": " + gCoreContext->GetSetting("MasterServerName");
-        line.append(", " + tr("IP") + ": " + gCoreContext->GetSetting("MasterServerIP"));
+        line = "   " + tr("Hostname") + ": " + cctx->GetSetting("MasterServerName");
+        line.append(", " + tr("IP") + ": " + cctx->GetSetting("MasterServerIP"));
         AddLogLine(line, machineStr);
 
         // uptime        

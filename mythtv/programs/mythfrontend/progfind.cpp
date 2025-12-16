@@ -34,11 +34,12 @@ void RunProgramFinder(TV *player, bool embedVideo, bool allowEPG)
     // Language specific progfinder, if needed
     MythScreenStack *mainStack = GetMythMainWindow()->GetMainStack();
     ProgFinder *programFind = nullptr;
-    if (gCoreContext->GetLanguage() == "ja")
+    MythCoreContext *cctx = getCoreContext();
+    if (cctx->GetLanguage() == "ja")
         programFind = new JaProgFinder(mainStack, allowEPG, player, embedVideo);
-    else if (gCoreContext->GetLanguage() == "he")
+    else if (cctx->GetLanguage() == "he")
         programFind = new HeProgFinder(mainStack, allowEPG, player, embedVideo);
-    else if (gCoreContext->GetLanguage() == "ru")
+    else if (cctx->GetLanguage() == "ru")
         programFind = new RuProgFinder(mainStack, allowEPG, player, embedVideo);
     else // default
         programFind = new ProgFinder(mainStack, allowEPG, player, embedVideo);
@@ -100,7 +101,7 @@ void ProgFinder::Init(void)
 
     initAlphabetList();
 
-    gCoreContext->addListener(this);
+    getCoreContext()->addListener(this);
 
     connect(m_timesList, &MythUIButtonList::itemSelected,
             this, &ProgFinder::updateInfo);
@@ -123,7 +124,7 @@ void ProgFinder::Init(void)
 
 ProgFinder::~ProgFinder()
 {
-    gCoreContext->removeListener(this);
+    getCoreContext()->removeListener(this);
 
     // if we have a player and we are returning to it we need
     // to tell it to stop embedding and return to fullscreen
@@ -418,7 +419,7 @@ void ProgFinder::ShowGuide() const
 {
     if (m_allowEPG)
     {
-        QString startchannel = gCoreContext->GetSetting("DefaultTVChannel");
+        QString startchannel = getCoreContext()->GetSetting("DefaultTVChannel");
         uint startchanid = 0;
         QDateTime starttime;
 

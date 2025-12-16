@@ -170,14 +170,15 @@ void ProgDetails::PowerPriorities(const QString & ptable)
 
     MSqlQuery query(MSqlQuery::InitCon());
 
-    int prefinputpri    = gCoreContext->GetNumSetting("PrefInputPriority", 2);
-    int hdtvpriority    = gCoreContext->GetNumSetting("HDTVRecPriority", 0);
-    int wspriority      = gCoreContext->GetNumSetting("WSRecPriority", 0);
-    int slpriority      = gCoreContext->GetNumSetting("SignLangRecPriority", 0);
-    int onscrpriority   = gCoreContext->GetNumSetting("OnScrSubRecPriority", 0);
-    int ccpriority      = gCoreContext->GetNumSetting("CCRecPriority", 0);
-    int hhpriority      = gCoreContext->GetNumSetting("HardHearRecPriority", 0);
-    int adpriority      = gCoreContext->GetNumSetting("AudioDescRecPriority", 0);
+    MythCoreContext *cctx = getCoreContext();
+    int prefinputpri    = cctx->GetNumSetting("PrefInputPriority", 2);
+    int hdtvpriority    = cctx->GetNumSetting("HDTVRecPriority", 0);
+    int wspriority      = cctx->GetNumSetting("WSRecPriority", 0);
+    int slpriority      = cctx->GetNumSetting("SignLangRecPriority", 0);
+    int onscrpriority   = cctx->GetNumSetting("OnScrSubRecPriority", 0);
+    int ccpriority      = cctx->GetNumSetting("CCRecPriority", 0);
+    int hhpriority      = cctx->GetNumSetting("HardHearRecPriority", 0);
+    int adpriority      = cctx->GetNumSetting("AudioDescRecPriority", 0);
 
     tests.append(qMakePair(QString("channel.recpriority"),
                            QString("channel.recpriority")));

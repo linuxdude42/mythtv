@@ -58,7 +58,7 @@ ProgLister::ProgLister(MythScreenStack *parent, ProgListType pltype,
     m_startTime(MythDate::current()),
     m_searchTime(m_startTime),
     m_selectedTime(std::move(selectedTime)),
-    m_channelOrdering(gCoreContext->GetSetting("ChannelOrdering", "channum")),
+    m_channelOrdering(getCoreContext()->GetSetting("ChannelOrdering", "channum")),
     m_view(std::move(view))
 {
     if (pltype == plMovies)
@@ -96,7 +96,7 @@ ProgLister::ProgLister(MythScreenStack *parent, TV* player,
     m_extraArg(extraArg),
     m_startTime(MythDate::current()),
     m_searchTime(m_startTime),
-    m_channelOrdering(gCoreContext->GetSetting("ChannelOrdering", "channum")),
+    m_channelOrdering(getCoreContext()->GetSetting("ChannelOrdering", "channum")),
     m_player(player)
 {
     if (m_player)
@@ -128,7 +128,7 @@ ProgLister::ProgLister(
     m_title(std::move(title)),
     m_startTime(MythDate::current()),
     m_searchTime(m_startTime),
-    m_channelOrdering(gCoreContext->GetSetting("ChannelOrdering", "channum")),
+    m_channelOrdering(getCoreContext()->GetSetting("ChannelOrdering", "channum")),
     m_view("reverse time"),
     m_reverseSort(true)
 {
@@ -138,7 +138,7 @@ ProgLister::~ProgLister(void)
 {
     m_itemList.clear();
     m_itemListSave.clear();
-    gCoreContext->removeListener(this);
+    getCoreContext()->removeListener(this);
 
     // if we have a player, we need to tell we are done
     if (m_player)
@@ -224,7 +224,7 @@ bool ProgLister::Create(void)
     if (m_schedText)
         m_schedText->SetText(value);
 
-    gCoreContext->addListener(this);
+    getCoreContext()->addListener(this);
 
     LoadInBackground();
 

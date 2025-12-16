@@ -37,7 +37,7 @@ DTC::FrontendStatus* Frontend::GetStatus(void)
     auto *status = new DTC::FrontendStatus();
     MythUIStateTracker::GetFreshState(status->State());
 
-    status->setName(gCoreContext->GetHostName());
+    status->setName(getCoreContext()->GetHostName());
     status->setVersion(GetMythSourceVersion());
 
     status->Process();
@@ -134,6 +134,7 @@ bool Frontend::SendAction(const QString &Action, const QString &Value,
 bool Frontend::PlayRecording(int RecordedId, int ChanId,
                              const QDateTime &StartTime)
 {
+    MythCoreContext *cctx = getCoreContext();
     QDateTime starttime = StartTime;
 
     if ((RecordedId <= 0) &&
@@ -151,7 +152,7 @@ bool Frontend::PlayRecording(int RecordedId, int ChanId,
     {
         QString message = QString("NETWORK_CONTROL STOP");
         MythEvent me(message);
-        gCoreContext->dispatch(me);
+        cctx->dispatch(me);
 
         QElapsedTimer timer;
         timer.start();
@@ -187,7 +188,7 @@ bool Frontend::PlayRecording(int RecordedId, int ChanId,
                  "12345");
 
         MythEvent me(message);
-        gCoreContext->dispatch(me);
+        cctx->dispatch(me);
         return true;
     }
 
@@ -310,7 +311,7 @@ void Frontend::InitialiseActions(void)
         return;
 
     s_initialised = true;
-    auto *bindings = new KeyBindings(gCoreContext->GetHostName());
+    auto *bindings = new KeyBindings(getCoreContext()->GetHostName());
     if (bindings)
     {
         QStringList contexts = bindings->GetContexts();

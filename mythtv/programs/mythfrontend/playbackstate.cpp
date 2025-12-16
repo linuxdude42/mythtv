@@ -10,7 +10,7 @@
 
 PlaybackState::PlaybackState()
 {
-    m_alwaysShowWatchedProgress = gCoreContext->GetBoolSetting("AlwaysShowWatchedProgress", false);
+    m_alwaysShowWatchedProgress = getCoreContext()->GetBoolSetting("AlwaysShowWatchedProgress", false);
 }
 
 void PlaybackState::Initialize()

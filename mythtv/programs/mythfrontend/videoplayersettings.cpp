@@ -46,20 +46,21 @@ bool PlayerSettings::Create()
         return false;
     }
 
+    MythCoreContext *cctx = getCoreContext();
     int setting =
-        gCoreContext->GetNumSetting("mythvideo.EnableAlternatePlayer", 0);
+        cctx->GetNumSetting("mythvideo.EnableAlternatePlayer", 0);
     if (setting == 1)
         m_altCheck->SetCheckState(MythUIStateType::Full);
 
-    m_defaultPlayerEdit->SetText(gCoreContext->GetSetting("VideoDefaultPlayer",
+    m_defaultPlayerEdit->SetText(cctx->GetSetting("VideoDefaultPlayer",
                            "Internal"));
-    m_dvdPlayerEdit->SetText(gCoreContext->
+    m_dvdPlayerEdit->SetText(cctx->
                            GetSetting("mythdvd.DVDPlayerCommand", "Internal"));
-    m_dvdDriveEdit->SetText(gCoreContext->GetSetting("DVDDeviceLocation",
+    m_dvdDriveEdit->SetText(cctx->GetSetting("DVDDeviceLocation",
                            "default"));
-    m_blurayMountEdit->SetText(gCoreContext->GetSetting("BluRayMountpoint",
+    m_blurayMountEdit->SetText(cctx->GetSetting("BluRayMountpoint",
                            "/media/cdrom"));
-    m_altPlayerEdit->SetText(gCoreContext->GetSetting(
+    m_altPlayerEdit->SetText(cctx->GetSetting(
                            "mythvideo.VideoAlternatePlayer", "Internal"));
 
     if (m_altCheck->GetCheckState() == MythUIStateType::Full)
@@ -110,19 +111,20 @@ bool PlayerSettings::Create()
 
 void PlayerSettings::slotSave(void)
 {
-    gCoreContext->SaveSetting("VideoDefaultPlayer", m_defaultPlayerEdit->GetText());
-    gCoreContext->SaveSetting("mythdvd.DVDPlayerCommand", m_dvdPlayerEdit->GetText());
-    gCoreContext->SaveSetting("DVDDeviceLocation", m_dvdDriveEdit->GetText());
-    gCoreContext->SaveSetting("BluRayMountpoint", m_blurayMountEdit->GetText());
-    gCoreContext->SaveSetting("mythvideo.VideoAlternatePlayer", m_altPlayerEdit->GetText());
+    MythCoreContext *cctx = getCoreContext();
+    cctx->SaveSetting("VideoDefaultPlayer", m_defaultPlayerEdit->GetText());
+    cctx->SaveSetting("mythdvd.DVDPlayerCommand", m_dvdPlayerEdit->GetText());
+    cctx->SaveSetting("DVDDeviceLocation", m_dvdDriveEdit->GetText());
+    cctx->SaveSetting("BluRayMountpoint", m_blurayMountEdit->GetText());
+    cctx->SaveSetting("mythvideo.VideoAlternatePlayer", m_altPlayerEdit->GetText());
 
-    gCoreContext->SaveSetting("BlurayRegionCode",
+    cctx->SaveSetting("BlurayRegionCode",
                               m_blurayRegionList->GetItemCurrent()->GetData().toInt());
 
     int checkstate = 0;
     if (m_altCheck->GetCheckState() == MythUIStateType::Full)
         checkstate = 1;
-    gCoreContext->SaveSetting("mythvideo.EnableAlternatePlayer", checkstate);
+    cctx->SaveSetting("mythvideo.EnableAlternatePlayer", checkstate);
 
     Close();
 }
@@ -165,7 +167,7 @@ void PlayerSettings::fillRegionList()
                                      "Eastern Europe, Central and South Asia"));
     regionC->SetData(4);
 
-    int region = gCoreContext->GetNumSetting("BlurayRegionCode", 0);
+    int region = getCoreContext()->GetNumSetting("BlurayRegionCode", 0);
 
     MythUIButtonListItem *item = m_blurayRegionList->GetItemByData(region);
 

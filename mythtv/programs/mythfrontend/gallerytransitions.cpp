@@ -10,7 +10,7 @@
 
 
 Transition::Transition(const QString& name)
-  : m_duration(gCoreContext->GetDurSetting<std::chrono::milliseconds>("GalleryTransitionTime", 1s))
+  : m_duration(getCoreContext()->GetDurSetting<std::chrono::milliseconds>("GalleryTransitionTime", 1s))
 {
     setObjectName(name);
 }

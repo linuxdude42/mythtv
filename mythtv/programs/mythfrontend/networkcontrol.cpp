@@ -242,7 +242,7 @@ NetworkControl::NetworkControl() :
 
     m_commandThread->start();
 
-    gCoreContext->addListener(this);
+    getCoreContext()->addListener(this);
 
     connect(this, &ServerPool::newConnection,
             this, &NetworkControl::newControlConnection);
@@ -250,7 +250,7 @@ NetworkControl::NetworkControl() :
 
 NetworkControl::~NetworkControl(void)
 {
-    gCoreContext->removeListener(this);
+    getCoreContext()->removeListener(this);
 
     m_clientLock.lock();
     while (!m_clients.isEmpty())
@@ -349,7 +349,7 @@ void NetworkControl::deleteClient(void)
     LOG(VB_GENERAL, LOG_INFO, LOC + "Client Socket disconnected");
     QMutexLocker locker(&m_clientLock);
 
-    gCoreContext->SendSystemEvent("NET_CTRL_DISCONNECTED");
+    getCoreContext()->SendSystemEvent("NET_CTRL_DISCONNECTED");
 
     for (auto * ncc : std::as_const(m_clients))
     {
@@ -383,7 +383,7 @@ void NetworkControl::newControlConnection(QTcpSocket *client)
 
     LOG(VB_GENERAL, LOG_INFO, LOC + QString("New connection established."));
 
-    gCoreContext->SendSystemEvent("NET_CTRL_CONNECTED");
+    getCoreContext()->SendSystemEvent("NET_CTRL_CONNECTED");
 
     auto *ncc = new NetworkControlClient(client);
 
@@ -592,6 +592,7 @@ QString NetworkControl::processKey(NetworkCommand *nc)
 
 QString NetworkControl::processPlay(NetworkCommand *nc, int clientID)
 {
+    MythCoreContext *cctx = getCoreContext();
     QString result = "OK";
     QString message;
 
@@ -634,7 +635,7 @@ QString NetworkControl::processPlay(NetworkCommand *nc, int clientID)
         {
             QString msg = QString("NETWORK_CONTROL STOP");
             MythEvent me(msg);
-            gCoreContext->dispatch(me);
+            cctx->dispatch(me);
 
             QElapsedTimer timer;
             timer.start();
@@ -675,7 +676,7 @@ QString NetworkControl::processPlay(NetworkCommand *nc, int clientID)
             timer.start();
 
             MythEvent me(msg);
-            gCoreContext->dispatch(me);
+            cctx->dispatch(me);
 
             while (!timer.hasExpired(FE_LONG_TO) && !m_gotAnswer)
                 std::this_thread::sleep_for(10ms);
@@ -704,7 +705,7 @@ QString NetworkControl::processPlay(NetworkCommand *nc, int clientID)
         }
 #endif
 
-        QString hostname = gCoreContext->GetHostName();
+        QString hostname = cctx->GetHostName();
 
         if (nc->getArgCount() == 3)
         {
@@ -719,7 +720,7 @@ QString NetworkControl::processPlay(NetworkCommand *nc, int clientID)
                 m_gotAnswer = false;
 
                 MythEvent me(QString("MUSIC_COMMAND %1 GET_VOLUME").arg(hostname));
-                gCoreContext->dispatch(me);
+                cctx->dispatch(me);
 
                 QElapsedTimer timer;
                 timer.start();
@@ -739,7 +740,7 @@ QString NetworkControl::processPlay(NetworkCommand *nc, int clientID)
                 m_gotAnswer = false;
 
                 MythEvent me(QString("MUSIC_COMMAND %1 GET_METADATA").arg(hostname));
-                gCoreContext->dispatch(me);
+                cctx->dispatch(me);
 
                 QElapsedTimer timer;
                 timer.start();
@@ -759,7 +760,7 @@ QString NetworkControl::processPlay(NetworkCommand *nc, int clientID)
                 m_gotAnswer = false;
 
                 MythEvent me(QString("MUSIC_COMMAND %1 GET_STATUS").arg(hostname));
-                gCoreContext->dispatch(me);
+                cctx->dispatch(me);
 
                 QElapsedTimer timer;
                 timer.start();
@@ -961,6 +962,7 @@ QString NetworkControl::processPlay(NetworkCommand *nc, int clientID)
 
 QString NetworkControl::processQuery(NetworkCommand *nc)
 {
+    MythCoreContext *cctx = getCoreContext();
     QString result = "OK";
 
     if (nc->getArgCount() < 2)
@@ -987,7 +989,7 @@ QString NetworkControl::processQuery(NetworkCommand *nc)
             m_gotAnswer = false;
             QString message = QString("NETWORK_CONTROL QUERY POSITION");
             MythEvent me(message);
-            gCoreContext->dispatch(me);
+            cctx->dispatch(me);
 
             QElapsedTimer timer;
             timer.start();
@@ -1012,7 +1014,7 @@ QString NetworkControl::processQuery(NetworkCommand *nc)
     }
     else if (is_abbrev("version", nc->getArg(1)))
     {
-        int dbSchema = gCoreContext->GetNumSetting("DBSchemaVer");
+        int dbSchema = cctx->GetNumSetting("DBSchemaVer");
 
         return QString("VERSION: %1/%2 %3 %4 QT/%5 DBSchema/%6")
                        .arg(GetMythSourceVersion(),
@@ -1079,7 +1081,7 @@ QString NetworkControl::processQuery(NetworkCommand *nc)
         m_gotAnswer = false;
         QString message = QString("NETWORK_CONTROL QUERY VOLUME");
         MythEvent me(message);
-        gCoreContext->dispatch(me);
+        cctx->dispatch(me);
 
         QElapsedTimer timer;
         timer.start();
@@ -1631,7 +1633,7 @@ void NetworkControl::customEvent(QEvent *e)
             QStringList tokens = message.simplified().split(" ");
             if ((tokens.size() >= 4) &&
                 (tokens[1] == "ANSWER") &&
-                (tokens[2] == gCoreContext->GetHostName()))
+                (tokens[2] == getCoreContext()->GetHostName()))
             {
                 m_answer = tokens[3];
                 for (int i = 4; i < tokens.size(); i++)

@@ -114,11 +114,12 @@ void GrabberSettings::Init(void)
 
     // TODO
     // pull these values from MetaGrabberScript so we're not defining them in multiple locations
-    QString currentTVGrabber = gCoreContext->GetSetting("TelevisionGrabber",
+    MythCoreContext *cctx = getCoreContext();
+    QString currentTVGrabber = cctx->GetSetting("TelevisionGrabber",
                                          "metadata/Television/ttvdb4.py");
-    QString currentMovieGrabber = gCoreContext->GetSetting("MovieGrabber",
+    QString currentMovieGrabber = cctx->GetSetting("MovieGrabber",
                                          "metadata/Movie/tmdb3.py");
-    QString currentGameGrabber = gCoreContext->GetSetting("mythgame.MetadataGrabber",
+    QString currentGameGrabber = cctx->GetSetting("mythgame.MetadataGrabber",
                                          "metadata/Game/giantbomb.py");
 
     m_movieGrabberButtonList->SetValueByData(QVariant::fromValue(currentMovieGrabber));
@@ -126,22 +127,22 @@ void GrabberSettings::Init(void)
     m_gameGrabberButtonList->SetValueByData(QVariant::fromValue(currentGameGrabber));
 
     int updates =
-        gCoreContext->GetNumSetting("DailyArtworkUpdates", 0);
+        cctx->GetNumSetting("DailyArtworkUpdates", 0);
     if (updates == 1)
         m_dailyUpdatesCheck->SetCheckState(MythUIStateType::Full);
 }
 
 void GrabberSettings::slotSave(void)
 {
-    gCoreContext->SaveSettingOnHost("TelevisionGrabber", m_tvGrabberButtonList->GetDataValue().toString(), "");
-    gCoreContext->SaveSettingOnHost("MovieGrabber", m_movieGrabberButtonList->GetDataValue().toString(), "");
-    gCoreContext->SaveSetting("mythgame.MetadataGrabber", m_gameGrabberButtonList->GetDataValue().toString());
+    MythCoreContext *cctx = getCoreContext();
+    cctx->SaveSettingOnHost("TelevisionGrabber", m_tvGrabberButtonList->GetDataValue().toString(), "");
+    cctx->SaveSettingOnHost("MovieGrabber", m_movieGrabberButtonList->GetDataValue().toString(), "");
+    cctx->SaveSetting("mythgame.MetadataGrabber", m_gameGrabberButtonList->GetDataValue().toString());
 
     int dailyupdatestate = 0;
     if (m_dailyUpdatesCheck->GetCheckState() == MythUIStateType::Full)
         dailyupdatestate = 1;
-    gCoreContext->SaveSettingOnHost("DailyArtworkUpdates",
-                                    QString::number(dailyupdatestate), "");
+    cctx->SaveSettingOnHost("DailyArtworkUpdates", QString::number(dailyupdatestate), "");
 
     Close();
 }

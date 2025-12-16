@@ -55,10 +55,11 @@ bool ManualSchedule::Create(void)
         return false;
     }
 
-    QString startchan = gCoreContext->GetSetting("DefaultTVChannel", "");
-    QString chanorder = gCoreContext->GetSetting("ChannelOrdering", "channum");
-    QString lastManualRecordChan = gCoreContext->GetSetting("LastManualRecordChan", startchan);
-    int manStartChanType = gCoreContext->GetNumSetting("ManualRecordStartChanType", 1);
+    MythCoreContext *cctx = getCoreContext();
+    QString startchan = cctx->GetSetting("DefaultTVChannel", "");
+    QString chanorder = cctx->GetSetting("ChannelOrdering", "channum");
+    QString lastManualRecordChan = cctx->GetSetting("LastManualRecordChan", startchan);
+    int manStartChanType = cctx->GetNumSetting("ManualRecordStartChanType", 1);
     ChannelInfoList channels = ChannelUtil::GetChannels(0, true, "channum,callsign");
     ChannelUtil::SortChannels(channels, chanorder);
 
@@ -115,7 +116,7 @@ bool ManualSchedule::Create(void)
     m_starthourSpin->SetRange(0,23,1);
     m_starthourSpin->SetValue(thisTime.hour());
     int minute_increment =
-        gCoreContext->GetNumSetting("ManualScheduleMinuteIncrement", 5);
+        cctx->GetNumSetting("ManualScheduleMinuteIncrement", 5);
     m_startminuteSpin->SetRange(0, 60-minute_increment, minute_increment);
     m_startminuteSpin->SetValue((thisTime.minute()/5)*5);
     m_durationSpin->SetRange(5,1440,5);
@@ -249,7 +250,7 @@ void ManualSchedule::recordClicked(void)
 
     // Save the channel because we might want to use it as the
     // starting channel for the next Manual Record rule.
-    gCoreContext->SaveSetting("LastManualRecordChan",
+    getCoreContext()->SaveSetting("LastManualRecordChan",
         ChannelUtil::GetChanNum(m_chanids[m_channelList->GetCurrentPos()]));
 
     auto *record = new RecordingRule();

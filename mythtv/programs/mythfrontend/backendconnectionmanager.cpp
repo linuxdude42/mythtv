@@ -35,10 +35,11 @@ class Reconnect : public QRunnable
 
     void run(void) override // QRunnable
     {
-        if (!gCoreContext->SafeConnectToMasterServer(gCoreContext->IsBlockingClient()))
-            gCoreContext->dispatch(MythEvent(QString("RECONNECT_FAILURE")));
+        MythCoreContext *cctx = getCoreContext();
+        if (!cctx->SafeConnectToMasterServer(cctx->IsBlockingClient()))
+            cctx->dispatch(MythEvent(QString("RECONNECT_FAILURE")));
         else
-            gCoreContext->dispatch(MythEvent(QString("RECONNECT_SUCCESS")));
+            cctx->dispatch(MythEvent(QString("RECONNECT_SUCCESS")));
     }
 };
 
@@ -46,7 +47,7 @@ BackendConnectionManager::BackendConnectionManager()
   : m_reconnectTimer(new QTimer(this))
 {
     setObjectName("BackendConnectionManager");
-    gCoreContext->addListener(this);
+    getCoreContext()->addListener(this);
 
     uint reconnect_timeout = 1;
     m_reconnectTimer->setSingleShot(true);
@@ -59,7 +60,7 @@ BackendConnectionManager::~BackendConnectionManager()
 {
     while (m_reconnecting)
         std::this_thread::sleep_for(250ms);
-    gCoreContext->removeListener(this);
+    getCoreContext()->removeListener(this);
 }
 
 void BackendConnectionManager::customEvent(QEvent *event)

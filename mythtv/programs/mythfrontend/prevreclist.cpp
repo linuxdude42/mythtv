@@ -76,7 +76,7 @@ PrevRecordedList::PrevRecordedList(MythScreenStack *parent, uint recid,
     else
     {
         // Get sort options if this is not a filtered list
-        int flags = gCoreContext->GetNumSetting("PrevRecSortFlags",fDefault);
+        int flags = getCoreContext()->GetNumSetting("PrevRecSortFlags",fDefault);
         m_titleGroup = ((flags & fTitleGroup) != 0);
         m_reverseSort = ((flags & fReverseSort) != 0);
 
@@ -85,6 +85,7 @@ PrevRecordedList::PrevRecordedList(MythScreenStack *parent, uint recid,
 
 PrevRecordedList::~PrevRecordedList()
 {
+    MythCoreContext *cctx = getCoreContext();
     if (m_where.isEmpty())
     {
         // Save sort setting if this is not a filtered list
@@ -93,11 +94,11 @@ PrevRecordedList::~PrevRecordedList()
             flags |= fTitleGroup;
         if (m_reverseSort)
             flags |= fReverseSort;
-        gCoreContext->SaveSetting("PrevRecSortFlags", flags);
+        cctx->SaveSetting("PrevRecSortFlags", flags);
     }
     m_titleData.clear();
     m_showData.clear();
-    gCoreContext->removeListener(this);
+    cctx->removeListener(this);
 }
 
 bool PrevRecordedList::Create(void)
@@ -122,7 +123,7 @@ bool PrevRecordedList::Create(void)
     m_showList->SetLCDTitles(tr("Episodes"), "startdate|parttitle");
 
     BuildFocusList();
-    gCoreContext->addListener(this);
+    getCoreContext()->addListener(this);
     m_loadShows = false;
     LoadInBackground();
 
@@ -131,7 +132,7 @@ bool PrevRecordedList::Create(void)
 
 void PrevRecordedList::Init(void)
 {
-    gCoreContext->addListener(this);
+    getCoreContext()->addListener(this);
     connect(m_showList, &MythUIButtonList::itemSelected,
             this, &PrevRecordedList::updateInfo);
     connect(m_showList, &MythUIButtonList::LosingFocus,
@@ -270,7 +271,7 @@ bool PrevRecordedList::LoadDates(void)
         program->SetRecordingStartTime(starttime);
         QString date = QString("%1/%2")
             .arg(year,4,10,QChar('0')).arg(month,2,10,QChar('0'));
-        QLocale locale = gCoreContext->GetLocale()->ToQLocale();
+        QLocale locale = getCoreContext()->GetLocale()->ToQLocale();
         QString title = QString("%1 %2").
             arg(locale.monthName(month)).arg(year);
         program->SetTitle(title, date);

@@ -79,7 +79,7 @@ void ViewScheduleDiff::showStatus(MythUIButtonListItem */*item*/)
     if (!pi)
         return;
 
-    QString timeFormat = gCoreContext->GetSetting("TimeFormat", "h:mm AP");
+    QString timeFormat = getCoreContext()->GetSetting("TimeFormat", "h:mm AP");
 
     QString message = QString("%1 - %2  %3\n")
         .arg(pi->GetRecordingStartTime().toLocalTime().toString(timeFormat),

@@ -1418,7 +1418,7 @@ void MetadataOptions::OnImageSearchListSelection(const ArtworkInfo& info,
     auto *lookup = new MetadataLookup();
 
     lookup->SetType(kMetadataVideo);
-    lookup->SetHost(gCoreContext->GetMasterHostName());
+    lookup->SetHost(getCoreContext()->GetMasterHostName());
     lookup->SetAutomatic(true);
     lookup->SetData(QVariant::fromValue<VideoArtworkType>(type));
 
@@ -1441,7 +1441,7 @@ void MetadataOptions::SelectLocalFanart()
         return;
 
     QString url = StorageGroup::generate_file_url("Fanart",
-                  gCoreContext->GetMasterHostName(),
+                                                  getCoreContext()->GetMasterHostName(),
                   "");
     FindImagePopup(url,"",*this, "fanart");
 }
@@ -1452,7 +1452,7 @@ void MetadataOptions::SelectLocalCoverart()
         return;
 
     QString url = StorageGroup::generate_file_url("Coverart",
-                  gCoreContext->GetMasterHostName(),
+                                                  getCoreContext()->GetMasterHostName(),
                   "");
     FindImagePopup(url,"",*this, "coverart");
 }
@@ -1463,7 +1463,7 @@ void MetadataOptions::SelectLocalBanner()
         return;
 
     QString url = StorageGroup::generate_file_url("Banners",
-                  gCoreContext->GetMasterHostName(),
+                                                  getCoreContext()->GetMasterHostName(),
                   "");
     FindImagePopup(url,"",*this, "banner");
 }
@@ -1599,7 +1599,7 @@ MetadataLookup *MetadataOptions::CreateLookup(MetadataType mtype)
     }
     lookup->SetAllowGeneric(true);
     lookup->SetHandleImages(false);
-    lookup->SetHost(gCoreContext->GetMasterHostName());
+    lookup->SetHost(getCoreContext()->GetMasterHostName());
     lookup->SetTitle(m_recordingRule->m_title);
     lookup->SetSubtitle(m_recordingRule->m_subtitle);
     lookup->SetInetref(m_inetrefEdit->GetText());
@@ -1679,7 +1679,7 @@ void MetadataOptions::HandleDownloadedImages(MetadataLookup *lookup)
     }
 
     SetArtwork(m_inetrefEdit->GetText(), m_seasonSpin->GetIntValue(),
-               gCoreContext->GetMasterHostName(), m_artworkMap);
+               getCoreContext()->GetMasterHostName(), m_artworkMap);
 
     ValuesChanged();
 }
@@ -1910,7 +1910,7 @@ void MetadataOptions::customEvent(QEvent *levent)
         }
 
         SetArtwork(m_inetrefEdit->GetText(), m_seasonSpin->GetIntValue(),
-               gCoreContext->GetMasterHostName(), m_artworkMap);
+                   getCoreContext()->GetMasterHostName(), m_artworkMap);
 
         ValuesChanged();
     }
@@ -1927,7 +1927,7 @@ void MetadataOptions::customEvent(QEvent *levent)
 SchedOptMixin::SchedOptMixin(MythScreenType &screen, RecordingRule *rule,
                              SchedOptMixin *other)
     : m_screen(&screen), m_rule(rule), m_other(other),
-      m_haveRepeats(gCoreContext->GetBoolSetting("HaveRepeats", false))
+      m_haveRepeats(getCoreContext()->GetBoolSetting("HaveRepeats", false))
 {
 }
 
@@ -2762,6 +2762,7 @@ void PostProcMixin::Load(void)
     }
 
     // User Job #1
+    MythCoreContext *cctx = getCoreContext();
     if (m_userjob1Check)
     {
         if (!m_loaded)
@@ -2770,7 +2771,7 @@ void PostProcMixin::Load(void)
         UIUtilW::Assign(m_screen, userjob1Text, "userjob1text");
         if (userjob1Text)
             userjob1Text->SetText(QObject::tr("Run '%1'")
-                .arg(gCoreContext->GetSetting("UserJobDesc1", "User Job 1")));
+                .arg(cctx->GetSetting("UserJobDesc1", "User Job 1")));
         }
         m_userjob1Check->SetCheckState(m_rule->m_autoUserJob1);
     }
@@ -2784,7 +2785,7 @@ void PostProcMixin::Load(void)
         UIUtilW::Assign(m_screen, userjob2Text, "userjob2text");
         if (userjob2Text)
             userjob2Text->SetText(QObject::tr("Run '%1'")
-                .arg(gCoreContext->GetSetting("UserJobDesc2", "User Job 2")));
+                .arg(cctx->GetSetting("UserJobDesc2", "User Job 2")));
         }
         m_userjob2Check->SetCheckState(m_rule->m_autoUserJob2);
     }
@@ -2798,7 +2799,7 @@ void PostProcMixin::Load(void)
         UIUtilW::Assign(m_screen, userjob3Text, "userjob3text");
         if (userjob3Text)
             userjob3Text->SetText(QObject::tr("Run '%1'")
-                .arg(gCoreContext->GetSetting("UserJobDesc3", "User Job 3")));
+                .arg(cctx->GetSetting("UserJobDesc3", "User Job 3")));
         }
         m_userjob3Check->SetCheckState(m_rule->m_autoUserJob3);
     }
@@ -2812,7 +2813,7 @@ void PostProcMixin::Load(void)
         UIUtilW::Assign(m_screen, userjob4Text, "userjob4text");
         if (userjob4Text)
             userjob4Text->SetText(QObject::tr("Run '%1'")
-                .arg(gCoreContext->GetSetting("UserJobDesc4", "User Job 4")));
+                .arg(cctx->GetSetting("UserJobDesc4", "User Job 4")));
         }
         m_userjob4Check->SetCheckState(m_rule->m_autoUserJob4);
     }

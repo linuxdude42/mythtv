@@ -66,7 +66,9 @@ StandardSetting *GallerySettings::DirOrder() const
 }
 
 static void AddFormat(HostComboBoxSetting* gc, const QDateTime& date, const QString& format)
-{ gc->addSelection(gCoreContext->GetQLocale().toString(date, format), format); }
+{
+    gc->addSelection(getCoreContext()->GetQLocale().toString(date, format), format);
+}
 
 StandardSetting *GallerySettings::DateFormat() const
 {
@@ -169,7 +171,7 @@ StandardSetting *GallerySettings::ImageMaximumSize() const
 
 void GallerySettings::ImageSizeChanged ()
 {
-    int maxImageSize = gCoreContext->GetNumSetting("ImageMaximumSize", -1);
+    int maxImageSize = getCoreContext()->GetNumSetting("ImageMaximumSize", -1);
     if (maxImageSize < 0)
         maxImageSize = 128; // Restore Qt6 default
     QImageReader::setAllocationLimit(maxImageSize);

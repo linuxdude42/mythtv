@@ -50,7 +50,7 @@ AudioDeviceComboBox::AudioDeviceComboBox(AudioConfigSettings *parent) :
 #else
     QString dflt = "NULL";
 #endif
-    QString current = gCoreContext->GetSetting(QString("AudioOutputDevice"),
+    QString current = getCoreContext()->GetSetting(QString("AudioOutputDevice"),
                                                dflt);
     addSelection(current, current, true);
 
@@ -233,7 +233,7 @@ void AudioConfigSettings::Load()
     AudioRescan();
     // If this is the initial setup where there was nothing on the DB,
     // set changed so that user can save.
-    if (gCoreContext->GetSetting(QString("AudioOutputDevice"),"").isEmpty())
+    if (getCoreContext()->GetSetting(QString("AudioOutputDevice"),"").isEmpty())
         setChanged(true);
 }
 
@@ -333,15 +333,16 @@ AudioOutputSettings AudioConfigSettings::UpdateCapabilities(
             m_ac3PassThrough->boolValue();
         //bDTS  = settingsdigital.canFeature(FEATURE_DTS)  &&
         //    m_dtsPassThrough->boolValue();
+        MythCoreContext *cctx = getCoreContext();
         bLPCM = settings.canFeature(FEATURE_LPCM) &&
-            !gCoreContext->GetBoolSetting("StereoPCM", false);
+            !cctx->GetBoolSetting("StereoPCM", false);
         bEAC3 = settingsdigital.canFeature(FEATURE_EAC3) &&
-            !gCoreContext->GetBoolSetting("Audio48kOverride", false);
+            !cctx->GetBoolSetting("Audio48kOverride", false);
         bTRUEHD = settingsdigital.canFeature(FEATURE_TRUEHD) &&
-            !gCoreContext->GetBoolSetting("Audio48kOverride", false) &&
-            gCoreContext->GetBoolSetting("HBRPassthru", true);
+            !cctx->GetBoolSetting("Audio48kOverride", false) &&
+            cctx->GetBoolSetting("HBRPassthru", true);
         bDTSHD = settingsdigital.canFeature(FEATURE_DTSHD) &&
-            !gCoreContext->GetBoolSetting("Audio48kOverride", false);
+            !cctx->GetBoolSetting("Audio48kOverride", false);
 
         if (max_speakers > 2 && !bLPCM)
             max_speakers = 2;
@@ -767,7 +768,7 @@ AudioTest::AudioTest()
 {
     int channels = 2;
 
-    m_channels = gCoreContext->GetNumSetting("TestingChannels", channels);
+    m_channels = getCoreContext()->GetNumSetting("TestingChannels", channels);
     setLabel(tr("Audio Configuration Testing"));
     setHelpText(tr("Will play a test pattern on all configured "
                    "speakers"));
