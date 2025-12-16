@@ -138,27 +138,28 @@ ClassicCommDetector::ClassicCommDetector(SkipType commDetectMethod_in,
     m_fullSpeed(fullSpeed_in),
     m_showProgress(showProgress_in)
 {
+    MythCoreContext *cctx = getCoreContext();
     m_commDetectBlankFrameMaxDiff =
-        gCoreContext->GetNumSetting("CommDetectBlankFrameMaxDiff", 25);
+        cctx->GetNumSetting("CommDetectBlankFrameMaxDiff", 25);
     m_commDetectDarkBrightness =
-        gCoreContext->GetNumSetting("CommDetectDarkBrightness", 80);
+        cctx->GetNumSetting("CommDetectDarkBrightness", 80);
     m_commDetectDimBrightness =
-        gCoreContext->GetNumSetting("CommDetectDimBrightness", 120);
+        cctx->GetNumSetting("CommDetectDimBrightness", 120);
     m_commDetectBoxBrightness =
-        gCoreContext->GetNumSetting("CommDetectBoxBrightness", 30);
+        cctx->GetNumSetting("CommDetectBoxBrightness", 30);
     m_commDetectDimAverage =
-        gCoreContext->GetNumSetting("CommDetectDimAverage", 35);
+        cctx->GetNumSetting("CommDetectDimAverage", 35);
     m_commDetectMaxCommBreakLength =
-        gCoreContext->GetNumSetting("CommDetectMaxCommBreakLength", 395);
+        cctx->GetNumSetting("CommDetectMaxCommBreakLength", 395);
     m_commDetectMinCommBreakLength =
-        gCoreContext->GetNumSetting("CommDetectMinCommBreakLength", 60);
+        cctx->GetNumSetting("CommDetectMinCommBreakLength", 60);
     m_commDetectMinShowLength =
-        gCoreContext->GetNumSetting("CommDetectMinShowLength", 65);
+        cctx->GetNumSetting("CommDetectMinShowLength", 65);
     m_commDetectMaxCommLength =
-        gCoreContext->GetNumSetting("CommDetectMaxCommLength", 125);
+        cctx->GetNumSetting("CommDetectMaxCommLength", 125);
 
     m_commDetectBlankCanHaveLogo =
-        !!gCoreContext->GetBoolSetting("CommDetectBlankCanHaveLogo", true);
+        !!cctx->GetBoolSetting("CommDetectBlankCanHaveLogo", true);
 }
 
 void ClassicCommDetector::Init()
@@ -181,7 +182,7 @@ void ClassicCommDetector::Init()
     // source height =  720 gives border = 20 *  720 / 4 / 720 = 5
     // source height = 1080 gives border = 20 * 1080 / 4 / 720 = 7
     m_commDetectBorder =
-        gCoreContext->GetNumSetting("CommDetectBorder", 20) * m_height / 720;
+        getCoreContext()->GetNumSetting("CommDetectBorder", 20) * m_height / 720;
 
     m_currentAspect = COMM_ASPECT_WIDE;
 
@@ -300,6 +301,7 @@ bool ClassicCommDetector::go()
 
     Init();
 
+    MythCoreContext *cctx = getCoreContext();
     if (m_commDetectMethod & COMM_DETECT_LOGO)
     {
         // Use a different border for logo detection.
@@ -312,7 +314,7 @@ bool ClassicCommDetector::go()
         // Using the same border for both with no scaling seems to be
         // a good compromise.
         int logoDetectBorder =
-            gCoreContext->GetNumSetting("CommDetectLogoBorder", 16);
+            cctx->GetNumSetting("CommDetectLogoBorder", 16);
         m_logoDetector = new ClassicLogoDetector(this, m_width, m_height,
             logoDetectBorder);
 
@@ -339,7 +341,7 @@ bool ClassicCommDetector::go()
         return false;
 
     m_aggressiveDetection =
-        gCoreContext->GetBoolSetting("AggressiveCommDetect", true);
+        cctx->GetBoolSetting("AggressiveCommDetect", true);
 
     if (!m_player->InitVideo())
     {

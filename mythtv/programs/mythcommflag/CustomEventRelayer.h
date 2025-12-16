@@ -18,17 +18,17 @@ class CustomEventRelayer : public QObject
   public:
     explicit CustomEventRelayer(void (*fp_in)(QEvent*)) : m_fp(fp_in)
     {
-        gCoreContext->addListener(this);
+        getCoreContext()->addListener(this);
     }
 
     CustomEventRelayer()
     {
-        gCoreContext->addListener(this);
+        getCoreContext()->addListener(this);
     }
 
     virtual void deleteLater(void)
     {
-        gCoreContext->removeListener(this);
+        getCoreContext()->removeListener(this);
         QObject::deleteLater();
     }
 

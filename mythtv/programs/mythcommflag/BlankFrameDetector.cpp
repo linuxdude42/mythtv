@@ -394,7 +394,7 @@ BlankFrameDetector::BlankFrameDetector(std::shared_ptr<HistogramAnalyzer>ha,
      *      0: no debugging
      *      2: extra verbosity [O(nframes)]
      */
-    m_debugLevel = gCoreContext->GetNumSetting("BlankFrameDetectorDebugLevel", 0);
+    m_debugLevel = getCoreContext()->GetNumSetting("BlankFrameDetectorDebugLevel", 0);
 
     if (m_debugLevel >= 1)
         createDebugDirectory(debugdir,

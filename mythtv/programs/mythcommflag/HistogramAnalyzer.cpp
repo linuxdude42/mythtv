@@ -154,7 +154,7 @@ HistogramAnalyzer::HistogramAnalyzer(std::shared_ptr<PGMConverter> pgmc,
      *      0: no debugging
      *      1: cache frame information into debugdata [1 file]
      */
-    m_debugLevel = gCoreContext->GetNumSetting("HistogramAnalyzerDebugLevel", 0);
+    m_debugLevel = getCoreContext()->GetNumSetting("HistogramAnalyzerDebugLevel", 0);
 
     if (m_debugLevel >= 1)
     {

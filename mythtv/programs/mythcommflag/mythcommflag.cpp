@@ -316,7 +316,7 @@ static void commDetectorGotNewCommercialBreakList(void)
     LOG(VB_COMMFLAG, LOG_INFO,
         QString("mythcommflag sending update: %1").arg(message));
 
-    gCoreContext->SendMessage(message);
+    getCoreContext()->SendMessage(message);
 }
 
 static void incomingCustomEvent(QEvent* e)
@@ -414,7 +414,7 @@ static int DoFlagCommercials(
             "mythcommflag sending COMMFLAG_START notification");
         QString message = "COMMFLAG_START ";
         message += program_info->MakeUniqueKey();
-        gCoreContext->SendMessage(message);
+        getCoreContext()->SendMessage(message);
     }
 
     bool result = commDetector->go();
@@ -574,7 +574,8 @@ static int FlagCommercials(ProgramInfo *program_info, int jobid,
     int breaksFound = 0;
 
     // configure commercial detection method
-    SkipType commDetectMethod = (SkipType)gCoreContext->GetNumSetting(
+    MythCoreContext *cctx = getCoreContext();
+    SkipType commDetectMethod = (SkipType)cctx->GetNumSetting(
                                     "CommercialSkipMethod", COMM_DETECT_ALL);
 
     if (cmdline.toBool("commmethod"))
@@ -641,7 +642,7 @@ static int FlagCommercials(ProgramInfo *program_info, int jobid,
             if (commDetectMethod == COMM_DETECT_COMMFREE)
             {
                 // if the channel is commercial free, drop to the default instead
-                commDetectMethod = (SkipType)gCoreContext->GetNumSetting(
+                commDetectMethod = (SkipType)cctx->GetNumSetting(
                                     "CommercialSkipMethod", COMM_DETECT_ALL);
                 LOG(VB_COMMFLAG, LOG_INFO,
                         QString("Chanid %1 is marked as being Commercial Free, "
@@ -651,7 +652,7 @@ static int FlagCommercials(ProgramInfo *program_info, int jobid,
             else if (commDetectMethod == COMM_DETECT_UNINIT)
             {
                 // no value set, so use the database default
-                commDetectMethod = (SkipType)gCoreContext->GetNumSetting(
+                commDetectMethod = (SkipType)cctx->GetNumSetting(
                                      "CommercialSkipMethod", COMM_DETECT_ALL);
             }
             LOG(VB_COMMFLAG, LOG_INFO,
@@ -720,7 +721,7 @@ static int FlagCommercials(ProgramInfo *program_info, int jobid,
 
     auto flags = static_cast<PlayerFlags>(kAudioMuted | kVideoIsNull | kNoITV);
 
-    int flagfast = gCoreContext->GetNumSetting("CommFlagFast", 0);
+    int flagfast = cctx->GetNumSetting("CommFlagFast", 0);
     if (flagfast)
     {
         // Note: These additional flags replicate the intent of the original
@@ -748,7 +749,7 @@ static int FlagCommercials(ProgramInfo *program_info, int jobid,
     {
         if (program_info->GetRecordingEndTime() > MythDate::current())
         {
-            gCoreContext->ConnectToMasterServer();
+            cctx->ConnectToMasterServer();
 
             recorder = RemoteGetExistingRecorder(program_info);
             if (recorder && (recorder->GetRecorderNumber() != -1))
@@ -851,6 +852,7 @@ static int FlagCommercials(const QString& filename, int jobid,
 
 static int RebuildSeekTable(ProgramInfo *pginfo, int jobid, bool writefile = false)
 {
+    MythCoreContext *cctx = getCoreContext();
     QString filename = get_filename(pginfo);
 
     if (!DoesFileExist(pginfo))
@@ -860,7 +862,7 @@ static int RebuildSeekTable(ProgramInfo *pginfo, int jobid, bool writefile = fal
         // and try again
 
         filename = QString("myth://Videos@%1/%2")
-                            .arg(gCoreContext->GetHostName(), filename);
+            .arg(getCoreContext()->GetHostName(), filename);
         pginfo->SetPathname(filename);
         if (!DoesFileExist(pginfo))
         {
@@ -898,10 +900,10 @@ static int RebuildSeekTable(ProgramInfo *pginfo, int jobid, bool writefile = fal
     }
 
     if (writefile)
-        gCoreContext->RegisterFileForWrite(filename);
+        cctx->RegisterFileForWrite(filename);
     cfp->RebuildSeekTable(progress);
     if (writefile)
-        gCoreContext->UnregisterFileForWrite(filename);
+        cctx->UnregisterFileForWrite(filename);
 
     if (progress)
     {
@@ -1024,7 +1026,7 @@ int main(int argc, char *argv[])
             return GENERIC_EXIT_NO_RECORDING_DATA;
         }
         force = true;
-        int jobQueueCPU = gCoreContext->GetNumSetting("JobQueueCPU", 0);
+        int jobQueueCPU = getCoreContext()->GetNumSetting("JobQueueCPU", 0);
 
         if (jobQueueCPU < 2)
         {

@@ -104,7 +104,7 @@ SceneChangeDetector::SceneChangeDetector(std::shared_ptr<HistogramAnalyzer> ha,
      *      0: no debugging
      *      2: extra verbosity [O(nframes)]
      */
-    m_debugLevel = gCoreContext->GetNumSetting("SceneChangeDetectorDebugLevel", 0);
+    m_debugLevel = getCoreContext()->GetNumSetting("SceneChangeDetectorDebugLevel", 0);
 
     if (m_debugLevel >= 1)
     {

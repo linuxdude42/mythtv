@@ -24,7 +24,7 @@ using namespace commDetector2;
 
 BorderDetector::BorderDetector(void)
 {
-    m_debugLevel = gCoreContext->GetNumSetting("BorderDetectorDebugLevel", 0);
+    m_debugLevel = getCoreContext()->GetNumSetting("BorderDetectorDebugLevel", 0);
 
     if (m_debugLevel >= 1)
         LOG(VB_COMMFLAG, LOG_INFO,

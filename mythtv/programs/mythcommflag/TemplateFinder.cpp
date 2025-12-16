@@ -756,7 +756,7 @@ TemplateFinder::TemplateFinder(std::shared_ptr<PGMConverter> pgmc,
      *      2: extra verbosity [O(nframes)]
      *      3: dump frames into debugdir [O(nframes) files]
      */
-    m_debugLevel = gCoreContext->GetNumSetting("TemplateFinderDebugLevel", 0);
+    m_debugLevel = getCoreContext()->GetNumSetting("TemplateFinderDebugLevel", 0);
 
     if (m_debugLevel >= 1)
     {

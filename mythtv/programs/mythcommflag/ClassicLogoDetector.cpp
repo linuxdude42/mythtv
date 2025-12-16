@@ -43,24 +43,25 @@ ClassicLogoDetector::ClassicLogoDetector(ClassicCommDetector* commdetector,
       m_logoMask(new unsigned char[m_width * m_height]),
       m_logoCheckMask(new unsigned char[m_width * m_height])
 {
+    MythCoreContext *cctx = getCoreContext();
     m_commDetectLogoSamplesNeeded =
-        gCoreContext->GetNumSetting("CommDetectLogoSamplesNeeded", 240);
+        cctx->GetNumSetting("CommDetectLogoSamplesNeeded", 240);
     m_commDetectLogoSampleSpacing =
-        gCoreContext->GetNumSetting("CommDetectLogoSampleSpacing", 2);
+        cctx->GetNumSetting("CommDetectLogoSampleSpacing", 2);
     m_commDetectLogoGoodEdgeThreshold =
-        gCoreContext->GetSetting("CommDetectLogoGoodEdgeThreshold", "0.75")
+        cctx->GetSetting("CommDetectLogoGoodEdgeThreshold", "0.75")
         .toDouble();
     m_commDetectLogoBadEdgeThreshold =
-        gCoreContext->GetSetting("CommDetectLogoBadEdgeThreshold", "0.85")
+        cctx->GetSetting("CommDetectLogoBadEdgeThreshold", "0.85")
         .toDouble();
     m_commDetectLogoLocation =
-        gCoreContext->GetSetting("CommDetectLogoLocation", "");
+        cctx->GetSetting("CommDetectLogoLocation", "");
     m_commDetectLogoWidthRatio =
-        gCoreContext->GetNumSetting("CommDetectLogoWidthRatio", 4);
+        cctx->GetNumSetting("CommDetectLogoWidthRatio", 4);
     m_commDetectLogoHeightRatio =
-        gCoreContext->GetNumSetting("CommDetectLogoHeightRatio", 4);
+        cctx->GetNumSetting("CommDetectLogoHeightRatio", 4);
     m_commDetectLogoMinPixels =
-        gCoreContext->GetNumSetting("CommDetectLogoMinPixels", 50);
+        cctx->GetNumSetting("CommDetectLogoMinPixels", 50);
 }
 
 ClassicLogoDetector::~ClassicLogoDetector()

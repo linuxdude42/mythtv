@@ -321,7 +321,7 @@ TemplateMatcher::TemplateMatcher(std::shared_ptr<PGMConverter> pgmc,
      *      1: cache frame edge counts into debugdir [1 file]
      *      2: extra verbosity [O(nframes)]
      */
-    m_debugLevel = gCoreContext->GetNumSetting("TemplateMatcherDebugLevel", 0);
+    m_debugLevel = getCoreContext()->GetNumSetting("TemplateMatcherDebugLevel", 0);
 
     if (m_debugLevel >= 1)
     {
