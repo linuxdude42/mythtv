@@ -34,13 +34,14 @@ WelcomeDialog::WelcomeDialog(MythScreenStack *parent, const char *name)
                m_updateStatusTimer(new QTimer(this)),
                m_updateScreenTimer(new QTimer(this))
 {
-    gCoreContext->addListener(this);
+    MythCoreContext *cctx = getCoreContext();
+    cctx->addListener(this);
 
     m_appBinDir = GetAppBinDir();
-    m_preRollSeconds = gCoreContext->GetDurSetting<std::chrono::seconds>("RecordPreRoll");
+    m_preRollSeconds = cctx->GetDurSetting<std::chrono::seconds>("RecordPreRoll");
     m_idleWaitForRecordingTime =
-        gCoreContext->GetDurSetting<std::chrono::minutes>("idleWaitForRecordingTime", 15min);
-    m_idleTimeoutSecs = gCoreContext->GetDurSetting<std::chrono::seconds>("idleTimeoutSecs", 0s);
+        cctx->GetDurSetting<std::chrono::minutes>("idleWaitForRecordingTime", 15min);
+    m_idleTimeoutSecs = cctx->GetDurSetting<std::chrono::seconds>("idleTimeoutSecs", 0s);
 
     // if idleTimeoutSecs is 0, the user disabled the auto-shutdown feature
     m_willShutdown = (m_idleTimeoutSecs != 0s);
@@ -91,7 +92,7 @@ bool WelcomeDialog::Create(void)
 
 void WelcomeDialog::startFrontend(void)
 {
-    QString startFECmd = gCoreContext->GetSetting("MythWelcomeStartFECmd",
+    QString startFECmd = getCoreContext()->GetSetting("MythWelcomeStartFECmd",
                          m_appBinDir + "mythfrontend");
 
     // Ensure we use the same platform for mythfrontend
@@ -125,7 +126,7 @@ void WelcomeDialog::checkAutoStart(void)
     LOG(VB_GENERAL, LOG_NOTICE,
         QString("mythshutdown --startup returned: %1").arg(state));
 
-    bool bAutoStartFrontend = gCoreContext->GetBoolSetting("AutoStartFrontend", true);
+    bool bAutoStartFrontend = getCoreContext()->GetBoolSetting("AutoStartFrontend", true);
 
     if (state == 1 && bAutoStartFrontend)
         startFrontendClick();
@@ -195,15 +196,16 @@ void WelcomeDialog::customEvent(QEvent *e)
         {
             LOG(VB_GENERAL, LOG_NOTICE,
                 "MythWelcome received a SHUTDOWN_NOW event");
-            if (gCoreContext->IsFrontendOnly())
+            MythCoreContext *cctx = getCoreContext();
+            if (cctx->IsFrontendOnly())
             {
                 // does the user want to shutdown this frontend only machine
                 // when the BE shuts down?
-                if (gCoreContext->GetNumSetting("ShutdownWithMasterBE", 0) == 1)
+                if (cctx->GetNumSetting("ShutdownWithMasterBE", 0) == 1)
                 {
                      LOG(VB_GENERAL, LOG_NOTICE,
                          "MythWelcome is shutting this computer down now");
-                     QString poweroff_cmd = gCoreContext->GetSetting("MythShutdownPowerOff", "");
+                     QString poweroff_cmd = cctx->GetSetting("MythShutdownPowerOff", "");
                      if (!poweroff_cmd.isEmpty())
                          myth_system(poweroff_cmd, kMSDontBlockInputDevs);
                 }
@@ -282,7 +284,7 @@ bool WelcomeDialog::keyPressEvent(QKeyEvent *event)
         }
         else if (action == "STARTXTERM")
         {
-            QString cmd = gCoreContext->GetSetting("MythShutdownXTermCmd", "");
+            QString cmd = getCoreContext()->GetSetting("MythShutdownXTermCmd", "");
             if (!cmd.isEmpty())
                 myth_system(cmd, kMSDontBlockInputDevs);
         }
@@ -310,7 +312,7 @@ void WelcomeDialog::closeDialog()
 
 WelcomeDialog::~WelcomeDialog()
 {
-    gCoreContext->removeListener(this);
+    getCoreContext()->removeListener(this);
 
     if (m_updateStatusTimer)
         m_updateStatusTimer->disconnect();
@@ -330,7 +332,7 @@ void WelcomeDialog::updateScreen(void)
 {
     QString status;
 
-    if (!gCoreContext->IsConnectedToMaster())
+    if (!getCoreContext()->IsConnectedToMaster())
     {
         m_recordingText->SetText(tr("Cannot connect to server!"));
         m_scheduledText->SetText(tr("Cannot connect to server!"));
@@ -431,11 +433,12 @@ void WelcomeDialog::updateScreen(void)
 // taken from housekeeper.cpp
 void WelcomeDialog::runMythFillDatabase()
 {
+    MythCoreContext *cctx = getCoreContext();
     QString command;
 
-    QString mfpath = gCoreContext->GetSetting("MythFillDatabasePath",
-                                          "mythfilldatabase");
-    QString mfarg = gCoreContext->GetSetting("MythFillDatabaseArgs", "");
+    QString mfpath = cctx->GetSetting("MythFillDatabasePath",
+                                      "mythfilldatabase");
+    QString mfarg = cctx->GetSetting("MythFillDatabaseArgs", "");
 
     command = QString("%1 %2").arg(mfpath, mfarg);
     command += logPropagateArgs;
@@ -467,7 +470,7 @@ bool WelcomeDialog::updateRecordingList()
     m_isRecording = false;
     m_screenTunerNo = 0;
 
-    if (!gCoreContext->IsConnectedToMaster())
+    if (!getCoreContext()->IsConnectedToMaster())
         return false;
 
     m_isRecording = RemoteGetRecordingStatus(&m_tunerList, true);
@@ -487,7 +490,7 @@ bool WelcomeDialog::updateScheduledList()
     m_scheduledList.clear();
     m_screenScheduledNo = 0;
 
-    if (!gCoreContext->IsConnectedToMaster())
+    if (!getCoreContext()->IsConnectedToMaster())
     {
         updateStatusMessage();
         return false;
@@ -563,11 +566,12 @@ bool WelcomeDialog::checkConnectionToServer(void)
 
     bool bRes = false;
 
-    if (gCoreContext->IsConnectedToMaster())
+    MythCoreContext *cctx = getCoreContext();
+    if (cctx->IsConnectedToMaster())
         bRes = true;
     else
     {
-        if (gCoreContext->SafeConnectToMasterServer(false))
+        if (cctx->SafeConnectToMasterServer(false))
         {
             bRes = true;
             updateAll();
@@ -640,11 +644,12 @@ void WelcomeDialog::runEPGGrabber(void)
 void WelcomeDialog::shutdownNow(void)
 {
     // if this is a frontend only machine just shut down now
-    if (gCoreContext->IsFrontendOnly())
+    MythCoreContext *cctx = getCoreContext();
+    if (cctx->IsFrontendOnly())
     {
         LOG(VB_GENERAL, LOG_INFO,
             "MythWelcome is shutting this computer down now");
-        QString poweroff_cmd = gCoreContext->GetSetting("MythShutdownPowerOff", "");
+        QString poweroff_cmd = cctx->GetSetting("MythShutdownPowerOff", "");
         if (!poweroff_cmd.isEmpty())
             myth_system(poweroff_cmd, kMSDontBlockInputDevs);
         return;
@@ -685,16 +690,16 @@ void WelcomeDialog::shutdownNow(void)
     {
         QDateTime restarttime = m_nextRecordingStart.addSecs((-1) * m_preRollSeconds.count());
 
-        int add = gCoreContext->GetNumSetting("StartupSecsBeforeRecording", 240);
+        int add = cctx->GetNumSetting("StartupSecsBeforeRecording", 240);
         if (add)
             restarttime = restarttime.addSecs((-1LL) * add);
 
-        QString wakeup_timeformat = gCoreContext->GetSetting("WakeupTimeFormat",
-                                                            "yyyy-MM-ddThh:mm");
-        QString setwakeup_cmd = gCoreContext->GetSetting("SetWakeuptimeCommand",
-                                                        "echo \'Wakeuptime would "
-                                                        "be $time if command "
-                                                        "set.\'");
+        QString wakeup_timeformat = cctx->GetSetting("WakeupTimeFormat",
+                                                     "yyyy-MM-ddThh:mm");
+        QString setwakeup_cmd = cctx->GetSetting("SetWakeuptimeCommand",
+                                                 "echo \'Wakeuptime would "
+                                                 "be $time if command "
+                                                 "set.\'");
 
         if (wakeup_timeformat == "time_t")
         {

@@ -73,7 +73,7 @@ MythWelcomeSettings::MythWelcomeSettings()
     addChild(AutoStartFrontend());
 
     // this setting only makes sense on frontend only machines
-    if (gCoreContext->IsFrontendOnly())
+    if (getCoreContext()->IsFrontendOnly())
         addChild(ShutdownWithBE());
 }
 
