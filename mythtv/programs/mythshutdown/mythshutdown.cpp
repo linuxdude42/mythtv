@@ -187,7 +187,7 @@ static int unlockShutdown()
         MythDB::DBError("unlockShutdown -- unlock", query);
 
     // tell the master BE to reset its idle time
-    gCoreContext->SendMessage("RESET_IDLETIME");
+    getCoreContext()->SendMessage("RESET_IDLETIME");
 
     return 0;
 }
@@ -226,11 +226,12 @@ static QDateTime getDailyWakeupTime(const QString& sPeriod)
 
 static bool isRecording()
 {
-    if (!gCoreContext->IsConnectedToMaster())
+    MythCoreContext *cctx = getCoreContext();
+    if (!cctx->IsConnectedToMaster())
     {
         LOG(VB_GENERAL, LOG_INFO,
                 "isRecording: Attempting to connect to master server...");
-        if (!gCoreContext->ConnectToMasterServer(false))
+        if (!cctx->ConnectToMasterServer(false))
         {
             LOG(VB_STDIO|VB_FLUSH, LOG_ERR,
                 QObject::tr("Error: Could not connect to master server",
@@ -420,13 +421,14 @@ static void setWakeupTime(const QDateTime &wakeupTime)
 
 static int setScheduledWakeupTime()
 {
-    if (!gCoreContext->IsConnectedToMaster())
+    MythCoreContext *cctx = getCoreContext();
+    if (!cctx->IsConnectedToMaster())
     {
         LOG(VB_STDIO|VB_FLUSH, LOG_ERR,
             QObject::tr("Setting scheduled wakeup time: "
                         "Attempting to connect to master server...",
                         "mythshutdown") + "\n");
-        if (!gCoreContext->ConnectToMasterServer(false))
+        if (!cctx->ConnectToMasterServer(false))
         {
             LOG(VB_STDIO|VB_FLUSH, LOG_ERR,
                 QObject::tr("Setting scheduled wakeup time: "
@@ -442,11 +444,11 @@ static int setScheduledWakeupTime()
     // set the wakeup time for the next scheduled recording
     if (!nextRecordingStart.isNull())
     {
-        int m_preRollSeconds = gCoreContext->GetNumSetting("RecordPreRoll");
+        int m_preRollSeconds = cctx->GetNumSetting("RecordPreRoll");
         QDateTime restarttime = nextRecordingStart
             .addSecs((-1LL) * m_preRollSeconds);
 
-        int add = gCoreContext->GetNumSetting(
+        int add = cctx->GetNumSetting(
             "StartupSecsBeforeRecording", 240);
 
         if (add)
@@ -656,22 +658,23 @@ static int shutdown()
     //return 0;
 
     int shutdownmode = 0; // default to poweroff no reboot
+    MythCoreContext *cctx = getCoreContext();
     QString nvramRestartCmd =
-            gCoreContext->GetSetting("MythShutdownNvramRestartCmd", "");
+            cctx->GetSetting("MythShutdownNvramRestartCmd", "");
 
     if (dtWakeupTime.isValid())
     {
         // dont't shutdown if we are within idleWait mins of the next wakeup time
         std::chrono::seconds idleWaitForRecordingTime =
-            gCoreContext->GetDurSetting<std::chrono::minutes>("idleWaitForRecordingTime", 15min);
+            cctx->GetDurSetting<std::chrono::minutes>("idleWaitForRecordingTime", 15min);
         if (dtCurrent.secsTo(dtWakeupTime) > idleWaitForRecordingTime.count())
         {
             QString nvramCommand =
-                gCoreContext->GetSetting(
+                cctx->GetSetting(
                     "MythShutdownNvramCmd",
                     "/usr/bin/nvram-wakeup --settime $time");
 
-            QString wakeup_timeformat = gCoreContext->GetSetting(
+            QString wakeup_timeformat = cctx->GetSetting(
                 "MythShutdownWakeupTimeFmt", "time_t");
 
             if (wakeup_timeformat == "time_t")
@@ -733,7 +736,7 @@ static int shutdown()
             LOG(VB_STDIO|VB_FLUSH, LOG_ERR,
                 QObject::tr("everything looks fine, shutting down ...",
                             "mythshutdown") + "\n");
-            QString poweroffCmd = gCoreContext->GetSetting(
+            QString poweroffCmd = cctx->GetSetting(
                 "MythShutdownPoweroff", "/sbin/poweroff");
             LOG(VB_STDIO|VB_FLUSH, LOG_ERR,
                 "..\n.\n" + QObject::tr("shutting down", "mythshutdown") +
@@ -760,7 +763,7 @@ static int shutdown()
                 " ...\n");
 
             QString rebootCmd =
-                gCoreContext->GetSetting("MythShutdownReboot", "/sbin/reboot");
+                cctx->GetSetting("MythShutdownReboot", "/sbin/reboot");
             myth_system(rebootCmd);
             res = 0;
             break;
