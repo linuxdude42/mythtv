@@ -19,7 +19,7 @@ const QString MythNewsVersionName = "NewsDBSchemaVer";
 
 bool UpgradeNewsDatabaseSchema(void)
 {
-    QString dbver = gCoreContext->GetSetting("NewsDBSchemaVer");
+    QString dbver = getCoreContext()->GetSetting("NewsDBSchemaVer");
 
     if (dbver == currentDatabaseVersion)
         return true;

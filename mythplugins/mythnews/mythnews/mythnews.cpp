@@ -43,10 +43,12 @@
 MythNews::MythNews(MythScreenStack *parent, const QString &name) :
     MythScreenType(parent, name),
     m_retrieveTimer(new QTimer(this)),
-    m_updateFreq(gCoreContext->GetDurSetting<std::chrono::minutes>("NewsUpdateFrequency", 30min)),
-    m_zoom(gCoreContext->GetSetting("WebBrowserZoomLevel", "1.0")),
-    m_browser(gCoreContext->GetSetting("WebBrowserCommand", ""))
+    m_updateFreq(getCoreContext()->GetDurSetting<std::chrono::minutes>("NewsUpdateFrequency", 30min))
 {
+    MythCoreContext *cctx = getCoreContext();
+    m_zoom = cctx->GetSetting("WebBrowserZoomLevel", "1.0");
+    m_browser = cctx->GetSetting("WebBrowserCommand", "");
+
     // Setup cache directory
 
     QString fileprefix = GetConfDir();
