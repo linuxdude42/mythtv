@@ -224,7 +224,8 @@ int main(int argc, char *argv[])
 
     cmdline.ApplySettingsOverride();
 
-    QString themename = gCoreContext->GetSetting("Theme");
+    MythCoreContext *cctx = getCoreContext();
+    QString themename = cctx->GetSetting("Theme");
     QString themedir = GetMythUI()->FindThemeDir(themename);
     if (themedir.isEmpty())
     {
@@ -237,7 +238,7 @@ int main(int argc, char *argv[])
 #ifdef Q_OS_MACOS
     // Mac OS X doesn't define the AudioOutputDevice setting
 #else
-    QString auddevice = gCoreContext->GetSetting("AudioOutputDevice");
+    QString auddevice = cctx->GetSetting("AudioOutputDevice");
     if (auddevice.isEmpty())
     {
         LOG(VB_GENERAL, LOG_ERR, "Fatal Error: Audio not configured, you need "
