@@ -83,7 +83,7 @@ static int UpdateMeta(const MythUtilCommandLineParser &cmdline)
     }
 
     // tell any clients that the metadata for this track has changed
-    gCoreContext->SendMessage(QString("MUSIC_METADATA_CHANGED %1").arg(songID));
+    getCoreContext()->SendMessage(QString("MUSIC_METADATA_CHANGED %1").arg(songID));
 
     if (!ok)
         result = GENERIC_EXIT_NOT_OK;
@@ -138,12 +138,13 @@ static int ExtractImage(const MythUtilCommandLineParser &cmdline)
     }
 
     // find the tracks actual filename
-    StorageGroup musicGroup("Music", gCoreContext->GetHostName(), false);
+    MythCoreContext *cctx = getCoreContext();
+    StorageGroup musicGroup("Music", cctx->GetHostName(), false);
     QString trackFilename =  musicGroup.FindFile(mdata->Filename(false));
 
     // where are we going to save the image
     QString path;
-    StorageGroup artGroup("MusicArt", gCoreContext->GetHostName(), false);
+    StorageGroup artGroup("MusicArt", cctx->GetHostName(), false);
     QStringList dirList = artGroup.GetDirList();
     if (!dirList.empty())
         path = artGroup.FindNextDirMostFree();
@@ -176,7 +177,7 @@ static int ExtractImage(const MythUtilCommandLineParser &cmdline)
     delete tagger;
 
     // tell any clients that the albumart for this track has changed
-    gCoreContext->SendMessage(QString("MUSIC_ALBUMART_CHANGED %1 %2").arg(songID).arg(type));
+    cctx->SendMessage(QString("MUSIC_ALBUMART_CHANGED %1 %2").arg(songID).arg(type));
 
     return GENERIC_EXIT_OK;
 }
@@ -186,7 +187,7 @@ static int ScanMusic(const MythUtilCommandLineParser &cmdline)
     auto *fscan = new MusicFileScanner(cmdline.toBool("musicforce"));
     QStringList dirList;
 
-    if (!StorageGroup::FindDirs("Music", gCoreContext->GetHostName(), &dirList))
+    if (!StorageGroup::FindDirs("Music", getCoreContext()->GetHostName(), &dirList))
     {
         LOG(VB_GENERAL, LOG_ERR, "Failed to find any directories in the 'Music' storage group");
         delete fscan;
@@ -202,7 +203,7 @@ static int ScanMusic(const MythUtilCommandLineParser &cmdline)
 static int UpdateRadioStreams(const MythUtilCommandLineParser &/*cmdline*/)
 {
     // check we have the correct Music Schema Version (maybe the FE hasn't been run yet)
-    if (gCoreContext->GetNumSetting("MusicDBSchemaVer", 0) < 1024)
+    if (getCoreContext()->GetNumSetting("MusicDBSchemaVer", 0) < 1024)
     {
         LOG(VB_GENERAL, LOG_ERR, "Can't update the radio streams the DB schema hasn't been updated yet! Aborting");
         return GENERIC_EXIT_NOT_OK;
@@ -339,7 +340,7 @@ static int CalcTrackLength(const MythUtilCommandLineParser &cmdline)
         mdata->dumpToDatabase();
 
         // tell any clients that the metadata for this track has changed
-        gCoreContext->SendMessage(QString("MUSIC_METADATA_CHANGED %1").arg(songID));
+        getCoreContext()->SendMessage(QString("MUSIC_METADATA_CHANGED %1").arg(songID));
     }
     else
     {
@@ -385,6 +386,7 @@ static int FindLyrics(const MythUtilCommandLineParser &cmdline)
         return GENERIC_EXIT_INVALID_CMDLINE;
     }
 
+    MythCoreContext *cctx = getCoreContext();
     int songID = cmdline.toInt("songid");
     QString grabberName = "ALL";
     QString lyricsFile;
@@ -440,7 +442,7 @@ static int FindLyrics(const MythUtilCommandLineParser &cmdline)
                 }
 
                 // tell any clients that a lyrics file is available for this track
-                gCoreContext->SendMessage(QString("MUSIC_LYRICS_FOUND %1 %2").arg(songID).arg(lyrics));
+                cctx->SendMessage(QString("MUSIC_LYRICS_FOUND %1 %2").arg(songID).arg(lyrics));
 
                 return GENERIC_EXIT_OK;
             }
@@ -484,7 +486,7 @@ static int FindLyrics(const MythUtilCommandLineParser &cmdline)
     if (!d.exists())
     {
         LOG(VB_GENERAL, LOG_ERR, QString("Cannot find lyric scripts directory: %1").arg(scriptDir));
-        gCoreContext->SendMessage(QString("MUSIC_LYRICS_ERROR NO_SCRIPTS_DIR"));
+        cctx->SendMessage(QString("MUSIC_LYRICS_ERROR NO_SCRIPTS_DIR"));
         return GENERIC_EXIT_NOT_OK;
     }
 
@@ -494,7 +496,7 @@ static int FindLyrics(const MythUtilCommandLineParser &cmdline)
     if (list.isEmpty())
     {
         LOG(VB_GENERAL, LOG_ERR, QString("Cannot find any lyric scripts in: %1").arg(scriptDir));
-        gCoreContext->SendMessage(QString("MUSIC_LYRICS_ERROR NO_SCRIPTS_FOUND"));
+        cctx->SendMessage(QString("MUSIC_LYRICS_ERROR NO_SCRIPTS_FOUND"));
         return GENERIC_EXIT_NOT_OK;
     }
 
@@ -567,7 +569,7 @@ static int FindLyrics(const MythUtilCommandLineParser &cmdline)
 
         LOG(VB_GENERAL, LOG_NOTICE, QString("Trying grabber: %1, Priority: %2").arg(grabber.m_name).arg(grabber.m_priority));
         QString statusMessage = QObject::tr("Searching '%1' for lyrics...").arg(grabber.m_name);
-        gCoreContext->SendMessage(QString("MUSIC_LYRICS_STATUS %1 %2").arg(songID).arg(statusMessage));
+        cctx->SendMessage(QString("MUSIC_LYRICS_STATUS %1 %2").arg(songID).arg(statusMessage));
 
         QProcess p;
         QStringList args { grabber.m_filename,
@@ -598,13 +600,13 @@ static int FindLyrics(const MythUtilCommandLineParser &cmdline)
                 }
             }
 
-            gCoreContext->SendMessage(QString("MUSIC_LYRICS_FOUND %1 %2").arg(songID).arg(result));
+            cctx->SendMessage(QString("MUSIC_LYRICS_FOUND %1 %2").arg(songID).arg(result));
             return GENERIC_EXIT_OK;
         }
     }
 
     // if we got here we didn't find any lyrics
-    gCoreContext->SendMessage(QString("MUSIC_LYRICS_NOTFOUND %1").arg(songID));
+    cctx->SendMessage(QString("MUSIC_LYRICS_NOTFOUND %1").arg(songID));
 
     return GENERIC_EXIT_OK;
 }

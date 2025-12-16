@@ -19,11 +19,12 @@ static int RawSendEvent(const QStringList &eventStringList)
     if (eventStringList.isEmpty() || eventStringList[0].isEmpty())
         return GENERIC_EXIT_INVALID_CMDLINE;
 
-    if (gCoreContext->ConnectToMasterServer(false, false))
+    MythCoreContext *cctx = getCoreContext();
+    if (cctx->ConnectToMasterServer(false, false))
     {
         QStringList message("MESSAGE");
         message << eventStringList;
-        gCoreContext->SendReceiveStringList(message);
+        cctx->SendReceiveStringList(message);
         return GENERIC_EXIT_OK;
     }
     return GENERIC_EXIT_CONNECT_ERROR;
@@ -31,9 +32,10 @@ static int RawSendEvent(const QStringList &eventStringList)
 
 static int ClearSettingsCache(const MythUtilCommandLineParser &/*cmdline*/)
 {
-    if (gCoreContext->ConnectToMasterServer(false, false))
+    MythCoreContext *cctx = getCoreContext();
+    if (cctx->ConnectToMasterServer(false, false))
     {
-        gCoreContext->SendMessage("CLEAR_SETTINGS_CACHE");
+        cctx->SendMessage("CLEAR_SETTINGS_CACHE");
         LOG(VB_GENERAL, LOG_INFO, "Sent CLEAR_SETTINGS_CACHE message");
         return GENERIC_EXIT_OK;
     }
@@ -52,12 +54,12 @@ static int SendSystemEvent(const MythUtilCommandLineParser &cmdline)
 {
     return RawSendEvent(QStringList(QString("SYSTEM_EVENT %1 SENDER %2")
                                     .arg(cmdline.toString("systemevent"),
-                                         gCoreContext->GetHostName())));
+                                         getCoreContext()->GetHostName())));
 }
 
 static int Reschedule(const MythUtilCommandLineParser &/*cmdline*/)
 {
-    if (gCoreContext->ConnectToMasterServer(false, false))
+    if (getCoreContext()->ConnectToMasterServer(false, false))
     {
         ScheduledRecording::RescheduleMatch(0, 0, 0, QDateTime(),
                                             "MythUtilCommand");
@@ -71,9 +73,10 @@ static int Reschedule(const MythUtilCommandLineParser &/*cmdline*/)
 
 static int ScanImages(const MythUtilCommandLineParser &/*cmdline*/)
 {
-    if (gCoreContext->ConnectToMasterServer(false, false))
+    MythCoreContext *cctx = getCoreContext();
+    if (cctx->ConnectToMasterServer(false, false))
     {
-        gCoreContext->SendReceiveStringList(QStringList() << "IMAGE_SCAN");
+        cctx->SendReceiveStringList(QStringList() << "IMAGE_SCAN");
         LOG(VB_GENERAL, LOG_INFO, "Requested image scan");
         return GENERIC_EXIT_OK;
     }
@@ -84,9 +87,10 @@ static int ScanImages(const MythUtilCommandLineParser &/*cmdline*/)
 
 static int ScanVideos(const MythUtilCommandLineParser &/*cmdline*/)
 {
-    if (gCoreContext->ConnectToMasterServer(false, false))
+    MythCoreContext *cctx = getCoreContext();
+    if (cctx->ConnectToMasterServer(false, false))
     {
-        gCoreContext->SendReceiveStringList(QStringList() << "SCAN_VIDEOS");
+        cctx->SendReceiveStringList(QStringList() << "SCAN_VIDEOS");
         LOG(VB_GENERAL, LOG_INFO, "Requested video scan");
         return GENERIC_EXIT_OK;
     }
