@@ -211,21 +211,21 @@ void EditRomInfoDialog::ToggleFavorite()
 
 void EditRomInfoDialog::FindScreenshot()
 {
-    FindImagePopup(gCoreContext->GetSetting("mythgame.screenshotDir"),
+    FindImagePopup(getCoreContext()->GetSetting("mythgame.screenshotDir"),
             GetConfDir() + "/MythGame/Screenshots",
             *this, CEID_SCREENSHOTFILE);
 }
 
 void EditRomInfoDialog::FindFanart()
 {
-    FindImagePopup(gCoreContext->GetSetting("mythgame.fanartDir"),
+    FindImagePopup(getCoreContext()->GetSetting("mythgame.fanartDir"),
             GetConfDir() + "/MythGame/Fanart",
             *this, CEID_FANARTFILE);
 }
 
 void EditRomInfoDialog::FindBoxart()
 {
-    FindImagePopup(gCoreContext->GetSetting("mythgame.boxartDir"),
+    FindImagePopup(getCoreContext()->GetSetting("mythgame.boxartDir"),
             GetConfDir() + "/MythGame/Boxart",
             *this, CEID_BOXARTFILE);
 }

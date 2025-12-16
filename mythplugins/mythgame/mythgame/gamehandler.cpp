@@ -408,9 +408,10 @@ void GameHandler::UpdateGameDB(GameHandler *handler)
     QString Boxart;
     QString ScreenShot;
 
-    int removalprompt = gCoreContext->GetSetting("GameRemovalPrompt").toInt();
-    int indepth = gCoreContext->GetSetting("GameDeepScan").toInt();
-    QString screenShotPath = gCoreContext->GetSetting("mythgame.screenshotdir");
+    MythCoreContext *cctx = getCoreContext();
+    int removalprompt = cctx->GetSetting("GameRemovalPrompt").toInt();
+    int indepth = cctx->GetSetting("GameDeepScan").toInt();
+    QString screenShotPath = cctx->GetSetting("mythgame.screenshotdir");
 
     for (const auto & game : std::as_const(m_gameMap))
     {
@@ -506,7 +507,7 @@ void GameHandler::UpdateGameDB(GameHandler *handler)
     {
         m_progressDlg->Close();
         m_progressDlg = nullptr;
-}
+    }
 }
 
 void GameHandler::VerifyGameDB(GameHandler *handler)

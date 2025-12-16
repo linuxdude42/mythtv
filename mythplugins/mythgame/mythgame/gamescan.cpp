@@ -26,7 +26,7 @@ class MythUIProgressDialog;
 
 GameScannerThread::GameScannerThread(void) :
     MThread("GameScanner"),
-    m_hasGUI(gCoreContext->HasGUI())
+    m_hasGUI(getCoreContext()->HasGUI())
 {
 }
 
@@ -201,7 +201,7 @@ void GameScanner::doScan(QList<GameHandler*> handlers)
     if (m_scanThread->isRunning())
         return;
 
-    if (gCoreContext->HasGUI())
+    if (getCoreContext()->HasGUI())
     {
         MythScreenStack *popupStack = GetMythMainWindow()->GetStack("popup stack");
 

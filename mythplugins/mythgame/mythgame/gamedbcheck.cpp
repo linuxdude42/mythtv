@@ -86,7 +86,8 @@ static bool InitializeDatabase(void)
 
 bool UpgradeGameDatabaseSchema(void)
 {
-    QString dbver = gCoreContext->GetSetting("GameDBSchemaVer");
+    MythCoreContext *cctx = getCoreContext();
+    QString dbver = cctx->GetSetting("GameDBSchemaVer");
     MSqlQuery query(MSqlQuery::InitCon());
 
     if (dbver == currentDatabaseVersion)
@@ -150,7 +151,7 @@ bool UpgradeGameDatabaseSchema(void)
     if (dbver == "1006")
     {
 
-        if (!gCoreContext->GetSetting("GameAllTreeLevels").isEmpty())
+        if (!cctx->GetSetting("GameAllTreeLevels").isEmpty())
         {
             if (!query.exec("UPDATE settings SET data = 'system gamename' "
                             "WHERE value = 'GameAllTreeLevels'; "))
