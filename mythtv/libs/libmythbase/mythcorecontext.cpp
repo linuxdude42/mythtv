@@ -54,7 +54,11 @@
 
 #define LOC      QString("MythCoreContext::%1(): ").arg(__func__)
 
-MythCoreContext *gCoreContext = nullptr;
+namespace {
+    // Make variables local to this file.
+    MythCoreContext *gCoreContext = nullptr;
+}
+
 MythCoreContext *createCoreContext(const QString &binversion, QObject *guiContext)
 {
     gCoreContext = new MythCoreContext(binversion, guiContext);
@@ -62,9 +66,9 @@ MythCoreContext *createCoreContext(const QString &binversion, QObject *guiContex
 }
 MythCoreContext *getCoreContext()
 {
-#ifndef NDEBUG
-    assert(gCoreContext != nullptr);
-#endif
+// #ifndef NDEBUG
+//     assert(gCoreContext != nullptr);
+// #endif
     return gCoreContext;
 }
 void deleteCoreContext()
