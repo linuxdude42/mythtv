@@ -59,7 +59,7 @@ static bool resetTheme(QString themedir, const QString badtheme)
         QString("Overriding broken theme '%1' with '%2'")
                 .arg(badtheme).arg(themename));
 
-    gCoreContext->OverrideSettingForSession("Theme", themename);
+    getCoreContext()->OverrideSettingForSession("Theme", themename);
     themedir = GetMythUI()->FindThemeDir(themename);
 
     MythTranslation::reload();
@@ -123,26 +123,27 @@ int main(int argc, char **argv)
         return GENERIC_EXIT_NO_MYTHCONTEXT;
     }
 
-    if (gCoreContext->GetBoolSetting("RunFrontendInWindow"))
+    MythCoreContext *cctx = getCoreContext();
+    if (cctx->GetBoolSetting("RunFrontendInWindow"))
     {
         LOG(VB_GENERAL, LOG_WARNING, LOC +
                     "Refusing to run screen setup wizard in windowed mode.");
         return GENERIC_EXIT_NOT_OK;
     }
 
-    int GuiOffsetX = gCoreContext->GetNumSetting("GuiOffsetX", 0);
-    int GuiOffsetY = gCoreContext->GetNumSetting("GuiOffsetY", 0);
-    int GuiWidth   = gCoreContext->GetNumSetting("GuiWidth", 0);
-    int GuiHeight  = gCoreContext->GetNumSetting("GuiHeight", 0);
+    int GuiOffsetX = cctx->GetNumSetting("GuiOffsetX", 0);
+    int GuiOffsetY = cctx->GetNumSetting("GuiOffsetY", 0);
+    int GuiWidth   = cctx->GetNumSetting("GuiWidth", 0);
+    int GuiHeight  = cctx->GetNumSetting("GuiHeight", 0);
 
-    gCoreContext->OverrideSettingForSession("GuiOffsetX", "0");
-    gCoreContext->OverrideSettingForSession("GuiOffsetY", "0");
-    gCoreContext->OverrideSettingForSession("GuiWidth",   "0");
-    gCoreContext->OverrideSettingForSession("GuiHeight",  "0");
+    cctx->OverrideSettingForSession("GuiOffsetX", "0");
+    cctx->OverrideSettingForSession("GuiOffsetY", "0");
+    cctx->OverrideSettingForSession("GuiWidth",   "0");
+    cctx->OverrideSettingForSession("GuiHeight",  "0");
 
     cmdline.ApplySettingsOverride();
 
-    QString themename = gCoreContext->GetSetting("Theme", DEFAULT_UI_THEME);
+    QString themename = cctx->GetSetting("Theme", DEFAULT_UI_THEME);
     QString themedir = GetMythUI()->FindThemeDir(themename);
     if (themedir.isEmpty())
     {
@@ -166,7 +167,7 @@ int main(int argc, char **argv)
 */
 
 /* I don't think we need to connect to the backend
-    if (!gCoreContext->ConnectToMasterServer())
+    if (!cctx->ConnectToMasterServer())
     {
         LOG(VB_GENERAL, LOG_ERR, LOC + "Failed to connect to master server");
         return GENERIC_EXIT_CONNECT_ERROR;

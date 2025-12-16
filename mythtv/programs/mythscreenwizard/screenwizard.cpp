@@ -310,19 +310,21 @@ void ScreenWizard::slotChangeCoarseFine()
 void ScreenWizard::slotSaveSettings() const
 {
     LOG(VB_GENERAL, LOG_ERR, "Updating screen size settings");
-    gCoreContext->SaveSetting("GuiOffsetX", m_topLeftX);
-    gCoreContext->SaveSetting("GuiOffsetY", m_topLeftY);
-    gCoreContext->SaveSetting("GuiWidth", m_bottomRightX - m_topLeftX);
-    gCoreContext->SaveSetting("GuiHeight", m_bottomRightY - m_topLeftY);
+    MythCoreContext *cctx = getCoreContext();
+    cctx->SaveSetting("GuiOffsetX", m_topLeftX);
+    cctx->SaveSetting("GuiOffsetY", m_topLeftY);
+    cctx->SaveSetting("GuiWidth", m_bottomRightX - m_topLeftX);
+    cctx->SaveSetting("GuiHeight", m_bottomRightY - m_topLeftY);
     qApp->quit();
 }
 
 void ScreenWizard::slotResetSettings()
 {
-    gCoreContext->SaveSetting("GuiOffsetX", 0);
-    gCoreContext->SaveSetting("GuiOffsetY", 0);
-    gCoreContext->SaveSetting("GuiWidth", 0);
-    gCoreContext->SaveSetting("GuiHeight", 0);
+    MythCoreContext *cctx = getCoreContext();
+    cctx->SaveSetting("GuiOffsetX", 0);
+    cctx->SaveSetting("GuiOffsetY", 0);
+    cctx->SaveSetting("GuiWidth", 0);
+    cctx->SaveSetting("GuiHeight", 0);
     qApp->quit();
 }
 
