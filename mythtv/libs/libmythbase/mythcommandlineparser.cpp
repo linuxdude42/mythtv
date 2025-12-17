@@ -2666,7 +2666,7 @@ void MythCommandLineParser::addLogging(
         ((defaultLogLevel >= LOG_UNKNOWN) || (defaultLogLevel <= LOG_ANY)) ?
         LOG_INFO : defaultLogLevel;
 
-    QString logLevelStr = logLevelGetName(defaultLogLevel);
+    QString logLevelStr = Logging::levelToName(defaultLogLevel);
 
     add(QStringList{"-v", "--verbose"}, "verbose",
         defaultVerbosity,
@@ -2817,7 +2817,7 @@ int MythCommandLineParser::GetSyslogFacility(void) const
     if (setting == "none")
         return -2;
 
-    return syslogGetFacility(setting);
+    return Logging::syslogGetFacility(setting);
 }
 
 /** \brief Helper utility for logging interface to filtering level
@@ -2828,7 +2828,7 @@ LogLevel_t MythCommandLineParser::GetLogLevel(void) const
     if (setting.isEmpty())
         return LOG_INFO;
 
-    LogLevel_t level = logLevelGet(setting);
+    LogLevel_t level = Logging::nameToLevel(setting);
     if (level == LOG_UNKNOWN)
         std::cerr << "Unknown log level: " << setting.toLocal8Bit().constData()
                   << std::endl;
@@ -2877,11 +2877,11 @@ int MythCommandLineParser::ConfigureLogging(const QString& mask, bool progress)
 {
     // Setup the defaults
     Logging::initialize();
-    verboseArgParse(mask);
+    Logging::verboseArgParse(mask);
 
     if (toBool("verbose"))
     {
-        int err = verboseArgParse(toString("verbose"));
+        int err = Logging::verboseArgParse(toString("verbose"));
         if (err != 0)
             return err;
     }
@@ -2896,7 +2896,7 @@ int MythCommandLineParser::ConfigureLogging(const QString& mask, bool progress)
     if (std::max(quiet, static_cast<int>(progress)) > 1)
     {
         Logging::setVerboseMask(VB_NONE|VB_FLUSH);
-        verboseArgParse("none");
+        Logging::verboseArgParse("none");
     }
 
     bool loglong = toBool("loglong");
@@ -2932,7 +2932,7 @@ int MythCommandLineParser::ConfigureLogging(const QString& mask, bool progress)
     if (toBool("daemon"))
         quiet = std::max(quiet, 1);
 
-    logStart(logfile, progress, quiet, facility, level, propagate, loglong);
+    Logging::start(logfile, progress, quiet, facility, level, propagate, loglong);
     qInstallMessageHandler([](QtMsgType /*unused*/, const QMessageLogContext& /*unused*/, const QString &Msg)
         { LOG(VB_GENERAL, LOG_INFO, "Qt: " + Msg); });
 

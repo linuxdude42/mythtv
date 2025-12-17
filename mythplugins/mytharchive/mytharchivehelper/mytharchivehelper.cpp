@@ -2544,6 +2544,6 @@ static int main_local(int argc, char **argv)
 int main(int argc, char **argv)
 {
     int result = main_local(argc, argv);
-    logStop();
+    Logging::stop();
     return result;
 }

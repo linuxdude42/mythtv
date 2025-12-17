@@ -144,7 +144,7 @@ int main(int argc, char *argv[])
 
     delete process;
     delete control;
-    logStop();
+    Logging::stop();
 
     LOG(VB_GENERAL, LOG_WARNING, "Finished.");
 

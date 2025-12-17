@@ -1146,7 +1146,7 @@ QString NetworkControl::processSet(NetworkCommand *nc)
         QString oldVerboseString = Logging::getVerboseString();
         QString result = "OK";
 
-        int pva_result = verboseArgParse(nc->getArg(2));
+        int pva_result = Logging::verboseArgParse(nc->getArg(2));
 
         if (pva_result != 0 /*GENERIC_EXIT_OK */)
             result = "Failed";

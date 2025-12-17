@@ -16,6 +16,16 @@ class MBASE_PUBLIC Logging
   public:
     /// Initialize the MythTV logging code.
     static void initialize();
+    // Start up the MythTV logging code.  This should only be called
+    // once from MythCommandLineParser::ConfigureLogging.
+    static void start(const QString& logfile, bool progress = false,
+                      int quiet = 0,
+                      int facility = 0, LogLevel_t level = LOG_INFO,
+                      bool propagate = false,
+                      bool loglong = false,
+                      bool testHarness = false);
+    // Shut down the MythTV logging code.
+    static void stop(void);
 
     /// Get the current global logging level.
     static LogLevel_t getLogLevel();
@@ -29,6 +39,8 @@ class MBASE_PUBLIC Logging
     static void setVerboseMask(uint64_t mask);
     /// Add to the mask of all components being logged.
     static void addVerboseMask(uint64_t mask);
+    // Parse the --verbose commandline argument
+    static int verboseArgParse(const QString& arg);
     /// Get the list of all components being logged as a string.
     static QString getVerboseString();
 
@@ -36,6 +48,24 @@ class MBASE_PUBLIC Logging
     static QString getPropagateArgs();
     /// Get the list of logging arguments to pass to child processes.
     static QStringList getPropagateArgList();
+    // Generate the logPropagateArgs value.
+    static void propagateCalc(void);
+    // Is a --quiet argument baing propagated
+    static bool propagateQuiet(void);
+
+    // Map a log level name back to the enumerated value
+    static LogLevel_t nameToLevel(const QString& level);
+    // Map a log level enumerated value back to the name
+    static QString levelToName(LogLevel_t level);
+    // Map a syslog facility name back to the enumerated value
+    static int syslogGetFacility(const QString& facility);
+
+    /// Verbose helper function for ENO macro
+    static QString logStrerror(int errnum);
+
+  protected:
+    /// Helper function for the logging test code.
+    static void resetLogging(void);
 };
 
 /* Define the external prototype */
@@ -61,32 +91,12 @@ extern MBASE_PUBLIC bool VERBOSE_LEVEL_CHECK(uint64_t mask, LogLevel_t level);
         }                                                               \
     } while (false)
 
-MBASE_PUBLIC void resetLogging(void);
-
-MBASE_PUBLIC void logStart(const QString& logfile, bool progress = false,
-                           int quiet = 0,
-                           int facility = 0, LogLevel_t level = LOG_INFO,
-                           bool propagate = false,
-                           bool loglong = false,
-                           bool testHarness = false);
-MBASE_PUBLIC void logStop(void);
-MBASE_PUBLIC void logPropagateCalc(void);
-MBASE_PUBLIC bool logPropagateQuiet(void);
-
-MBASE_PUBLIC int  syslogGetFacility(const QString& facility);
-MBASE_PUBLIC LogLevel_t logLevelGet(const QString& level);
-MBASE_PUBLIC QString logLevelGetName(LogLevel_t level);
-MBASE_PUBLIC int verboseArgParse(const QString& arg);
-
-/// Verbose helper function for ENO macro
-MBASE_PUBLIC QString logStrerror(int errnum);
-
 /// This can be appended to the LOG args with
 /// "+".  Please do not use "<<".  It uses
 /// a thread safe version of strerror to produce the
 /// string representation of errno and puts it on the
 /// next line in the verbose output.
-#define ENO (QString("\n\t\t\teno: ") + logStrerror(errno))
+#define ENO (QString("\n\t\t\teno: ") + Logging::logStrerror(errno))
 #define ENO_STR ENO.toLocal8Bit().constData()
 
 inline QString pointerToQString(const void *p)

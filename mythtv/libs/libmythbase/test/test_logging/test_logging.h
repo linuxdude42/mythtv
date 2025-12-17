@@ -30,10 +30,10 @@ private slots:
     static void initialize(void);
     static void test_syslogGetFacility_data(void);
     static void test_syslogGetFacility(void);
-    static void test_logLevelGet_data(void);
-    static void test_logLevelGet(void);
-    static void test_logLevelGetName_data(void);
-    static void test_logLevelGetName(void);
+    static void test_nameToLevel_data(void);
+    static void test_nameToLevel(void);
+    static void test_levelToName_data(void);
+    static void test_levelToName(void);
     static void test_verboseArgParse_kwd_data(void);
     static void test_verboseArgParse_kwd(void);
     static void test_verboseArgParse_twice(void);

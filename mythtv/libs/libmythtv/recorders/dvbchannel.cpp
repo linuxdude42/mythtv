@@ -1560,7 +1560,7 @@ void DVBChannel::DrainDVBEvents(void)
     if ((ret < 0) && (EAGAIN != errno) && (EWOULDBLOCK != errno) && (EOVERFLOW != errno))
     {
         LOG(VB_CHANNEL, LOG_ERR, LOC +
-            QString("%1 FE_GET_EVENT failed: ").arg(__func__) + logStrerror(errno));
+            QString("%1 FE_GET_EVENT failed: ").arg(__func__) + Logging::logStrerror(errno));
     }
 }
 

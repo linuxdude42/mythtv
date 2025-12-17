@@ -7124,8 +7124,8 @@ void MainServer::HandleSetVerbose(const QStringList &slist, PlaybackSock *pbs)
     int len = newverbose.length();
     if (len > 12)
     {
-        verboseArgParse(newverbose.right(len-12));
-        logPropagateCalc();
+        Logging::verboseArgParse(newverbose.right(len-12));
+        Logging::propagateCalc();
 
         LOG(VB_GENERAL, LOG_NOTICE, LOC +
             QString("Verbose mask changed, new mask is: %1")
@@ -7153,14 +7153,14 @@ void MainServer::HandleSetLogLevel(const QStringList &slist, PlaybackSock *pbs)
     int len = newstring.length();
     if (len > 14)
     {
-        newlevel = logLevelGet(newstring.right(len-14));
+        newlevel = Logging::nameToLevel(newstring.right(len-14));
         if (newlevel != LOG_UNKNOWN)
         {
             Logging::setLogLevel(newlevel);
-            logPropagateCalc();
+            Logging::propagateCalc();
             LOG(VB_GENERAL, LOG_NOTICE, LOC +
                 QString("Log level changed, new level is: %1")
-                    .arg(logLevelGetName(Logging::getLogLevel())));
+                    .arg(Logging::levelToName(Logging::getLogLevel())));
 
             retlist << "OK";
         }

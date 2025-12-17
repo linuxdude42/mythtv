@@ -1710,7 +1710,7 @@ MythContext::~MythContext()
 
     LOG(VB_GENERAL, LOG_INFO, "Exiting");
 
-    logStop();
+    Logging::stop();
 
     deleteCoreContext();
 

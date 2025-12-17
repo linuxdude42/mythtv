@@ -300,7 +300,7 @@ MDBManager::~MDBManager()
         LOG(VB_GENERAL, LOG_CRIT,
             "MDBManager exiting with connections still open");
     }
-#if 0 /* some post logStop() debugging... */
+#if 0 /* some post Logging::stop() debugging... */
     cout<<"m_connCount: "<<m_connCount<<endl;
     cout<<"m_schedCon: "<<m_schedCon<<endl;
     cout<<"m_channelCon: "<<m_channelCon<<endl;

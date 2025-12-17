@@ -202,7 +202,7 @@ MythCoreContextPrivate::~MythCoreContextPrivate()
     // This has already been run in the MythContext dtor.  Do we need it here
     // too?
 #if 0
-    logStop(); // need to shutdown db logger before we kill db
+    Logging::stop(); // need to shutdown db logger before we kill db
 #endif
 
     MThread::Cleanup();

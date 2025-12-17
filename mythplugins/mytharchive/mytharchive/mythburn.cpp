@@ -1161,7 +1161,7 @@ void BurnMenu::doBurn(int mode)
                   (bEraseDVDRW ? " --erasedvdrw" : "") + 
                   (bNativeFormat ? " --nativeformat" : "");
     commandline += Logging::getPropagateArgs();
-    if (!logPropagateQuiet())
+    if (!Logging::propagateQuiet())
         commandline += " --quiet";
     commandline += " > "  + logDir + "/progress.log 2>&1 &";
 

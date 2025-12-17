@@ -229,7 +229,7 @@ bool getFileDetails(ArchiveItem *a)
                               "--outfile \"%2\" --method %3")
             .arg(inFile, outFile, QString::number(lenMethod));
     command += Logging::getPropagateArgs();
-    if (!logPropagateQuiet())
+    if (!Logging::propagateQuiet())
         command += " --quiet";
 
     uint flags = kMSDontBlockInputDevs | kMSDontDisableDrawing;

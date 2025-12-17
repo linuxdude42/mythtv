@@ -135,7 +135,7 @@ void verboseInit(void);
 void verboseHelp(void);
 
 /// \brief Intended for use only by the test harness.
-void resetLogging(void)
+void Logging::resetLogging(void)
 {
     verboseMask = verboseDefaultInt;
     verboseString = verboseDefaultStr;
@@ -605,7 +605,7 @@ void LogPrintLine( uint64_t mask, LogLevel_t level, const char *file, int line,
 /// \brief Generate the logPropagateArgs global with the latest logging
 ///        level, mask, etc to propagate to all of the mythtv programs
 ///        spawned from this one.
-void logPropagateCalc(void)
+void Logging::propagateCalc(void)
 {
     logPropagateArgList.clear();
 
@@ -619,7 +619,7 @@ void logPropagateCalc(void)
         logPropagateArgList << "--logpath" << logPropagateOpts.m_path;
     }
 
-    QString name = logLevelGetName(logLevel);
+    QString name = levelToName(logLevel);
     logPropagateArgs += " --loglevel " + name;
     logPropagateArgList << "--loglevel" << name;
 
@@ -658,7 +658,7 @@ void logPropagateCalc(void)
 
 /// \brief Check if we are propagating a "--quiet"
 /// \return true if --quiet is being propagated
-bool logPropagateQuiet(void)
+bool Logging::propagateQuiet(void)
 {
     return logPropagateOpts.m_quiet != 0;
 }
@@ -676,15 +676,15 @@ bool logPropagateQuiet(void)
 ///                     processes.
 /// \param  testHarness Should always be false. Set to true when
 ///                     invoked by the testing code.
-void logStart(const QString& logfile, bool progress, int quiet, int facility,
-              LogLevel_t level, bool propagate, bool loglong, bool testHarness)
+void Logging::start(const QString& logfile, bool progress, int quiet, int facility,
+                    LogLevel_t level, bool propagate, bool loglong, bool testHarness)
 {
     if (logThread && logThread->isRunning())
         return;
 
     logLevel = level;
     LOG(VB_GENERAL, LOG_NOTICE, QString("Setting Log Level to LOG_%1")
-             .arg(logLevelGetName(logLevel).toUpper()));
+             .arg(levelToName(logLevel).toUpper()));
 
     logPropagateOpts.m_propagate = propagate;
     logPropagateOpts.m_quiet = quiet;
@@ -698,7 +698,7 @@ void logStart(const QString& logfile, bool progress, int quiet, int facility,
         logPropagateOpts.m_path = path;
     }
 
-    logPropagateCalc();
+    propagateCalc();
     if (testHarness)
         return;
 
@@ -709,7 +709,7 @@ void logStart(const QString& logfile, bool progress, int quiet, int facility,
 }
 
 /// \brief  Entry point for stopping logging for an application
-void logStop(void)
+void Logging::stop(void)
 {
     if (logThread)
     {
@@ -765,7 +765,7 @@ void loggingDeregisterThread(void)
 /// \brief  Map a syslog facility name back to the enumerated value
 /// \param  facility    QString containing the facility name
 /// \return Syslog facility as enumerated type.  Negative if not found.
-int syslogGetFacility([[maybe_unused]] const QString& facility)
+int Logging::syslogGetFacility([[maybe_unused]] const QString& facility)
 {
 #ifdef _WIN32
     LOG(VB_GENERAL, LOG_NOTICE,
@@ -790,7 +790,7 @@ int syslogGetFacility([[maybe_unused]] const QString& facility)
 /// \brief  Map a log level name back to the enumerated value
 /// \param  level   QString containing the log level name
 /// \return Log level as enumerated type.  LOG_UNKNOWN if not found.
-LogLevel_t logLevelGet(const QString& level)
+LogLevel_t Logging::nameToLevel(const QString& level)
 {
     QMutexLocker locker(&loglevelMapMutex);
     if (!verboseInitialized)
@@ -812,7 +812,7 @@ LogLevel_t logLevelGet(const QString& level)
 /// \brief  Map a log level enumerated value back to the name
 /// \param  level   Enumerated value of the log level
 /// \return Log level name.  "unknown" if not found.
-QString logLevelGetName(LogLevel_t level)
+QString Logging::levelToName(LogLevel_t level)
 {
     QMutexLocker locker(&loglevelMapMutex);
     if (!verboseInitialized)
@@ -940,7 +940,7 @@ void verboseHelp(void)
 /// \brief  Parse the --verbose commandline argument and set the verbose level
 /// \param  arg the commandline argument following "--verbose"
 /// \return an exit code.  GENERIC_EXIT_OK if all is well.
-int verboseArgParse(const QString& arg)
+int Logging::verboseArgParse(const QString& arg)
 {
     QString option;
 
@@ -1036,7 +1036,7 @@ int verboseArgParse(const QString& arg)
 
                     if (!optionLevel.isEmpty())
                     {
-                        LogLevel_t level = logLevelGet(optionLevel);
+                        LogLevel_t level = nameToLevel(optionLevel);
                         if (level != LOG_UNKNOWN)
                             componentLogLevel[item->mask] = level;
                     }
@@ -1065,7 +1065,7 @@ int verboseArgParse(const QString& arg)
 /// \param errnum   system errno value
 /// \return QString containing the string version of the errno value, plus the
 ///                 errno value itself.
-QString logStrerror(int errnum)
+QString Logging::logStrerror(int errnum)
 {
     return QString("%1 (%2)").arg(strerror(errnum)).arg(errnum);
 }

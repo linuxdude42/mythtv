@@ -31,7 +31,7 @@
 
 void TestLogging::initialize (void)
 {
-    QCOMPARE(logLevelGet("force initialization"), LOG_UNKNOWN);
+    QCOMPARE(Logging::nameToLevel("force initialization"), LOG_UNKNOWN);
 }
 
 void TestLogging::test_syslogGetFacility_data (void)
@@ -55,7 +55,7 @@ void TestLogging::test_syslogGetFacility (void)
     QFETCH(QString, string);
     QFETCH(int, expected);
 
-    int actual = syslogGetFacility(string);
+    int actual = Logging::syslogGetFacility(string);
 #ifdef _WIN32
     QCOMPARE(actual, -2);
 #elif defined(Q_OS_ANDROID)
@@ -65,7 +65,7 @@ void TestLogging::test_syslogGetFacility (void)
 #endif
 }
 
-void TestLogging::test_logLevelGet_data (void)
+void TestLogging::test_nameToLevel_data (void)
 {
     QTest::addColumn<QString>("string");
     QTest::addColumn<int>("result");
@@ -79,15 +79,15 @@ void TestLogging::test_logLevelGet_data (void)
     QTest::newRow("long")    << "ABCDE"  << static_cast<int>(LOG_UNKNOWN);
 }
 
-void TestLogging::test_logLevelGet (void)
+void TestLogging::test_nameToLevel (void)
 {
     QFETCH(QString, string);
     QFETCH(int, result);
 
-    QCOMPARE(static_cast<int>(logLevelGet(string)), result);
+    QCOMPARE(static_cast<int>(Logging::nameToLevel(string)), result);
 }
 
-void TestLogging::test_logLevelGetName_data (void)
+void TestLogging::test_levelToName_data (void)
 {
     QTest::addColumn<int>("value");
     QTest::addColumn<QString>("result");
@@ -99,12 +99,12 @@ void TestLogging::test_logLevelGetName_data (void)
     QTest::newRow("random")  << -42                           << "unknown";
 }
 
-void TestLogging::test_logLevelGetName (void)
+void TestLogging::test_levelToName (void)
 {
     QFETCH(int, value);
     QFETCH(QString, result);
 
-    QCOMPARE(logLevelGetName(static_cast<LogLevel_t>(value)), result);
+    QCOMPARE(Logging::levelToName(static_cast<LogLevel_t>(value)), result);
 }
 
 void TestLogging::test_verboseArgParse_kwd_data (void)
@@ -130,8 +130,8 @@ void TestLogging::test_verboseArgParse_kwd (void)
     // Capture stderr for length of test run
     std::stringstream buffer;
     std::streambuf* oldCoutBuffer = std::cerr.rdbuf(buffer.rdbuf());
-    resetLogging();
-    int actualExit = verboseArgParse(argument);
+    Logging::resetLogging();
+    int actualExit = Logging::verboseArgParse(argument);
     std::cerr.rdbuf(oldCoutBuffer);
 
     // Check results
@@ -149,9 +149,9 @@ void TestLogging::test_verboseArgParse_twice (void)
     // Capture stderr for length of test run
     std::stringstream buffer;
     std::streambuf* oldCoutBuffer = std::cerr.rdbuf(buffer.rdbuf());
-    resetLogging();
-    int actualExit1 = verboseArgParse("general,system,socket");
-    int actualExit2 = verboseArgParse("help");
+    Logging::resetLogging();
+    int actualExit1 = Logging::verboseArgParse("general,system,socket");
+    int actualExit2 = Logging::verboseArgParse("help");
     std::cerr.rdbuf(oldCoutBuffer);
 
     // Check results
@@ -196,8 +196,8 @@ void TestLogging::test_verboseArgParse_class (void)
     // Capture stderr for length of test run
     std::stringstream buffer;
     std::streambuf* oldCoutBuffer = std::cerr.rdbuf(buffer.rdbuf());
-    resetLogging();
-    int actualExit = verboseArgParse(argument);
+    Logging::resetLogging();
+    int actualExit = Logging::verboseArgParse(argument);
     std::cerr.rdbuf(oldCoutBuffer);
 
     // Check results
@@ -259,8 +259,8 @@ void TestLogging::test_verboseArgParse_level (void)
     // Capture stderr for length of test run
     std::stringstream buffer;
     std::streambuf* oldCoutBuffer = std::cerr.rdbuf(buffer.rdbuf());
-    resetLogging();
-    int actualExit = verboseArgParse(argument);
+    Logging::resetLogging();
+    int actualExit = Logging::verboseArgParse(argument);
     std::cerr.rdbuf(oldCoutBuffer);
 
     // Check results
@@ -334,9 +334,9 @@ void TestLogging::test_logPropagateCalc (void)
     // Capture stderr for length of test run
     std::stringstream buffer;
     std::streambuf* oldCoutBuffer = std::cerr.rdbuf(buffer.rdbuf());
-    resetLogging();
-    int actualExit = verboseArgParse(argument);
-    logStart("/tmp/test", false, quiet, facility, LOG_INFO, propagate, false, true);
+    Logging::resetLogging();
+    int actualExit = Logging::verboseArgParse(argument);
+    Logging::start("/tmp/test", false, quiet, facility, LOG_INFO, propagate, false, true);
     std::cerr.rdbuf(oldCoutBuffer);
 
     // Check results

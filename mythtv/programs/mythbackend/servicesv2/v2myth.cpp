@@ -624,7 +624,7 @@ V2LogMessageList* V2Myth::GetLogs( const QString   &HostName,
         query.bindValue(":FROMTIME", (FromTime.isValid()) ? FromTime : QDateTime());
         query.bindValue(":TOTIME", (ToTime.isValid()) ? ToTime : QDateTime());
         query.bindValue(":LEVEL", (Level.isEmpty()) ? ullNull :
-                                        (qint64)logLevelGet(Level));
+                                        (qint64)Logging::nameToLevel(Level));
 
         if (!MsgContains.isEmpty())
         {
@@ -651,7 +651,7 @@ V2LogMessageList* V2Myth::GetLogs( const QString   &HostName,
             pLogMessage->setLine( query.value(6).toInt() );
             pLogMessage->setFunction( query.value(7).toString() );
             pLogMessage->setTime(MythDate::as_utc(query.value(8).toDateTime()));
-            pLogMessage->setLevel( logLevelGetName(
+            pLogMessage->setLevel( Logging::levelToName(
                                        (LogLevel_t)query.value(9).toInt()) );
             pLogMessage->setMessage( query.value(10).toString() );
         }
