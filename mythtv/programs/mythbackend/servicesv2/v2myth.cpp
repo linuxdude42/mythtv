@@ -1145,7 +1145,7 @@ V2BackendInfo* V2Myth::GetBackendInfo( void )
     auto *scheduler = dynamic_cast<Scheduler*>(cctx->GetScheduler());
     if (scheduler != nullptr)
         pEnv->setSchedulingEnabled(scheduler->QueryScheduling());
-    pLog->setLogArgs       ( logPropagateArgs      );
+    pLog->setLogArgs       ( Logging::getPropagateArgs());
     pEnv->setIsDatabaseIgnored(cctx->GetDB()->IsDatabaseIgnored());
     pEnv->setDBTimezoneSupport(DBUtil::CheckTimeZoneSupport());
     QString webOnly;

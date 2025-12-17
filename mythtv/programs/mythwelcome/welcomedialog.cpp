@@ -120,7 +120,7 @@ void WelcomeDialog::checkAutoStart(void)
     // mythshutdown --startup returns 0 for automatic startup
     //                                1 for manual startup
     QString command = m_appBinDir + "mythshutdown --startup";
-    command += logPropagateArgs;
+    command += Logging::getPropagateArgs();
     uint state = myth_system(command, kMSDontBlockInputDevs);
 
     LOG(VB_GENERAL, LOG_NOTICE,
@@ -231,6 +231,7 @@ bool WelcomeDialog::keyPressEvent(QKeyEvent *event)
 
     QStringList actions;
     bool handled = GetMythMainWindow()->TranslateKeyPress("Welcome", event, actions);
+    QString extra_args = Logging::getPropagateArgs();
 
     for (int i = 0; i < actions.size() && !handled; i++)
     {
@@ -267,16 +268,16 @@ bool WelcomeDialog::keyPressEvent(QKeyEvent *event)
                 m_appBinDir + "mythshutdown --lock";
 
             uint statusCode =
-                myth_system(mythshutdown_status + logPropagateArgs, kMSDontBlockInputDevs);
+                myth_system(mythshutdown_status + extra_args, kMSDontBlockInputDevs);
 
             // is shutdown locked by a user
             if (!(statusCode & 0xFF00) && statusCode & 16)
             {
-                myth_system(mythshutdown_unlock + logPropagateArgs, kMSDontBlockInputDevs);
+                myth_system(mythshutdown_unlock + extra_args, kMSDontBlockInputDevs);
             }
             else
             {
-                myth_system(mythshutdown_lock + logPropagateArgs, kMSDontBlockInputDevs);
+                myth_system(mythshutdown_lock + extra_args, kMSDontBlockInputDevs);
             }
 
             updateStatusMessage();
@@ -291,7 +292,7 @@ bool WelcomeDialog::keyPressEvent(QKeyEvent *event)
         else if (action == "STARTSETUP")
         {
             QString mythtv_setup = m_appBinDir + "mythtv-setup";
-            myth_system(mythtv_setup + logPropagateArgs);
+            myth_system(mythtv_setup + extra_args);
         }
         else
         {
@@ -441,7 +442,7 @@ void WelcomeDialog::runMythFillDatabase()
     QString mfarg = cctx->GetSetting("MythFillDatabaseArgs", "");
 
     command = QString("%1 %2").arg(mfpath, mfarg);
-    command += logPropagateArgs;
+    command += Logging::getPropagateArgs();
 
     command += "&";
 
@@ -524,7 +525,7 @@ void WelcomeDialog::updateStatusMessage(void)
     }
 
     QString mythshutdown_status = m_appBinDir + "mythshutdown --status 0";
-    uint statusCode = myth_system(mythshutdown_status + logPropagateArgs, kMSDontBlockInputDevs);
+    uint statusCode = myth_system(mythshutdown_status + Logging::getPropagateArgs(), kMSDontBlockInputDevs);
 
     if (!(statusCode & 0xFF00))
     {
@@ -602,7 +603,7 @@ void WelcomeDialog::ShowMenu(void)
     m_menuPopup->SetReturnEvent(this, "action");
 
     QString mythshutdown_status = m_appBinDir + "mythshutdown --status 0";
-    uint statusCode = myth_system(mythshutdown_status + logPropagateArgs, kMSDontBlockInputDevs);
+    uint statusCode = myth_system(mythshutdown_status + Logging::getPropagateArgs(), kMSDontBlockInputDevs);
 
     if (!(statusCode & 0xFF00) && statusCode & 16)
         m_menuPopup->AddButton(tr("Unlock Shutdown"), &WelcomeDialog::unlockShutdown);
@@ -618,7 +619,7 @@ void WelcomeDialog::ShowMenu(void)
 void WelcomeDialog::lockShutdown(void)
 {
     QString command = m_appBinDir + "mythshutdown --lock";
-    command += logPropagateArgs;
+    command += Logging::getPropagateArgs();
     myth_system(command, kMSDontBlockInputDevs);
     updateStatusMessage();
     updateScreen();
@@ -627,7 +628,7 @@ void WelcomeDialog::lockShutdown(void)
 void WelcomeDialog::unlockShutdown(void)
 {
     QString command = m_appBinDir + "mythshutdown --unlock";
-    command += logPropagateArgs;
+    command += Logging::getPropagateArgs();
     myth_system(command, kMSDontBlockInputDevs);
     updateStatusMessage();
     updateScreen();
@@ -675,7 +676,7 @@ void WelcomeDialog::shutdownNow(void)
 
     // don't shutdown if we are about to start a wakeup/shutdown period
     QString command = m_appBinDir + "mythshutdown --status 0";
-    command += logPropagateArgs;
+    command += Logging::getPropagateArgs();
 
     uint statusCode = myth_system(command, kMSDontBlockInputDevs);
     if (!(statusCode & 0xFF00) && statusCode & 128)
@@ -727,7 +728,7 @@ void WelcomeDialog::shutdownNow(void)
     command = "sudo ";
 #endif
 
-    command += m_appBinDir + "mythshutdown --shutdown" + logPropagateArgs;
+    command += m_appBinDir + "mythshutdown --shutdown" + Logging::getPropagateArgs();
 
     myth_system(command, kMSDontBlockInputDevs);
 }

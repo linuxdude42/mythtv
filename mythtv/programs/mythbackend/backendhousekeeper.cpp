@@ -440,7 +440,7 @@ bool RadioStreamUpdateTask::DoRun(void)
     QString command = GetAppBinDir() + "mythutil";
     QStringList args;
     args << "--updateradiostreams";
-    args << logPropagateArgs;
+    args << Logging::getPropagateArgs();
 
     LOG(VB_GENERAL, LOG_INFO, QString("Performing Radio Streams Update: %1 %2")
         .arg(command, args.join(" ")));
@@ -511,7 +511,7 @@ bool ArtworkTask::DoRun(void)
     QString command = GetAppBinDir() + "mythmetadatalookup";
     QStringList args;
     args << "--refresh-all-artwork";
-    args << logPropagateArgs;
+    args << Logging::getPropagateArgs();
 
     LOG(VB_GENERAL, LOG_INFO, QString("Performing Artwork Refresh: %1 %2")
         .arg(command, args.join(" ")));

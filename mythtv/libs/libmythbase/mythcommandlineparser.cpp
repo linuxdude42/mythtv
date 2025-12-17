@@ -2924,7 +2924,7 @@ int MythCommandLineParser::ConfigureLogging(const QString& mask, bool progress)
     LOG(VB_GENERAL, LOG_INFO, QString("%1 (%2)")
         .arg(QSysInfo::prettyProductName(), QSysInfo::currentCpuArchitecture()));
     LOG(VB_GENERAL, LOG_NOTICE,
-        QString("Enabled verbose msgs: %1").arg(verboseString));
+        QString("Enabled verbose msgs: %1").arg(Logging::getVerboseString()));
 
     QString logfile = GetLogFilePath();
     bool propagate = !logfile.isEmpty();

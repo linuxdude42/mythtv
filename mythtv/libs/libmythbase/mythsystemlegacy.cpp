@@ -143,13 +143,13 @@ void MythSystemLegacy::SetCommand(const QString &command,
     {
         if (GetSetting("UseShell") && m_args.isEmpty())
         {
-            m_command += logPropagateArgs;
+            m_command += Logging::getPropagateArgs();
             if (!logPropagateQuiet())
                 m_command += " --quiet";
         }
         else
         {
-            m_args << logPropagateArgList;
+            m_args << Logging::getPropagateArgList();
             if (!logPropagateQuiet())
                 m_args << "--quiet";
         }

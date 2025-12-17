@@ -119,6 +119,7 @@ static int pid_counter(const MythUtilCommandLineParser &cmdline)
     char *buffer = new char[kBufSize];
     int offset = 0;
     long long total_count = 0;
+    LogLevel_t logLevel = Logging::getLogLevel();
 
     while (true)
     {
@@ -231,6 +232,7 @@ static int pid_filter(const MythUtilCommandLineParser &cmdline)
     int offset = 0;
     long long total_count = 0;
     long long write_count = 0;
+    LogLevel_t logLevel = Logging::getLogLevel();
 
     while (true)
     {
@@ -416,7 +418,7 @@ class PrintOutput
         }
         else
         {
-            LOG(VB_STDIO|VB_FLUSH, logLevel, msg);
+            LOG(VB_STDIO|VB_FLUSH, Logging::getLogLevel(), msg);
         }
     }
 
@@ -789,6 +791,7 @@ static int pid_printer(const MythUtilCommandLineParser &cmdline)
         pmsl->Output(QString("<MPEGSections>"));
     }
 
+    LogLevel_t logLevel = Logging::getLogLevel();
     while (true)
     {
         int r = srcRB->Read(&buffer[offset], kBufSize - offset);
@@ -817,7 +820,7 @@ static int pid_printer(const MythUtilCommandLineParser &cmdline)
     {
         QTime ot = QTime(0,0,0,0).addMSecs(ptsl->GetElapsedPTS()/90);
 
-        LOG(VB_STDIO|VB_FLUSH, logLevel,
+        LOG(VB_STDIO|VB_FLUSH, Logging::getLogLevel(),
             QString("First PTS %1, Last PTS %2, elapsed %3 %4\n")
             .arg(ptsl->GetFirstPTS()).arg(ptsl->GetLastPTS())
             .arg(ptsl->GetElapsedPTS())

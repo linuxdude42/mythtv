@@ -1849,8 +1849,8 @@ QString JobQueue::GetJobCommand(int id, int jobType, ProgramInfo *tmpInfo)
     {
         tmpInfo->SubstituteMatches(command);
 
-        command.replace("%VERBOSELEVEL%", QString("%1").arg(verboseMask));
-        command.replace("%VERBOSEMODE%", QString("%1").arg(logPropagateArgs));
+        command.replace("%VERBOSELEVEL%", QString("%1").arg(Logging::getVerboseMask()));
+        command.replace("%VERBOSEMODE%", QString("%1").arg(Logging::getPropagateArgs()));
 
         uint transcoder = tmpInfo->QueryTranscoderID();
         command.replace("%TRANSPROFILE%",
@@ -1969,7 +1969,7 @@ void JobQueue::DoTranscodeThread(int jobID)
                   .arg(path).arg(jobID).arg(profilearg);
         if (useCutlist)
             command += " --honorcutlist";
-        command += logPropagateArgs;
+        command += Logging::getPropagateArgs();
     }
     else
     {
@@ -2201,7 +2201,7 @@ void JobQueue::DoMetadataLookupThread(int jobID)
     path = GetAppBinDir() + "mythmetadatalookup";
     command = QString("%1 -j %2")
                       .arg(path).arg(jobID);
-    command += logPropagateArgs;
+    command += Logging::getPropagateArgs();
 
     LOG(VB_JOBQUEUE, LOG_INFO, LOC + QString("Running command: '%1'")
             .arg(command));
@@ -2324,7 +2324,7 @@ void JobQueue::DoFlagCommercialsThread(int jobID)
         path = GetAppBinDir() + "mythcommflag";
         command = QString("%1 -j %2 --noprogress")
                           .arg(path).arg(jobID);
-        command += logPropagateArgs;
+        command += Logging::getPropagateArgs();
     }
     else
     {

@@ -228,7 +228,7 @@ bool getFileDetails(ArchiveItem *a)
     QString command = QString("mytharchivehelper --getfileinfo --infile \"%1\" "
                               "--outfile \"%2\" --method %3")
             .arg(inFile, outFile, QString::number(lenMethod));
-    command += logPropagateArgs;
+    command += Logging::getPropagateArgs();
     if (!logPropagateQuiet())
         command += " --quiet";
 

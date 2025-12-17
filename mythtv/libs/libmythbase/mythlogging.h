@@ -9,15 +9,6 @@
 #include "mythbaseexp.h"  //  MBASE_PUBLIC , etc.
 #include "verbosedefs.h"
 
-extern MBASE_PUBLIC LogLevel_t logLevel;
-extern MBASE_PUBLIC uint64_t   verboseMask;
-
-extern MBASE_PUBLIC ComponentLogLevelMap componentLogLevel;
-
-extern MBASE_PUBLIC QStringList logPropagateArgList;
-extern MBASE_PUBLIC QString     logPropagateArgs;
-extern MBASE_PUBLIC QString     verboseString;
-
 class MBASE_PUBLIC Logging
 {
     friend class TestLogging;

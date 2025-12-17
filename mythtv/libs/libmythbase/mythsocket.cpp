@@ -732,7 +732,7 @@ void MythSocket::WriteStringListReal(const QStringList *list, bool *ret)
         QString msg = QString("write -> %1 %2")
             .arg(m_tcpSocket->socketDescriptor(), 2).arg(payload.data());
 
-        if (logLevel < LOG_DEBUG && msg.length() > 128)
+        if (Logging::getLogLevel() < LOG_DEBUG && msg.length() > 128)
         {
             msg.truncate(127);
             msg += "…";
@@ -934,7 +934,7 @@ void MythSocket::ReadStringListReal(
             .arg(m_tcpSocket->socketDescriptor(), 2)
             .arg(payload.data());
 
-        if (logLevel < LOG_DEBUG && msg.length() > 128)
+        if (Logging::getLogLevel() < LOG_DEBUG && msg.length() > 128)
         {
             msg.truncate(127);
             msg += "…";

@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
     if (retval != GENERIC_EXIT_OK)
         return retval;
     QString logfile = cmdline.GetLogFilePath();
-    QString logging = logPropagateArgs;
+    QString logging = Logging::getPropagateArgs();
 
     auto *control = new MythExternControl();
     MythExternRecApp  *process = nullptr;

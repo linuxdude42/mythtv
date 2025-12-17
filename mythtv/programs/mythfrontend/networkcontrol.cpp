@@ -1004,7 +1004,7 @@ QString NetworkControl::processQuery(NetworkCommand *nc)
     }
     else if (is_abbrev("verbose", nc->getArg(1)))
     {
-        return verboseString;
+        return Logging::getVerboseString();
     }
     else if (is_abbrev("liveTV", nc->getArg(1)))
     {
@@ -1143,7 +1143,7 @@ QString NetworkControl::processSet(NetworkCommand *nc)
                            "information").arg(nc->getArg(0));
         }
 
-        QString oldVerboseString = verboseString;
+        QString oldVerboseString = Logging::getVerboseString();
         QString result = "OK";
 
         int pva_result = verboseArgParse(nc->getArg(2));
@@ -1153,11 +1153,11 @@ QString NetworkControl::processSet(NetworkCommand *nc)
 
         result += "\r\n";
         result += " Previous filter: " + oldVerboseString + "\r\n";
-        result += "      New Filter: " + verboseString + "\r\n";
+        result += "      New Filter: " + Logging::getVerboseString() + "\r\n";
 
         LOG(VB_GENERAL, LOG_NOTICE,
             QString("Verbose mask changed, new level is: %1")
-                .arg(verboseString));
+                .arg(Logging::getVerboseString()));
 
         return result;
     }

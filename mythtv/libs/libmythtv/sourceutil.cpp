@@ -425,7 +425,7 @@ bool SourceUtil::UpdateChannelsFromListings(uint sourceid, const QString& inputt
             cmd += QString(" --sourceid %1").arg(sourceid);
         if (!inputtype.isEmpty())
             cmd += QString(" --cardtype %1").arg(inputtype);
-        cmd += logPropagateArgs;
+        cmd += Logging::getPropagateArgs();
 
         myth_system(cmd);
     }

@@ -77,7 +77,7 @@ class HTTPLiveStreamThread : public QRunnable
 
         QString command = GetAppBinDir() +
             QString("mythtranscode --hls --hlsstreamid %1")
-                    .arg(m_streamID) + logPropagateArgs;
+                    .arg(m_streamID) + Logging::getPropagateArgs();
 
         uint result = myth_system(command, flags);
 

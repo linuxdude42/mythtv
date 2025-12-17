@@ -1160,7 +1160,7 @@ void BurnMenu::doBurn(int mode)
     commandline = "mytharchivehelper --burndvd --mediatype " + sArchiveFormat +
                   (bEraseDVDRW ? " --erasedvdrw" : "") + 
                   (bNativeFormat ? " --nativeformat" : "");
-    commandline += logPropagateArgs;
+    commandline += Logging::getPropagateArgs();
     if (!logPropagateQuiet())
         commandline += " --quiet";
     commandline += " > "  + logDir + "/progress.log 2>&1 &";

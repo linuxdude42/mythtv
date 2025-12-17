@@ -204,8 +204,8 @@ void TestLogging::test_verboseArgParse_class (void)
     QCOMPARE((int)GENERIC_EXIT_OK, actualExit);
     QString actualOutput = QString::fromStdString(buffer.str());
     QVERIFY(actualOutput.isEmpty());
-    QCOMPARE(verboseMask, expectedVMask);
-    QCOMPARE(verboseString.trimmed(), expectedVString);
+    QCOMPARE(Logging::getVerboseMask(), expectedVMask);
+    QCOMPARE(Logging::getVerboseString().trimmed(), expectedVString);
 }
 
 void TestLogging::test_verboseArgParse_level_data (void)
@@ -267,18 +267,18 @@ void TestLogging::test_verboseArgParse_level (void)
     QCOMPARE((int)GENERIC_EXIT_OK, actualExit);
     QString actualOutput = QString::fromStdString(buffer.str());
     QVERIFY(actualOutput.isEmpty());
-    QCOMPARE(verboseMask, expectedVMask);
+    QCOMPARE(Logging::getVerboseMask(), expectedVMask);
 
     if (expectedGroup1) {
-        QVERIFY(componentLogLevel.contains(expectedGroup1));
-        QCOMPARE(static_cast<int>(componentLogLevel[expectedGroup1]), expectedLevel1);
+        QVERIFY(Logging::getComponentLevel().contains(expectedGroup1));
+        QCOMPARE(static_cast<int>(Logging::getComponentLevel()[expectedGroup1]), expectedLevel1);
         if (expectedGroup2) {
-            QVERIFY(componentLogLevel.contains(expectedGroup2));
-            QCOMPARE(static_cast<int>(componentLogLevel[expectedGroup2]), expectedLevel2);
+            QVERIFY(Logging::getComponentLevel().contains(expectedGroup2));
+            QCOMPARE(static_cast<int>(Logging::getComponentLevel()[expectedGroup2]), expectedLevel2);
         }
     }
         
-    QCOMPARE(verboseString.trimmed(), expectedVString);
+    QCOMPARE(Logging::getVerboseString().trimmed(), expectedVString);
 }
 
 void TestLogging::test_logPropagateCalc_data (void)
@@ -344,7 +344,7 @@ void TestLogging::test_logPropagateCalc (void)
     QString actualOutput = QString::fromStdString(buffer.str());
     QVERIFY(actualOutput.isEmpty());
 
-    QCOMPARE(logPropagateArgs.trimmed(), expectedArgs);
+    QCOMPARE(Logging::getPropagateArgs().trimmed(), expectedArgs);
 }
 
 QTEST_APPLESS_MAIN(TestLogging)
