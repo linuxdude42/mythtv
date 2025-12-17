@@ -102,6 +102,33 @@ uint64_t     userDefaultValueInt = verboseDefaultInt;
 QString      userDefaultValueStr = verboseDefaultStr;
 bool         haveUserDefaultValues = false;
 
+void Logging::initialize()
+{
+    verboseString = "";
+    verboseMask = 0;
+}
+LogLevel_t Logging::getLogLevel() { return logLevel; }
+void       Logging::setLogLevel(LogLevel_t level) { logLevel = level; }
+uint64_t   Logging::getVerboseMask() { return verboseMask; }
+void       Logging::setVerboseMask(uint64_t mask) { verboseMask = mask; }
+void       Logging::addVerboseMask(uint64_t mask) { verboseMask |= mask; }
+QString    Logging::getVerboseString() { return verboseString; }
+ComponentLogLevelMap Logging::getComponentLevel() { return componentLogLevel; }
+
+// propagate args as a string or a list
+QString     Logging::getPropagateArgs() { return logPropagateArgs; }
+QStringList Logging::getPropagateArgList() { return logPropagateArgList; }
+
+// Helper for checking verbose mask & level outside of LOG macro
+bool VERBOSE_LEVEL_NONE() { return verboseMask == 0; };
+bool VERBOSE_LEVEL_CHECK(uint64_t mask, LogLevel_t level)
+{
+    if (componentLogLevel.contains(mask))
+        return *(componentLogLevel.find(mask)) >= level;
+    return (((verboseMask & mask) == mask) && (logLevel >= level));
+}
+
+
 void verboseAdd(uint64_t mask, QString name, bool additive, QString helptext);
 void loglevelAdd(int value, QString name, char shortname);
 void verboseInit(void);

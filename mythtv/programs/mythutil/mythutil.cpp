@@ -85,11 +85,14 @@ int main(int argc, char *argv[])
     {
         if (!cmdline.toBool("verbose"))
         {
-            verboseString = defaultVerbose = "";
-            verboseMask = 0;
+            defaultVerbose = "";
+            Logging::initialize();
         }
         if (!cmdline.toBool("loglevel"))
-            logLevel = defaultLevel = LOG_ERR;
+        {
+            defaultLevel = LOG_ERR;
+            Logging::setLogLevel(defaultLevel);
+        }
     }
 
 
@@ -120,7 +123,7 @@ int main(int argc, char *argv[])
         return retval;
 
     if (!cmdline.toBool("loglevel"))
-        logLevel = defaultLevel;
+        Logging::setLogLevel(defaultLevel);
 
     MythContext context {MYTH_BINARY_VERSION};
     if (!context.Init(false))

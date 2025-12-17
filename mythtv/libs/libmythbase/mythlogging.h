@@ -9,12 +9,6 @@
 #include "mythbaseexp.h"  //  MBASE_PUBLIC , etc.
 #include "verbosedefs.h"
 
-/* Define the external prototype */
-MBASE_PUBLIC void LogPrintLine( uint64_t mask, LogLevel_t level,
-                                const char *file, int line,
-                                const char *function,
-                                QString message);
-
 extern MBASE_PUBLIC LogLevel_t logLevel;
 extern MBASE_PUBLIC uint64_t   verboseMask;
 
@@ -24,14 +18,44 @@ extern MBASE_PUBLIC QStringList logPropagateArgList;
 extern MBASE_PUBLIC QString     logPropagateArgs;
 extern MBASE_PUBLIC QString     verboseString;
 
-// Helper for checking verbose mask & level outside of LOG macro
-static inline bool VERBOSE_LEVEL_NONE() { return verboseMask == 0; };
-static inline bool VERBOSE_LEVEL_CHECK(uint64_t mask, LogLevel_t level)
+class MBASE_PUBLIC Logging
 {
-    if (componentLogLevel.contains(mask))
-        return *(componentLogLevel.find(mask)) >= level;
-    return (((verboseMask & mask) == mask) && (logLevel >= level));
-}
+    friend class TestLogging;
+
+  public:
+    /// Initialize the MythTV logging code.
+    static void initialize();
+
+    /// Get the current global logging level.
+    static LogLevel_t getLogLevel();
+    /// Set the current global logging level.
+    static void setLogLevel(LogLevel_t level);
+    /// Get the set of per-component logging levels.
+    static ComponentLogLevelMap getComponentLevel();
+
+    static uint64_t getVerboseMask();
+    /// Set the mask of all components being logged.
+    static void setVerboseMask(uint64_t mask);
+    /// Add to the mask of all components being logged.
+    static void addVerboseMask(uint64_t mask);
+    /// Get the list of all components being logged as a string.
+    static QString getVerboseString();
+
+    /// Get the list of logging arguments to pass to child processes.
+    static QString getPropagateArgs();
+    /// Get the list of logging arguments to pass to child processes.
+    static QStringList getPropagateArgList();
+};
+
+/* Define the external prototype */
+MBASE_PUBLIC void LogPrintLine( uint64_t mask, LogLevel_t level,
+                                const char *file, int line,
+                                const char *function,
+                                QString message);
+
+// Helper for checking verbose mask & level outside of LOG macro
+extern MBASE_PUBLIC bool VERBOSE_LEVEL_NONE();
+extern MBASE_PUBLIC bool VERBOSE_LEVEL_CHECK(uint64_t mask, LogLevel_t level);
 
 // This doesn't lock the calling thread other than momentarily to put
 // the log message onto a queue.

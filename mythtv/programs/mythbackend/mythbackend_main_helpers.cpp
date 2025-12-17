@@ -373,11 +373,11 @@ int handle_command(const MythBackendCommandLineParser &cmdline)
             sched->FillRecordListFromDB();
         }
 
-        verboseMask |= VB_SCHEDULE;
-        LogLevel_t oldLogLevel = logLevel;
-        logLevel = LOG_DEBUG;
+        Logging::addVerboseMask(VB_SCHEDULE);
+        LogLevel_t oldLogLevel = Logging::getLogLevel();
+        Logging::setLogLevel(LOG_DEBUG);
         sched->PrintList(true);
-        logLevel = oldLogLevel;
+        Logging::setLogLevel(oldLogLevel);
         delete sched;
         return GENERIC_EXIT_OK;
     }

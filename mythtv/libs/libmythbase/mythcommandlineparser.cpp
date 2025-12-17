@@ -2876,8 +2876,7 @@ bool MythCommandLineParser::SetValue(const QString &key, const QVariant& value)
 int MythCommandLineParser::ConfigureLogging(const QString& mask, bool progress)
 {
     // Setup the defaults
-    verboseString = "";
-    verboseMask   = 0;
+    Logging::initialize();
     verboseArgParse(mask);
 
     if (toBool("verbose"))
@@ -2888,15 +2887,15 @@ int MythCommandLineParser::ConfigureLogging(const QString& mask, bool progress)
     }
     else if (toBool("verboseint"))
     {
-        verboseMask = static_cast<uint64_t>(toLongLong("verboseint"));
+        Logging::setVerboseMask(static_cast<uint64_t>(toLongLong("verboseint")));
     }
 
-    verboseMask |= VB_STDIO|VB_FLUSH;
+    Logging::addVerboseMask(VB_STDIO|VB_FLUSH);
 
     int quiet = toInt("quiet");
     if (std::max(quiet, static_cast<int>(progress)) > 1)
     {
-        verboseMask = VB_NONE|VB_FLUSH;
+        Logging::setVerboseMask(VB_NONE|VB_FLUSH);
         verboseArgParse("none");
     }
 

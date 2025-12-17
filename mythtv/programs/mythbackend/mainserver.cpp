@@ -7155,7 +7155,7 @@ void MainServer::HandleSetLogLevel(const QStringList &slist, PlaybackSock *pbs)
         newlevel = logLevelGet(newstring.right(len-14));
         if (newlevel != LOG_UNKNOWN)
         {
-            logLevel = newlevel;
+            Logging::setLogLevel(newlevel);
             logPropagateCalc();
             LOG(VB_GENERAL, LOG_NOTICE, LOC +
                 QString("Log level changed, new level is: %1")

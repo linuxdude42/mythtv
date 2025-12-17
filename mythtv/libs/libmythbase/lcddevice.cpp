@@ -737,7 +737,7 @@ QString LCD::quotedString(const QString &string)
 bool LCD::startLCDServer(void)
 {
     QString command = GetAppBinDir() + "mythlcdserver";
-    command += logPropagateArgs;
+    command += Logging::getPropagateArgs();
     uint flags = kMSDontBlockInputDevs | kMSDontDisableDrawing |
                  kMSRunBackground;
 
