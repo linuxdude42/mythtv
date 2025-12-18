@@ -79,7 +79,6 @@ struct LogPropagateOpts {
 };
 
 LogPropagateOpts        logPropagateOpts {false, 0, 0, "", false};
-QString                 logPropagateArgs;
 QStringList             logPropagateArgList;
 
 LogLevel_t logLevel = LOG_INFO;
@@ -116,7 +115,7 @@ QString    Logging::getVerboseString() { return verboseString; }
 ComponentLogLevelMap Logging::getComponentLevel() { return componentLogLevel; }
 
 // propagate args as a string or a list
-QString     Logging::getPropagateArgs() { return logPropagateArgs; }
+QString     Logging::getPropagateArgs() { return logPropagateArgList.join(' '); }
 QStringList Logging::getPropagateArgList() { return logPropagateArgList; }
 
 // Helper for checking verbose mask & level outside of LOG macro
@@ -610,30 +609,19 @@ void Logging::propagateCalc(void)
     logPropagateArgList.clear();
 
     QString mask = verboseString.simplified().replace(' ', ',');
-    logPropagateArgs = " --verbose " + mask;
     logPropagateArgList << "--verbose" << mask;
 
     if (logPropagateOpts.m_propagate)
-    {
-        logPropagateArgs += " --logpath " + logPropagateOpts.m_path;
         logPropagateArgList << "--logpath" << logPropagateOpts.m_path;
-    }
 
     QString name = levelToName(logLevel);
-    logPropagateArgs += " --loglevel " + name;
     logPropagateArgList << "--loglevel" << name;
 
     for (int i = 0; i < logPropagateOpts.m_quiet; i++)
-    {
-        logPropagateArgs += " --quiet";
         logPropagateArgList << "--quiet";
-    }
 
     if (logPropagateOpts.m_loglong)
-    {
-        logPropagateArgs += " --loglong";
         logPropagateArgList << "--loglong";
-    }
 
 #if !defined(_WIN32) && !defined(Q_OS_ANDROID)
     if (logPropagateOpts.m_facility >= 0)
@@ -643,13 +631,11 @@ void Logging::propagateCalc(void)
              (syslogname->c_name &&
               syslogname->c_val != logPropagateOpts.m_facility); syslogname++);
 
-        logPropagateArgs += QString(" --syslog %1").arg(syslogname->c_name);
         logPropagateArgList << "--syslog" << syslogname->c_name;
     }
 #if CONFIG_SYSTEMD_JOURNAL
     else if (logPropagateOpts.m_facility == SYSTEMD_JOURNAL_FACILITY)
     {
-        logPropagateArgs += " --systemd-journal";
         logPropagateArgList << "--systemd-journal";
     }
 #endif
