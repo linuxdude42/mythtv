@@ -28,21 +28,8 @@
 
 #include <iostream>
 
-//#define NEW_LOGGING
-#ifdef NEW_LOGGING
-#include "mythlogging_extra.h"
-#include "debugloghandler.h"
-#endif
-
 #include "mythcorecontext.h"
 #include "mythsystem.h"
-
-#ifdef NEW_LOGGING
-static DebugLogHandler *console_dbg(void)
-{
-    return DebugLogHandler::Get("ConsoleLogHandler");
-}
-#endif
 
 class TestMythSystem: public QObject
 {
@@ -55,12 +42,6 @@ class TestMythSystem: public QObject
     static void initTestCase(void)
     {
         createCoreContext("bin_version", nullptr);
-#ifdef NEW_LOGGING
-        DebugLogHandler::AddReplacement("ConsoleLogHandler");
-        myth_logging::initialize_logging(
-            VB_GENERAL, LOG_INFO, kNoFacility, /*use_threads*/false,
-            /*logfile*/ QString(), /*logprefix*/QString());
-#endif
     }
 
     // called at the end of these sets of tests
@@ -173,22 +154,6 @@ class TestMythSystem: public QObject
         cmd->Wait();
         QVERIFY(!QString(cmd->GetStandardOutputStream()->readAll())
                 .contains("X"));
-    }
-
-    // kMSAnonLog            -- anonymize the logs
-    static void logs_anonymized_when_requested(void)
-    {
-#ifdef NEW_LOGGING
-        console_dbg()->Clear();
-        QScopedPointer<MythSystem> cmd(
-            MythSystem::Create(QString("echo %1").arg(__FUNCTION__),
-                               kMSAnonLog));
-        cmd->Wait();
-        DebugLogHandlerEntry l = console_dbg()->LastEntry(kHandleLog);
-        QVERIFY(!l.entry().GetMessage().contains(__FUNCTION__));
-#else
-        QSKIP("Log inspection not supported in old logging.");
-#endif
     }
 
     // kMSAutoCleanup        -- automatically delete if backgrounded
