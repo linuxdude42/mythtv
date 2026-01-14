@@ -14,6 +14,7 @@
 #include "xsd.h"
 
 #include "servicehost.h"
+#include "libmythbase/mythlogging.h"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -93,14 +94,9 @@ bool Wsdl::GetWSDL( HTTPRequest *pRequest )
     // Loop for each method in class
     // ----------------------------------------------------------------------
 
-    QMapIterator< QString, MethodInfo > it( m_pServiceHost->GetMethods() );
 
-    while( it.hasNext()) 
+    for (const auto& oInfo : m_pServiceHost->GetMethods() )
     {
-        it.next();
-
-        MethodInfo oInfo = it.value();
-
         QString sRequestTypeName  = oInfo.m_sName;
         QString sResponseTypeName = oInfo.m_sName + "Response";
 
