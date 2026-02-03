@@ -240,6 +240,9 @@ Checks: '-*,
         # Disable newer C++14/17 tests for now. ,
        -modernize-use-nodiscard,
 
+        # Disable tests recommending c++23 std::print command. ,
+       -modernize-use-std-print,
+
         # Renamed from cppcoreguidelines-macro-to-enum in clang15. As
         # of 2023-05-22, there are 41 unique warnings. ,
        -modernize-macro-to-enum,
@@ -285,6 +288,9 @@ Checks: '-*,
         # Wants to rewrite every use of 127/255 as a reference to
         # std::numeric_limits. ,
        -readability-use-numeric-limits,
+
+        # Added new C++23 directives with no way to disable them. ,
+       -readability-use-concise-preprocessor-directives,
 
 '
 
