@@ -240,6 +240,24 @@ Checks: '-*,
         # Disable newer C++14/17 tests for now. ,
        -modernize-use-nodiscard,
 
+        # Disable tests recommending c++20 requires statement. ,
+       -modernize-use-constraints,
+
+        # Disable tests recommending c++20 designated initializers. ,
+       -modernize-use-designated-initializers,
+
+        # Disable tests recommending c++20 std::cmp_* functions. ,
+       -modernize-use-integer-sign-comparison,
+
+        # Disable tests recommending c++20 std::ranges. ,
+       -modernize-use-ranges,
+
+        # Disable tests recommending values from c++20 std::numbers. ,
+       -modernize-use-std-numbers,
+
+        # Disable tests recommending c++23 std::print command. ,
+       -modernize-use-std-print,
+
         # Renamed from cppcoreguidelines-macro-to-enum in clang15. As
         # of 2023-05-22, there are 41 unique warnings. ,
        -modernize-macro-to-enum,
@@ -257,6 +275,9 @@ Checks: '-*,
 
         # As of 2023-09-19, there are 315 unique warnings. ,
        -readability-avoid-unconditional-preprocessor-if,
+
+        # Disable tests recommending c++20 ::contains method. ,
+       -readability-container-contains,
 
         # Need to decide on an appropriate value.  As of 2024-08-02
         # there are 1753 unique warnings at the default complexity
@@ -285,6 +306,9 @@ Checks: '-*,
         # Wants to rewrite every use of 127/255 as a reference to
         # std::numeric_limits. ,
        -readability-use-numeric-limits,
+
+        # Added new C++23 directives with no way to disable them. ,
+       -readability-use-concise-preprocessor-directives,
 
 '
 
