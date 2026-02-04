@@ -4,6 +4,7 @@
 #include <QEvent>
 #include <QFileInfo>
 #include <QImage>
+#include <ranges>
 #include <utility>
 
 // myth
@@ -508,9 +509,9 @@ void cleanThumbnailCacheDir()
     QDir cacheDir(cache);
     QStringList thumbs = cacheDir.entryList(QDir::Files);
 
-    for (auto i = thumbs.crbegin(); i != thumbs.crend(); ++i)
+    for (const auto & thumb : std::ranges::reverse_view(thumbs))
     {
-        QString filename = QString("%1/%2").arg(cache, *i);
+        QString filename = QString("%1/%2").arg(cache, thumb);
         QFileInfo fi(filename);
         QDateTime lastmod = fi.lastModified();
         if (lastmod.addDays(2) < MythDate::current())
