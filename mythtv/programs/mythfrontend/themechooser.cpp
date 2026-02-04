@@ -191,6 +191,7 @@ void ThemeChooser::Load(void)
 
             ResetBusyPopup();
 
+            // NOLINTNEXTLINE(modernize-use-ranges)
             std::sort(m_infoList.begin(), m_infoList.end(), sortThemeNames);
         }
         else

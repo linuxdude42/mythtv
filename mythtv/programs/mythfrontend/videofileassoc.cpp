@@ -146,6 +146,11 @@ namespace
         UIDToFAPair(UID_type uid, FileAssociationWrap *assoc) :
             m_uid(uid), m_fileAssoc(assoc) {}
 
+        // Default the spaceship operator and equality operator
+        auto operator<=>(const UIDToFAPair&) const = default;
+        // operator== is needed by ranges::less
+        bool operator==(const UIDToFAPair&) const = default;
+
         UID_type m_uid {0};
         FileAssociationWrap *m_fileAssoc {nullptr};
     };
@@ -216,15 +221,15 @@ class FileAssocDialogPrivate
     UIReadyList_type GetUIReadyList()
     {
         UIReadyList_type ret;
-        std::transform(m_fileAssociations.begin(), m_fileAssociations.end(),
+        std::ranges::transform(m_fileAssociations,
                 std::back_inserter(ret), fa_col_ent_2_UIDFAPair());
-        auto deleted = std::remove_if(ret.begin(),
-                ret.end(), test_fa_state<FileAssociationWrap::efsDELETE>());
+        auto [first, last] = std::ranges::remove_if(ret,
+                test_fa_state<FileAssociationWrap::efsDELETE>());
 
-        if (deleted != ret.end())
-            ret.erase(deleted, ret.end());
+        if (first != last)
+            ret.erase(first, last);
 
-        std::sort(ret.begin(), ret.end());
+        std::ranges::sort(ret);
 
         return ret;
     }
@@ -287,7 +292,7 @@ class FileAssocDialogPrivate
 
         auto newpair = [this](const auto & fa)
             { return UIDToFAPair(++m_nextFAID, new FileAssociationWrap(fa)); };
-        std::transform(fa_list.cbegin(), fa_list.cend(), std::back_inserter(tmp_fa), newpair);
+        std::ranges::transform(fa_list, std::back_inserter(tmp_fa), newpair);
 
         std::shuffle(tmp_fa.begin(), tmp_fa.end(),
                      std::mt19937(std::random_device()()));

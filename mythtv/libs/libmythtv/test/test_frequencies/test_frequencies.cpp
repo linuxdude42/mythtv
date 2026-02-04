@@ -17,6 +17,7 @@
  *   along with this program; if not, write to the Free Software
  *   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
  */
+#include <algorithm>
 #include <iostream>
 #include <string>
 #include "test_frequencies.h"
@@ -41,7 +42,7 @@ void TestFrequencies::test_gchanlists(void)
     QFETCH(bool, expected);
 
     std::string country2 = country.toStdString();
-    auto it = std::find_if(gChanLists.cbegin(),gChanLists.cend(),
+    auto it = std::ranges::find_if(gChanLists,
                            [country2] (const CHANLISTS &chanlist) -> bool
                                { return country2 == chanlist.name; });
     QCOMPARE(it != gChanLists.end(), expected);

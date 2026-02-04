@@ -369,12 +369,12 @@ void ChannelRecPriority::SortList()
     switch(m_sortType)
     {
         case byRecPriority:
-            std::sort(sortingList.begin(), sortingList.end(),
+            std::ranges::sort(sortingList,
             channelRecPrioritySort());
             break;
         case byChannel:
         default:
-            std::sort(sortingList.begin(), sortingList.end(),
+            std::ranges::sort(sortingList,
             channelSort());
             break;
     }

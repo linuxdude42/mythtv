@@ -1,4 +1,5 @@
 // C/C++ headers
+#include <algorithm>
 #include <vector> // For std::vector
 
 // QT headers
@@ -1181,32 +1182,25 @@ void ProgramRecPriority::SortList(ProgramRecPriorityInfo *newCurrentItem)
     switch (m_sortType)
     {
         case byTitle :
-            sort(m_sortedProgram.begin(), m_sortedProgram.end(),
-                 TitleSort(m_reverseSort));
+            std::ranges::sort(m_sortedProgram, TitleSort(m_reverseSort));
             break;
         case byRecPriority :
-            sort(m_sortedProgram.begin(), m_sortedProgram.end(),
-                 ProgramRecPrioritySort(m_reverseSort));
+            std::ranges::sort(m_sortedProgram, ProgramRecPrioritySort(m_reverseSort));
             break;
         case byRecType :
-            sort(m_sortedProgram.begin(), m_sortedProgram.end(),
-                 ProgramRecTypeSort(m_reverseSort));
+            std::ranges::sort(m_sortedProgram, ProgramRecTypeSort(m_reverseSort));
             break;
         case byCount :
-            sort(m_sortedProgram.begin(), m_sortedProgram.end(),
-                 ProgramCountSort(m_reverseSort));
+            std::ranges::sort(m_sortedProgram, ProgramCountSort(m_reverseSort));
             break;
         case byRecCount :
-            sort(m_sortedProgram.begin(), m_sortedProgram.end(),
-                 ProgramRecCountSort(m_reverseSort));
+            std::ranges::sort(m_sortedProgram, ProgramRecCountSort(m_reverseSort));
             break;
         case byLastRecord :
-            sort(m_sortedProgram.begin(), m_sortedProgram.end(),
-                 ProgramLastRecordSort(m_reverseSort));
+            std::ranges::sort(m_sortedProgram, ProgramLastRecordSort(m_reverseSort));
             break;
         case byAvgDelay :
-            sort(m_sortedProgram.begin(), m_sortedProgram.end(),
-                 ProgramAvgDelaySort(m_reverseSort));
+            std::ranges::sort(m_sortedProgram, ProgramAvgDelaySort(m_reverseSort));
             break;
     }
 

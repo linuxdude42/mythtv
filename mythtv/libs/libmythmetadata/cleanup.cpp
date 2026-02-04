@@ -19,7 +19,7 @@ class CleanupHooksImp
 
     void removeHook(CleanupProc *clean_proc)
     {
-        auto p = std::find(m_cleanList.begin(), m_cleanList.end(), clean_proc);
+        auto p = std::ranges::find(m_cleanList, clean_proc);
         if (p != m_cleanList.end())
         {
             m_cleanList.erase(p);

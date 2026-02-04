@@ -459,12 +459,12 @@ bool Scheduler::FillRecordList(void)
     AddNotListed();
 
     LOG(VB_SCHEDULE, LOG_INFO, "Sort by time...");
-    std::stable_sort(m_workList.begin(), m_workList.end(), comp_overlap);
+    std::ranges::stable_sort(m_workList, comp_overlap);
     LOG(VB_SCHEDULE, LOG_INFO, "PruneOverlaps...");
     PruneOverlaps();
 
     LOG(VB_SCHEDULE, LOG_INFO, "Sort by priority...");
-    std::stable_sort(m_workList.begin(), m_workList.end(), comp_priority);
+    std::ranges::stable_sort(m_workList, comp_priority);
     LOG(VB_SCHEDULE, LOG_INFO, "BuildListMaps...");
     BuildListMaps();
     LOG(VB_SCHEDULE, LOG_INFO, "SchedNewRecords...");
@@ -477,12 +477,12 @@ bool Scheduler::FillRecordList(void)
     m_schedLock.lock();
 
     LOG(VB_SCHEDULE, LOG_INFO, "Sort by time...");
-    std::stable_sort(m_workList.begin(), m_workList.end(), comp_redundant);
+    std::ranges::stable_sort(m_workList, comp_redundant);
     LOG(VB_SCHEDULE, LOG_INFO, "PruneRedundants...");
     PruneRedundants();
 
     LOG(VB_SCHEDULE, LOG_INFO, "Sort by time...");
-    std::stable_sort(m_workList.begin(), m_workList.end(), comp_recstart);
+    std::ranges::stable_sort(m_workList, comp_recstart);
     LOG(VB_SCHEDULE, LOG_INFO, "ClearWorkList...");
     bool res = ClearWorkList();
 
@@ -1110,7 +1110,7 @@ bool Scheduler::FindNextConflict(
         {
             const std::vector<unsigned int> &conflicting_inputs =
                 m_sinputInfoMap[p->GetInputID()].m_conflictingInputs;
-            if (find(conflicting_inputs.begin(), conflicting_inputs.end(),
+            if (std::ranges::find(conflicting_inputs,
                      q->GetInputID()) == conflicting_inputs.end())
             {
                 if (debugConflicts)
@@ -1529,7 +1529,7 @@ void Scheduler::SchedNewRetryPass(const RecIter& start, const RecIter& end,
         if ((*i)->GetRecordingStatus() == RecStatus::Unknown)
             retry_list.push_back(*i);
     }
-    std::stable_sort(retry_list.begin(), retry_list.end(), comp_retry);
+    std::ranges::stable_sort(retry_list, comp_retry);
 
     for (auto *p : retry_list)
     {
@@ -1979,7 +1979,7 @@ bool Scheduler::IsBusyRecording(const RecordingInfo *rcinfo)
             }
         }
         else if (is_busy &&
-                 std::find(group_inputs.begin(), group_inputs.end(),
+                 std::ranges::find(group_inputs,
                            id) != group_inputs.end())
         {
             // This conflicting input is not busy, is also a child

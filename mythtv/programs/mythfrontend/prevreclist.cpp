@@ -219,13 +219,11 @@ bool PrevRecordedList::LoadTitles(void)
     }
     if (m_reverseSort)
     {
-        std::stable_sort(m_titleData.begin(), m_titleData.end(),
-            comp_sorttitle_lt_rev);
+        std::ranges::stable_sort(m_titleData, comp_sorttitle_lt_rev);
     }
     else
     {
-        std::stable_sort(m_titleData.begin(), m_titleData.end(),
-            comp_sorttitle_lt);
+        std::ranges::stable_sort(m_titleData, comp_sorttitle_lt);
     }
     return true;
 }
@@ -278,13 +276,11 @@ bool PrevRecordedList::LoadDates(void)
     }
     if (m_reverseSort)
     {
-        std::stable_sort(m_titleData.begin(), m_titleData.end(),
-            comp_sortdate_lt_rev);
+        std::ranges::stable_sort(m_titleData, comp_sortdate_lt_rev);
     }
     else
     {
-        std::stable_sort(m_titleData.begin(), m_titleData.end(),
-            comp_sortdate_lt);
+        std::ranges::stable_sort(m_titleData, comp_sortdate_lt);
     }
     return true;
 }
