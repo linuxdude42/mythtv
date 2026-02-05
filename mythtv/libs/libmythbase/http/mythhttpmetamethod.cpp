@@ -2,6 +2,7 @@
 #include <QDateTime>
 #include <QFileInfo>
 #include <QTimeZone>
+#include <algorithm>
 
 // MythTV
 #include "mythlogging.h"
@@ -44,7 +45,7 @@ MythHTTPMetaMethod::MythHTTPMetaMethod(int Index, QMetaMethod& Method, int Reque
     int returntype = Method.returnType();
 
     // Discard methods with an unsupported return type
-    if (std::any_of(s_invalidTypes.cbegin(), s_invalidTypes.cend(), [&returntype](int Type) { return Type == returntype; }))
+    if (std::ranges::any_of(s_invalidTypes, [&returntype](int Type) { return Type == returntype; }))
     {
         LOG(VB_HTTP, LOG_ERR, LOC + QString("Method '%1' has unsupported return type '%2'").arg(Method.name().constData(), Method.typeName()));
         return;
@@ -100,7 +101,7 @@ MythHTTPMetaMethod::MythHTTPMetaMethod(int Index, QMetaMethod& Method, int Reque
 
         // Discard methods that use unsupported parameter types.
         // Note: slots only - these are supportable for signals
-        if (Slot && std::any_of(s_invalidParams.cbegin(), s_invalidParams.cend(), [&type](int Type) { return type == Type; }))
+        if (Slot && std::ranges::any_of(s_invalidParams, [&type](int Type) { return type == Type; }))
         {
             LOG(VB_GENERAL, LOG_ERR, LOC + QString("Method '%1' has unsupported parameter type '%2' (%3)")
                 .arg(Method.name().constData(), types[i].constData()).arg(type));

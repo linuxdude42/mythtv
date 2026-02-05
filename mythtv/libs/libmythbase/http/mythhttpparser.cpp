@@ -61,7 +61,7 @@ bool MythHTTPParser::Read(QTcpSocket* Socket, bool& Ready)
         if (Socket->peek(buf.data(), 3) == 3)
         {
             static const std::vector<const char *> s_starters = { "GET", "PUT", "POS", "OPT", "HEA", "DEL" };
-            if (!std::any_of(s_starters.cbegin(), s_starters.cend(), [&](const char * Starter)
+            if (!std::ranges::any_of(s_starters, [&](const char * Starter)
                 { return strcmp(Starter, buf.data()) == 0; }))
             {
                 LOG(VB_GENERAL, LOG_WARNING, LOC + QString("Invalid HTTP request start '%1' - quitting").arg(buf.constData()));
