@@ -281,7 +281,7 @@ static unsigned char* get_188_block()
 
 static bool is_188_block(unsigned char* ptr)
 {
-    return alloc188.find(ptr) != alloc188.end();
+    return alloc188.contains(ptr);
 }
 
 static void return_188_block(unsigned char* ptr)
@@ -322,7 +322,7 @@ static unsigned char* get_4096_block()
 
 static bool is_4096_block(unsigned char* ptr)
 {
-    return alloc4096.find(ptr) != alloc4096.end();
+    return alloc4096.contains(ptr);
 }
 
 static void return_4096_block(unsigned char* ptr)
