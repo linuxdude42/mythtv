@@ -1,3 +1,5 @@
+// C++ headers
+#include <algorithm>
 
 #include "libmythtv/audio/audiooutput.h"
 #include "libmythbase/mythcorecontext.h"
@@ -5,6 +7,7 @@
 #include "libmythui/mythnotificationcenter.h"
 
 #include "audioplayer.h"
+
 #include "mythplayer.h"
 #include "visualisations/videovisual.h"
 
@@ -31,7 +34,7 @@ void AudioPlayer::addVisual(Visualization *vis)
         return;
 
     QMutexLocker lock(&m_lock);
-    auto it = std::find(m_visuals.begin(), m_visuals.end(), vis);
+    auto it = std::ranges::find(m_visuals, vis);
     if (it == m_visuals.end())
     {
         m_visuals.push_back(vis);
@@ -45,7 +48,7 @@ void AudioPlayer::removeVisual(Visualization *vis)
         return;
 
     QMutexLocker lock(&m_lock);
-    auto it = std::find(m_visuals.begin(), m_visuals.end(), vis);
+    auto it = std::ranges::find(m_visuals, vis);
     if (it != m_visuals.end())
     {
         m_visuals.erase(it);

@@ -681,14 +681,14 @@ void AudioOutput::dispatchError(const QString &e)
 
 void AudioOutput::addVisual(Visualization *v)
 {
-    auto it = std::find(m_visuals.begin(), m_visuals.end(), v);
+    auto it = std::ranges::find(m_visuals, v);
     if (it == m_visuals.end())
         m_visuals.push_back(v);
 }
 
 void AudioOutput::removeVisual(Visualization *v)
 {
-    auto it = std::find(m_visuals.begin(), m_visuals.end(), v);
+    auto it = std::ranges::find(m_visuals, v);
     if (it != m_visuals.end())
         m_visuals.erase(it);
 }

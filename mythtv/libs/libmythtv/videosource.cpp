@@ -1205,7 +1205,7 @@ class DVBCardNum : public CaptureCardComboBoxSetting
 
         // Add current if needed
         if (!current.isEmpty() &&
-            (std::find(sdevs.begin(), sdevs.end(), current) == sdevs.end()))
+            (std::ranges::find(sdevs, current) == sdevs.end()))
         {
             std::stable_sort(sdevs.begin(), sdevs.end());
         }
@@ -1216,7 +1216,7 @@ class DVBCardNum : public CaptureCardComboBoxSetting
         QString sel = current;
         for (const QString& dev : std::as_const(sdevs))
         {
-            in_use[dev] = std::find(db.begin(), db.end(), dev) != db.end();
+            in_use[dev] = std::ranges::find(db, dev) != db.end();
             if (sel.isEmpty() && !in_use[dev])
                 sel = dev;
         }
@@ -1933,7 +1933,7 @@ class ASIDevice : public CaptureCardComboBoxSetting
 
         // Add current if needed
         if (!current.isEmpty() &&
-            (std::find(sdevs.begin(), sdevs.end(), current) == sdevs.end()))
+            (std::ranges::find(sdevs, current) == sdevs.end()))
         {
             std::stable_sort(sdevs.begin(), sdevs.end());
         }
@@ -1948,7 +1948,7 @@ class ASIDevice : public CaptureCardComboBoxSetting
         QString sel = current;
         for (const QString& dev : std::as_const(sdevs))
         {
-            in_use[dev] = std::find(db.begin(), db.end(), dev) != db.end();
+            in_use[dev] = std::ranges::find(db, dev) != db.end();
             if (sel.isEmpty() && !in_use[dev])
                 sel = dev;
         }

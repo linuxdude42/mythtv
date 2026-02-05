@@ -450,21 +450,21 @@ bool DVBStreamData::GetEITPIDChanges(const uint_vec_t &cur_pids,
 
     if ((m_eitRate >= 0.5F) && HasAnyEIT())
     {
-        if (find(cur_pids.begin(), cur_pids.end(),
+        if (std::ranges::find(cur_pids,
                  (uint) PID::DVB_EIT_PID) == cur_pids.end())
         {
             add_pids.push_back(PID::DVB_EIT_PID);
         }
 
         if (m_dvbEitDishnetLong &&
-            find(cur_pids.begin(), cur_pids.end(),
+            std::ranges::find(cur_pids,
                  (uint) PID::DVB_DNLONG_EIT_PID) == cur_pids.end())
         {
             add_pids.push_back(PID::DVB_DNLONG_EIT_PID);
         }
 
         if (m_dvbEitDishnetLong &&
-            find(cur_pids.begin(), cur_pids.end(),
+            std::ranges::find(cur_pids,
                  (uint) PID::DVB_BVLONG_EIT_PID) == cur_pids.end())
         {
             add_pids.push_back(PID::DVB_BVLONG_EIT_PID);
@@ -490,28 +490,28 @@ bool DVBStreamData::GetEITPIDChanges(const uint_vec_t &cur_pids,
 #endif
 
         if (m_desiredNetId == OriginalNetworkID::PREMIERE &&
-            find(cur_pids.begin(), cur_pids.end(),
+            std::ranges::find(cur_pids,
                  (uint) PID::PREMIERE_EIT_DIREKT_PID) == cur_pids.end())
         {
             add_pids.push_back(PID::PREMIERE_EIT_DIREKT_PID);
         }
 
         if (m_desiredNetId == OriginalNetworkID::PREMIERE &&
-            find(cur_pids.begin(), cur_pids.end(),
+            std::ranges::find(cur_pids,
                  (uint) PID::PREMIERE_EIT_SPORT_PID) == cur_pids.end())
         {
             add_pids.push_back(PID::PREMIERE_EIT_SPORT_PID);
         }
 
         if (m_desiredNetId == OriginalNetworkID::SES2 &&
-            find(cur_pids.begin(), cur_pids.end(),
+            std::ranges::find(cur_pids,
                  (uint) PID::FREESAT_EIT_PID) == cur_pids.end())
         {
             add_pids.push_back(PID::FREESAT_EIT_PID);
         }
 
         if (OriginalNetworkID::MCA == m_desiredNetId && MCA_EIT_TSID == m_desiredTsId &&
-            find(cur_pids.begin(), cur_pids.end(),
+            std::ranges::find(cur_pids,
                  (uint) PID::MCA_EIT_PID) == cur_pids.end())
         {
             add_pids.push_back(PID::MCA_EIT_PID);
@@ -520,21 +520,21 @@ bool DVBStreamData::GetEITPIDChanges(const uint_vec_t &cur_pids,
     }
     else
     {
-        if (find(cur_pids.begin(), cur_pids.end(),
+        if (std::ranges::find(cur_pids,
                  (uint) PID::DVB_EIT_PID) != cur_pids.end())
         {
             del_pids.push_back(PID::DVB_EIT_PID);
         }
 
         if (m_dvbEitDishnetLong &&
-            find(cur_pids.begin(), cur_pids.end(),
+            std::ranges::find(cur_pids,
                  (uint) PID::DVB_DNLONG_EIT_PID) != cur_pids.end())
         {
             del_pids.push_back(PID::DVB_DNLONG_EIT_PID);
         }
 
         if (m_dvbEitDishnetLong &&
-            find(cur_pids.begin(), cur_pids.end(),
+            std::ranges::find(cur_pids,
                  (uint) PID::DVB_BVLONG_EIT_PID) != cur_pids.end())
         {
             del_pids.push_back(PID::DVB_BVLONG_EIT_PID);
@@ -560,28 +560,28 @@ bool DVBStreamData::GetEITPIDChanges(const uint_vec_t &cur_pids,
 #endif
 
         if (m_desiredNetId == OriginalNetworkID::PREMIERE &&
-            find(cur_pids.begin(), cur_pids.end(),
+            std::ranges::find(cur_pids,
                  (uint) PID::PREMIERE_EIT_DIREKT_PID) != cur_pids.end())
         {
             del_pids.push_back(PID::PREMIERE_EIT_DIREKT_PID);
         }
 
         if (m_desiredNetId == OriginalNetworkID::PREMIERE &&
-            find(cur_pids.begin(), cur_pids.end(),
+            std::ranges::find(cur_pids,
                  (uint) PID::PREMIERE_EIT_SPORT_PID) != cur_pids.end())
         {
             del_pids.push_back(PID::PREMIERE_EIT_SPORT_PID);
         }
 
         if (m_desiredNetId == OriginalNetworkID::SES2 &&
-            find(cur_pids.begin(), cur_pids.end(),
+            std::ranges::find(cur_pids,
                  (uint) PID::FREESAT_EIT_PID) != cur_pids.end())
         {
             del_pids.push_back(PID::FREESAT_EIT_PID);
         }
 
         if (OriginalNetworkID::MCA == m_desiredNetId && MCA_EIT_TSID == m_desiredTsId &&
-            find(cur_pids.begin(), cur_pids.end(),
+            std::ranges::find(cur_pids,
                  (uint) PID::MCA_EIT_PID) != cur_pids.end())
         {
             del_pids.push_back(PID::MCA_EIT_PID);
@@ -1023,7 +1023,7 @@ void DVBStreamData::AddDVBMainListener(DVBMainStreamListener *val)
 {
     QMutexLocker locker(&m_listenerLock);
 
-    if (std::any_of(m_dvbMainListeners.cbegin(), m_dvbMainListeners.cend(),
+    if (std::ranges::any_of(m_dvbMainListeners,
                     [val](auto & listener){ return val == listener; } ))
         return;
 
@@ -1048,7 +1048,7 @@ void DVBStreamData::AddDVBOtherListener(DVBOtherStreamListener *val)
 {
     QMutexLocker locker(&m_listenerLock);
 
-    if (std::any_of(m_dvbOtherListeners.cbegin(), m_dvbOtherListeners.cend(),
+    if (std::ranges::any_of(m_dvbOtherListeners,
                     [val](auto & listener){ return val == listener; } ))
         return;
 
@@ -1073,7 +1073,7 @@ void DVBStreamData::AddDVBEITListener(DVBEITStreamListener *val)
 {
     QMutexLocker locker(&m_listenerLock);
 
-    if (std::any_of(m_dvbEitListeners.cbegin(), m_dvbEitListeners.cend(),
+    if (std::ranges::any_of(m_dvbEitListeners,
                     [val](auto & listener){ return val == listener; } ))
         return;
 

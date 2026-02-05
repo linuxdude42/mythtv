@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <chrono> // for milliseconds
 #include <thread> // for sleep_for
 
@@ -235,7 +236,7 @@ std::vector<uint> RemoteRequestFreeRecorderList(uint excluded_input)
         RemoteRequestFreeInputInfo(excluded_input);
 
     std::vector<uint> inputids;
-    std::transform(inputs.cbegin(), inputs.cend(), std::back_inserter(inputids),
+    std::ranges::transform(inputs, std::back_inserter(inputids),
                    [](const auto & input){ return input.m_inputId; } );
 
     LOG(VB_CHANNEL, LOG_INFO,
@@ -253,7 +254,7 @@ std::vector<uint> RemoteRequestFreeInputList(uint excluded_input)
         RemoteRequestFreeInputInfo(excluded_input);
 
     std::vector<uint> inputids;
-    std::transform(inputs.cbegin(), inputs.cend(), std::back_inserter(inputids),
+    std::ranges::transform(inputs, std::back_inserter(inputids),
                    [](const auto & input){ return input.m_inputId; } );
 
     LOG(VB_CHANNEL, LOG_INFO,
@@ -275,7 +276,7 @@ RemoteEncoder *RemoteRequestFreeRecorderFromList
     {
         uint inputid = recorder.toUInt();
         auto sameinput = [inputid](const auto & input){ return input.m_inputId == inputid; };
-        if (std::any_of(inputs.cbegin(), inputs.cend(), sameinput))
+        if (std::ranges::any_of(inputs, sameinput))
         {
             LOG(VB_CHANNEL, LOG_INFO,
                 QString("RemoteRequestFreeRecorderFromList got input %1")

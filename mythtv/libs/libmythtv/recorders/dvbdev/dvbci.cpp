@@ -28,6 +28,7 @@
 
 #include <QtGlobal> // for Q_OS_XXX
 
+#include <algorithm>
 #include <array>
 #include <cctype>
 #include <cerrno>
@@ -1064,7 +1065,7 @@ bool cCiConditionalAccessSupport::Process(int Length, const uint8_t *Data)
                   l -= 2;
 
                   // Make sure the id is not already present
-                  if (std::find(m_caSystemIds.cbegin(), m_caSystemIds.cend(), id)
+                  if (std::ranges::find(m_caSystemIds, id)
                       != m_caSystemIds.end())
                       continue;
 

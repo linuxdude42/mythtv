@@ -5,6 +5,7 @@
  */
 
 // Std C headers
+#include <algorithm>
 #include <array>
 #include <cmath>
 #include <utility>
@@ -320,7 +321,7 @@ bool DiseqcConfigBase::keyPressEvent(QKeyEvent *e)
         return true;
 
     auto isdelete = [](const QString & action) { return action == "DELETE"; };
-    if (std::any_of(actions.cbegin(), actions.cend(), isdelete))
+    if (std::ranges::any_of(actions, isdelete))
     {
         emit DeleteClicked();
         return true;

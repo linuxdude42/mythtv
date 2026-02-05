@@ -1,3 +1,6 @@
+// C++ headers
+#include <algorithm>
+
 // Qt
 #include <QCoreApplication>
 
@@ -215,7 +218,7 @@ uint TVBrowseHelper::GetBrowseChanId(const QString& Channum, uint PrefCardid, ui
     {
         auto samesourceid = [&Channum, &PrefSourceid](const ChannelInfo& Chan)
             { return Chan.m_sourceId == PrefSourceid && Chan.m_chanNum == Channum; };
-        auto chan = std::find_if(m_dbAllChannels.cbegin(), m_dbAllChannels.cend(), samesourceid);
+        auto chan = std::ranges::find_if(m_dbAllChannels, samesourceid);
         if (chan != m_dbAllChannels.cend())
             return chan->m_chanId;
     }
@@ -224,7 +227,7 @@ uint TVBrowseHelper::GetBrowseChanId(const QString& Channum, uint PrefCardid, ui
     {
         auto prefcardid = [&Channum, &PrefCardid](const ChannelInfo& Chan)
             { return Chan.GetInputIds().contains(PrefCardid) && Chan.m_chanNum == Channum; };
-        auto chan = std::find_if(m_dbAllChannels.cbegin(), m_dbAllChannels.cend(), prefcardid);
+        auto chan = std::ranges::find_if(m_dbAllChannels, prefcardid);
         if (chan != m_dbAllChannels.cend())
             return chan->m_chanId;
     }
@@ -232,7 +235,7 @@ uint TVBrowseHelper::GetBrowseChanId(const QString& Channum, uint PrefCardid, ui
     if (m_dbBrowseAllTuners)
     {
         auto channelmatch = [&Channum](const ChannelInfo& Chan) { return Chan.m_chanNum == Channum; };
-        auto chan = std::find_if(m_dbAllChannels.cbegin(), m_dbAllChannels.cend(), channelmatch);
+        auto chan = std::ranges::find_if(m_dbAllChannels, channelmatch);
         if (chan != m_dbAllChannels.cend())
             return chan->m_chanId;
     }
@@ -501,7 +504,7 @@ void TVBrowseHelper::run()
             if (!chanids.empty())
             {
                 auto tunable = [](uint chanid) { return TV::IsTunable(chanid); };
-                auto it = std::find_if(chanids.cbegin(), chanids.cend(), tunable);
+                auto it = std::ranges::find_if(chanids, tunable);
                 if (it != chanids.cend())
                 {
                     infoMap["chanid"] = QString::number(*it);

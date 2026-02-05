@@ -878,7 +878,7 @@ bool ChannelUtil::GetCachedPids(uint chanid,
         if ((pid >= 0) && (tid >= 0))
             pid_cache.emplace_back(pid, tid);
     }
-    stable_sort(pid_cache.begin(), pid_cache.end(), lt_pidcache);
+    std::ranges::stable_sort(pid_cache, lt_pidcache);
 
     return true;
 }
@@ -916,7 +916,7 @@ bool ChannelUtil::SaveCachedPids(uint chanid,
     pid_cache_t old_cache;
     GetCachedPids(chanid, old_cache);
     pid_cache_t pid_cache = _pid_cache;
-    stable_sort(pid_cache.begin(), pid_cache.end(), lt_pidcache);
+    std::ranges::stable_sort(pid_cache, lt_pidcache);
 
     /// insert
     query.prepare(
@@ -2343,9 +2343,9 @@ void ChannelUtil::SortChannels(ChannelInfoList &list, const QString &order,
 {
     bool cs = order.toLower() == "callsign";
     if (cs)
-        stable_sort(list.begin(), list.end(), lt_callsign);
+        std::ranges::stable_sort(list, lt_callsign);
     else /* if (sortorder == "channum") */
-        stable_sort(list.begin(), list.end(), lt_smart);
+        std::ranges::stable_sort(list, lt_smart);
 
     if (eliminate_duplicates && !list.empty())
     {

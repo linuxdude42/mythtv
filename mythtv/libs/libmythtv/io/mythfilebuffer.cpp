@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <thread>
 
 // QT
@@ -128,7 +129,7 @@ static bool CheckPermissions(const QString &Filename)
 
 static bool IsSubtitlePossible(const QString &Extension)
 {
-    auto it = std::find_if(kSubExtNoCheck.cbegin(), kSubExtNoCheck.cend(),
+    auto it = std::ranges::find_if(kSubExtNoCheck,
                            [Extension] (const QString& ext) -> bool
                                {return ext.contains(Extension);});
     return (it != nullptr);

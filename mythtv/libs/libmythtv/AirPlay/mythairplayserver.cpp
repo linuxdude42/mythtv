@@ -3,6 +3,7 @@
 // race on startup?
 // http date format and locale
 
+#include <algorithm>
 #include <chrono>
 #include <vector>
 
@@ -234,7 +235,7 @@ class APHTTPRequest
     QByteArray GetQueryValue(const QByteArray& key)
     {
         auto samekey = [key](const auto& query) { return query.first == key; };;
-        auto query = std::find_if(m_queries.cbegin(), m_queries.cend(), samekey);
+        auto query = std::ranges::find_if(m_queries, samekey);
         return (query != m_queries.cend()) ? query->second : "";
     }
 

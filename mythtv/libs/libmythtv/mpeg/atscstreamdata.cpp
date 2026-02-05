@@ -1,9 +1,8 @@
 // -*- Mode: c++ -*-
 // Copyright (c) 2003-2004, Daniel Thor Kristjansson
 
-#include <cmath>
-
 #include <algorithm>
+#include <cmath>
 
 #include "atscstreamdata.h"
 
@@ -528,14 +527,14 @@ bool ATSCStreamData::GetEITPIDChanges(const uint_vec_t &cur_pids,
     uint_vec_t::const_iterator it3;
     for (uint pid : cur_pids)
     {
-        it3 = find(add_pids_tmp.begin(), add_pids_tmp.end(), pid);
+        it3 = std::ranges::find(add_pids_tmp, pid);
         if (it3 == add_pids_tmp.end())
             del_pids.push_back(pid);
     }
 
     for (uint pid : add_pids_tmp)
     {
-        it3 = find(cur_pids.begin(), cur_pids.end(), pid);
+        it3 = std::ranges::find(cur_pids, pid);
         if (it3 == cur_pids.end())
             add_pids.push_back(pid);
     }
@@ -942,7 +941,7 @@ void ATSCStreamData::AddATSCMainListener(ATSCMainStreamListener *val)
 {
     QMutexLocker locker(&m_listenerLock);
 
-    if (std::any_of(m_atscMainListeners.cbegin(), m_atscMainListeners.cend(),
+    if (std::ranges::any_of(m_atscMainListeners,
                     [val](auto & listener){ return val == listener; } ))
         return;
     m_atscMainListeners.push_back(val);
@@ -966,7 +965,7 @@ void ATSCStreamData::AddSCTEMainListener(SCTEMainStreamListener *val)
 {
     QMutexLocker locker(&m_listenerLock);
 
-    if (std::any_of(m_scteMainlisteners.cbegin(), m_scteMainlisteners.cend(),
+    if (std::ranges::any_of(m_scteMainlisteners,
                     [val](auto & listener){ return val == listener; } ))
         return;
 
@@ -991,7 +990,7 @@ void ATSCStreamData::AddATSCAuxListener(ATSCAuxStreamListener *val)
 {
     QMutexLocker locker(&m_listenerLock);
 
-    if (std::any_of(m_atscAuxListeners.cbegin(), m_atscAuxListeners.cend(),
+    if (std::ranges::any_of(m_atscAuxListeners,
                     [val](auto & listener){ return val == listener; } ))
         return;
 
@@ -1016,7 +1015,7 @@ void ATSCStreamData::AddATSCEITListener(ATSCEITStreamListener *val)
 {
     QMutexLocker locker(&m_listenerLock);
 
-    if (std::any_of(m_atscEitListeners.cbegin(), m_atscEitListeners.cend(),
+    if (std::ranges::any_of(m_atscEitListeners,
                     [val](auto & listener){ return val == listener; } ))
         return;
 
@@ -1041,7 +1040,7 @@ void ATSCStreamData::AddATSC81EITListener(ATSC81EITStreamListener *val)
 {
     QMutexLocker locker(&m_listenerLock);
 
-    if (std::any_of(m_atsc81EitListeners.cbegin(), m_atsc81EitListeners.cend(),
+    if (std::ranges::any_of(m_atsc81EitListeners,
                     [val](auto & listener){ return val == listener; } ))
         return;
 
