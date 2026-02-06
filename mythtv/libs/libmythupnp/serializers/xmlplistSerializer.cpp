@@ -20,6 +20,7 @@
 
 #include <QMetaClassInfo>
 #include <QDateTime>
+#include <algorithm>
 
 static constexpr const char* XMLPLIST_SERIALIZER_VERSION { "1.0" };
 
@@ -156,7 +157,7 @@ void XmlPListSerializer::RenderList(const QString &sName,
     {
 #if QT_VERSION < QT_VERSION_CHECK(6,0,0)
         auto t = static_cast<QMetaType::Type>(list[0].type());
-        array = std::all_of(list.cbegin(), list.cend(),
+        array = std::ranges::all_of(list,
                             [t](const QVariant& v)
                                 { return t == static_cast<QMetaType::Type>(v.type()); } );
 #else
