@@ -1466,14 +1466,14 @@ static bool start_time_less_than(const DBEvent *a, const DBEvent *b)
     return (a->m_starttime < b->m_starttime);
 }
 
-void ProgramData::FixProgramList(QList<ProgInfo*> &fixlist)
+void ProgramData::FixProgramList(std::vector<ProgInfo*> &fixlist)
 {
-    std::stable_sort(fixlist.begin(), fixlist.end(), start_time_less_than);
+    std::ranges::stable_sort(fixlist, start_time_less_than);
 
-    QList<ProgInfo*>::iterator it = fixlist.begin();
+    auto it = fixlist.begin();
     while (true)
     {
-        QList<ProgInfo*>::iterator cur = it;
+        auto cur = it;
         ++it;
 
         // fill in miss stop times
@@ -1495,8 +1495,8 @@ void ProgramData::FixProgramList(QList<ProgInfo*> &fixlist)
         // remove overlapping programs
         if ((*cur)->HasTimeConflict(**it))
         {
-            QList<ProgInfo*>::iterator tokeep;
-            QList<ProgInfo*>::iterator todelete;
+            std::vector<ProgInfo*>::iterator tokeep;
+            std::vector<ProgInfo*>::iterator todelete;
 
             if ((*cur)->m_endtime <= (*cur)->m_starttime)
                 tokeep = it, todelete = cur;    // NOLINT(bugprone-branch-clone)
@@ -1587,7 +1587,7 @@ void ProgramData::HandlePrograms(
         }
 
         QList<ProgInfo> &list = proglist[mapiter.key()];
-        QList<ProgInfo*> sortlist;
+        std::vector<ProgInfo*> sortlist;
         // NOLINTNEXTLINE(modernize-loop-convert)
         for (auto it = list.begin(); it != list.end(); ++it)
             sortlist.push_back(&(*it));
@@ -1616,7 +1616,7 @@ void ProgramData::HandlePrograms(
  */
 void ProgramData::HandlePrograms(MSqlQuery             &query,
                                  uint                   chanid,
-                                 const QList<ProgInfo*> &sortlist,
+                                 const std::vector<ProgInfo*> &sortlist,
                                  uint &unchanged,
                                  uint &updated)
 {

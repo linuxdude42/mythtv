@@ -269,10 +269,10 @@ class MTV_PUBLIC ProgramData
         bool use_channel_time_offset);
 
   private:
-    static void FixProgramList(QList<ProgInfo*> &fixlist);
+    static void FixProgramList(std::vector<ProgInfo*> &fixlist);
     static void HandlePrograms(
         MSqlQuery &query, uint chanid,
-        const QList<ProgInfo*> &sortlist,
+        const std::vector<ProgInfo*> &sortlist,
         uint &unchanged, uint &updated);
     static bool IsUnchanged(
         MSqlQuery &query, uint chanid, const ProgInfo &pi);
