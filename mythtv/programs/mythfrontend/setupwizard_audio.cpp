@@ -144,7 +144,7 @@ void AudioSetupWizard::Init(void)
     if (!current.isEmpty())
     {
         auto samename = [current](const auto & ao){ return ao.m_name == current; };
-        found = std::any_of(m_outputlist->cbegin(), m_outputlist->cend(), samename);
+        found = std::ranges::any_of(*m_outputlist, samename);
         if (!found)
         {
             AudioOutput::AudioDeviceConfig *adc =
@@ -195,7 +195,7 @@ AudioOutputSettings AudioSetupWizard::UpdateCapabilities(bool restore, bool AC3)
 
     auto samename = [out](const auto & ao){ return ao.m_name == out; };
     // NOLINTNEXTLINE(readability-qualified-auto) // qt6
-    const auto ao = std::find_if(m_outputlist->cbegin(), m_outputlist->cend(), samename);
+    const auto ao = std::ranges::find_if(*m_outputlist, samename);
     if (ao != m_outputlist->cend())
         settings = ao->m_settings;
 

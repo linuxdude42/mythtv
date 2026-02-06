@@ -2,6 +2,7 @@
 // -*- Mode: c++ -*-
 
 // Standard UNIX C headers
+#include <algorithm>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -1150,7 +1151,7 @@ bool PlaybackProfileItemConfig::keyPressEvent(QKeyEvent *e)
     if (GetMythMainWindow()->TranslateKeyPress("Global", e, actions))
         return true;
 
-    if (std::any_of(actions.cbegin(), actions.cend(),
+    if (std::ranges::any_of(actions,
                     [](const QString & action) { return action == "DELETE"; } ))
     {
         ShowDeleteDialog();
