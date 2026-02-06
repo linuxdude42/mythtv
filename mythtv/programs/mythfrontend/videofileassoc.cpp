@@ -146,6 +146,9 @@ namespace
         UIDToFAPair(UID_type uid, FileAssociationWrap *assoc) :
             m_uid(uid), m_fileAssoc(assoc) {}
 
+        bool operator==(const UIDToFAPair& o) const { return m_uid == o.m_uid; }
+        auto operator<=>(const UIDToFAPair& o) const { return m_uid <=> o.m_uid; }
+
         UID_type m_uid {0};
         FileAssociationWrap *m_fileAssoc {nullptr};
     };
@@ -222,7 +225,7 @@ class FileAssocDialogPrivate
                 test_fa_state<FileAssociationWrap::efsDELETE>());
         ret.erase(first, last);
 
-        std::sort(ret.begin(), ret.end());
+        std::ranges::sort(ret);
 
         return ret;
     }
