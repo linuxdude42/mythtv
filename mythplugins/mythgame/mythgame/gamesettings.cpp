@@ -1,4 +1,5 @@
 // C++
+#include <algorithm>
 #include <array>
 
 // Qt
@@ -38,7 +39,7 @@ QString GetGameTypeName(const QString &GameType)
 {
     auto sametype = [GameType](const auto & console)
         { return console.m_idStr == GameType; };
-    const auto *const con = std::find_if(GameTypeList.cbegin(), GameTypeList.cend(), sametype);
+    const auto *const con = std::ranges::find_if(GameTypeList, sametype);
     return (con != GameTypeList.cend())
         ? QCoreApplication::translate("(GameTypes)", con->m_nameStr.toUtf8().constData())
         : "";
@@ -48,7 +49,7 @@ QString GetGameTypeExtensions(const QString &GameType)
 {
     auto sametype = [GameType](const auto & console)
         { return console.m_idStr == GameType; };
-    const auto *const con = std::find_if(GameTypeList.cbegin(), GameTypeList.cend(), sametype);
+    const auto *const con = std::ranges::find_if(GameTypeList, sametype);
     return (con != GameTypeList.cend()) ? con->m_extensions : "";
 }
 
