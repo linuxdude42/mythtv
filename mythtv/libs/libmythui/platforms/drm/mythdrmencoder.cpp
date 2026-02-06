@@ -1,6 +1,8 @@
 // MythTV
 #include "platforms/drm/mythdrmencoder.h"
 
+#include <algorithm>
+
 /*! \class MythDRMEncoder
  * \brief A simple object representing a DRM encoder.
  *
@@ -19,7 +21,7 @@ DRMEnc MythDRMEncoder::Create(int FD, uint32_t Id)
 DRMEnc MythDRMEncoder::GetEncoder(const DRMEncs& Encoders, uint32_t Id)
 {
     auto match = [&Id](const auto & Enc) { return Enc->m_id == Id; };
-    if (auto found = std::find_if(Encoders.cbegin(), Encoders.cend(), match); found != Encoders.cend())
+    if (auto found = std::ranges::find_if(Encoders, match); found != Encoders.cend())
         return *found;
     return nullptr;
 }

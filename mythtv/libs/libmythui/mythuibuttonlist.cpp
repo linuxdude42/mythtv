@@ -1,7 +1,7 @@
 #include "mythuibuttonlist.h"
 
-#include <cmath>
 #include <algorithm>
+#include <cmath>
 #include <utility>
 
 // QT headers
@@ -1678,7 +1678,7 @@ MythUIButtonListItem *MythUIButtonList::GetItemNext(MythUIButtonListItem *item)
 const
 {
     // Find item
-    auto it = std::find(m_itemList.begin(), m_itemList.end(), item);
+    auto it = std::ranges::find(m_itemList, item);
     if (it == m_itemList.end())
         return nullptr;
     // Return next

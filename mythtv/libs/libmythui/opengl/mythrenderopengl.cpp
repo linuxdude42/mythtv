@@ -865,9 +865,7 @@ void MythRenderOpenGL::DrawBitmap(MythGLTexture *Texture, QOpenGLFramebufferObje
             void* target = buffer->map(QOpenGLBuffer::WriteOnly);
             if (target)
             {
-                std::copy(Texture->m_vertexData.cbegin(),
-                          Texture->m_vertexData.cend(),
-                          static_cast<GLfloat*>(target));
+                std::ranges::copy(Texture->m_vertexData, static_cast<GLfloat*>(target));
             }
             buffer->unmap();
         }
@@ -931,9 +929,7 @@ void MythRenderOpenGL::DrawBitmap(std::vector<MythGLTexture *> &Textures,
             void* target = buffer->map(QOpenGLBuffer::WriteOnly);
             if (target)
             {
-                std::copy(first->m_vertexData.cbegin(),
-                          first->m_vertexData.cend(),
-                          static_cast<GLfloat*>(target));
+                std::ranges::copy(first->m_vertexData, static_cast<GLfloat*>(target));
             }
             buffer->unmap();
         }

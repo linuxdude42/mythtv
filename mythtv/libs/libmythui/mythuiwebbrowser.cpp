@@ -410,7 +410,7 @@ QString MythWebEngineView::getExtensionForMimetype(const QString &mimetype)
     if (mimetype.isEmpty())
         return {""};
 
-    auto it = std::find_if(SupportedMimeTypes.cbegin(), SupportedMimeTypes.cend(),
+    auto it = std::ranges::find_if(SupportedMimeTypes,
                            [mimetype] (const MimeType& entry) -> bool
                                { return mimetype == entry.m_mimeType; });
     if (it != SupportedMimeTypes.cend())
@@ -420,7 +420,7 @@ QString MythWebEngineView::getExtensionForMimetype(const QString &mimetype)
 
 bool MythWebEngineView::isMusicFile(const QString &extension, const QString &mimetype)
 {
-    return std::any_of(SupportedMimeTypes.cbegin(), SupportedMimeTypes.cend(),
+    return std::ranges::any_of(SupportedMimeTypes,
                        [extension, mimetype](const auto &entry){
                            if (entry.m_isVideo)
                                return false;
@@ -435,7 +435,7 @@ bool MythWebEngineView::isMusicFile(const QString &extension, const QString &mim
 
 bool MythWebEngineView::isVideoFile(const QString &extension, const QString &mimetype)
 {
-    return std::any_of(SupportedMimeTypes.cbegin(), SupportedMimeTypes.cend(),
+    return std::ranges::any_of(SupportedMimeTypes,
                        [extension, mimetype](const auto &entry) {
                            if (!entry.m_isVideo)
                                return false;

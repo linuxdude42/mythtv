@@ -2,6 +2,8 @@
 #include "libmythbase/mythlogging.h"
 #include "platforms/drm/mythdrmplane.h"
 
+#include <algorithm>
+
 #define LOC QString("DRMPlane: ")
 
 /*! \class MythDRMPlane
@@ -173,7 +175,7 @@ bool MythDRMPlane::FormatIsVideo(uint32_t Format)
         DRM_FORMAT_YUYV, DRM_FORMAT_YVYU, DRM_FORMAT_UYVY, DRM_FORMAT_VYUY
     };
 
-    return std::find(s_yuvFormats.cbegin(), s_yuvFormats.cend(), Format) != s_yuvFormats.cend();
+    return std::ranges::find(s_yuvFormats, Format) != s_yuvFormats.cend();
 }
 
 /*! \brief Enusure list of supplied formats contains a format that is suitable for OpenGL/Vulkan.
@@ -190,7 +192,7 @@ bool MythDRMPlane::HasOverlayFormat(const FOURCCVec &Formats)
     };
 
     for (auto format : Formats)
-        if (std::any_of(s_rgbFormats.cbegin(), s_rgbFormats.cend(), [&format](auto Format) { return Format == format; }))
+        if (std::ranges::any_of(s_rgbFormats, [&format](auto Format) { return Format == format; }))
             return true;
 
     return false;
@@ -205,7 +207,7 @@ uint32_t MythDRMPlane::GetAlphaFormat(const FOURCCVec &Formats)
     };
 
     for (auto format : s_alphaFormats)
-        if (std::any_of(Formats.cbegin(), Formats.cend(), [&format](auto Format) { return Format == format; }))
+        if (std::ranges::any_of(Formats, [&format](auto Format) { return Format == format; }))
             return format;
 
     return DRM_FORMAT_INVALID;
