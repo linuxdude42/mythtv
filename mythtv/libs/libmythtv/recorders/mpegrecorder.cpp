@@ -1053,8 +1053,7 @@ void MpegRecorder::run(void)
                         QMutexLocker locker(&m_statisticsLock);
                         QDateTime gap_end(MythDate::current());
 
-                        m_recordingGaps.push_back(RecordingGap
-                                                (gap_start, gap_end));
+                        m_recordingGaps.emplace_back(gap_start, gap_end);
                         LOG(VB_RECORD, LOG_DEBUG,
                             LOC + QString("Inserted gap %1 dur %2")
                             .arg(m_recordingGaps.back().toString())

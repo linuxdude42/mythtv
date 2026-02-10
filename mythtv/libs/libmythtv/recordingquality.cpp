@@ -20,7 +20,7 @@ RecordingQuality::RecordingQuality(const RecordingInfo *ri,
     if (!ri)
         return;
 
-    std::stable_sort(m_recordingGaps.begin(), m_recordingGaps.end());
+    std::ranges::stable_sort(m_recordingGaps);
     merge_overlapping(m_recordingGaps);
 
     m_overallScore = score_gaps(*ri, m_recordingGaps);
@@ -42,13 +42,13 @@ RecordingQuality::RecordingQuality(
     // trim start
     QDateTime start = get_start(*ri);
     while (!m_recordingGaps.empty() &&
-           m_recordingGaps.first().GetStart() < start)
+           m_recordingGaps.front().GetStart() < start)
     {
-        RecordingGap &firstGap = m_recordingGaps.first();
+        RecordingGap &firstGap = m_recordingGaps.front();
         if (start < firstGap.GetEnd())
             firstGap = RecordingGap(start, firstGap.GetEnd());
         else
-            m_recordingGaps.pop_front();
+            m_recordingGaps.erase(m_recordingGaps.begin());
     }
 
     // trim end
@@ -66,14 +66,14 @@ RecordingQuality::RecordingQuality(
     // account for late start
     int start_gap = (first.isValid()) ? start.secsTo(first) : 0;
     if (start_gap >  gCoreContext->GetNumSetting("MaxStartGap", 15))
-        m_recordingGaps.push_front(RecordingGap(start, first));
+        m_recordingGaps.insert(m_recordingGaps.begin(), RecordingGap(start, first));
 
     // account for missing end
     int end_gap = (latest.isValid()) ? latest.secsTo(end) : 0;
     if (end_gap > gCoreContext->GetNumSetting("MaxEndGap", 15))
-        m_recordingGaps.push_back(RecordingGap(latest, end));
+        m_recordingGaps.emplace_back(latest, end);
 
-    std::stable_sort(m_recordingGaps.begin(), m_recordingGaps.end());
+    std::ranges::stable_sort(m_recordingGaps);
     merge_overlapping(m_recordingGaps);
 
     m_overallScore = score_gaps(*ri, m_recordingGaps);
@@ -146,8 +146,8 @@ static void merge_overlapping(RecordingGaps &gaps)
     if (gaps.empty())
         return;
 
-    RecordingGaps::iterator it = gaps.begin();
-    RecordingGaps::iterator next = it; ++next;
+    auto it = gaps.begin();
+    auto next = it; ++next;
     while (next != gaps.end())
     {
         if ((*it).GetEnd() >= (*next).GetStart())
@@ -165,7 +165,7 @@ static void merge_overlapping(RecordingGaps &gaps)
 
 static double score_gaps(const RecordingInfo &ri, const RecordingGaps &gaps)
 {
-    RecordingGaps::const_iterator it = gaps.begin();
+    auto it = gaps.begin();
     if (it == gaps.end())
         return 1.0;
 

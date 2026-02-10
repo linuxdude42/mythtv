@@ -25,11 +25,23 @@ class RecordingGap
                  m_end.toString(Qt::ISODate));
     }
     bool operator<(const RecordingGap &o) const { return m_start < o.m_start; }
+    bool operator==(const RecordingGap &o) const
+    { return (m_start == o.m_start) && (m_end == o.m_end); }
+    auto operator<=>(const RecordingGap &o) const
+    {
+        if (m_end < o.m_start)
+            return std::strong_ordering::less;
+        if (m_start > o.m_end)
+            return std::strong_ordering::greater;
+        if ((m_start == o.m_start) && (m_end == o.m_end))
+            return std::strong_ordering::equal;
+        return std::strong_ordering::equivalent;
+    }
   private:
     QDateTime m_start;
     QDateTime m_end;
 };
-using RecordingGaps = QList<RecordingGap>;
+using RecordingGaps = std::vector<RecordingGap>;
 
 class MTV_PUBLIC RecordingQuality
 {

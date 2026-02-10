@@ -692,13 +692,12 @@ void DTVRecorder::HandleTimestamps(int stream_id, int64_t pts, int64_t dts)
         {
             QMutexLocker locker(&m_statisticsLock);
 
-            m_recordingGaps.push_back(
-                RecordingGap(
+            m_recordingGaps.emplace_back(
                     ts_to_qdatetime(
                         m_tsLast[stream_id], m_tsFirst[stream_id],
                         m_tsFirstDt[stream_id]),
                     ts_to_qdatetime(
-                        ts, m_tsFirst[stream_id], m_tsFirstDt[stream_id])));
+                        ts, m_tsFirst[stream_id], m_tsFirstDt[stream_id]));
             LOG(VB_RECORD, LOG_DEBUG, LOC + QString("Inserted gap %1 dur %2")
                 .arg(m_recordingGaps.back().toString()).arg(diff/90000.0));
 
