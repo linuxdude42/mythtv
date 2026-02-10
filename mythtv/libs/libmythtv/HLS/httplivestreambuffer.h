@@ -23,6 +23,8 @@
 #ifndef MythXCode_hlsbuffer_h
 #define MythXCode_hlsbuffer_h
 
+#include <vector>
+
 #include "libmythbase/mythconfig.h"
 #include "libmythtv/io/mythmediabuffer.h"
 
@@ -33,7 +35,7 @@ class StreamWorker;
 class PlaylistWorker;
 class HLSPlayback;
 
-using StreamsList = QList<HLSStream*>;
+using StreamsList = std::vector<HLSStream*>;
 
 class HLSRingBuffer : public MythMediaBuffer
 {
@@ -63,7 +65,7 @@ protected:
     long long SeekInternal(long long pos, int whence) override; // RingBuffer
 
 private:
-    void FreeStreamsList(QList<HLSStream*> *streams) const;
+    void FreeStreamsList(StreamsList *streams) const;
     HLSStream *GetStreamForSegment(int segnum) const;
     HLSStream *GetStream(int wanted, const StreamsList *streams = nullptr) const;
     HLSStream *GetFirstStream(const StreamsList *streams = nullptr) const;

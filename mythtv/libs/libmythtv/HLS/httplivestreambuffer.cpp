@@ -529,6 +529,10 @@ class HLSStream
     {
         return this->Bitrate() > b.Bitrate();
     }
+    auto operator<=>(const HLSStream &b) const
+    {
+        return this->Bitrate() <=> b.Bitrate();
+    }
 
     /**
      * Return the estimated size of the stream in bytes
@@ -1485,7 +1489,7 @@ private:
             HLSStream *hls_old = m_parent->FindStream(hls_new);
             if (hls_old == nullptr)
             {   /* new hls stream - append */
-                m_parent->m_streams.append(hls_new);
+                m_parent->m_streams.push_back(hls_new);
                 LOG(VB_PLAYBACK, LOG_INFO, LOC +
                     QString("new HLS stream appended (id=%1, bitrate=%2)")
                     .arg(hls_new->Id()).arg(hls_new->Bitrate()));
@@ -1584,14 +1588,14 @@ private:
         int err = RET_ERROR;
 
         /* Duplicate HLS stream META information */
-        for (int i = 0; i < m_parent->m_streams.size() && !m_interrupted; i++)
+        for (size_t i = 0; i < m_parent->m_streams.size() && !m_interrupted; i++)
         {
             auto *src = m_parent->GetStream(i);
             if (src == nullptr)
                 return RET_ERROR;
 
             auto *dst = new HLSStream(*src);
-            streams->append(dst);
+            streams->push_back(dst);
 
             /* Download playlist file from server */
             QByteArray buffer;
@@ -1665,7 +1669,7 @@ HLSRingBuffer::~HLSRingBuffer()
 void HLSRingBuffer::FreeStreamsList(StreamsList *streams) const
 {
     /* Free hls streams */
-    for (int i = 0; i < streams->size(); i++)
+    for (size_t i = 0; i < streams->size(); i++)
     {
         HLSStream *hls = GetStream(i, streams);
         delete hls;
@@ -2271,7 +2275,7 @@ int HLSRingBuffer::ParseM3U8(const QByteArray *buffer, StreamsList *streams)
                             delete hls;
                             continue;
                         }
-                        streams->append(hls);
+                        streams->push_back(hls);
                         // One last chance to abort early
                         if (m_killed)
                         {
@@ -2297,7 +2301,7 @@ int HLSRingBuffer::ParseM3U8(const QByteArray *buffer, StreamsList *streams)
         {
             /* No Meta playlist used */
             hls = new HLSStream(0, 0, m_m3u8);
-            streams->append(hls);
+            streams->push_back(hls);
             /* Get TARGET-DURATION first */
             p = buffer->indexOf("#EXT-X-TARGETDURATION:");
             if (p >= 0)
@@ -2551,7 +2555,7 @@ void HLSRingBuffer::SanitizeStreams(StreamsList *streams)
             continue;
         if (hls->NumSegments() == 0)
         {
-            streams->removeAt(n);
+            streams->erase(streams->begin() + n);
             continue;   // remove it
         }
 
@@ -2568,7 +2572,7 @@ void HLSRingBuffer::SanitizeStreams(StreamsList *streams)
         }
     }
     // Find the highest starting sequence for each stream
-    for (int n = 0; n < streams->size(); n++)
+    for (size_t n = 0; n < streams->size(); n++)
     {
         HLSStream *hls = GetStream(n, streams);
         if (hls == nullptr)
@@ -2638,7 +2642,7 @@ bool HLSRingBuffer::OpenFile(const QString &lfilename, std::chrono::milliseconds
         .arg(m_m3u8));
 
     /* Parse HLS m3u8 content. */
-    if (ParseM3U8(&buffer, &m_streams) != RET_OK || m_streams.isEmpty())
+    if (ParseM3U8(&buffer, &m_streams) != RET_OK || m_streams.empty())
     {
         LOG(VB_PLAYBACK, LOG_ERR, LOC +
             QString("An error occurred reading M3U8 playlist (%1)").arg(m_filename));
@@ -2650,7 +2654,7 @@ bool HLSRingBuffer::OpenFile(const QString &lfilename, std::chrono::milliseconds
 
     /* HLS standard doesn't provide any guaranty about streams
      being sorted by bitrate, so we sort them, higher bitrate being first */
-    std::sort(m_streams.begin(), m_streams.end(), HLSStream::IsGreater);
+    std::ranges::sort(m_streams, HLSStream::IsGreater);
 
     // if we want as close to live. We should be selecting a further segment
     // m_live ? ChooseSegment(0) : 0;
@@ -3051,7 +3055,7 @@ long long HLSRingBuffer::GetReadPosition(void) const
 
 bool HLSRingBuffer::IsOpen(void) const
 {
-    return !m_error && !m_streams.isEmpty() && NumSegments() > 0;
+    return !m_error && !m_streams.empty() && NumSegments() > 0;
 }
 
 void HLSRingBuffer::Interrupt(void)
