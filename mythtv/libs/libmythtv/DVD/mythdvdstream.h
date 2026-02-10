@@ -13,6 +13,7 @@
 
 // Std
 #include <cstdint>
+#include <vector>
 
 using dvd_reader_t = struct dvd_reader_s;
 
@@ -37,7 +38,7 @@ class MTV_PUBLIC MythDVDStream : public MythMediaBuffer
 
     dvd_reader_t     *m_reader { nullptr };
     uint32_t          m_start  { 0       };
-    QList<BlockRange> m_blocks;             // List of possibly encrypted block ranges
+    std::vector<BlockRange> m_blocks;       // List of possibly encrypted block ranges
     uint32_t          m_pos    { 0       }; // Current read position (blocks)
     int               m_title  { -1      }; // Last title decrypted
 };

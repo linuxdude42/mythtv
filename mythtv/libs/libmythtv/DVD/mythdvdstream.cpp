@@ -36,6 +36,20 @@ class MythDVDStream::BlockRange
     {
         return m_end <= rhs.m_start;
     }
+    bool operator== (const BlockRange& rhs) const
+    {
+        return (m_start == rhs.m_start) && (m_end == rhs.m_end);
+    }
+    auto operator<=> (const BlockRange& rhs) const
+    {
+        if (m_end <= rhs.m_start)
+            return std::strong_ordering::less;
+        if (m_start > rhs.m_end)
+            return std::strong_ordering::greater;
+        if ((m_start == rhs.m_start) && (m_end == rhs.m_end))
+            return std::strong_ordering::equal;
+        return std::strong_ordering::equivalent;
+    }
 
     uint32_t Start (void) const { return m_start; }
     uint32_t End   (void) const { return m_end;   }
@@ -121,7 +135,7 @@ bool MythDVDStream::OpenFile(const QString &Filename, std::chrono::milliseconds 
             m_rwLock.unlock();
             return false;
         }
-        m_blocks.append(BlockRange(0, Len2Blocks(len), 0));
+        m_blocks.emplace_back(0, Len2Blocks(len), 0);
     }
     else
     {
@@ -132,7 +146,7 @@ bool MythDVDStream::OpenFile(const QString &Filename, std::chrono::milliseconds 
         QString name { "VIDEO_TS/VIDEO_TS.VOB" };
         uint32_t start = UDFFindFile(m_reader, qPrintable(name), &len);
         if( start != 0 && len != 0 )
-            m_blocks.append(BlockRange(start, Len2Blocks(len), 0));
+            m_blocks.emplace_back(start, Len2Blocks(len), 0);
 
         const int kTitles = 100;
         for (int title = 1; title < kTitles; ++title)
@@ -141,7 +155,7 @@ bool MythDVDStream::OpenFile(const QString &Filename, std::chrono::milliseconds 
             name = QString("/VIDEO_TS/VTS_%1_0.VOB").arg(title,2,10,QChar('0'));
             start = UDFFindFile(m_reader, qPrintable(name), &len);
             if( start != 0 && len != 0 )
-                m_blocks.append(BlockRange(start, Len2Blocks(len), title));
+                m_blocks.emplace_back(start, Len2Blocks(len), title);
 
             for ( int part = 1; part < 10; ++part)
             {
@@ -149,11 +163,11 @@ bool MythDVDStream::OpenFile(const QString &Filename, std::chrono::milliseconds 
                 name = QString("/VIDEO_TS/VTS_%1_%2.VOB").arg(title,2,10,QChar('0')).arg(part);
                 start = UDFFindFile(m_reader, qPrintable(name), &len);
                 if( start != 0 && len != 0 )
-                    m_blocks.append(BlockRange(start, Len2Blocks(len), title + (part * kTitles)));
+                    m_blocks.emplace_back(start, Len2Blocks(len), title + (part * kTitles));
             }
         }
 
-        std::sort(m_blocks.begin(), m_blocks.end());
+        std::ranges::sort(m_blocks);
 
         // Open the root menu so that CSS keys are generated now
         dvd_file_t *file = DVDOpenFile(m_reader, 0, DVD_READ_MENU_VOBS);
@@ -190,7 +204,7 @@ int MythDVDStream::SafeRead(void *Buffer, uint Size)
     int ret = 0;
 
     // Are any blocks in the range encrypted?
-    auto it = std::lower_bound(m_blocks.begin(), m_blocks.end(), BlockRange(m_pos, block, -1));
+    auto it = std::ranges::lower_bound(m_blocks, BlockRange(m_pos, block, -1));
     uint32_t b {0};
     if (it == m_blocks.end())
         b = block;
