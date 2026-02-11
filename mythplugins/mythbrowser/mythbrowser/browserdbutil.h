@@ -18,6 +18,6 @@ bool RemoveFromDB(Bookmark *site);
 bool RemoveFromDB(const QString &category, const QString &name);
 
 int  GetCategoryList(QStringList &list);
-int  GetSiteList(QList<Bookmark*>  &siteList);
+int  GetSiteList(std::vector<Bookmark*>  &siteList);
 
 #endif

@@ -94,7 +94,7 @@ class BookmarkManager : public MythScreenType
     void ShowEditDialog(bool edit);
     void ReloadBookmarks(void);
 
-    QList<Bookmark*>  m_siteList;
+    std::vector<Bookmark*>  m_siteList;
 
     Bookmark          m_savedBookmark;
 

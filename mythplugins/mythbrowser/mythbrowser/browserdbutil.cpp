@@ -1,5 +1,6 @@
 // Qt
 #include <QSqlError>
+#include <algorithm>
 
 // MythTV
 #include <libmythbase/mythcorecontext.h>
@@ -200,10 +201,11 @@ int GetCategoryList(QStringList &list)
     return list.size();
 }
 
-int GetSiteList(QList<Bookmark*>  &siteList)
+int GetSiteList(std::vector<Bookmark*>  &siteList)
 {
-    while (!siteList.isEmpty())
-        delete siteList.takeFirst();
+    for (auto* site : std::as_const(siteList))
+        delete site;
+    siteList.clear();
 
     MSqlQuery query(MSqlQuery::InitCon());
 
@@ -224,9 +226,9 @@ int GetSiteList(QList<Bookmark*>  &siteList)
             site->m_url = query.value(2).toString();
             site->m_isHomepage = query.value(3).toBool();
             site->m_selected = false;
-            siteList.append(site);
+            siteList.push_back(site);
         }
-        std::sort(siteList.begin(), siteList.end(), Bookmark::sortByName);
+        std::ranges::sort(siteList, Bookmark::sortByName);
     }
 
     return siteList.size();

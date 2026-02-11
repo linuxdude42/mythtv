@@ -177,18 +177,17 @@ bool BookmarkManager::Create(void)
 
 BookmarkManager::~BookmarkManager()
 {
-    while (!m_siteList.isEmpty())
-        delete m_siteList.takeFirst();
+    for (auto* site : std::as_const(m_siteList))
+        delete site;
+    m_siteList.clear();
 }
 
 void BookmarkManager::UpdateGroupList(void)
 {
     m_groupList->Reset();
     QStringList groups;
-    for (int x = 0; x < m_siteList.count(); x++)
+    for (auto *site : m_siteList)
     {
-        Bookmark *site = m_siteList.at(x);
-
         if (groups.indexOf(site->m_category) == -1)
         {
             groups.append(site->m_category);
@@ -202,7 +201,7 @@ void BookmarkManager::UpdateURLList(void)
     m_bookmarkList->Reset();
 
     if (m_messageText)
-        m_messageText->SetVisible((m_siteList.count() == 0));
+        m_messageText->SetVisible(m_siteList.empty());
 
     MythUIButtonListItem *item = m_groupList->GetItemCurrent();
     if (!item)
@@ -210,10 +209,8 @@ void BookmarkManager::UpdateURLList(void)
 
     QString group = item->GetText();
 
-    for (int x = 0; x < m_siteList.count(); x++)
+    for (auto *site : m_siteList)
     {
-        Bookmark *site = m_siteList.at(x);
-
         if (group == site->m_category)
         {
             auto *item2 = new MythUIButtonListItem(m_bookmarkList,
