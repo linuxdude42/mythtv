@@ -2405,7 +2405,7 @@ uint ChannelUtil::GetNextChannel(
     bool              skip_same_channum_and_callsign,
     bool              skip_other_sources)
 {
-    auto it = find(sorted.cbegin(), sorted.cend(), old_chanid);
+    auto it = std::ranges::find(sorted, old_chanid, &ChannelInfo::m_chanId);
 
     if (it == sorted.end())
         it = sorted.begin(); // not in list, pretend we are on first channel
@@ -2421,8 +2421,9 @@ uint ChannelUtil::GetNextChannel(
         {
             if (it == sorted.begin())
             {
-                it = find(sorted.begin(), sorted.end(),
-                          sorted.rbegin()->m_chanId);
+                it = std::ranges::find(sorted,
+                          sorted.rbegin()->m_chanId,
+                          &ChannelInfo::m_chanId);
                 if (it == sorted.end())
                 {
                     --it;

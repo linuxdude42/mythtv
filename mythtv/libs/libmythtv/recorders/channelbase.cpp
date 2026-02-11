@@ -1,16 +1,14 @@
-// Std C headers
-#include <cstdlib>
+// C++ headers
+#include <algorithm>
 #include <cerrno>
+#include <cstdlib>
+#include <iostream>
 
 // POSIX headers
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-
-// C++ headers
-#include <iostream>
-#include <algorithm>
 
 // Qt headers
 #include <QCoreApplication>
@@ -103,7 +101,7 @@ bool ChannelBase::Init(QString &startchannel, bool setchan)
             m_channels, m_channels[0].m_chanId,
             mplexid_restriction, chanid_restriction, CHANNEL_DIRECTION_UP);
 
-        auto cit = find(m_channels.begin(), m_channels.end(), chanid);
+        auto cit = std::ranges::find(m_channels, chanid, &ChannelInfo::m_chanId);
 
         if ((chanid != 0U) && (cit != m_channels.end()))
         {
