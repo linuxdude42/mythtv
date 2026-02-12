@@ -1916,7 +1916,7 @@ if test -f /usr/bin/hostinfo ; then
     if test x"$arch" = x"ppc" -o x"$arch" = x"ppc64" ; then
         processor=`/usr/bin/hostinfo | grep "Processor type:"`
         processor=${processor#Processor type: *}
-        processor=${processor% (*}
+        processor=${processor% (*)}
         tune=$processor
     else
             # 10.4 only:
@@ -4235,9 +4235,9 @@ QT6_DEPRECATION_FIXED="6.10.0"
 
 # qmake-qt5 /usr/lib64/qt5/bin/qmake /usr/lib/x86_64-linux-gnu/qt5/bin/qmake
 if [ x"$qmake" = "xqmake" ]; then
-    CHECK_QMAKE=`which qmake-qt5 2>/dev/null`" /usr/lib64/qt5/bin/qmake /usr/lib/x86_64-linux-gnu/qt5/bin/qmake /usr/lib/i386-linux-gnu/qt5/bin/qmake /usr/lib/arm-linux-gnueabihf/qt5/bin/qmake /usr/local/lib/qt5/bin/qmake `which $qmake 2>/dev/null`"
+    CHECK_QMAKE=`which qmake-qt5 2>/dev/null`" /usr/lib64/qt5/bin/qmake /usr/lib/x86_64-linux-gnu/qt5/bin/qmake /usr/lib/i386-linux-gnu/qt5/bin/qmake /usr/lib/arm-linux-gnueabihf/qt5/bin/qmake /usr/local/lib/qt5/bin/qmake /usr/pkg/qt5/bin/qmake `which $qmake 2>/dev/null`"
 else
-    CHECK_QMAKE=`which $qmake 2>/dev/null`" "`which qmake-qt5 2>/dev/null`" /usr/lib64/qt5/bin/qmake /usr/lib/x86_64-linux-gnu/qt5/bin/qmake /usr/lib/i386-linux-gnu/qt5/bin/qmake /usr/lib/arm-linux-gnueabihf/qt5/bin/qmake /usr/local/lib/qt5/bin/qmake"
+    CHECK_QMAKE=`which $qmake 2>/dev/null`" "`which qmake-qt5 2>/dev/null`" /usr/lib64/qt5/bin/qmake /usr/lib/x86_64-linux-gnu/qt5/bin/qmake /usr/lib/i386-linux-gnu/qt5/bin/qmake /usr/lib/arm-linux-gnueabihf/qt5/bin/qmake /usr/local/lib/qt5/bin/qmake /usr/pkg/qt5/bin/qmake"
 fi
 # try to find a qt5 qmake to use
 found_qmake=''
@@ -5597,11 +5597,14 @@ fi
 here="$PWD"
 cd external/nv-codec-headers
 if enabled nvdec ; then
-    if test $target_os = "freebsd"; then
+    case $target_os in
+      *bsd)
         gmake install PREFIX=$PWD/install
-    else
+	;;
+      *)
         make install PREFIX=$PWD/install
-    fi
+	;;
+    esac
     if [ "$?" != 0 ] ; then die "Build of nv-codec-headers failed." ; fi
     PKG_CONFIG_PATH="$PKG_CONFIG_PATH:$PWD/install/lib/pkgconfig"
     export PKG_CONFIG_PATH
