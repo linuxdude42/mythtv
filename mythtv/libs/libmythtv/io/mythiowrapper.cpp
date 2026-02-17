@@ -457,7 +457,7 @@ int MythDirClose(int DirID)
     return -1;
 }
 
-char *MythDirRead(int DirID)
+std::string MythDirRead(int DirID)
 {
     LOG(VB_FILE, LOG_DEBUG, LOC + QString("MythDirRead: '%1'").arg(DirID));
 
@@ -467,7 +467,7 @@ char *MythDirRead(int DirID)
         int pos = s_remotedirPositions[DirID];
         if (s_remotedirs[DirID].size() >= (pos + 1))
         {
-            char* result = strdup(s_remotedirs[DirID][pos].toLocal8Bit().constData());
+            std::string result = s_remotedirs[DirID][pos].toLocal8Bit().constData();
             pos++;
             s_remotedirPositions[DirID] = pos;
             return result;
@@ -477,8 +477,8 @@ char *MythDirRead(int DirID)
     {
         struct dirent *dir = readdir(s_localdirs[DirID]);
         if (dir != nullptr)
-            return strdup(dir->d_name);
+            return { dir->d_name };
     }
 
-    return nullptr;
+    return {};
 }
