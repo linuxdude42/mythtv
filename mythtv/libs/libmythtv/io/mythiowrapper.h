@@ -7,7 +7,6 @@
 #include "libmythtv/mythtvexp.h"
 
 using callback_t = void (*)(void*);
-extern "C" {
 void               MythFileOpenRegisterCallback(const char *Pathname, void* Object, callback_t Func);
 int                MythFileCheck  (int Id);
 MTV_PUBLIC int     MythFileOpen   (const char *Pathname, int Flags);
@@ -23,6 +22,5 @@ int                MythDirCheck   (int DirID);
 MTV_PUBLIC int     MythDirOpen    (const char *DirName);
 MTV_PUBLIC int     MythDirClose   (int DirID);
 MTV_PUBLIC char*   MythDirRead    (int DirID);
-}
 #endif
 

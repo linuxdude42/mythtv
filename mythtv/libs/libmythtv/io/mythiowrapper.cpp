@@ -64,8 +64,6 @@ static QMultiHash<QString, MythIOCallback> s_fileOpenCallbacks;
 
 #define LOC QString("MythIOWrap: ")
 
-extern "C" {
-
 static int GetNextFileID(void)
 {
     int id = 100000;
@@ -484,6 +482,3 @@ char *MythDirRead(int DirID)
 
     return nullptr;
 }
-
-} // extern "C"
-
