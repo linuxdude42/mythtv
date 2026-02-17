@@ -1,6 +1,7 @@
 #ifndef MYTHIOWRAPPER_H
 #define MYTHIOWRAPPER_H
 
+#include <string>
 #include <sys/stat.h>
 #include <sys/types.h>
 
@@ -21,6 +22,6 @@ MTV_PUBLIC int     MythFileExists (const char *Path, const char *File);
 int                MythDirCheck   (int DirID);
 MTV_PUBLIC int     MythDirOpen    (const char *DirName);
 MTV_PUBLIC int     MythDirClose   (int DirID);
-MTV_PUBLIC char*   MythDirRead    (int DirID);
+MTV_PUBLIC std::string MythDirRead (int DirID);
 #endif
 

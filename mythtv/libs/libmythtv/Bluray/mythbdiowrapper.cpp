@@ -35,12 +35,11 @@ static void MythBDDirClose(BD_DIR_H *Dir)
 
 static int MythBDDirRead(BD_DIR_H *Dir, BD_DIRENT *Entry)
 {
-    char *filename = MythDirRead(static_cast<int>(reinterpret_cast<intptr_t>(Dir->internal)));
-    if (filename)
+    std::string filename = MythDirRead(static_cast<int>(reinterpret_cast<intptr_t>(Dir->internal)));
+    if (!filename.empty())
     {
         Entry->d_name[255] = '\0';
-        strncpy(Entry->d_name, filename, 255);
-        free(filename);
+        strncpy(Entry->d_name, filename.c_str(), 255);
         return 0;
     }
 
