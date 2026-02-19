@@ -253,24 +253,42 @@ float SequenceHeader::aspect(bool mpeg1) const
 /////////////////////////////////////////////////////////////////////////
 
 #if !CONFIG_VALGRIND
-static std::vector<unsigned char*> mem188;
+static constexpr size_t BLOCKS188 { 512 };
+using block188 = std::array<uint8_t, 188_UZ>;
+class groupof188s {
+  public:
+    groupof188s() {}; // // constructor doesn't initialize anything
+
+    std::array<block188, BLOCKS188> data;
+};
+
+static constexpr size_t BLOCKS4096 { 128 };
+using block4096 = std::array<uint8_t, 4096_UZ>;
+class groupof4096s {
+  public:
+    groupof4096s() {}; // constructor doesn't initialize anything
+
+    std::array<block4096, BLOCKS4096> data;
+};
+
+
+static std::vector<groupof188s*> mem188;
 static std::vector<unsigned char*> free188;
 static std::map<unsigned char*, bool> alloc188;
 
-static std::vector<unsigned char*> mem4096;
+static std::vector<groupof4096s*> mem4096;
 static std::vector<unsigned char*> free4096;
 static std::map<unsigned char*, bool> alloc4096;
 
-static constexpr size_t BLOCKS188 { 512 };
+
 static unsigned char* get_188_block()
 {
     if (free188.empty())
     {
-        mem188.push_back((unsigned char*) malloc(188_UZ * BLOCKS188));
+        mem188.push_back(new groupof188s);
         free188.reserve(BLOCKS188);
-        unsigned char* block_start = mem188.back();
-        for (size_t i = 0; i < BLOCKS188; ++i)
-            free188.push_back((i * 188_UZ) + block_start);
+        for (block188 &b : mem188.back()->data)
+            free188.push_back(&b[0]);
     }
 
     unsigned char *ptr = free188.back();
@@ -291,9 +309,8 @@ static void return_188_block(unsigned char* ptr)
     // free the allocator only if more than 1 block was used
     if (alloc188.empty() && mem188.size() > 1)
     {
-        std::vector<unsigned char*>::iterator it;
-        for (it = mem188.begin(); it != mem188.end(); ++it)
-            free(*it);
+        for (auto b : mem188)
+            delete b;
         mem188.clear();
         free188.clear();
 #if 0
@@ -302,16 +319,14 @@ static void return_188_block(unsigned char* ptr)
     }
 }
 
-static constexpr size_t BLOCKS4096 { 128 };
 static unsigned char* get_4096_block()
 {
     if (free4096.empty())
     {
-        mem4096.push_back((unsigned char*) malloc(4096_UZ * BLOCKS4096));
+        mem4096.push_back(new groupof4096s);
         free4096.reserve(BLOCKS4096);
-        unsigned char* block_start = mem4096.back();
-        for (size_t i = 0; i < BLOCKS4096; ++i)
-            free4096.push_back((i * 4096_UZ) + block_start);
+        for (block4096 &b : mem4096.back()->data)
+            free4096.push_back(&b[0]);
     }
 
     unsigned char *ptr = free4096.back();
@@ -351,9 +366,8 @@ static void return_4096_block(unsigned char* ptr)
     // free the allocator only if more than 1 block was used
     if (alloc4096.empty() && mem4096.size() > 1)
     {
-        std::vector<unsigned char*>::iterator it;
-        for (it = mem4096.begin(); it != mem4096.end(); ++it)
-            free(*it);
+        for (auto b : mem4096)
+            delete b;
         mem4096.clear();
         free4096.clear();
 #if 0
@@ -374,6 +388,7 @@ unsigned char *pes_alloc(uint size)
     if (size <= 4096)
         return get_4096_block();
 #endif // CONFIG_VALGRIND
+    // NOLINTNEXTLINE(cppcoreguidelines-no-malloc)
     return (unsigned char*) malloc(size);
 }
 
@@ -387,5 +402,6 @@ void pes_free(unsigned char *ptr)
         return_4096_block(ptr);
     else
 #endif // CONFIG_VALGRIND
+        // NOLINTNEXTLINE(cppcoreguidelines-no-malloc)
         free(ptr);
 }
