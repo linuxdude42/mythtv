@@ -445,8 +445,12 @@ void LIRC::run(void)
             if (Init())
                 m_retryCount = 0;
             else
+            {
                 // wait a while before we retry..
+                locker.unlock();
                 std::this_thread::sleep_for(2s);
+                locker.relock();
+            }
 
             continue;
         }
