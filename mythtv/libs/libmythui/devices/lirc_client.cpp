@@ -227,11 +227,6 @@ int lirc_deinit(struct lirc_state *state)
 		free(state->lirc_prog);
 		state->lirc_prog=nullptr;
 	}
-	if(state->lirc_buffer!=nullptr)
-	{
-		free(state->lirc_buffer);
-		state->lirc_buffer=nullptr;
-	}
 	if (state->lirc_lircd!=-1)
 		ret = close(state->lirc_lircd);
 	free(state);
@@ -1560,23 +1555,6 @@ static int lirc_iscode(struct lirc_config_entry *scan, char *remote,
 	return(0);
 }
 
-#if 0
-char *lirc_ir2char(const struct lirc_state *state,struct lirc_config *config,char *code)
-{
-	static int warning=1;
-	char *string;
-	
-	if(warning)
-	{
-		fprintf(stderr,"%s: warning: lirc_ir2char() is obsolete\n",
-			state->lirc_prog);
-		warning=0;
-	}
-	if(lirc_code2char(state,config,code,&string)==-1) return nullptr;
-	return(string);
-}
-#endif
-
 int lirc_code2char(const struct lirc_state *state, struct lirc_config *config,const char *code,char **string)
 {
 	if(config->sockfd!=-1)
@@ -1609,18 +1587,6 @@ int lirc_code2char(const struct lirc_state *state, struct lirc_config *config,co
 		return LIRC_RET_ERROR;
 	}
 	return lirc_code2char_internal(state, config, code, string, nullptr);
-}
-
-int lirc_code2charprog(struct lirc_state *state,struct lirc_config *config,char *code,char **string,
-		       char **prog)
-{
-	char *backup = state->lirc_prog;
-	state->lirc_prog = nullptr;
-	
-	int ret = lirc_code2char_internal(state,config, code, string, prog);
-	
-	state->lirc_prog = backup;
-	return ret;
 }
 
 static int lirc_code2char_internal(const struct lirc_state *state,
@@ -1696,88 +1662,6 @@ static int lirc_code2char_internal(const struct lirc_state *state,
 		}
 	}
 	config->next=config->first;
-	return(0);
-}
-
-static constexpr size_t PACKET_SIZE { 100 };
-
-#if 0
-char *lirc_nextir(struct lirc_state *state)
-{
-	static int warning=1;
-	char *code;
-	int ret;
-	
-	if(warning)
-	{
-		fprintf(stderr,"%s: warning: lirc_nextir() is obsolete\n",
-			state->lirc_prog);
-		warning=0;
-	}
-	ret=lirc_nextcode(state, &code);
-	if(ret==-1) return nullptr;
-	return(code);
-}
-#endif
-
-int lirc_nextcode(struct lirc_state *state, char **code)
-{
-	static size_t s_packetSize=PACKET_SIZE;
-	static size_t s_endLen=0;
-	char *end = nullptr;
-
-	*code=nullptr;
-	if(state->lirc_buffer==nullptr)
-	{
-		state->lirc_buffer=(char *) malloc(s_packetSize+1);
-		if(state->lirc_buffer==nullptr)
-		{
-			lirc_printf(state, "%s: out of memory\n",state->lirc_prog);
-			return(-1);
-		}
-		state->lirc_buffer[0]=0;
-	}
-	while((end=strchr(state->lirc_buffer,'\n'))==nullptr)
-	{
-		if(s_endLen>=s_packetSize)
-		{
-			s_packetSize+=PACKET_SIZE;
-			char *new_buffer=(char *) realloc(state->lirc_buffer,s_packetSize+1);
-			if(new_buffer==nullptr)
-			{
-				return(-1);
-			}
-			state->lirc_buffer=new_buffer;
-		}
-                ssize_t len=read(state->lirc_lircd,state->lirc_buffer+s_endLen,s_packetSize-s_endLen);
-		if(len<=0)
-		{
-			if(len==-1 && errno==EAGAIN) return(0);
-                        return(-1);
-		}
-		s_endLen+=len;
-		state->lirc_buffer[s_endLen]=0;
-		/* return if next code not yet available completely */
-		if(strchr(state->lirc_buffer,'\n')==nullptr)
-		{
-			return(0);
-		}
-	}
-	/* copy first line to buffer (code) and move remaining chars to
-	   state->lirc_buffers start */
-
-        // Cppcheck doesn't parse the previous loop properly.  The
-        // only way for the loop to exit and execute the next line of
-        // code is if end becomes non-null.
-        //
-	end++;
-	s_endLen=strlen(end);
-	char c=end[0];
-	end[0]=0;
-	*code=strdup(state->lirc_buffer);
-	end[0]=c;
-	memmove(state->lirc_buffer,end,s_endLen+1);
-	if(*code==nullptr) return(-1);
 	return(0);
 }
 
