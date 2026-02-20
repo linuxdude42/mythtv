@@ -63,7 +63,7 @@ enum packet_state : std::uint8_t
 
 /* internal functions */
 static void lirc_printf(const struct lirc_state* /*state*/, const char *format_str, ...);
-static void lirc_perror(const struct lirc_state* /*state*/, const char *s);
+static void lirc_perror(const struct lirc_state* /*state*/);
 static int lirc_readline(const struct lirc_state *state, char **line,FILE *f);
 static char *lirc_trim(char *s);
 static char lirc_parse_escape(const struct lirc_state *state, char **s,const char *name,int line);
@@ -126,11 +126,11 @@ static void lirc_printf(const struct lirc_state *state, const char *format_str, 
 	va_end(ap);
 }
 
-static void lirc_perror(const struct lirc_state *state, const char *s)
+static void lirc_perror(const struct lirc_state *state)
 {
 	if(!state->lirc_verbose) return;
 
-	perror(s);
+	perror(state->lirc_prog);
 }
 
 struct lirc_state *lirc_init(const char *lircrc_root_file,
@@ -190,7 +190,7 @@ struct lirc_state *lirc_init(const char *lircrc_root_file,
 		if(state->lirc_lircd==-1)
 		{
 			lirc_printf(state, "%s: could not open socket\n",state->lirc_prog);
-			lirc_perror(state, state->lirc_prog);
+			lirc_perror(state);
 			lirc_deinit(state);
 			return nullptr;
 		}
@@ -198,7 +198,7 @@ struct lirc_state *lirc_init(const char *lircrc_root_file,
 		{
 			close(state->lirc_lircd);
 			lirc_printf(state, "%s: could not connect to socket\n",state->lirc_prog);
-			lirc_perror(state, state->lirc_prog);
+			lirc_perror(state);
 			lirc_deinit(state);
 			return nullptr;
 		}
@@ -754,7 +754,7 @@ static FILE *lirc_open(const struct lirc_state *state,
 	{
 		lirc_printf(state, "%s: could not open config file %s\n",
 			    state->lirc_prog,filename);
-		lirc_perror(state, state->lirc_prog);
+		lirc_perror(state);
 	}
 	else if(fin==nullptr)
 	{
@@ -763,14 +763,14 @@ static FILE *lirc_open(const struct lirc_state *state,
 		{
 			lirc_printf(state, "%s: could not open config file %s\n",
 				    state->lirc_prog,state->lircrc_root_file);
-			lirc_perror(state, state->lirc_prog);
+			lirc_perror(state);
 		}
 		else if(fin==nullptr)
 		{
 			lirc_printf(state, "%s: could not open config files "
 				    "%s and %s\n",
 				    state->lirc_prog,filename,state->lircrc_root_file);
-			lirc_perror(state, state->lirc_prog);
+			lirc_perror(state);
 		}
 		else
 		{
@@ -862,7 +862,7 @@ int lirc_readconfig(const struct lirc_state *state,
 	if(sockfd==-1)
 	{
 		lirc_printf(state, "%s: WARNING: could not open socket\n",state->lirc_prog);
-		lirc_perror(state, state->lirc_prog);
+		lirc_perror(state);
 		return 0;
 	}
 	if(connect(sockfd, (struct sockaddr *)&addr, sizeof(addr))!=-1)
@@ -892,7 +892,7 @@ int lirc_readconfig(const struct lirc_state *state,
 	if(sockfd==-1)
 	{
 		lirc_printf(state, "%s: WARNING: could not open socket\n",state->lirc_prog);
-		lirc_perror(state, state->lirc_prog);
+		lirc_perror(state);
 		return 0;
 	}
 	if(connect(sockfd, (struct sockaddr *)&addr, sizeof(addr))!=-1)
@@ -1784,7 +1784,7 @@ static const char *lirc_read_string(const struct lirc_state *state, int fd)
 		if(ret==-1)
 		{
 			lirc_printf(state, "%s: select() failed\n", state->lirc_prog);
-			lirc_perror(state, state->lirc_prog);
+			lirc_perror(state);
 			return nullptr;
 		}
 		if(ret==0)
@@ -1797,7 +1797,7 @@ static const char *lirc_read_string(const struct lirc_state *state, int fd)
 		if(n<=0)
 		{
 			lirc_printf(state, "%s: read() failed\n", state->lirc_prog);
-			lirc_perror(state, state->lirc_prog);			
+			lirc_perror(state);
 			return nullptr;
 		}
 		s_buffer[s_tail+n]=0;
@@ -1835,7 +1835,7 @@ int lirc_send_command(const struct lirc_state *lstate, int sockfd, const char *c
 		{
 			lirc_printf(lstate, "%s: could not send packet\n",
 				    lstate->lirc_prog);
-			lirc_perror(lstate, lstate->lirc_prog);
+			lirc_perror(lstate);
 			return(-1);
 		}
 		data+=done;
