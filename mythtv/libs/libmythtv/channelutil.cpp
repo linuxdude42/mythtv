@@ -2440,22 +2440,22 @@ uint ChannelUtil::GetNextChannel(
 
     auto start = it;
 
+    for (it = next_w_wrap(sorted, it, direction);
+         it != start;
+         it = next_w_wrap(sorted, it, direction))
     {
-        do
-        {
-            it = next_w_wrap(sorted, it, direction);
-        }
-        while ((it != start) &&
-               ((skip_non_visible && it->m_visible < kChannelVisible) ||
-                (skip_other_sources &&
-                 it->m_sourceId != start->m_sourceId) ||
-                (skip_same_channum_and_callsign &&
-                 it->m_chanNum  == start->m_chanNum &&
-                 it->m_callSign == start->m_callSign) ||
-                ((mplexid_restriction != 0U) &&
-                 (mplexid_restriction != it->m_mplexId)) ||
-                ((chanid_restriction != 0U) &&
-                 (chanid_restriction != it->m_chanId))));
+        if (skip_non_visible && (it->m_visible < kChannelVisible))
+            continue;
+        if (skip_other_sources && (it->m_sourceId != start->m_sourceId))
+            continue;
+        if (skip_same_channum_and_callsign && (it->m_chanNum  == start->m_chanNum &&
+                                               it->m_callSign == start->m_callSign))
+            continue;
+        if ((mplexid_restriction != 0U) && (mplexid_restriction != it->m_mplexId))
+            continue;
+        if ((chanid_restriction != 0U) && (chanid_restriction != it->m_chanId))
+            continue;
+        break;
     }
 
     return it->m_chanId;
