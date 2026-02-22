@@ -2405,13 +2405,15 @@ uint ChannelUtil::GetNextChannel(
     bool              skip_same_channum_and_callsign,
     bool              skip_other_sources)
 {
-    auto it = find(sorted.cbegin(), sorted.cend(), old_chanid);
+    if (sorted.empty())
+        return 0; // no channels..
 
+    auto it = find(sorted.cbegin(), sorted.cend(), old_chanid);
     if (it == sorted.end())
         it = sorted.begin(); // not in list, pretend we are on first channel
 
-    if (it == sorted.end())
-        return 0; // no channels..
+    if (CHANNEL_DIRECTION_SAME == direction)
+        return it->m_chanId;
 
     auto start = it;
 
