@@ -392,22 +392,20 @@ QString createTempFile(QString name_template, bool dir)
     QString tmpFileName(tempfilename);
 #else
     QByteArray safe_name_template = name_template.toLatin1();
-    const char *tmp = safe_name_template.constData();
-    char *ctemplate = strdup(tmp);
+    std::string ctemplate = safe_name_template.constData();
 
     if (dir)
     {
-        ret = (mkdtemp(ctemplate)) ? 0 : -1;
+        ret = (mkdtemp(ctemplate.data())) ? 0 : -1;
     }
     else
     {
         mode_t cur_umask = umask(S_IRWXO | S_IRWXG);
-        ret = mkstemp(ctemplate);
+        ret = mkstemp(ctemplate.data());
         umask(cur_umask);
     }
 
-    QString tmpFileName(ctemplate);
-    free(ctemplate);
+    QString tmpFileName = QString::fromStdString(ctemplate);
 #endif
 
     if (ret == -1)
