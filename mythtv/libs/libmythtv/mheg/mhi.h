@@ -370,20 +370,14 @@ class DSMCCPacket
   public:
     DSMCCPacket(unsigned char *data, int length, int tag,
                 unsigned car, int dbid)
-        : m_data(data),           m_length(length),
-          m_componentTag(tag),    m_carouselId(car),
+        : m_componentTag(tag),    m_carouselId(car),
           m_dataBroadcastId(dbid)
     {
-    }
-
-    ~DSMCCPacket()
-    {
-        free(m_data);
+        m_data.assign(data, data+length);
     }
 
   public:
-    unsigned char *m_data            {nullptr};
-    int            m_length;
+    std::vector<uint8_t> m_data;
     int            m_componentTag;
     unsigned       m_carouselId;
     int            m_dataBroadcastId;
