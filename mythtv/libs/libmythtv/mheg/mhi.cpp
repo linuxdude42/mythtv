@@ -284,7 +284,7 @@ void MHIContext::ProcessDSMCCQueue(void)
         if (packet)
         {
             m_dsmcc->ProcessSection(
-                packet->m_data,           packet->m_length,
+                packet->m_data.data(),    packet->m_data.size(),
                 packet->m_componentTag,   packet->m_carouselId,
                 packet->m_dataBroadcastId);
 
@@ -297,17 +297,21 @@ void MHIContext::QueueDSMCCPacket(
     unsigned char *data, int length, int componentTag,
     unsigned carouselId, int dataBroadcastId)
 {
-    auto *dataCopy = (unsigned char*) malloc(length * sizeof(unsigned char));
+    DSMCCPacket *dsmcc {nullptr};
 
-    if (dataCopy == nullptr)
+    try
+    {
+        dsmcc = new DSMCCPacket(data, length, componentTag,
+                                carouselId, dataBroadcastId);
+    }
+    catch (const std::bad_alloc& e)
+    {
         return;
+    }
 
-    memcpy(dataCopy, data, length*sizeof(unsigned char));
     {
         QMutexLocker locker(&m_dsmccLock);
-        m_dsmccQueue.enqueue(new DSMCCPacket(dataCopy,     length,
-                                             componentTag, carouselId,
-                                             dataBroadcastId));
+        m_dsmccQueue.enqueue(dsmcc);
     }
     m_engineWait.wakeAll();
 }
