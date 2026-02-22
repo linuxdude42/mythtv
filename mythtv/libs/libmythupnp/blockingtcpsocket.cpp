@@ -43,7 +43,7 @@ qint64 BlockingTcpSocket::write(const char* data, const qint64 size, const std::
     MythTimer timer;
     timer.start();
     qint64 total = 0;
-    do
+    while (timer.elapsed() < timeout && total < size)
     {
         auto written = m_socket.write(data + total, size - total);
         if (written == -1)
@@ -58,13 +58,11 @@ qint64 BlockingTcpSocket::write(const char* data, const qint64 size, const std::
         }
         total += written;
     }
-    while (timer.elapsed() < timeout && total < size);
 
-    do
+    while (timer.elapsed() < timeout && m_socket.bytesToWrite() > 0)
     {
         m_socket.waitForBytesWritten((timeout - timer.elapsed()).count());
     }
-    while (timer.elapsed() < timeout && m_socket.bytesToWrite() > 0);
 
     if (timer.elapsed() >= timeout)
     {
