@@ -128,6 +128,7 @@ class MTV_PUBLIC ChannelInfo
     QList<uint>  m_inputIdList;
 };
 using ChannelInfoList = std::vector<ChannelInfo>;
+using ChannelInfoList_ci = std::vector<ChannelInfo>::const_iterator;
 
 class MTV_PUBLIC ChannelInsertInfo
 {
