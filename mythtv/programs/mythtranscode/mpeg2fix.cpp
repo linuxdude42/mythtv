@@ -1529,7 +1529,7 @@ bool MPEG2fixup::FindStart()
         return false;
     }
 
-    do
+    while (found.count() != m_aFrame.count())
     {
         if (GetFrame(pkt))
         {
@@ -1646,7 +1646,7 @@ bool MPEG2fixup::FindStart()
                     break;
             }
         }
-    } while (found.count() != m_aFrame.count());
+    }
 
     av_packet_free(&pkt);
     return true;
