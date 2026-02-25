@@ -208,7 +208,7 @@ void TestLirc::test_trim(void)
     std::string in = qs_in.toStdString();
     std::string expected = qs_expected.toStdString();
 
-    std::string out = lirc_trim(in.data());
+    std::string out = lirc_trim(in);
     QCOMPARE(out, expected);
 }
 
@@ -275,7 +275,7 @@ void TestLirc::test_parse_string(void)
     lirc_state l_state {};
     l_state.lirc_prog = strdup("__FILE__");
 
-    lirc_parse_string(&l_state, s.data(), name, 0);
+    lirc_parse_string(&l_state, s, name, 0);
     QCOMPARE(s.data(), expected);
 }
 
@@ -302,9 +302,9 @@ void TestLirc::test_parse_include(void)
 
     const std::string original = qs_original.toStdString();
     const std::string expected = qs_expected.toStdString();
-    char *actual = strdup(original.c_str());
+    std::string actual = original;
     lirc_parse_include(actual, "", 0);
-    QCOMPARE(actual, expected.c_str());
+    QCOMPARE(actual, expected);
 }
 
 // Very simplistic test of of the lirc_mode function.  This function
@@ -321,7 +321,7 @@ void TestLirc::test_mode(void)
     lirc_state l_state {};
     l_state.lirc_prog = strdup("__FILE__");
 
-    int res = lirc_mode(&l_state, token.c_str(), token2.c_str(), mode,
+    int res = lirc_mode(&l_state, token, token2, mode,
                         &new_config, &first_config, &last_config,
                         [](std::string& /*s*/){return 0;}, __FUNCTION__,0);
     QCOMPARE(res, 0);
@@ -429,7 +429,8 @@ void TestLirc::test_open(void)
 
     // Fallback open
     std::string name_opened;
-    auto f = lirc_open(m_state, ss_filename, "", name_opened);
+    std::string ss_curfile;
+    auto f = lirc_open(m_state, ss_filename, ss_curfile, name_opened);
     QVERIFY(f != nullptr);
     QVERIFY(!name_opened.empty());
     QCOMPARE(name_opened, ss_expected);
