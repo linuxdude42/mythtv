@@ -113,7 +113,7 @@ static int sstrcasecmp(std::string s1, std::string s2);
 static int lirc_iscode(struct lirc_config_entry *scan, std::string& remote,
 		       std::string& button,unsigned int rep);
 static int lirc_code2char_internal(const struct lirc_state *state,
-				   struct lirc_config *config,const char *code,
+				   struct lirc_config *config,const std::string& code,
 				   std::string& string, std::string& prog);
 static const char *lirc_read_string(const struct lirc_state *state, int fd);
 static int lirc_identify(const struct lirc_state *state, int sockfd);
@@ -772,7 +772,7 @@ int lirc_readconfig(const struct lirc_state *state,
 	/* connect to lircrcd */
 
 	addr.sun_family=AF_UNIX;
-	if(lirc_getsocketname(filename.data(), addr.sun_path, sizeof(addr.sun_path))>sizeof(addr.sun_path))
+	if(lirc_getsocketname(filename, addr.sun_path, sizeof(addr.sun_path))>sizeof(addr.sun_path))
 	{
 		lirc_printf(state, "WARNING: file name too long\n");
 		return 0;
@@ -1458,26 +1458,30 @@ int lirc_code2char(const struct lirc_state *state, struct lirc_config *config,co
 }
 
 static int lirc_code2char_internal(const struct lirc_state *state,
-                                   struct lirc_config *config, const char *code,
+                                   struct lirc_config *config, const std::string& code,
                                    std::string& string, std::string& prog)
 {
 	unsigned int rep = 0;
-	char *strtok_state = nullptr;
 
 	string.clear();
-	if(sscanf(code,"%*20x %20x %*5000s %*5000s\n",&rep)==1)
+	if(sscanf(code.c_str(),"%*20x %20x %*5000s %*5000s\n",&rep)==1)
 	{
-		char *backup=strdup(code);
-		if(backup==nullptr) return(-1);
-
-		strtok_r(backup," ",&strtok_state);
-		strtok_r(nullptr," ",&strtok_state);
-		std::string button=strtok_r(nullptr," ",&strtok_state);
-		std::string remote=strtok_r(nullptr,"\n",&strtok_state);
+		// start at first word
+		size_t end = code.find_first_of(" \t\n", 0);
+		size_t start = code.find_first_not_of(" \t\n",end);
+		// at second word
+	        end = code.find_first_of(" \t\n",start);
+		start = code.find_first_not_of(" \t\n",end);
+		// at third word
+		end = code.find_first_of(" \t\n",start);
+		std::string button = code.substr(start,end-start);
+		start = code.find_first_not_of(" \t\n",end);
+		// at fourth word
+		end = code.find_first_of(" \t\n",start);
+		std::string remote = code.substr(start,end-start);
 
 		if(button.empty() || remote.empty())
 		{
-			free(backup);
 			return(0);
 		}
 		
@@ -1521,7 +1525,6 @@ static int lirc_code2char_internal(const struct lirc_state *state,
 			}
 			scan=scan->next;
 		}
-		free(backup);
 		if(!s.empty())
 		{
 			string=s;
@@ -1532,14 +1535,14 @@ static int lirc_code2char_internal(const struct lirc_state *state,
 	return(0);
 }
 
-size_t lirc_getsocketname(const char *filename, char *buf, size_t size)
+size_t lirc_getsocketname(const std::string& filename, char *buf, size_t size)
 {
-	if(strlen(filename)+2<=size)
+	if(filename.size()+2<=size)
 	{
-		strcpy(buf, filename);
+		strcpy(buf, filename.data());
 		strcat(buf, "d");
 	}
-	return strlen(filename)+2;
+	return filename.size()+2;
 }
 
 std::string lirc_getmode(const struct lirc_state *state, struct lirc_config *config)
