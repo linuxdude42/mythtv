@@ -48,10 +48,10 @@ static constexpr int8_t LIRC_TIMEOUT     {   3 };
 
 /* internal data structures */
 struct filestack_t {
-	FILE               *m_file;
-	char               *m_name;
-	int                 m_line;
-	struct filestack_t *m_parent;
+	FILE               *m_file   { nullptr };
+	std::string         m_name;
+	int                 m_line   { 0 };
+	struct filestack_t *m_parent { nullptr };
 };
 
 enum packet_state : std::uint8_t
@@ -70,9 +70,9 @@ static void lirc_printf(const struct lirc_state* /*state*/, const char *format_s
 static void lirc_perror(const struct lirc_state* /*state*/);
 static int lirc_readline(const struct lirc_state *state, char **line,FILE *f);
 static char *lirc_trim(char *s);
-static char lirc_parse_escape(const struct lirc_state *state, char **s,const char *name,int line);
-static void lirc_parse_string(const struct lirc_state *state, char *s,const char *name,int line);
-static void lirc_parse_include(char *s,const char *name,int line);
+static char lirc_parse_escape(const struct lirc_state *state, char **s,const std::string& name,int line);
+static void lirc_parse_string(const struct lirc_state *state, char *s,const std::string& name,int line);
+static void lirc_parse_include(char *s,const std::string& name,int line);
 static int lirc_mode(
              const struct lirc_state *state,
              const char *token,const char *token2,std::string& mode,
@@ -80,7 +80,7 @@ static int lirc_mode(
 		     struct lirc_config_entry **first_config,
 		     struct lirc_config_entry **last_config,
 		     int (check)(std::string& s),
-		     const char *name,int line);
+		     const std::string& name,int line);
 /*
   lircrc_config relies on this function, hence don't make it static
   but it's not part of the official interface, so there's no guarantee
@@ -88,16 +88,16 @@ static int lirc_mode(
 */
 static unsigned int lirc_flags(const struct lirc_state *state, char *string);
 static std::string lirc_getfilename(const struct lirc_state *state,
-							  const char *file,
-							  const char *current_file);
+				    const std::string& file,
+				    const std::string& current_file);
 static FILE *lirc_open(const struct lirc_state *state,
-					   const char *file, const char *current_file,
-					   char **full_name);
+		       const std::string& file, const std::string& current_file,
+		       std::string& full_name);
 static struct filestack_t *stack_push(const struct lirc_state *state, struct filestack_t *parent);
 static struct filestack_t *stack_pop(struct filestack_t *entry);
 static void stack_free(struct filestack_t *entry);
 static int lirc_readconfig_only_internal(const struct lirc_state *state,
-                                         const char *file,
+                                         const std::string& file,
                                          struct lirc_config **config,
                                          int (check)(std::string& s),
                                          std::string& full_name,
@@ -274,7 +274,7 @@ static char *lirc_trim(char *s)
 
 /* parse standard C escape sequences + \@,\A-\Z is ^@,^A-^Z */
 
-static char lirc_parse_escape(const struct lirc_state *state, char **s,const char *name,int line)
+static char lirc_parse_escape(const struct lirc_state *state, char **s,const std::string& name,int line)
 {
 
 	unsigned int i = 0;
@@ -336,7 +336,7 @@ static char lirc_parse_escape(const struct lirc_state *state, char **s,const cha
 		{
 			i&=(1<<CHAR_BIT)-1;
 			lirc_printf(state, "octal escape sequence "
-				    "out of range in %s:%d\n",name,line);
+				    "out of range in %s:%d\n",name.c_str(),line);
 		}
 		return((char) i);
 	case 'x':
@@ -367,13 +367,13 @@ static char lirc_parse_escape(const struct lirc_state *state, char **s,const cha
 			{
 				lirc_printf(state, "\\x used with no "
 					    "following hex digits in %s:%d\n",
-					    name,line);
+					    name.c_str(),line);
 			}
 			if(overflow || i>(1<<CHAR_BIT)-1)
 			{
 				i&=(1<<CHAR_BIT)-1;
 				lirc_printf(state, "hex escape sequence out "
-					    "of range in %s:%d\n",name,line);
+					    "of range in %s:%d\n",name.c_str(),line);
 			}
 			return((char) i);
 		}
@@ -383,7 +383,7 @@ static char lirc_parse_escape(const struct lirc_state *state, char **s,const cha
 	}
 }
 
-static void lirc_parse_string(const struct lirc_state *state, char *s,const char *name,int line)
+static void lirc_parse_string(const struct lirc_state *state, char *s,const std::string& name,int line)
 {
 	char *t=s;
 	while(*s!=0)
@@ -405,7 +405,7 @@ static void lirc_parse_string(const struct lirc_state *state, char *s,const char
 }
 
 static void lirc_parse_include(char *s,
-                               [[maybe_unused]] const char *name,
+                               [[maybe_unused]] const std::string& name,
                                [[maybe_unused]] int line)
 {
 	size_t len=strlen(s);
@@ -436,7 +436,7 @@ int lirc_mode(const struct lirc_state *state,
 	      struct lirc_config_entry **first_config,
 	      struct lirc_config_entry **last_config,
 	      int (check)(std::string& s),
-	      const char *name,int line)
+	      const std::string& name,int line)
 {
 	struct lirc_config_entry *new_entry=*new_config;
 	if(strcasecmp(token,"begin")==0)
@@ -456,7 +456,7 @@ int lirc_mode(const struct lirc_state *state,
 			else
 			{
 				lirc_printf(state, "bad file format, "
-					    "%s:%d\n",name,line);
+					    "%s:%d\n",name.c_str(),line);
 				return(-1);
 			}
 		}
@@ -469,7 +469,7 @@ int lirc_mode(const struct lirc_state *state,
 			else
 			{
 				lirc_printf(state, "bad file format, "
-					    "%s:%d\n",name,line);
+					    "%s:%d\n",name.c_str(),line);
 				return(-1);
 			}
 		}
@@ -539,7 +539,7 @@ int lirc_mode(const struct lirc_state *state,
 			else
 			{
 				lirc_printf(state, "%s:%d: 'end' without "
-					    "'begin'\n",name,line);
+					    "'begin'\n",name.c_str(),line);
 				return(-1);
 			}
 		}
@@ -550,7 +550,7 @@ int lirc_mode(const struct lirc_state *state,
 				if(new_entry!=nullptr)
 				{
 					lirc_printf(state, "%s:%d: missing "
-						    "'end' token\n",name,line);
+						    "'end' token\n",name.c_str(),line);
 					return(-1);
 				}
 				if(sstrcasecmp(mode,token2)==0)
@@ -568,7 +568,7 @@ int lirc_mode(const struct lirc_state *state,
 			else
 			{
 				lirc_printf(state, "%s:%d: 'end %s' without "
-					    "'begin'\n",name,line,token2);
+					    "'begin'\n",name.c_str(),line,token2);
 				return(-1);
 			}
 		}
@@ -576,7 +576,7 @@ int lirc_mode(const struct lirc_state *state,
 	else
 	{
 		lirc_printf(state, "unknown token \"%s\" in %s:%d ignored\n",
-			    token,name,line);
+			    token,name.c_str(),line);
 	}
 	return(0);
 }
@@ -618,12 +618,12 @@ unsigned int lirc_flags(const struct lirc_state *state, char *string)
 }
 
 static std::string lirc_getfilename(const struct lirc_state *state,
-							  const char *file,
-							  const char *current_file)
+				    const std::string& file,
+				    const std::string& current_file)
 {
 	std::string filename;
 
-	if(file==nullptr)
+	if(file.empty())
 	{
 		const char *home=getenv("HOME");
 		if(home==nullptr)
@@ -637,7 +637,7 @@ static std::string lirc_getfilename(const struct lirc_state *state,
 		}
 		filename += state->lircrc_user_file;
 	}
-	else if(strncmp(file, "~/", 2)==0)
+	else if(file.compare(0,2,"~/")==0)
 	{
 		const char *home=getenv("HOME");
 		if(home==nullptr)
@@ -645,9 +645,9 @@ static std::string lirc_getfilename(const struct lirc_state *state,
 			home="/";
 		}
 		filename = home;
-		filename += file+1;
+		filename += file.substr(1);
 	}
-	else if(file[0]=='/' || current_file==nullptr)
+	else if(file[0]=='/' || current_file.empty())
 	{
 		/* absulute path or root */
 		filename = file;
@@ -665,8 +665,8 @@ static std::string lirc_getfilename(const struct lirc_state *state,
 }
 
 static FILE *lirc_open(const struct lirc_state *state,
-					   const char *file, const char *current_file,
-                       char **full_name)
+                       const std::string& file, const std::string& current_file,
+                       std::string& full_name)
 {
 	std::string filename=lirc_getfilename(state, file, current_file);
 	if(filename.empty())
@@ -675,7 +675,7 @@ static FILE *lirc_open(const struct lirc_state *state,
 	}
 
 	FILE *fin=fopen(filename.data(),"r");
-	if(fin==nullptr && (file!=nullptr || errno!=ENOENT))
+	if(fin==nullptr && (!file.empty() || errno!=ENOENT))
 	{
 		lirc_printf(state, "could not open config file %s\n",
 			    filename.data());
@@ -707,38 +707,32 @@ static FILE *lirc_open(const struct lirc_state *state,
 			}
 		}
 	}
-	if(full_name && fin!=nullptr)
+	if(fin!=nullptr)
 	{
-		*full_name = strdup(filename.data());
+		full_name = filename;
 	}
 	return fin;
 }
 
 static struct filestack_t *stack_push(const struct lirc_state *state, struct filestack_t *parent)
 {
-	auto *entry = static_cast<struct filestack_t *>(malloc(sizeof(struct filestack_t)));
-	if (entry == nullptr)
-	{
+	try {
+		auto *entry = new filestack_t;
+		entry->m_parent = parent;
+		return entry;
+	} catch (const std::bad_alloc& e) {
 		lirc_printf(state, "out of memory\n");
 		return nullptr;
 	}
-	entry->m_file = nullptr;
-	entry->m_name = nullptr;
-	entry->m_line = 0;
-	entry->m_parent = parent;
-	return entry;
 }
 
 static struct filestack_t *stack_pop(struct filestack_t *entry)
 {
 	struct filestack_t *parent = nullptr;
-	if (entry)
-	{
-		parent = entry->m_parent;
-		if (entry->m_name)
-			free(entry->m_name);
-		free(entry);
-	}
+	if (!entry)
+		return nullptr;
+	parent = entry->m_parent;
+	delete entry;
 	return parent;
 }
 
@@ -751,7 +745,7 @@ static void stack_free(struct filestack_t *entry)
 }
 
 int lirc_readconfig(const struct lirc_state *state,
-                    const char *file,
+                    const std::string& file,
                     struct lirc_config **config,
                     int (check)(std::string& s))
 {
@@ -828,7 +822,7 @@ int lirc_readconfig(const struct lirc_state *state,
 }
 
 int lirc_readconfig_only(const struct lirc_state *state,
-                         const char *file,
+                         const std::string& file,
                          struct lirc_config **config,
                          int (check)(std::string& s))
 {
@@ -838,7 +832,7 @@ int lirc_readconfig_only(const struct lirc_state *state,
 }
 
 static int lirc_readconfig_only_internal(const struct lirc_state *state,
-                                         const char *file,
+                                         const std::string& file,
                                          struct lirc_config **config,
                                          int (check)(std::string& s),
                                          std::string& full_name,
@@ -852,7 +846,8 @@ static int lirc_readconfig_only_internal(const struct lirc_state *state,
 	{
 		return -1;
 	}
-	filestack->m_file = lirc_open(state, file, nullptr, &(filestack->m_name));
+	std::string dummy;
+	filestack->m_file = lirc_open(state, file, dummy, filestack->m_name);
 	if (filestack->m_file == nullptr)
 	{
 		stack_free(filestack);
@@ -906,7 +901,7 @@ static int lirc_readconfig_only_internal(const struct lirc_state *state,
 				{
 					lirc_printf(state, "too many files "
 						    "included at %s:%d\n",
-						    filestack->m_name,
+						    filestack->m_name.c_str(),
 						    filestack->m_line);
 					ret=-1;
 				}
@@ -925,7 +920,7 @@ static int lirc_readconfig_only_internal(const struct lirc_state *state,
 					}
 					else
 					{
-						stack_tmp->m_file = lirc_open(state, token2, filestack->m_name, &(stack_tmp->m_name));
+						stack_tmp->m_file = lirc_open(state, token2, filestack->m_name, stack_tmp->m_name);
 						stack_tmp->m_line = 0;
 						if (stack_tmp->m_file)
 						{
@@ -947,7 +942,7 @@ static int lirc_readconfig_only_internal(const struct lirc_state *state,
 				   strtok_r(nullptr," \t",&strtok_state)!=nullptr)
 				{
 					lirc_printf(state, "unexpected token in line %s:%d\n",
-						    filestack->m_name,filestack->m_line);
+						    filestack->m_name.c_str(),filestack->m_line);
 				}
 				else
 				{
@@ -985,7 +980,7 @@ static int lirc_readconfig_only_internal(const struct lirc_state *state,
 			else if(new_entry==nullptr)
 			{
 				lirc_printf(state, "bad file format, %s:%d\n",
-					filestack->m_name,filestack->m_line);
+					    filestack->m_name.c_str(),filestack->m_line);
 				ret=-1;
 			}
 			else
@@ -1100,7 +1095,7 @@ static int lirc_readconfig_only_internal(const struct lirc_state *state,
 				else
 				{
 					lirc_printf(state, "unknown token \"%s\" in %s:%d ignored\n",
-						    token,filestack->m_name,filestack->m_line);
+						    token,filestack->m_name.c_str(),filestack->m_line);
 				}
 			}
 		}

@@ -400,9 +400,7 @@ void TestLirc::test_getfilename(void)
     std::string const filename = qs_filename.toStdString();
     std::string const current = qs_current.toStdString();
     std::string const expected = qs_expected.toStdString();
-    const char *c_filename = filename.empty() ? nullptr : filename.c_str();
-    const char *c_current = current.empty() ? nullptr : current.c_str();
-    std::string const actual = lirc_getfilename(m_state, c_filename, c_current);
+    std::string const actual = lirc_getfilename(m_state, filename, current);
     QCOMPARE(actual, expected);
 }
 
@@ -429,29 +427,26 @@ void TestLirc::test_open(void)
     QFETCH(const QString, qs_user_file);
     QFETCH(const QString, qs_expected);
 
-    std::string filename = qs_filename.toStdString();
+    std::string file = qs_filename.toStdString();
     std::string root_file = qs_root_file.toStdString();
     std::string user_file = qs_user_file.toStdString();
     std::string expected =  qs_expected.toStdString();
-    char *c_filename = filename.empty() ? nullptr : filename.data();
 
     m_state = lirc_init(root_file.data(), user_file.data(), "test_lirc", nullptr, 0);
     QVERIFY(m_state != nullptr);
 
     // Fallback open
-    char *name_opened { nullptr };
+    std::string name_opened;
     std::string const current_file;
-    auto *f = lirc_open(m_state, c_filename, current_file.c_str(), &name_opened);
+    auto *f = lirc_open(m_state, file, current_file.c_str(), name_opened);
 
     // Automatically close file at function exit
     auto close_fh = [](FILE **fh) { fclose(*fh); };
     std::unique_ptr<FILE*,decltype(close_fh)> const cleanup { &f, close_fh };
-    auto cleanup_fn = [](char **ptr) { free(*ptr); };
-    std::unique_ptr<char*,decltype(cleanup_fn)> const cleanup2 { &name_opened, cleanup_fn };
 
     QVERIFY(f != nullptr);
-    QVERIFY(name_opened != nullptr);
-    QCOMPARE(name_opened, expected.data());
+    QVERIFY(!name_opened.empty());
+    QCOMPARE(name_opened, expected);
 }
 
 //
@@ -480,7 +475,7 @@ void TestLirc::test_readconfig_internal1(void)
     std::string sha_bang;
 
     auto result =
-        lirc_readconfig_only_internal(m_state, tmpfilename.data(),
+        lirc_readconfig_only_internal(m_state, tmpfilename,
                                       &m_config, [](std::string& /*s*/){return 0;},
                                       full_name,sha_bang);
     QCOMPARE(result, 0);
@@ -501,7 +496,7 @@ void TestLirc::test_readconfig_internal2(void)
 
     // Read config file
     auto result =
-        lirc_readconfig_only_internal(m_state, filename.data(),
+        lirc_readconfig_only_internal(m_state, filename,
                                       &m_config, [](std::string& /*s*/){return 0;},
                                       full_name,sha_bang);
     QCOMPARE(result, 0);
@@ -559,7 +554,7 @@ void TestLirc::test_readconfig_internal3(void)
 
     // Read config file
     auto result =
-        lirc_readconfig_only(m_state, filename.data(),
+        lirc_readconfig_only(m_state, filename,
                              &m_config, [](std::string& /*s*/){return 0;});
     QCOMPARE(result, 0);
 
@@ -597,7 +592,7 @@ void TestLirc::test_readconfig_internal4(void)
 
     // Read config file
     auto result =
-        lirc_readconfig_only(m_state, filename.data(),
+        lirc_readconfig_only(m_state, filename,
                              &m_config, [](std::string& /*s*/){return 0;});
     QCOMPARE(result, 0);
 
@@ -630,7 +625,7 @@ void TestLirc::test_readconfig_internal5(void)
 
     // Read config file
     auto result =
-        lirc_readconfig_only(m_state, filename.data(),
+        lirc_readconfig_only(m_state, filename,
                              &m_config, [](std::string& /*s*/){return 0;});
     QCOMPARE(result, 0);
 
@@ -703,7 +698,7 @@ void TestLirc::test_readconfig1(void)
     s_response.emplace_back("END\n");
 
     // Read config file
-    auto result = lirc_readconfig(m_state, ss_conf_name.data(),
+    auto result = lirc_readconfig(m_state, ss_conf_name,
                                   &m_config, [](std::string& /*s*/){return 0;});
     QCOMPARE(result, 0);
     if (result != 0)
@@ -772,7 +767,7 @@ void TestLirc::test_readconfig2(void)
     QVERIFY(m_state != nullptr);
 
     // Read config file
-    auto result = lirc_readconfig(m_state, ss_conf_name.data(),
+    auto result = lirc_readconfig(m_state, ss_conf_name,
                                   &m_config, [](std::string& /*s*/){return 0;});
     QCOMPARE(result, -1);
 
@@ -797,7 +792,7 @@ void TestLirc::test_code2char_internal(void)
 
     // Read config file
     auto result =
-        lirc_readconfig_only(m_state, filename.data(),
+        lirc_readconfig_only(m_state, filename,
                              &m_config, [](std::string& /*s*/){return 0;});
     QCOMPARE(result, 0);
 
