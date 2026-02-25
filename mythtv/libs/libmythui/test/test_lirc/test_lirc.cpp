@@ -392,9 +392,7 @@ void TestLirc::test_getfilename(void)
     std::string filename = qs_filename.toStdString();
     std::string current = qs_current.toStdString();
     std::string expected = qs_expected.toStdString();
-    const char *c_filename = filename.empty() ? nullptr : filename.c_str();
-    const char *c_current = current.empty() ? nullptr : current.c_str();
-    std::string actual = lirc_getfilename(&l_state, c_filename, c_current);
+    std::string actual = lirc_getfilename(&l_state, filename, current);
     QCOMPARE(actual, expected);
 }
 
@@ -425,17 +423,16 @@ void TestLirc::test_open(void)
     std::string ss_root_file = qs_root_file.toStdString();
     std::string ss_user_file = qs_user_file.toStdString();
     std::string ss_expected =  qs_expected.toStdString();
-    char *c_filename = ss_filename.empty() ? nullptr : ss_filename.data();
 
     m_state = lirc_init(ss_root_file.data(), ss_user_file.data(), "test_lirc", nullptr, 0);
     QVERIFY(m_state != nullptr);
 
     // Fallback open
-    char *name_opened { nullptr };
-    auto f = lirc_open(m_state, c_filename, "", &name_opened);
+    std::string name_opened;
+    auto f = lirc_open(m_state, ss_filename, "", name_opened);
     QVERIFY(f != nullptr);
-    QVERIFY(name_opened != nullptr);
-    QCOMPARE(name_opened, ss_expected.data());
+    QVERIFY(!name_opened.empty());
+    QCOMPARE(name_opened, ss_expected);
 }
 
 //

@@ -304,8 +304,8 @@ bool LIRC::Init(void)
     if (!d->m_lircConfig)
     {
         QMutexLocker static_lock(&s_lirclibLock);
-        QByteArray cfg = m_configFile.toLocal8Bit();
-        if (lirc_readconfig(d->m_lircState, cfg.constData(), &d->m_lircConfig, nullptr))
+        if (lirc_readconfig(d->m_lircState, m_configFile.toStdString(),
+                            &d->m_lircConfig, nullptr))
         {
             LOG(vtype, LOG_ERR, LOC +
                 QString("Failed to read config file '%1'").arg(m_configFile));
