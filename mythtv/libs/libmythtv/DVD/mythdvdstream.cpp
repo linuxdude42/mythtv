@@ -51,10 +51,9 @@ class MythDVDStream::BlockRange
 /**
  * Defines and flags.  Make sure they fit the libdvdcss API!
  */
-#define DVDINPUT_NOFLAGS         0
-
-#define DVDINPUT_READ_DECRYPT    (1 << 0)
-#define DVDCSS_SEEK_KEY          (1 << 1)
+static constexpr int DVDINPUT_NOFLAGS      { 0 };
+static constexpr int DVDINPUT_READ_DECRYPT { 1 << 0 };
+static constexpr int DVDCSS_SEEK_KEY       { 1 << 1 };
 
 // Private but located in/shared with dvd_reader.c
 extern "C" int InternalUDFReadBlocksRaw(dvd_reader_t *device, uint32_t lb_number,
