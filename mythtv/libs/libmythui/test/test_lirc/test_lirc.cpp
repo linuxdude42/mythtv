@@ -905,7 +905,7 @@ void TestLirc::test_getsocketname(void)
     struct sockaddr_un addr {};
     addr.sun_family=AF_UNIX;
 
-    size_t const len = lirc_getsocketname(input.data(), addr.sun_path, sizeof(addr.sun_path));
+    size_t const len = lirc_getsocketname(input, addr.sun_path, sizeof(addr.sun_path));
     // lirc_getsocketname counts the NUL terminator?
     QCOMPARE(len, output.size()+1);
     QCOMPARE(addr.sun_path, output.data());

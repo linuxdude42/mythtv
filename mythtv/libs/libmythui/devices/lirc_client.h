@@ -93,13 +93,14 @@ int lirc_readconfig(const struct lirc_state *state,
                     int (check)(std::string& s));
 void lirc_freeconfig(struct lirc_config *config);
 
-int lirc_code2char(const struct lirc_state *state, struct lirc_config *config,const char *code,std::string& string);
+int lirc_code2char(const struct lirc_state *state, struct lirc_config *config,
+		   const std::string& code,std::string& string);
 
 /* new interface for client daemon */
 int lirc_readconfig_only(const struct lirc_state *state,
                          const char *file, struct lirc_config **config,
                          int (check)(std::string& s));
-size_t lirc_getsocketname(const char *filename, char *buf, size_t size);
+size_t lirc_getsocketname(const std::string& filename, char *buf, size_t size);
 std::string lirc_getmode(const struct lirc_state *state, struct lirc_config *config);
 std::string lirc_setmode(const struct lirc_state *state, struct lirc_config *config, const std::string& mode);
 
