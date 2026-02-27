@@ -1,0 +1,4 @@
+# This will be included by another file
+
+begin test1
+end test1

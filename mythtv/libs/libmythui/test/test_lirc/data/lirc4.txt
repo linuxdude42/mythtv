@@ -1,0 +1,9 @@
+# broken file
+
+begin test4
+begin
+    prog = irexec
+    button = HOME
+    repeat = 2
+    delay = 3
+    config = echo "Honey, I'm home."
