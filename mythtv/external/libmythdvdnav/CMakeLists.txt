@@ -15,7 +15,13 @@ set(DVDNAV_MAJOR 6)
 set(DVDNAV_MINOR 0)
 set(DVDNAV_SUB 0)
 
-include(../../../cmake/SetCompilerOptions.cmake)
+#
+# Where to find MythTV provided modules
+#
+# From the sources:
+list(APPEND CMAKE_MODULE_PATH "${SUPER_SOURCE_DIR}/cmake")
+
+include(SetCompilerOptions)
 include(CheckCCompilerFlag)
 include(CheckIncludeFile)
 include(CheckSymbolExists)

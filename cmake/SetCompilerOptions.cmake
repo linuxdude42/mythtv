@@ -242,6 +242,11 @@ if(NOT _ENABLED_CXX EQUAL -1)
   endforeach()
 endif()
 
+#
+# Add flags for profiling
+#
+include(SetCompilerOptionsCoverage)
+
 list(REMOVE_DUPLICATES CMAKE_C_FLAGS)
 list(REMOVE_DUPLICATES CMAKE_CXX_FLAGS)
 list(REMOVE_DUPLICATES CMAKE_MODULE_LINKER_FLAGS)
