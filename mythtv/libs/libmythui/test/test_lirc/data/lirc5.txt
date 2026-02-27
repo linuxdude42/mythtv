@@ -1,0 +1,26 @@
+# test basic parsing
+
+begin test_lirc
+    begin
+        prog = mythtv
+        remote = silver
+        button = Stop
+        button = Go
+        config = Dizzy
+    end
+    begin
+        prog = mythtv
+        remote = silver
+        button = Enter
+        config = Test
+    end
+end test_lirc
+
+begin
+    prog = mythtv
+    remote = silver
+    button = Enter
+    config = Test
+    mode = test_lirc
+    flags = once
+end

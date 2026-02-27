@@ -1,0 +1,28 @@
+# test more basic parsing
+
+# Very long comment
+# Tests reading more than LIRC_READ characters
+#ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890!@ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890!@ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890!@ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz123456789+!@ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890!@
+
+# Code parses for '=' before checking for comments.
+# This = weird comment.
+
+begin test3
+begin
+    prog = mythtv
+    remote = silver
+    button = Off
+    config = Esc
+end
+end test3
+
+begin
+    prog = mythtv
+    button = Go
+    config = N
+end
+
+begin
+        flags = startup_mode
+        mode = test3
+end

@@ -1,0 +1,27 @@
+# test basic parsing
+
+begin test2
+begin
+    prog = irexec
+    button = HOME
+    repeat = 2
+    delay = 3
+    config = echo "Honey, I'm home."
+    config = echo "Honey! I'm home."
+end
+begin
+    prog = mythtv
+    remote = *
+    button = Stop
+    button = Go
+    config = Dizzy
+    mode = abc
+    flags = quit
+end
+begin
+    prog = mythtv
+    remote = *
+    button = Enter
+    config = Test
+end
+end test2

@@ -8,5 +8,6 @@ if(CMAKE_CROSSCOMPILING)
   return()
 endif()
 
+add_subdirectory(test_lirc)
 add_subdirectory(test_mythgenerictree)
 add_subdirectory(test_settings)
