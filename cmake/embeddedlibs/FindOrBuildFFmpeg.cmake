@@ -78,6 +78,11 @@ function(find_or_build_ffmpeg)
     list(APPEND FF_ARGS --disable-libmp3lame)
   endif()
 
+  # ALSA only on linux systems
+  if(NOT TARGET ALSA::ALSA)
+    list(APPEND FF_ARGS --disable-alsa)
+  endif()
+
   #
   # Handle platform args for a native system.
   #

@@ -311,7 +311,7 @@ if(TARGET mythtv_oss)
   target_sources(mythtv PRIVATE audio/audiooutputoss.cpp audio/audiooutputoss.h)
 endif()
 
-if(TARGET PkgConfig::ALSA)
+if(TARGET ALSA::ALSA)
   target_sources(mythtv PRIVATE audio/audiooutputalsa.cpp audio/audiooutputalsa.h)
 endif()
 if(TARGET PkgConfig::JACK)
@@ -360,7 +360,7 @@ target_link_libraries(
   PRIVATE
           PkgConfig::SAMPLERATE
           $<TARGET_NAME_IF_EXISTS:mythtv_oss>
-          $<TARGET_NAME_IF_EXISTS:PkgConfig::ALSA>
+          $<TARGET_NAME_IF_EXISTS:ALSA::ALSA>
           $<TARGET_NAME_IF_EXISTS:PkgConfig::JACK>
           $<TARGET_NAME_IF_EXISTS:PkgConfig::PULSEAUDIO>
           $<$<BOOL:${WIN32}>:winmm>

@@ -19,11 +19,6 @@
  * 02110-1301, USA.
  */
 
-#include <QtGlobal>
-#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
-#include <QtSystemDetection>
-#endif
-
 #include "libmythbase/mythlogging.h"
 #include "audioinputalsa.h"
 
@@ -269,19 +264,15 @@ int AudioInputALSA::PcmRead(void* buf, uint nbytes)
             {
                 case -EAGAIN:
                     break;
-#ifndef Q_OS_NETBSD
                 case -EBADFD:
                     LOG(VB_GENERAL, LOG_ERR, LOC_DEV +
                         QString("in a state unfit to read (%1): %2")
                             .arg(nread).arg(snd_strerror(nread)));
                     break;
-#endif
                 case -EINTR:
                 case -EPIPE:
-#ifndef Q_OS_NETBSD
 #if ESTRPIPE != EPIPE
                 case -ESTRPIPE:
-#endif
 #endif
                     Recovery(nread);
                     break;
@@ -319,12 +310,10 @@ bool AudioInputALSA::Recovery(int err)
         case -EINTR:
             isgood = true; // nothin' to see here
             break;
-#ifndef Q_OS_NETBSD
 #if ESTRPIPE != EPIPE
         case -ESTRPIPE:
             suspense = true;
             [[fallthrough]];
-#endif
 #endif
         case -EPIPE:
         {

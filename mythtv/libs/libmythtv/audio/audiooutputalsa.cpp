@@ -4,11 +4,6 @@
 #include <thread>
 
 #include <QFile>
-#include <QtGlobal>
-#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
-#include <QtSystemDetection>
-#endif
-
 #include "libmythbase/mythcorecontext.h"
 #include "libmythbase/mythlogging.h"
 #include "audiooutputalsa.h"
@@ -609,7 +604,6 @@ void AudioOutputALSA::WriteAudio(uchar *aubuf, int size)
                 }
                 break;
 
-#ifndef Q_OS_NETBSD
 #if ESTRPIPE != EPIPE
             case -ESTRPIPE:
                 LOG(VB_AUDIO, LOG_INFO, LOC + "WriteAudio: device is suspended");
@@ -637,7 +631,6 @@ void AudioOutputALSA::WriteAudio(uchar *aubuf, int size)
                 LOG(VB_GENERAL, LOG_ERR, message);
                 return;
             }
-#endif // Q_OS_NETBSD
 
             default:
                 AERROR(QString("WriteAudio: Write failed, state: %1, err")

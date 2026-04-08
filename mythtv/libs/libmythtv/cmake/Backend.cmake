@@ -150,8 +150,8 @@ if(NOT WIN32)
     recorders/vbi608extractor.h
     )
 endif()
-if(TARGET PkgConfig::ALSA)
-  target_link_libraries(mythtv PUBLIC PkgConfig::ALSA)
+if(TARGET ALSA::ALSA)
+  target_link_libraries(mythtv PUBLIC ALSA::ALSA)
   target_sources(mythtv PRIVATE recorders/audioinputalsa.cpp
                                 recorders/audioinputalsa.h)
 endif()

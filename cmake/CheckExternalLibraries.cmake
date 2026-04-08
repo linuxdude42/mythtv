@@ -429,10 +429,8 @@ endif()
 ## Audio outputs
 
 # alsa: fedora:alsa-lib-devel debian:libasound2-dev
-if(ENABLE_AUDIO_ALSA)
-  # Can't call find_package("ALSA") on OSX. Use pkg_check_modules. 1.0.16
-  # contains SND_PCM_NO_AUTO_RESAMPLE
-  pkg_check_modules(ALSA "alsa>=1.0.16" IMPORTED_TARGET)
+if(ENABLE_AUDIO_ALSA AND (${CMAKE_SYSTEM_NAME} STREQUAL "Linux"))
+  find_package(ALSA 1.0.16)
   add_build_config(PkgConfig::ALSA "alsa")
   set(CONFIG_AUDIO_ALSA ${ALSA_FOUND})
 endif()
