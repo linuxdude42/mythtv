@@ -482,7 +482,7 @@ bool DVBStreamData::GetEITPIDChanges(const uint_vec_t &cur_pids,
             add_pids.push_back(PID::DVB_BVLONG_EIT_PID);
         }
 
-#if 0
+#if 1
         // OpenTV EIT pids
         if (m_dvbEitDishnetLong)
         {
@@ -588,7 +588,7 @@ bool DVBStreamData::GetEITPIDChanges(const uint_vec_t &cur_pids,
             del_pids.push_back(PID::DVB_BVLONG_EIT_PID);
         }
 
-#if 0
+#if 1
         // OpenTV EIT pids
         if (m_dvbEitDishnetLong)
         {
