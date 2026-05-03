@@ -202,8 +202,8 @@ bool MythDRMPlane::HasOverlayFormat(const FOURCCVec &Formats)
 #else
                    return std::ranges::any_of(s_rgbFormats,
                           [&format](auto Format) { return Format == format; });
-               });
 #endif
+               });
 }
 
 uint32_t MythDRMPlane::GetAlphaFormat(const FOURCCVec &Formats)
