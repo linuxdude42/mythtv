@@ -22,9 +22,6 @@
 #include <libmythbase/netutils.h>
 #include <libmythbase/rssmanager.h>
 
-GrabberDownloadThread *gdt = nullptr;
-RSSManager *rssMan = nullptr;
-
 class MPLUGIN_PUBLIC MythFillNVCommandLineParser : public MythCommandLineParser
 {
   public:
@@ -122,30 +119,27 @@ int main(int argc, char *argv[])
 
     if (refreshall || refreshtree)
     {
+        GrabberDownloadThread gdt { nullptr };
         QEventLoop treeloop;
 
-        gdt = new GrabberDownloadThread(nullptr);
         if (refreshall)
-            gdt->refreshAll();
-        gdt->start();
+            gdt.refreshAll();
+        gdt.start();
 
-        QObject::connect(gdt, &GrabberDownloadThread::finished, &treeloop, &QEventLoop::quit);
+        QObject::connect(&gdt, &GrabberDownloadThread::finished, &treeloop, &QEventLoop::quit);
         treeloop.exec();
     }
 
     if ((refreshall || refreshrss) && !findAllDBRSS().empty())
     {
+        RSSManager rssMan;
         QEventLoop rssloop;
 
-        rssMan = new RSSManager();
-        rssMan->doUpdate();
+        rssMan.doUpdate();
 
-        QObject::connect(rssMan, &RSSManager::finished, &rssloop, &QEventLoop::quit);
+        QObject::connect(&rssMan, &RSSManager::finished, &rssloop, &QEventLoop::quit);
         rssloop.exec();
     }
-
-    delete gdt;
-    delete rssMan;
 
     LOG(VB_GENERAL, LOG_INFO, "MythFillNetvision run complete.");
 
