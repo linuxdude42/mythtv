@@ -8,7 +8,3 @@ const Color BLUE = { 0, 0, 0xff };
 const Color YELLOW = { 0xff, 0xff, 0x33 };
 const Color ORANGE = { 0xff, 0xcc, 0x00 };
 const Color VIOLET = { 0x55, 0x00, 0xff };
-
-unsigned int SIZE;
-unsigned int HEIGHT;
-unsigned int WIDTH;
