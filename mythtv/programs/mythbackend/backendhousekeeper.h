@@ -87,6 +87,19 @@ class MythFillDatabaseTask : public DailyHouseKeeperTask
 //    bool m_running;
 };
 
+class FindEncoders : public PeriodicHouseKeeperTask
+{
+  public:
+    FindEncoders(void) :
+        PeriodicHouseKeeperTask("FindEncoders", kINTERVAL,
+                                // run without variation in start time
+                                1.0, 1.0) {}
 
+    bool DoRun(void) override; // HouseKeeperTask
+
+  private:
+    static constexpr std::chrono::minutes kINTERVAL { 1min };
+    int  m_called { 0 };
+};
 
 #endif
