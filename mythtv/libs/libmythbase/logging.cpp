@@ -61,18 +61,20 @@ extern "C" {
 #include <android/log.h>
 #endif
 
-static QMutex                  logQueueMutex;
-static QQueue<LoggingItem *>   logQueue;
+namespace {
+    QMutex                   logQueueMutex;
+    QQueue<LoggingItem *>    logQueue;
 
-static LoggerThread           *logThread = nullptr;
-static QMutex                  logThreadMutex;
-static QHash<uint64_t, QString> logThreadHash;
+    LoggerThread            *logThread = nullptr;
+    QMutex                   logThreadMutex;
+    QHash<uint64_t, QString> logThreadHash;
 
-static QMutex                   logThreadTidMutex;
-static QHash<uint64_t, int64_t> logThreadTidHash;
+    QMutex                   logThreadTidMutex;
+    QHash<uint64_t, int64_t> logThreadTidHash;
 
-static bool                    logThreadFinished = false;
-static bool                    debugRegistration = false;
+    bool                     logThreadFinished = false;
+    bool                     debugRegistration = false;
+}
 
 struct LogPropagateOpts {
     bool    m_propagate { false };
