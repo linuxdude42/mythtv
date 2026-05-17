@@ -7,12 +7,6 @@ CONFIG += c11 c17 c++20 strict_c strict_c++
 QMAKE_DEFAULT_INCDIRS += $$[QT_INSTALL_HEADERS]
 INCLUDEPATH += $$[QT_INSTALL_HEADERS]
 
-# On Qt5 builds, bump the minimum OSX version number
-# up to one that fully supports C++20.
-lessThan(QT_MAJOR_VERSION, 6) {
-  QMAKE_MACOSX_DEPLOYMENT_TARGET = 13.3
-}
-
 MY_INSTALL_INCLUDE = $${SYSROOT}$${PREFIX}/include
 !contains(MY_INSTALL_INCLUDE, /usr/include$) {
     INCLUDEPATH += $${SYSROOT}$${PREFIX}/include

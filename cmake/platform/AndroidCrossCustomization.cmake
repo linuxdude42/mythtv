@@ -167,15 +167,6 @@ set(QT_PLATFORM_BUILD_ENV ${PLATFORM_BUILD_ENV}
 set(QT_PLATFORM_INSTALL_ENV ${PLATFORM_INSTALL_ENV}
                             "PATH=${JAVA_HOME}/bin:$ENV{PATH}")
 
-set(QT5_PLATFORM_ARGS
-    # cmake-format: off
-    -android-arch ${CMAKE_ANDROID_ARCH_ABI}
-    -android-ndk ${CMAKE_ANDROID_NDK}
-    -android-ndk-platform android-${CMAKE_SYSTEM_VERSION}
-    -xplatform android-clang
-    # cmake-format: on
-)
-set(QT5_PLATFORM_LIBS_ARGS "ICU_LIBS=-licui18n -licuuc -licudata")
 set(QT6_PLATFORM_ARGS
     -DANDROID_ABI=${CMAKE_ANDROID_ARCH_ABI}
     -DANDROID_NDK=${CMAKE_ANDROID_NDK}

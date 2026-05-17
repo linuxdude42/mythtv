@@ -43,13 +43,6 @@ endif()
 find_package(Java 11 REQUIRED COMPONENTS Development)
 if(NOT Java_FOUND)
   message(FATAL_ERROR "Can't find installed java")
-elseif(QT_VERSION_MAJOR EQUAL 5)
-  if(Java_VERSION VERSION_GREATER_EQUAL 18)
-    message(
-      FATAL_ERROR
-        "Java version ${Java_VERSION} is too new to compile Qt5. Qt5 requires gradle 7.2 which only officially supports Java 8 through 16, but Java 17 will work.  Please set the JAVA_HOME environment variable to a suitable java version."
-    )
-  endif()
 elseif(QT_VERSION_MAJOR EQUAL 6)
   set(_MAX_JAVA_SUPPORTED 21)
   if(Java_VERSION VERSION_GREATER_EQUAL 22)

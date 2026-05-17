@@ -38,12 +38,12 @@ set(MYTHTV_VERSION_MAJMIN ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR})
 # Qt Minimum Versions
 #
 include(VersionToNumber)
-set(QT5_MIN_VERSION_STR "5.15.2")
+set(QT7_MIN_VERSION_STR "7.0.0")
 set(QT6_MIN_VERSION_STR "6.4.0")
-if(QT_VERSION_MAJOR EQUAL 6)
-  set(QT_MIN_VERSION_STR ${QT6_MIN_VERSION_STR})
+if(QT_VERSION_MAJOR EQUAL 7)
+  set(QT_MIN_VERSION_STR ${QT7_MIN_VERSION_STR})
 else()
-  set(QT_MIN_VERSION_STR ${QT5_MIN_VERSION_STR})
+  set(QT_MIN_VERSION_STR ${QT6_MIN_VERSION_STR})
 endif()
 version_to_number(QT_MIN_VERSION ${QT${QT_VERSION_MAJOR}_MIN_VERSION_STR} FALSE)
 version_to_number(QT_MIN_VERSION_HEX ${QT${QT_VERSION_MAJOR}_MIN_VERSION_STR}
@@ -57,5 +57,5 @@ set(QT_PKG_NAME_LC qt${QT_VERSION_MAJOR})
 # argument is now version dependent, so its definition is in the
 # MythFindQt.cmake file after we know the current version.
 #
-set(QT5_DEPRECATION_FIXED "5.15.2")
+set(QT7_DEPRECATION_FIXED "7.0.0")
 set(QT6_DEPRECATION_FIXED "6.10.0")

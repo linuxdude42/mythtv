@@ -10,6 +10,3 @@ if(EXISTS /usr/X11R6)
 else()
   message(FATAL_ERROR "X11 must be installed.")
 endif()
-
-# Tell MythFindQt.cmake where to find Qt.
-set(Qt5_DIR /usr/local/lib/qt5/cmake/Qt5)

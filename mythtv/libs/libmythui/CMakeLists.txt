@@ -196,11 +196,6 @@ target_link_libraries(
 # Conditionally included code.
 #
 
-# AndroidExtras only exists for Qt5
-if(TARGET Qt5::AndroidExtras)
-  target_link_libraries(mythui PUBLIC Qt5::AndroidExtras)
-endif()
-
 if(TARGET Qt${QT_VERSION_MAJOR}::WebEngineWidgets)
   list(APPEND HEADERS_TO_INSTALL mythuiwebbrowser.h)
   target_sources(mythui PRIVATE mythuiwebbrowser.cpp mythuiwebbrowser.h)

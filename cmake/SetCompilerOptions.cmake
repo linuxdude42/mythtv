@@ -157,6 +157,7 @@ list(
   -Wsuggest-override
   # -Wall flags to disable
   -Wno-unknown-pragmas # gcc doesn't recognize clang pragmas
+  -Wsfinae-incomplete=2
 )
 
 #

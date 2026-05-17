@@ -9,12 +9,6 @@ CONFIG += no_qt_rpath
 QMAKE_DEFAULT_INCDIRS += $$[QT_INSTALL_HEADERS]
 INCLUDEPATH += $$[QT_INSTALL_HEADERS]
 
-# On Qt5 builds, bump the minimum OSX version number
-# up to one that fully supports C++20.
-lessThan(QT_MAJOR_VERSION, 6) {
-  QMAKE_MACOSX_DEPLOYMENT_TARGET = 13.3
-}
-
 defineReplace(avLibName) {
         NAME = $$1
 
@@ -30,8 +24,8 @@ defineReplace(avLibName) {
 }
 
 #check QT major version
-contains(QT_MAJOR_VERSION, 4) {
-        error("Must build against Qt5 or higher")
+lessThan(QT_MAJOR_VERSION, 6) {
+        error("Must build against Qt6 or higher")
 }
 
 # Where binaries, includes and runtime assets are installed by 'make install'

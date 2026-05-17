@@ -158,10 +158,7 @@ list(
   APPEND
   EXTRA_PACKAGES
   $<TARGET_NAME_IF_EXISTS:Qt${QT_VERSION_MAJOR}::DBus>
-  $<TARGET_NAME_IF_EXISTS:Qt5::WebEngine>
-  $<TARGET_NAME_IF_EXISTS:Qt6::WebEngineQuick>
-  # AndroidExtras only exists for Qt5
-  $<TARGET_NAME_IF_EXISTS:Qt5::AndroidExtras>)
+  $<TARGET_NAME_IF_EXISTS:Qt6::WebEngineQuick>)
 
 target_link_libraries(
   mythfrontend

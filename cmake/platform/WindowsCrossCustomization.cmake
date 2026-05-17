@@ -101,21 +101,6 @@ set(OPENSSL_PLATFORM_CONFIG_ARGS --cross-compile-prefix=x86_64-w64-mingw32-
 set(QT_PLATFORM_CONFIGURE_ENV ${PLATFORM_CONFIGURE_ENV}
                               "PKG_CONFIG_SYSROOT_DIR=${MINGW_SYSROOT}")
 
-set(QT5_PLATFORM_ARGS
-    # cmake-format: off
-    -xplatform win32-g++
-    -device-option CROSS_COMPILE=/usr/bin/x86_64-w64-mingw32-
-    -no-avx
-    -no-eventfd
-    -no-feature-alloca_h
-    -no-inotify
-    -opengl dynamic
-    -skip qtdeclarative
-    # cmake-format: on
-)
-set(QT5_PLATFORM_LIBS_ARGS -I${MINGW_SYSROOT}/include
-                           ZSTD_INCDIR=${MINGW_SYSROOT}/include/zstd)
-
 set(QT6_PLATFORM_ARGS
     -DQT_QMAKE_TARGET_MKSPEC=win32-g++
     # -DQT_QMAKE_DEVICE_OPTIONS=CROSS_COMPILE=/usr/bin/x86_64-w64-mingw32-

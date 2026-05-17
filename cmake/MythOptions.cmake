@@ -35,9 +35,9 @@ set(TARBALL_DIR
     ""
     CACHE PATH "Default location for downloading external project tarballs.")
 
-# Qt5 or Qt6
+# Which version of Qt?
 set(QT_VERSION_MAJOR
-    "5"
+    "6"
     CACHE STRING "Qt verion to use/build.")
 
 #
