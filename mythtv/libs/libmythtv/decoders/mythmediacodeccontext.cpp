@@ -1,15 +1,8 @@
 // Qt
 #include <QtGlobal>
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-#include <QtAndroidExtras>
-#include <QAndroidJniEnvironment>
-#else
 #include <QCoreApplication>
 #include <QJniEnvironment>
 #include <QJniObject>
-#define QAndroidJniEnvironment QJniEnvironment
-#define QAndroidJniObject QJniObject
-#endif
 
 // MythTV
 #include "libmythbase/mythcorecontext.h"
@@ -393,12 +386,12 @@ MCProfiles &MythMediaCodecContext::GetProfiles(void)
     };
 
     // Retrieve MediaCodecList
-    QAndroidJniEnvironment env;
-    QAndroidJniObject list("android/media/MediaCodecList", "(I)V", 0); // 0 = REGULAR_CODECS
+    QJniEnvironment env;
+    QJniObject list("android/media/MediaCodecList", "(I)V", 0); // 0 = REGULAR_CODECS
     if (!list.isValid())
         return s_profiles;
     // Retrieve array of MediaCodecInfo's
-    QAndroidJniObject qtcodecs = list.callObjectMethod("getCodecInfos", "()[Landroid/media/MediaCodecInfo;");
+    QJniObject qtcodecs = list.callObjectMethod("getCodecInfos", "()[Landroid/media/MediaCodecInfo;");
     if (!qtcodecs.isValid())
         return s_profiles;
 
@@ -407,7 +400,7 @@ MCProfiles &MythMediaCodecContext::GetProfiles(void)
     jsize codeccount = env->GetArrayLength(codecs);
     for (jsize i = 0; i < codeccount; ++i)
     {
-        QAndroidJniObject codec(env->GetObjectArrayElement(codecs, i));
+        QJniObject codec(env->GetObjectArrayElement(codecs, i));
         if (!codec.isValid())
             continue;
 
@@ -421,12 +414,12 @@ MCProfiles &MythMediaCodecContext::GetProfiles(void)
             continue;
 
         // Retrieve supported mimetypes (there is usually just one)
-        QAndroidJniObject qttypes = codec.callObjectMethod("getSupportedTypes", "()[Ljava/lang/String;");
+        QJniObject qttypes = codec.callObjectMethod("getSupportedTypes", "()[Ljava/lang/String;");
         jobjectArray types = qttypes.object<jobjectArray>();
         jsize typecount = env->GetArrayLength(types);
         for (jsize j = 0; j < typecount; ++j)
         {
-            QAndroidJniObject type(env->GetObjectArrayElement(types, j));
+            QJniObject type(env->GetObjectArrayElement(types, j));
             if (!type.isValid())
                 continue;
 
@@ -438,27 +431,27 @@ MCProfiles &MythMediaCodecContext::GetProfiles(void)
                     continue;
 
                 // Retrieve MediaCodecInfo.CodecCapabilities for mimetype
-                QAndroidJniObject caps = codec.callObjectMethod("getCapabilitiesForType",
+                QJniObject caps = codec.callObjectMethod("getCapabilitiesForType",
                         "(Ljava/lang/String;)Landroid/media/MediaCodecInfo$CodecCapabilities;",
                         type.object<jstring>());
                 if (!caps.isValid())
                     continue;
 
                 // Retrieve MediaCodecInfo.VideoCapabilities from CodecCapabilities
-                QAndroidJniObject videocaps = caps.callObjectMethod("getVideoCapabilities",
+                QJniObject videocaps = caps.callObjectMethod("getVideoCapabilities",
                         "()Landroid/media/MediaCodecInfo$VideoCapabilities;");
-                QAndroidJniObject widthrange = videocaps.callObjectMethod("getSupportedWidths",
+                QJniObject widthrange = videocaps.callObjectMethod("getSupportedWidths",
                         "()Landroid/util/Range;");
-                QAndroidJniObject heightrange = videocaps.callObjectMethod("getSupportedHeights",
+                QJniObject heightrange = videocaps.callObjectMethod("getSupportedHeights",
                         "()Landroid/util/Range;");
 
-                QAndroidJniObject widthqt = widthrange.callObjectMethod("getUpper", "()Ljava/lang/Comparable;");
-                QAndroidJniObject heightqt = heightrange.callObjectMethod("getUpper", "()Ljava/lang/Comparable;");
+                QJniObject widthqt = widthrange.callObjectMethod("getUpper", "()Ljava/lang/Comparable;");
+                QJniObject heightqt = heightrange.callObjectMethod("getUpper", "()Ljava/lang/Comparable;");
                 int width  = widthqt.callMethod<jint>("intValue", "()I");
                 int height = heightqt.callMethod<jint>("intValue", "()I");
 
                 // Profiles are available from CodecCapabilities.profileLevel field
-                QAndroidJniObject profiles = caps.getObjectField("profileLevels",
+                QJniObject profiles = caps.getObjectField("profileLevels",
                         "[Landroid/media/MediaCodecInfo$CodecProfileLevel;");
                 jobjectArray profilearr = profiles.object<jobjectArray>();
                 jsize profilecount = env->GetArrayLength(profilearr);

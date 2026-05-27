@@ -3,7 +3,7 @@
 
 #include "audiooutputbase.h"
 
-class QAndroidJniObject;
+class QJniObject;
 /*
 
     Audio output for android based on android.media.AudioTrack.
@@ -37,7 +37,7 @@ class AudioOutputAudioTrack : public AudioOutputBase
     void SetSourceBitrate(int rate) override; // AudioOutputBase
     bool StartOutputThread(void) override; // AudioOutputBase
     void StopOutputThread(void) override; // AudioOutputBase
-    QAndroidJniObject *m_audioTrack {nullptr};
+    QJniObject *m_audioTrack {nullptr};
     int m_bitsPer10Frames {0};
 };
 

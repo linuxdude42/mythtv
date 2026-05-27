@@ -15,13 +15,8 @@
 #include <QtSystemDetection>
 #endif
 #ifdef Q_OS_ANDROID
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-#include <QtAndroidExtras>
-#else
 #include <QCoreApplication>
 #include <QJniObject>
-#define QAndroidJniObject QJniObject
-#endif
 #endif
 #include <QApplication>
 #include <QDir>
@@ -1570,11 +1565,7 @@ static int reloadTheme(void)
     // reinitializing the main windows causes a segfault
     // with android
 
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-    auto activity = QtAndroid::androidActivity();
-#else
     QJniObject activity = QNativeInterface::QAndroidApplication::context();
-#endif
     auto packageManager = activity.callObjectMethod
         (   "getPackageManager",
             "()Landroid/content/pm/PackageManager;"  );
@@ -1585,27 +1576,27 @@ static int reloadTheme(void)
             activity.callObjectMethod("getPackageName",
             "()Ljava/lang/String;").object()  );
 
-    auto pendingIntent = QAndroidJniObject::callStaticObjectMethod
+    auto pendingIntent = QJniObject::callStaticObjectMethod
         (   "android/app/PendingIntent",
             "getActivity",
             "(Landroid/content/Context;ILandroid/content/Intent;I)Landroid/app/PendingIntent;",
             activity.object(),
             0,
             activityIntent.object(),
-            QAndroidJniObject::getStaticField<jint>("android/content/Intent",
+            QJniObject::getStaticField<jint>("android/content/Intent",
             "FLAG_ACTIVITY_CLEAR_TOP")  );
 
     auto alarmManager = activity.callObjectMethod
         (   "getSystemService",
             "(Ljava/lang/String;)Ljava/lang/Object;",
-            QAndroidJniObject::getStaticObjectField("android/content/Context",
+            QJniObject::getStaticObjectField("android/content/Context",
             "ALARM_SERVICE",
             "Ljava/lang/String;").object()  );
 
     alarmManager.callMethod<void>
         (   "set",
             "(IJLandroid/app/PendingIntent;)V",
-            QAndroidJniObject::getStaticField<jint>("android/app/AlarmManager", "RTC"),
+            QJniObject::getStaticField<jint>("android/app/AlarmManager", "RTC"),
             jlong(QDateTime::currentMSecsSinceEpoch() + 100),
             pendingIntent.object()  );
 

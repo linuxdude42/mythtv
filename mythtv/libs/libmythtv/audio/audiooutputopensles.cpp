@@ -4,14 +4,8 @@
 #include <dlfcn.h>
 
 #include <QtGlobal>
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-#include <QAndroidJniEnvironment>
-#else
 #include <QJniEnvironment>
 #include <QJniObject>
-#define QAndroidJniEnvironment QJniEnvironment
-#define QAndroidJniObject QJniObject
-#endif
 
 #include "libmythbase/mythlogging.h"
 #include "audiooutputopensles.h"
@@ -64,30 +58,26 @@ int GetNativeOutputSampleRate(void);
 int GetNativeOutputSampleRate(void)
 {
 #if 1    
-    QAndroidJniEnvironment jniEnv;
+    QJniEnvironment jniEnv;
     jclass cls = jniEnv->FindClass("android/media/AudioTrack");
     jmethodID method = jniEnv->GetStaticMethodID (cls, "getNativeOutputSampleRate", "(I)I");
     int sample_rate = jniEnv->CallStaticIntMethod (cls, method, 3); // AudioManager.STREAM_MUSIC
     return sample_rate;
 #else    
     //AudioManager.getProperty(PROPERTY_OUTPUT_SAMPLE_RATE)
-    return QAndroidJniObject::callStaticMethodInt("android/media/AudioTrack", "getNativeOutputSampleRate", "(I)I", 3);
+    return QJniObject::callStaticMethodInt("android/media/AudioTrack", "getNativeOutputSampleRate", "(I)I", 3);
 #endif
 }
 
 #if 0
 int GetNativeOutputFramesPerBuffer(void)
 {
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-    QAndroidJniObject activity = QtAndroid::androidActivity();
-#else
     QJniObject activity = QNativeInterface::QAndroidApplication::context();
-#endif
     //Context.getSystemService(Context.AUDIO_SERVICE)
-    QAndroidJniObject audioManager = activity.callObjectMethod("getSystemService", "", );
+    QJniObject audioManager = activity.callObjectMethod("getSystemService", "", );
     jstring sValue = audioManager.callMethod<jstring>("getProperty", PROPERTY_OUTPUT_FRAMES_PER_BUFFER);
     // getNativeOutputFramesPerBuffer
-    return QAndroidJniObject::callStaticMethodInt("android/media/AudioManager", "getProperty", "(I)I", 3);
+    return QJniObject::callStaticMethodInt("android/media/AudioManager", "getProperty", "(I)I", 3);
 }
 #endif
 

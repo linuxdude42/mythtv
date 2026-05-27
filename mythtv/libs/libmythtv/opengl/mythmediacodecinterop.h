@@ -4,14 +4,8 @@
 // Qt
 #include <QMutex>
 #include <QWaitCondition>
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-#include <QtAndroidExtras>
-#else
 #include <QJniEnvironment>
 #include <QJniObject>
-#define QAndroidJniEnvironment QJniEnvironment
-#define QAndroidJniObject QJniObject
-#endif
 
 // MythTV
 #include "mythopenglinterop.h"
@@ -36,9 +30,9 @@ class MythMediaCodecInterop : public MythOpenGLInterop
     QWaitCondition    m_frameWait;
     QMutex            m_frameWaitLock;
     bool              m_colourSpaceInitialised;
-    QAndroidJniObject m_surface;
-    QAndroidJniObject m_surfaceTexture;
-    QAndroidJniObject m_surfaceListener;
+    QJniObject        m_surface;
+    QJniObject        m_surfaceTexture;
+    QJniObject        m_surfaceListener;
     jfloatArray       m_textureTransform;
     QMatrix4x4        m_transform;
 };

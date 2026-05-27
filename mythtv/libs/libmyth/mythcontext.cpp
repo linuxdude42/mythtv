@@ -22,14 +22,8 @@
 #include <QMutex>
 #include <QTcpSocket>
 #ifdef Q_OS_ANDROID
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-#include <QtAndroidExtras>
-#else
 #include <QJniEnvironment>
 #include <QJniObject>
-#define QAndroidJniEnvironment QJniEnvironment
-#define QAndroidJniObject QJniObject
-#endif
 #endif
 
 #ifdef Q_OS_WINDOWS
@@ -639,21 +633,17 @@ QString MythContext::Impl::setLocalHostName(QString hostname)
         {
             hostname = "android";
             bool exception=false;
-            QAndroidJniEnvironment env;
-            QAndroidJniObject myID = QAndroidJniObject::fromString("android_id");
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-            QAndroidJniObject activity = QtAndroid::androidActivity();
-#else
+            QJniEnvironment env;
+            QJniObject myID = QJniObject::fromString("android_id");
             QJniObject activity = QNativeInterface::QAndroidApplication::context();
-#endif
             ANDROID_EXCEPTION_CHECK;
-            QAndroidJniObject appctx = activity.callObjectMethod
+            QJniObject appctx = activity.callObjectMethod
                 ("getApplicationContext", "()Landroid/content/Context;");
             ANDROID_EXCEPTION_CHECK;
-            QAndroidJniObject contentR = appctx.callObjectMethod
+            QJniObject contentR = appctx.callObjectMethod
                 ("getContentResolver", "()Landroid/content/ContentResolver;");
             ANDROID_EXCEPTION_CHECK;
-            QAndroidJniObject androidId = QAndroidJniObject::callStaticObjectMethod
+            QJniObject androidId = QJniObject::callStaticObjectMethod
                 ("android/provider/Settings$Secure", "getString",
                  "(Landroid/content/ContentResolver;Ljava/lang/String;)Ljava/lang/String;",
                  contentR.object<jobject>(),

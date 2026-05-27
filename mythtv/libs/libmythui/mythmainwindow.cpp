@@ -60,12 +60,6 @@
 #include "devices/mythinputdevicehandler.h"
 
 
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-#ifdef Q_OS_ANDROID
-#include <QtAndroid>
-#endif
-#endif
-
 static constexpr std::chrono::milliseconds GESTURE_TIMEOUT    { 1s    };
 static constexpr std::chrono::minutes      STANDBY_TIMEOUT    { 90min };
 static constexpr std::chrono::milliseconds LONGPRESS_INTERVAL { 1s    };
@@ -786,11 +780,7 @@ void MythMainWindow::DelayedAction()
     Show();
 
 #ifdef Q_OS_ANDROID
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-    QtAndroid::hideSplashScreen();
-#else
     QNativeInterface::QAndroidApplication::hideSplashScreen();
-#endif
 #endif
 }
 

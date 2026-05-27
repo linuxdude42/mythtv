@@ -40,14 +40,14 @@ MythMediaCodecInterop::MythMediaCodecInterop(MythPlayerUI* Player, MythRenderOpe
     m_textureTransform(nullptr),
     m_transform()
 {
-    jfloatArray transform = QAndroidJniEnvironment()->NewFloatArray(16);
-    m_textureTransform = jfloatArray(QAndroidJniEnvironment()->NewGlobalRef(transform));
-    QAndroidJniEnvironment()->DeleteLocalRef(transform);
+    jfloatArray transform = QJniEnvironment()->NewFloatArray(16);
+    m_textureTransform = jfloatArray(QJniEnvironment()->NewGlobalRef(transform));
+    QJniEnvironment()->DeleteLocalRef(transform);
 }
 
 MythMediaCodecInterop::~MythMediaCodecInterop()
 {
-    QAndroidJniEnvironment()->DeleteGlobalRef(m_textureTransform);
+    QJniEnvironment()->DeleteGlobalRef(m_textureTransform);
 }
 
 void* MythMediaCodecInterop::GetSurface(void)
@@ -92,14 +92,14 @@ bool MythMediaCodecInterop::Initialise(QSize Size)
     m_openglContext->glBindTexture(GL_TEXTURE_EXTERNAL_OES, texture->m_textureId);
 
     // Create surface
-    m_surfaceTexture = QAndroidJniObject("android/graphics/SurfaceTexture", "(I)V", texture->m_textureId);
-    m_surfaceListener = QAndroidJniObject("org/mythtv/video/SurfaceTextureListener", "(J)V", jlong(&m_frameWait));
+    m_surfaceTexture = QJniObject("android/graphics/SurfaceTexture", "(I)V", texture->m_textureId);
+    m_surfaceListener = QJniObject("org/mythtv/video/SurfaceTextureListener", "(J)V", jlong(&m_frameWait));
     if (m_surfaceTexture.isValid() && m_surfaceListener.isValid())
     {
         m_surfaceTexture.callMethod<void>("setOnFrameAvailableListener",
                                           "(Landroid/graphics/SurfaceTexture$OnFrameAvailableListener;)V",
                                           m_surfaceListener.object());
-        m_surface = QAndroidJniObject("android/view/Surface",
+        m_surface = QJniObject("android/view/Surface",
                                       "(Landroid/graphics/SurfaceTexture;)V",
                                       m_surfaceTexture.object());
         if (m_surface.isValid())
@@ -174,7 +174,7 @@ MythMediaCodecInterop::Acquire(MythRenderOpenGL *Context,
 
     // Retrieve and set transform
     m_surfaceTexture.callMethod<void>("getTransformMatrix", "([F)V", m_textureTransform);
-    QAndroidJniEnvironment()->GetFloatArrayRegion(m_textureTransform, 0, 16, m_transform.data());
+    QJniEnvironment()->GetFloatArrayRegion(m_textureTransform, 0, 16, m_transform.data());
     m_openglTextures[DUMMY_INTEROP_ID][0]->m_transform = &m_transform;
     m_openglTextures[DUMMY_INTEROP_ID][0]->m_flip = false;
 

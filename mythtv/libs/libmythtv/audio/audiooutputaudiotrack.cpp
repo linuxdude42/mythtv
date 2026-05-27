@@ -1,13 +1,6 @@
 #include <QtGlobal>
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-#include <QAndroidJniObject>
-#include <QAndroidJniEnvironment>
-#else
 #include <QJniEnvironment>
 #include <QJniObject>
-#define QAndroidJniEnvironment QJniEnvironment
-#define QAndroidJniObject QJniObject
-#endif
 #include <android/log.h>
 
 #include "libmythbase/mythlogging.h"
@@ -62,7 +55,7 @@ AudioOutputAudioTrack::~AudioOutputAudioTrack()
 bool AudioOutputAudioTrack::OpenDevice()
 {
     bool exception=false;
-    QAndroidJniEnvironment env;
+    QJniEnvironment env;
     jint encoding = 0;
     jint sampleRate = m_sampleRate;
 
@@ -107,7 +100,7 @@ bool AudioOutputAudioTrack::OpenDevice()
         {
             case FORMAT_U8:
                 // This could be used to get the value from java instead         // of haning these constants in pour header file.
-                // encoding = QAndroidJniObject::getStaticField<jint>
+                // encoding = QJniObject::getStaticField<jint>
                 //   ("android.media.AudioFormat","ENCODING_PCM_8BIT");
                 encoding = AF_ENCODING_PCM_8BIT;
                 break;
@@ -127,7 +120,7 @@ bool AudioOutputAudioTrack::OpenDevice()
     m_soundcardBufferSize = minBufferSize;
     jint channels = m_channels;
 
-    m_audioTrack = new QAndroidJniObject("org/mythtv/audio/AudioOutputAudioTrack",
+    m_audioTrack = new QJniObject("org/mythtv/audio/AudioOutputAudioTrack",
         "(IIII)V", encoding, sampleRate, minBufferSize, channels);
     ANDROID_EXCEPTION_CHECK
 
@@ -147,7 +140,7 @@ bool AudioOutputAudioTrack::OpenDevice()
 
 void AudioOutputAudioTrack::CloseDevice()
 {
-    QAndroidJniEnvironment env;
+    QJniEnvironment env;
     if (m_audioTrack)
     {
         m_audioTrack->callMethod<void>("release");
@@ -160,7 +153,7 @@ void AudioOutputAudioTrack::CloseDevice()
 AudioOutputSettings* AudioOutputAudioTrack::GetOutputSettings(bool /* digital */)
 {
     bool exception=false;
-    QAndroidJniEnvironment env;
+    QJniEnvironment env;
     jint bufsize = 0;
 
     AudioOutputSettings *settings = new AudioOutputSettings();
@@ -170,7 +163,7 @@ AudioOutputSettings* AudioOutputAudioTrack::GetOutputSettings(bool /* digital */
     {
         // Checking for valid rates using getMinBufferSize.
         // See https://stackoverflow.com/questions/8043387/android-audiorecord-supported-sampling-rates/22317382
-        bufsize = QAndroidJniObject::callStaticMethod<jint>
+        bufsize = QJniObject::callStaticMethod<jint>
             ("android/media/AudioTrack", "getMinBufferSize", "(III)I",
              rate, AF_CHANNEL_OUT_MONO, AF_ENCODING_PCM_16BIT);
         ANDROID_EXCEPTION_CHECK
@@ -183,7 +176,7 @@ AudioOutputSettings* AudioOutputAudioTrack::GetOutputSettings(bool /* digital */
     }
 
     // Checking for valid format using getMinBufferSize.
-    bufsize = QAndroidJniObject::callStaticMethod<jint>
+    bufsize = QJniObject::callStaticMethod<jint>
         ("android/media/AudioTrack", "getMinBufferSize", "(III)I",
             supportedrate, AF_CHANNEL_OUT_MONO, AF_ENCODING_PCM_8BIT);
     ANDROID_EXCEPTION_CHECK
@@ -192,7 +185,7 @@ AudioOutputSettings* AudioOutputAudioTrack::GetOutputSettings(bool /* digital */
     // 16bit always supported
     settings->AddSupportedFormat(FORMAT_S16);
 
-    bufsize = QAndroidJniObject::callStaticMethod<jint>
+    bufsize = QJniObject::callStaticMethod<jint>
         ("android/media/AudioTrack", "getMinBufferSize", "(III)I",
             supportedrate, AF_CHANNEL_OUT_MONO, AF_ENCODING_PCM_FLOAT);
     ANDROID_EXCEPTION_CHECK
@@ -211,7 +204,7 @@ AudioOutputSettings* AudioOutputAudioTrack::GetOutputSettings(bool /* digital */
 void AudioOutputAudioTrack::WriteAudio(unsigned char* aubuf, int size)
 {
     bool exception=false;
-    QAndroidJniEnvironment env;
+    QJniEnvironment env;
     if (m_actuallyPaused)
     {
         if (m_audioTrack)
@@ -245,7 +238,7 @@ void AudioOutputAudioTrack::WriteAudio(unsigned char* aubuf, int size)
 
 int AudioOutputAudioTrack::GetBufferedOnSoundcard(void) const
 {
-    QAndroidJniEnvironment env;
+    QJniEnvironment env;
     int buffered (0);
     if (m_audioTrack)
     {
@@ -302,7 +295,7 @@ void AudioOutputAudioTrack::SetSourceBitrate(int rate)
 
 bool AudioOutputAudioTrack::StartOutputThread(void)
 {
-    QAndroidJniEnvironment env;
+    QJniEnvironment env;
     if (m_audioTrack)
     {
         m_audioTrack->callMethod<void>("setOutputThread","(Z)V",true);
@@ -314,7 +307,7 @@ bool AudioOutputAudioTrack::StartOutputThread(void)
 
 void AudioOutputAudioTrack::StopOutputThread(void)
 {
-    QAndroidJniEnvironment env;
+    QJniEnvironment env;
     if (m_audioTrack)
     {
         m_audioTrack->callMethod<void>("setOutputThread","(Z)V",false);
