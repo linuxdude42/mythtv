@@ -53,13 +53,7 @@ void MythXMLPListSerialiser::AddValue(const QString& Name, const QVariant& Value
         return;
     }
 
-    switch (
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-        static_cast<QMetaType::Type>(Value.type())
-#else
-        static_cast<QMetaType::Type>(Value.typeId())
-#endif
-        )
+    switch (static_cast<QMetaType::Type>(Value.typeId()))
     {
         case QMetaType::QStringList:  AddStringList(Name, Value); break;
         case QMetaType::QVariantList: AddList(Name, Value.toList()); break;
@@ -141,13 +135,7 @@ void MythXMLPListSerialiser::AddQObject(const QString &Name, const QObject* Obje
     for (int index = 0; index  < count; ++index  )
     {
         QMetaProperty metaproperty = meta->property(index);
-        if (
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-            metaproperty.isUser(Object)
-#else
-            metaproperty.isUser()
-#endif
-            )
+        if (metaproperty.isUser())
         {
             const char *rawname = metaproperty.name();
             QString name(rawname);
@@ -193,15 +181,9 @@ void MythXMLPListSerialiser::AddList(const QString& Name, const QVariantList &Va
     bool array = true;
     if (!Values.isEmpty())
     {
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-        auto type = static_cast<QMetaType::Type>(Values.front().type());
-        auto typesEqual = [type](const QVariant& value)
-            { return (static_cast<QMetaType::Type>(value.type()) == type); };
-#else
         auto type = static_cast<QMetaType::Type>(Values.front().typeId());
         auto typesEqual = [type](const QVariant& value)
             { return (static_cast<QMetaType::Type>(value.typeId()) == type); };
-#endif
         array = std::ranges::all_of(std::as_const(Values), typesEqual);
     }
 

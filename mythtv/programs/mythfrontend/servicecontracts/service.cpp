@@ -34,11 +34,7 @@ QVariant Service::ConvertToVariant( int nType, void *pValue )
         return QVariant::fromValue<QObject*>( pObj );
     }
 
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-    return { nType, pValue };
-#else
     return QVariant( QMetaType(nType), pValue );
-#endif
 }
 
 
@@ -128,20 +124,8 @@ void* Service::ConvertToParameterPtr( int            nTypeId,
             // Create Parent object so we can get to its metaObject
             // --------------------------------------------------------------
 
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-            int nParentId = QMetaType::type( sParentFQN.toUtf8() );
-
-            auto *pParentClass = (QObject *)QMetaType::create( nParentId );
-            if (pParentClass == nullptr)
-                break;
-
-            const QMetaObject *pMetaObject = pParentClass->metaObject();
-
-            QMetaType::destroy( nParentId, pParentClass );
-#else
             const QMetaObject *pMetaObject =
                 QMetaType::fromName( sParentFQN.toUtf8() ).metaObject();
-#endif
 
             // --------------------------------------------------------------
             // Now look up enum

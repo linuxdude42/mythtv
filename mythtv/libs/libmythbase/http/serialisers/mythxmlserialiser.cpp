@@ -54,13 +54,7 @@ void MythXMLSerialiser::AddValue(const QString& Name, const QVariant& Value)
         return;
     }
 
-    switch (
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-        static_cast<QMetaType::Type>(Value.type())
-#else
-        static_cast<QMetaType::Type>(Value.typeId())
-#endif
-        )
+    switch (static_cast<QMetaType::Type>(Value.typeId()))
     {
         case QMetaType::QStringList:  AddStringList(Value); break;
         case QMetaType::QVariantList: AddList(Name, Value); break;
@@ -98,13 +92,7 @@ void MythXMLSerialiser::AddQObject(const QObject* Object)
     for (int index = 0; index  < count; ++index  )
     {
         QMetaProperty metaproperty = meta->property(index);
-        if (
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-            metaproperty.isUser(Object)
-#else
-            metaproperty.isUser()
-#endif
-            )
+        if (metaproperty.isUser())
         {
             const char *rawname = metaproperty.name();
             QString name(rawname);

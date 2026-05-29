@@ -324,12 +324,7 @@ QDomElement MythWSDL::CreateBindingOperation( const QString& path,
     oDirection.appendChild( oNode );
     oOp.appendChild( oDirection );
 
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-    const char * typeName = QMetaType::typeName(handler->m_types[0]);
-#else
     const char * typeName = QMetaType(handler->m_types[0]).name();
-#endif
-
     if (QString::compare(typeName, "void", Qt::CaseInsensitive ) != 0)
     {
         // Create output element
@@ -395,12 +390,7 @@ QDomElement MythWSDL::CreateMethodType( const HTTPMethodPtr& handler,
         QDomElement oNode = createElement( "xs:element" );
 
         // QString sType = oInfo.m_oMethod.typeName();
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-        const char * typeName = QMetaType::typeName(handler->m_types[0]);
-#else
         const char * typeName = QMetaType(handler->m_types[0]).name();
-#endif
-
         QString sType(typeName);
         // if (sType.startsWith("V2"))
         //     sType.remove(0,2);
@@ -447,11 +437,7 @@ QDomElement MythWSDL::CreateMethodType( const HTTPMethodPtr& handler,
         {
             auto name  = handler->m_names[count];
             paramNames.append(name.toUtf8());
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-            const char * typeName = QMetaType::typeName(handler->m_types[count]);
-#else
             const char * typeName = QMetaType(handler->m_types[count]).name();
-#endif
             paramTypes.append(QByteArray(typeName));
         }
 
@@ -491,12 +477,7 @@ QDomElement MythWSDL::CreateMethodType( const HTTPMethodPtr& handler,
 
 bool MythWSDL::IsCustomType( const QString &sTypeName )
 {
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-    int id = QMetaType::type( sTypeName.toUtf8() );
-#else
     int id = QMetaType::fromName( sTypeName.toUtf8() ).id();
-#endif
-
     switch( id )
     {
         case QMetaType::QStringList:

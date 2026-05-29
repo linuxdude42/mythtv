@@ -55,17 +55,10 @@
 
 static const QByteArray  MAGIC                  { "bplist" };
 static const QByteArray  VERSION                { "00"     };
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-static constexpr int8_t  MAGIC_SIZE             { 6 };
-static constexpr int8_t  VERSION_SIZE           { 2 };
-static constexpr int8_t  TRAILER_SIZE           { 26 };
-static constexpr int8_t  MIN_SIZE     { MAGIC_SIZE + VERSION_SIZE + TRAILER_SIZE};
-#else
 static constexpr ssize_t MAGIC_SIZE             { 6 };
 static constexpr ssize_t VERSION_SIZE           { 2 };
 static constexpr ssize_t TRAILER_SIZE           { 26 };
 static constexpr ssize_t MIN_SIZE     { MAGIC_SIZE + VERSION_SIZE + TRAILER_SIZE};
-#endif
 static constexpr uint8_t TRAILER_OFFSIZE_INDEX  { 0 };
 static constexpr uint8_t TRAILER_PARMSIZE_INDEX { 1 };
 static constexpr uint8_t TRAILER_NUMOBJ_INDEX   { 2 };
@@ -118,13 +111,7 @@ MythBinaryPList::MythBinaryPList(const QByteArray& Data)
 
 QVariant MythBinaryPList::GetValue(const QString& Key)
 {
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-    auto type = static_cast<QMetaType::Type>(m_result.type());
-#else
-    auto type = m_result.typeId();
-#endif
-
-    if (type != QMetaType::QVariantMap)
+    if (m_result.typeId() != QMetaType::QVariantMap)
         return {};
 
     QVariantMap map = m_result.toMap();
@@ -163,12 +150,7 @@ bool MythBinaryPList::ToXML(QIODevice* Device)
 
 bool MythBinaryPList::ToXML(const QVariant& Data, QXmlStreamWriter& Xml)
 {
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-    auto type = static_cast<QMetaType::Type>(Data.type());
-#else
-    auto type = Data.typeId();
-#endif
-    switch (type)
+    switch (Data.typeId())
     {
         case QMetaType::QVariantMap:
             DictToXML(Data, Xml);

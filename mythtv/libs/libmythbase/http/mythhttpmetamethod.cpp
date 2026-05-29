@@ -98,11 +98,7 @@ MythHTTPMetaMethod::MythHTTPMetaMethod(int Index, QMetaMethod& Method, int Reque
     // Add type/value for each method parameter
     for (int i = 0; i < names.size(); ++i)
     {
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-        int type = QMetaType::type(types[i]);
-#else
         int type = QMetaType::fromName(types[i]).id();
-#endif
 
         // Discard methods that use unsupported parameter types.
         // Note: slots only - these are supportable for signals
@@ -142,18 +138,10 @@ HTTPMethodPtr MythHTTPMetaMethod::Create(int Index, QMetaMethod &Method, int Req
 */
 void* MythHTTPMetaMethod::CreateParameter(void* Parameter, int Type, const QString& Value)
 {
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-    QByteArray typeName = QMetaType::typeName(Type);
-#else
     QByteArray typeName = QMetaType(Type).name();
-#endif
 
     // Enum types
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-    auto typeflags = QMetaType::typeFlags(Type);
-#else
     auto typeflags = QMetaType(Type).flags();
-#endif
     if ((typeflags & QMetaType::IsEnumeration) == QMetaType::IsEnumeration)
     {
         // QMetaEnum::keyToValue will return -1 for an unrecognised enumerant, so
@@ -162,11 +150,7 @@ void* MythHTTPMetaMethod::CreateParameter(void* Parameter, int Type, const QStri
         if (int index = typeName.lastIndexOf("::" ); index > -1)
         {
             QString enumname = typeName.mid(index + 2);
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-            const auto * metaobject = QMetaType::metaObjectForType(Type);
-#else
             const auto * metaobject = QMetaType(Type).metaObject();
-#endif
             if (metaobject)
             {
                 int enumindex = metaobject->indexOfEnumerator(enumname.toUtf8().constData());
@@ -234,13 +218,7 @@ QVariant MythHTTPMetaMethod::CreateReturnValue(int Type, void* Value)
 
     // This assumes any user type will be derived from QObject...
     // (Exception for QFileInfo)
-    if (
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-        Type == QMetaType::type("QFileInfo")
-#else
-        Type == QMetaType::fromName("QFileInfo").id()
-#endif
-        )
+    if (Type == QMetaType::fromName("QFileInfo").id())
         return QVariant::fromValue<QFileInfo>(*(static_cast<QFileInfo*>(Value)));
 
     if (Type > QMetaType::User)
@@ -249,9 +227,5 @@ QVariant MythHTTPMetaMethod::CreateReturnValue(int Type, void* Value)
         return QVariant::fromValue<QObject*>(object);
     }
 
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-    return {Type, Value};
-#else
     return QVariant(QMetaType(Type), Value);
-#endif
 }

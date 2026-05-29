@@ -944,11 +944,7 @@ int  V2Capture::AddDiseqcTree ( uint           ParentId,
 
     if (ParentId == 0) // Value 0 is set to null
     {
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-        query.bindValue(":PARENTID", QVariant(QVariant::UInt));
-#else
         query.bindValue(":PARENTID", QVariant(QMetaType(QMetaType::UInt)));
-#endif
     }
     else
     {
@@ -1028,11 +1024,7 @@ bool V2Capture::UpdateDiseqcTree  ( uint           DiSEqCId,
     query.bindValue(":DISEQCID", DiSEqCId);
     if (ParentId == 0) // Value 0 is set to null
     {
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-        query.bindValue(":PARENTID", QVariant(QVariant::UInt));
-#else
         query.bindValue(":PARENTID", QVariant(QMetaType(QMetaType::UInt)));
-#endif
     }
     else
     {

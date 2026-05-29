@@ -51,33 +51,6 @@
 //     // ----------------------------------------------------------------------
 
 //     QString sParentFQN = lstTypeParts[0];
-// #if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-//     int nParentId = QMetaType::type( sParentFQN.toUtf8() );
-
-//     // ----------------------------------------------------------------------
-//     // Check for things that were formerly registered as both 'Foo' and 'Foo*'
-//     // ----------------------------------------------------------------------
-//     if (nParentId == QMetaType::UnknownType)
-//     {
-//         QString sFQN = sParentFQN + "*";
-//         nParentId = QMetaType::type( sFQN.toUtf8() );
-//     }
-
-//     // ----------------------------------------------------------------------
-//     // if a DataContract type, we need to prefix name with DTC::
-//     // These types are all pointers to objects, so we also need to add "*"
-//     // ----------------------------------------------------------------------
-
-//     if (nParentId == QMetaType::UnknownType)
-//     {
-//         QString sFQN = "V2" + sParentFQN + "*";
-//         nParentId = QMetaType::type( sFQN.toUtf8() );
-//     }
-
-//     if (nParentId == QMetaType::UnknownType)
-//         return Error(pRequest, QString( "XSD request unknown enum name %1").arg(sEnumName));
-//     const QMetaObject *pMetaObject = QMetaType::metaObjectForType(nParentId);
-// #else
 //     QMetaType metaType = QMetaType::fromName( sParentFQN.toUtf8() );
 //     if (metaType.id() == QMetaType::UnknownType)
 //         metaType = QMetaType::fromName( sParentFQN.toUtf8() + "*" );
@@ -86,7 +59,6 @@
 //     if (metaType.id() == QMetaType::UnknownType)
 //         return Error(pRequest, QString( "XSD request unknown enum name %1").arg(sEnumName));
 //     const QMetaObject *pMetaObject = metaType.metaObject();
-// #endif
 
 //     if (pMetaObject == nullptr)
 //         return Error(pRequest, QString( "XSD cannot find enum name %1").arg(sEnumName));
@@ -240,36 +212,6 @@ HTTPResponse MythXSD::GetXSD( const HTTPRequest2& pRequest, QString sTypeName )
     // Check to see if one of the Qt Types we need to handle special
     // ----------------------------------------------------------------------
 
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-    int id = QMetaType::type( sTypeName.toUtf8() );
-
-    // ----------------------------------------------------------------------
-    // Check for things that were formerly registered as both 'Foo' and 'Foo*'
-    // ----------------------------------------------------------------------
-    if (id == QMetaType::UnknownType)
-    {
-        QString sFQN = sTypeName + "*";
-        id = QMetaType::type( sFQN.toUtf8() );
-    }
-
-    // ----------------------------------------------------------------------
-    // if a DataContract type, we need to prefix name with DTC::
-    // These types are all pointers to objects, so we also need to add "*"
-    // ----------------------------------------------------------------------
-
-    if (id == QMetaType::UnknownType)
-    {
-        QString sFQN = "V2" + sTypeName;
-        id = QMetaType::type( sFQN.toUtf8() );
-    }
-    if (id == QMetaType::UnknownType)
-    {
-        QString sFQN = "V2" + sTypeName + "*";
-        id = QMetaType::type( sFQN.toUtf8() );
-    }
-    // if (id == QMetaType::UnknownType)
-    //     return Error(pRequest, QString( "XSD request on unknown type %1").arg(sTypeName));
-#else
     QMetaType metaType = QMetaType::fromName( sTypeName.toUtf8() );
     if (metaType.id() == QMetaType::UnknownType)
         metaType = QMetaType::fromName( sTypeName.toUtf8() + "*" );
@@ -279,7 +221,6 @@ HTTPResponse MythXSD::GetXSD( const HTTPRequest2& pRequest, QString sTypeName )
     //     return Error(pRequest,QString( "XSD request on unknown type %1").arg(sTypeName));
 
     int id = metaType.id();
-#endif
 
     // ----------------------------------------------------------------------
     //
@@ -314,11 +255,7 @@ HTTPResponse MythXSD::GetXSD( const HTTPRequest2& pRequest, QString sTypeName )
     }
     else
     {
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-        const QMetaObject *pMetaObject = QMetaType::metaObjectForType(id);
-#else
         const QMetaObject *pMetaObject = metaType.metaObject();
-#endif
         if (pMetaObject)
         {
             QObject* pClass = pMetaObject->newInstance();

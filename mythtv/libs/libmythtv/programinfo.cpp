@@ -4293,11 +4293,7 @@ void ProgramInfo::SaveAspect(
     else
     {
         // create NULL value
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-        query.bindValue(":DATA", QVariant(QVariant::UInt));
-#else
         query.bindValue(":DATA", QVariant(QMetaType(QMetaType::UInt)));
-#endif
     }
 
     if (!query.exec())

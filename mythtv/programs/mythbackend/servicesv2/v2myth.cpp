@@ -604,11 +604,7 @@ V2LogMessageList* V2Myth::GetLogs( const QString   &HostName,
         }
         sql.append(" ORDER BY msgtime ASC;");
 
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-        QVariant ullNull = QVariant(QVariant::ULongLong);
-#else
         QVariant ullNull = QVariant(QMetaType(QMetaType::ULongLong));
-#endif
         query.prepare(sql);
 
         query.bindValue(":HOSTNAME", (HostName.isEmpty()) ? QString() : HostName);

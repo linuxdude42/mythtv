@@ -2722,11 +2722,7 @@ int CardUtil::CreateCaptureCard(const QString &videodevice,
     query.bindValue(":VIDEODEVICE", videodevice);
     if (audiodevice.length() == 0) // Empty string is set to null
     {
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-        query.bindValue(":AUDIODEVICE", QVariant(QVariant::String));
-#else
         query.bindValue(":AUDIODEVICE", QVariant(QMetaType(QMetaType::QString)));
-#endif
     }
     else
     {
@@ -2734,11 +2730,7 @@ int CardUtil::CreateCaptureCard(const QString &videodevice,
     }
     if (vbidevice.length() == 0) // Empty string is set to null
     {
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-        query.bindValue(":VBIDEVICE", QVariant(QVariant::String));
-#else
         query.bindValue(":VBIDEVICE", QVariant(QMetaType(QMetaType::QString)));
-#endif
     }
     else
     {
@@ -2747,11 +2739,7 @@ int CardUtil::CreateCaptureCard(const QString &videodevice,
     query.bindValue(":INPUTTYPE", inputtype);
     if (audioratelimit == 0) // Value 0 is set to null
     {
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-        query.bindValue(":AUDIORATELIMIT", QVariant(QVariant::UInt));
-#else
         query.bindValue(":AUDIORATELIMIT", QVariant(QMetaType(QMetaType::UInt)));
-#endif
     }
     else
     {
@@ -2767,11 +2755,7 @@ int CardUtil::CreateCaptureCard(const QString &videodevice,
     query.bindValue(":FIREWIRESPEED", firewire_speed);
     if (firewire_model.length() == 0) // Empty string is set to null
     {
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-        query.bindValue(":FIREWIREMODEL", QVariant(QVariant::String));
-#else
         query.bindValue(":FIREWIREMODEL", QVariant(QMetaType(QMetaType::QString)));
-#endif
     }
     else
     {
@@ -2787,11 +2771,7 @@ int CardUtil::CreateCaptureCard(const QString &videodevice,
     query.bindValue(":HUE", hue);
     if (diseqcid == 0) // Value 0 is set to null
     {
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-        query.bindValue(":DISEQCID", QVariant(QVariant::UInt));
-#else
         query.bindValue(":DISEQCID", QVariant(QMetaType(QMetaType::UInt)));
-#endif
     }
     else
     {

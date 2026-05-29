@@ -58,13 +58,7 @@ void MythCBORSerialiser::AddValue(const QVariant& Value)
     }
 
     bool ok = false;
-    switch (
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-        static_cast<QMetaType::Type>(Value.type())
-#else
-        static_cast<QMetaType::Type>(Value.typeId())
-#endif
-        )
+    switch (static_cast<QMetaType::Type>(Value.typeId()))
     {
         case QMetaType::Int:
         case QMetaType::LongLong:
@@ -113,13 +107,7 @@ void MythCBORSerialiser::AddQObject(const QObject* Object)
     for (int index = 0; index  < count; ++index  )
     {
         QMetaProperty metaProperty = metaobject->property(index);
-        if (
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-            metaProperty.isUser(Object)
-#else
-            metaProperty.isUser()
-#endif
-            )
+        if (metaProperty.isUser())
         {
             const char *rawname = metaProperty.name();
             QString name(rawname);

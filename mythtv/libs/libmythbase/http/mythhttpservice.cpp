@@ -137,11 +137,7 @@ HTTPResponse MythHTTPService::HTTPRequest(const HTTPRequest2& Request)
     std::array<int,   100> types { 0 };
 
     // Return type
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-    param[0] = handler->m_types[0] == 0 ? nullptr : QMetaType::create(handler->m_types[0]);
-#else
     param[0] = handler->m_types[0] == 0 ? nullptr : QMetaType(handler->m_types[0]).create();
-#endif
     types[0] = handler->m_types[0];
 
     // Parameters
@@ -161,11 +157,7 @@ HTTPResponse MythHTTPService::HTTPRequest(const HTTPRequest2& Request)
             break;
         }
 
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-        auto * newparam = QMetaType::create(type);
-#else
         auto * newparam = QMetaType(type).create();
-#endif
         param[count] = MythHTTPMetaMethod::CreateParameter(newparam, type, value);
         ++count;
     }
@@ -256,11 +248,7 @@ HTTPResponse MythHTTPService::HTTPRequest(const HTTPRequest2& Request)
     {
         if ((param[i] != nullptr) && (types[i] != 0))
         {
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-            QMetaType::destroy(types[i], param[i]);
-#else
             QMetaType(types[i]).destroy(param[i]);
-#endif
         }
     }
 

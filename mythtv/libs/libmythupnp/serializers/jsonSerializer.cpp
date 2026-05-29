@@ -122,12 +122,7 @@ void JSONSerializer::RenderValue( const QVariant &vValue )
     // Handle QVariant special cases...
     // -----------------------------------------------------------------------
 
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-    auto type = static_cast<QMetaType::Type>(vValue.type());
-#else
-    auto type = vValue.typeId();
-#endif
-    switch( type )
+    switch( vValue.typeId() )
     {
         case QMetaType::QVariantList: RenderList      ( vValue.toList()       );  break;
         case QMetaType::QStringList:  RenderStringList( vValue.toStringList() );  break;

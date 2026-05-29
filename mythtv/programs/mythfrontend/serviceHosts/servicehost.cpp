@@ -62,13 +62,8 @@ QVariant MethodInfo::Invoke( Service *pService, const QStringMap &reqParams ) co
         // Add a place for the Return value
         // --------------------------------------------------------------
 
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-        int nRetIdx = QMetaType::type( m_oMethod.typeName() );
-        QMetaType oRetType = QMetaType(nRetIdx);
-#else
         int nRetIdx = m_oMethod.returnType();
         QMetaType oRetType = m_oMethod.returnMetaType();
-#endif
 
         if (nRetIdx != QMetaType::UnknownType)
         {
@@ -90,19 +85,9 @@ QVariant MethodInfo::Invoke( Service *pService, const QStringMap &reqParams ) co
             QString sValue     = lowerParams[ paramNames[ nIdx ].toLower() ];
             QString sParamType = paramTypes[ nIdx ];
 
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-            int     nId        = QMetaType::type( paramTypes[ nIdx ] );
-            void   *pParam     = nullptr;
-
-            if (nId != QMetaType::UnknownType)
-            {
-                pParam = QMetaType::create( nId );
-            }
-#else
             QMetaType metaType = QMetaType::fromName( paramTypes[ nIdx ] );
             void *pParam = metaType.create();
             int nId = metaType.id();
-#endif
             if (nId == QMetaType::UnknownType)
             {
                 LOG(VB_GENERAL, LOG_ERR,

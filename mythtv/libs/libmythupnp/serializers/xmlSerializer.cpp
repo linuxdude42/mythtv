@@ -186,12 +186,7 @@ void XmlSerializer::RenderValue( const QString &sName, const QVariant &vValue )
     // Handle QVariant special cases...
     // -----------------------------------------------------------------------
 
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-    auto type = static_cast<QMetaType::Type>(vValue.type());
-#else
-    auto type = vValue.typeId();
-#endif
-    switch( type )
+    switch( vValue.typeId() )
     {
         case QMetaType::QVariantList:
         {

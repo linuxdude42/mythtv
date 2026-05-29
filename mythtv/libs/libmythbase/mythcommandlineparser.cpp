@@ -985,11 +985,7 @@ void CommandLineArg::Convert(void)
         return;
     }
 
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-    auto storedType = static_cast<QMetaType::Type>(m_stored.type());
-#else
     auto storedType = m_stored.typeId();
-#endif
     if (m_type == QMetaType::QString)
     {
         if (storedType == QMetaType::QByteArray)
@@ -1369,11 +1365,7 @@ CommandLineArg* MythCommandLineParser::add(QStringList arglist,
             {
                 std::cerr << "Adding " << str.toLocal8Bit().constData()
                           << " as taking type '"
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-                          << QVariant::typeToName(static_cast<int>(type))
-#else
                           << QMetaType(type).name()
-#endif
                           << "'\n";
             }
             arg->IncrRef();
@@ -1832,11 +1824,7 @@ CommandLineArg* MythCommandLineParser::add(const QString& arg, const QString& na
                                            QString help, QString longhelp)
 {
     return add(QStringList(arg), name, type,
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-               QVariant(static_cast<QVariant::Type>(type)),
-#else
                QVariant(QMetaType(type)),
-#endif
                std::move(help), std::move(longhelp));
 }
 
@@ -1906,11 +1894,7 @@ CommandLineArg* MythCommandLineParser::add(QStringList arglist, const QString& n
                                            QString help, QString longhelp)
 {
     return add(std::move(arglist), name, type,
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-               QVariant(static_cast<QVariant::Type>(type)),
-#else
                QVariant(QMetaType(type)),
-#endif
                std::move(help), std::move(longhelp));
 }
 
@@ -2848,22 +2832,14 @@ bool MythCommandLineParser::SetValue(const QString &key, const QVariant& value)
     if (!m_namedArgs.contains(key))
     {
         const QVariant& val(value);
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-        auto type = static_cast<QMetaType::Type>(val.type());
-#else
         auto type = static_cast<QMetaType::Type>(val.typeId());
-#endif
         arg = new CommandLineArg(key, type, val);
         m_namedArgs.insert(key, arg);
     }
     else
     {
         arg = m_namedArgs[key];
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-        auto type = static_cast<QMetaType::Type>(value.type());
-#else
         auto type = value.typeId();
-#endif
         if (arg->m_type != type)
             return false;
     }

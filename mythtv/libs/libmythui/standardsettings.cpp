@@ -344,13 +344,7 @@ void AutoIncrementSetting::Save(void)
         //setValue(query.lastInsertId().toInt());
 
         QVariant var = query.lastInsertId();
-
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-        auto id = static_cast<QMetaType::Type>(var.type());
-#else
-        auto id = var.typeId();
-#endif
-        if (id != QMetaType::UnknownType)
+        if (var.typeId() != QMetaType::UnknownType)
             setValue(var.toInt());
         else
         {
