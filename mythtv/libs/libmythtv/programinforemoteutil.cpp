@@ -196,11 +196,7 @@ QDateTime RemoteGetPreviewIfModified(
     }
     data.resize(length);
 
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-    quint16 calculated = qChecksum(data.constData(), data.size());
-#else
     quint16 calculated = qChecksum(data);
-#endif
     if (checksum16 != calculated)
     {
         LOG(VB_GENERAL, LOG_ERR, loc + "Preview checksum failed");
