@@ -5895,11 +5895,7 @@ bool TV::ProcessSmartChannel(QString &InputStr)
         return false;
 
     // Check for and remove duplicate separator characters
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-    int size = chan.size();
-#else
     qsizetype size = chan.size();
-#endif
     if ((size > 2) && (chan.at(size - 1) == chan.at(size - 2)))
     {
         bool ok = false;

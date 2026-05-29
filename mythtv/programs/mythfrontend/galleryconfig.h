@@ -24,10 +24,8 @@ signals:
     void OrderChanged();
     void ExclusionsChanged();
 
-#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
 private slots:
     static void ImageSizeChanged();
-#endif
 
 public:
     explicit GallerySettings(bool enable);

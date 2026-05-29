@@ -279,11 +279,7 @@ QString formatTime(std::chrono::milliseconds msecs, QString fmt)
     if (match.hasMatch())
     {
         static constexpr std::array<int,4> divisor = {1000, 100, 10, 1};
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-        int width = std::min(3, match.capturedLength());
-#else
         int width = std::min(static_cast<qsizetype>(3), match.capturedLength());
-#endif
         int value = (msecs % 1s).count() / divisor[width];
         QString text = StringUtil::intToPaddedString(value, width);
         fmt.replace(match.capturedStart(), match.capturedLength(), text);

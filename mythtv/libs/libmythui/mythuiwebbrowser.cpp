@@ -783,11 +783,7 @@ void MythUIWebBrowser::RemoveUserStyleSheet(const QString &name)
     if (!m_webEngine)
         return;
 
-#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
     QList<QWebEngineScript> scripts = m_webEngine->page()->scripts().find(name);
-#else
-    QList<QWebEngineScript> scripts = m_webEngine->page()->scripts().findScripts(name);
-#endif
 
     if (!scripts.isEmpty())
     {

@@ -567,11 +567,7 @@ void MHListGroup::Update(MHEngine *engine)
     if (m_nLastCount - m_nLastFirstItem != m_itemList.size() - m_nFirstItem)
     {
         engine->EventTriggered(this, EventTailItems,
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-			       (m_itemList.size()) - m_nFirstItem);
-#else
 			       static_cast<int>(m_itemList.size()) - m_nFirstItem);
-#endif
     }
 
     m_nLastCount = m_itemList.size();

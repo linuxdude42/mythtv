@@ -141,11 +141,7 @@ MythCoreContextPrivate::MythCoreContextPrivate(MythCoreContext *lparent,
 }
 
 static void delete_sock(
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-    QMutexLocker &locker,
-#else
     QMutexLocker<QMutex> &locker,
-#endif
     MythSocket **s)
 {
     if (*s)

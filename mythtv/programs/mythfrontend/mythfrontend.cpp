@@ -30,11 +30,7 @@
 #endif
 #include <QTimer>
 #if CONFIG_QTWEBENGINE
-#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
 #include <QtWebEngineQuick>
-#else
-#include <QtWebEngine>
-#endif
 #endif
 
 // MythTV
@@ -2005,11 +2001,7 @@ Q_DECL_EXPORT int main(int argc, char **argv)
     }
 
 #if CONFIG_QTWEBENGINE
-#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
     QtWebEngineQuick::initialize();
-#else
-    QtWebEngine::initialize();
-#endif
 #endif
 
     MythDisplay::ConfigureQtGUI(1, cmdline);
@@ -2112,11 +2104,9 @@ Q_DECL_EXPORT int main(int argc, char **argv)
         return GENERIC_EXIT_OK;
     }
 
-#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
     int maxImageSize = gCoreContext->GetNumSetting("ImageMaximumSize", -1);
     if (maxImageSize >=0)
         QImageReader::setAllocationLimit(maxImageSize);
-#endif
     LOG(VB_GENERAL, LOG_DEBUG,
         QString("Built against zlib %1, linked against %2.")
         .arg(ZLIB_VERSION, zlibVersion()));

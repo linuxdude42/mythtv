@@ -1352,13 +1352,7 @@ int editDistance( const QString& s, const QString& t )
     {
         for ( size_t j = 1; j < n; j++ )
         {
-            if (
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-                s[static_cast<int>(i) - 1] == t[static_cast<int>(j) - 1]
-#else
-                s[i - 1] == t[j - 1]
-#endif
-                )
+            if (s[i - 1] == t[j - 1])
                 D( i, j ) = D( i - 1, j - 1 );
             else
             {

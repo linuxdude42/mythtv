@@ -1513,11 +1513,7 @@ void LCDProcClient::scrollMenuText()
         LCDMenuItem *curItem = &(*it);
         ++it;
         longest_line = std::max(
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-            curItem->ItemName().length(),
-#else
             static_cast<int>(curItem->ItemName().length()),
-#endif
             longest_line);
 
         if ((int)curItem->getScrollPos() > max_scroll_pos)

@@ -147,7 +147,6 @@ static StandardSetting *StatusDelay()
     return gc;
 }
 
-#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
 StandardSetting *GallerySettings::ImageMaximumSize() const
 {
     auto *gc = new HostSpinBoxSetting("ImageMaximumSize", -1, 1024*1024, 1, 10);
@@ -170,7 +169,6 @@ void GallerySettings::ImageSizeChanged ()
         maxImageSize = 128; // Restore Qt6 default
     QImageReader::setAllocationLimit(maxImageSize);
 }
-#endif
 
 static StandardSetting *UseTransitions()
 {
@@ -302,9 +300,7 @@ GallerySettings::GallerySettings(bool enable)
     addChild(SlideDuration());
     addChild(TransitionDuration());
     addChild(StatusDelay());
-#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
     addChild(ImageMaximumSize());
-#endif
     addChild(UseTransitions());
 
     // These modify the database

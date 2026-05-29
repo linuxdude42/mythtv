@@ -90,10 +90,6 @@ void ThumbThread<DBFS>::AbortDevice(int devId, const QString &action)
 }
 
 
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-#define QMutableMultiMapIterator QMutableMapIterator
-#endif
-
 /*!
   /brief Removes all tasks for a device from a task queue
  */

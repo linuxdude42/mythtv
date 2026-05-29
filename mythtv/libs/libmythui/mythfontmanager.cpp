@@ -32,30 +32,17 @@ void MythFontManager::LoadFonts(const QString &directory,
     int maxDirs = MAX_DIRS;
     LoadFonts(directory, registeredFor, &maxDirs);
 
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-    QFontDatabase database;
-    QStringList families = database.families();
-#else
     QStringList families = QFontDatabase::families();
-#endif
     for (const QString & family : std::as_const(families))
     {
         QString result = QString("Font Family '%1': ").arg(family);
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-        QStringList styles = database.styles(family);
-#else
         QStringList styles = QFontDatabase::styles(family);
-#endif
         for (const QString & style : std::as_const(styles))
         {
             result += QString("%1(").arg(style);
 
             QString sizes;
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-            QList<int> pointList = database.smoothSizes(family, style);
-#else
             QList<int> pointList = QFontDatabase::smoothSizes(family, style);
-#endif
             for (int points : std::as_const(pointList))
                 sizes += QString::number(points) + ' ';
 

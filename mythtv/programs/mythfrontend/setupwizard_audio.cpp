@@ -193,13 +193,8 @@ AudioOutputSettings AudioSetupWizard::UpdateCapabilities(bool restore, bool AC3)
 
     AudioOutputSettings settings;
 
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-    const auto* it = std::ranges::find(std::as_const(*m_outputlist), out,
-                                       &AudioOutput::AudioDeviceConfig::m_name);
-#else
     const auto it = std::ranges::find(std::as_const(*m_outputlist), out,
                                       &AudioOutput::AudioDeviceConfig::m_name);
-#endif
     if (it != m_outputlist->cend())
     {
         AudioOutput::AudioDeviceConfig ao = *it;

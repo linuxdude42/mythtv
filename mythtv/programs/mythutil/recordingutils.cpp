@@ -36,11 +36,7 @@ static QString CreateProgramInfoString(const ProgramInfo &pginfo)
     if (!pginfo.GetSubtitle().isEmpty())
     {
         extra = QString(" ~ ") + pginfo.GetSubtitle();
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-        int maxll = std::max(title.length(), 20);
-#else
         int maxll = std::max(title.length(), static_cast<qsizetype>(20));
-#endif
         if (extra.length() > maxll)
             extra = extra.left(maxll - 3) + "...";
     }

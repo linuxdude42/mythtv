@@ -68,13 +68,8 @@ class MBASE_PUBLIC MythEvent : public QEvent
     int ExtraDataCount() const { return m_extradata.size(); }
     void log(const QString& prefix);
 
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-    virtual MythEvent *clone() const
-    { return new MythEvent(m_message, m_extradata); }
-#else
     MythEvent *clone() const override
     { return new MythEvent(type(), m_message, m_extradata); }
-#endif
 
     static const Type kMythEventMessage;
     static const Type kMythUserMessage;

@@ -735,11 +735,7 @@ void CC608Decoder::BufferCC(size_t mode, size_t len, int clr)
     {
         // calculate UTF-8 encoding length
         tmpbuf = m_ccBuf[mode].toUtf8();
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-        len = std::min(tmpbuf.length(), 255);
-#else
         len = std::min(tmpbuf.length(), static_cast<qsizetype>(255));
-#endif
     }
 
     unsigned char *bp = m_rbuf;
