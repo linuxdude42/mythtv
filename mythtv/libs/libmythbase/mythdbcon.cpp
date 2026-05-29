@@ -660,20 +660,12 @@ bool MSqlQuery::exec()
     if (!result)
     {
         QString err = MythDB::GetError("MSqlQuery", *this);
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-        MSqlBindings tmp = QSqlQuery::boundValues();
-#else
         QVariantList tmp = QSqlQuery::boundValues();
-#endif
         bool has_null_strings = false;
         // NOLINTNEXTLINE(modernize-loop-convert)
         for (auto it = tmp.begin(); it != tmp.end(); ++it)
         {
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-            auto type = static_cast<QMetaType::Type>(it->type());
-#else
             auto type = it->typeId();
-#endif
             if (type != QMetaType::QString)
                 continue;
             if (it->isNull() || it->toString().isNull())
@@ -684,12 +676,8 @@ bool MSqlQuery::exec()
         }
         if (has_null_strings)
         {
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-            bindValues(tmp);
-#else
 	    for (int i = 0; i < static_cast<int>(tmp.size()); i++)
 		QSqlQuery::bindValue(i, tmp.at(i));
-#endif
             timer.restart();
             result = QSqlQuery::exec();
             elapsed = timer.elapsed();
@@ -711,14 +699,6 @@ bool MSqlQuery::exec()
         // the values in bound queries against a MySQL5 database.
         // So, replace the named placeholders with their values.
 
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-        QMapIterator<QString, QVariant> b = boundValues();
-        while (b.hasNext())
-        {
-            b.next();
-            str.replace(b.key(), '\'' + b.value().toString() + '\'');
-        }
-#else
         QVariantList b = boundValues();
         static const QRegularExpression placeholders { "(:\\w+)" };
         auto match = placeholders.match(str);
@@ -730,7 +710,6 @@ bool MSqlQuery::exec()
                         : '\'' + b.takeFirst().toString() + '\'');
             match = placeholders.match(str);
         }
-#endif
 
         LOG(VB_DATABASE, LOG_INFO,
             QString("MSqlQuery::exec(%1) %2%3%4")
@@ -888,39 +867,17 @@ bool MSqlQuery::testDBConnection()
 
 void MSqlQuery::bindValue(const QString &placeholder, const QVariant &val)
 {
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-    if (static_cast<QMetaType::Type>(val.type()) == QMetaType::QDateTime)
-    {
-        QSqlQuery::bindValue(placeholder,
-                             MythDate::toString(val.toDateTime(), MythDate::kDatabase),
-                             QSql::In);
-        return;
-    }
-#endif
     QSqlQuery::bindValue(placeholder, val, QSql::In);
 }
 
 void MSqlQuery::bindValueNoNull(const QString &placeholder, const QVariant &val)
 {
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-    auto type = static_cast<QMetaType::Type>(val.type());
-#else
     auto type = val.typeId();
-#endif
     if (type == QMetaType::QString && val.toString().isNull())
     {
         QSqlQuery::bindValue(placeholder, QString(""), QSql::In);
         return;
     }
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-    if (type == QMetaType::QDateTime)
-    {
-        QSqlQuery::bindValue(placeholder,
-                             MythDate::toString(val.toDateTime(), MythDate::kDatabase),
-                             QSql::In);
-        return;
-    }
-#endif
     QSqlQuery::bindValue(placeholder, val, QSql::In);
 }
 
@@ -944,18 +901,11 @@ bool MSqlQuery::Reconnect(void)
         return false;
     if (!m_lastPreparedQuery.isEmpty())
     {
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-        MSqlBindings tmp = QSqlQuery::boundValues();
-        if (!QSqlQuery::prepare(m_lastPreparedQuery))
-            return false;
-        bindValues(tmp);
-#else
         QVariantList tmp = QSqlQuery::boundValues();
         if (!QSqlQuery::prepare(m_lastPreparedQuery))
             return false;
 	for (int i = 0; i < static_cast<int>(tmp.size()); i++)
 	    QSqlQuery::bindValue(i, tmp.at(i));
-#endif
     }
     return true;
 }
@@ -1026,11 +976,7 @@ void MSqlEscapeAsAQuery(QString &query, const MSqlBindings &bindings)
     {
         holder = holders[(uint)i].m_holderName;
         val = bindings[holder];
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-        QSqlField f("", val.type());
-#else
         QSqlField f("", val.metaType());
-#endif
         if (val.isNull())
             f.clear();
         else

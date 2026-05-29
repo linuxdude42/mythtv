@@ -197,9 +197,6 @@ QString MythDB::GetError(const QString &where, const MSqlQuery &query)
 
     str += "Query was:\n";
     str += query.executedQuery() + '\n';
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-    QString tmp = toCommaList(query.boundValues());
-#else
     QVariantList numberedBindings = query.boundValues();
     QMap<QString, QVariant> namedBindings;
     static const QRegularExpression placeholders { "(:\\w+)" };
@@ -212,7 +209,6 @@ QString MythDB::GetError(const QString &where, const MSqlQuery &query)
 	    : numberedBindings.takeFirst();
     }
     QString tmp = toCommaList(namedBindings);
-#endif
     if (!tmp.isEmpty())
     {
         str += "Bindings were:\n";
