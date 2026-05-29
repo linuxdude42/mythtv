@@ -656,11 +656,7 @@ QString MythUIVirtualKeyboard::getKeyText(const KeyDefinition& key) const
 }
 
 void MythUIVirtualKeyboard::loadEventKeyDefinitions(
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-    KeyEventDefinition *keyDef,
-#else
     QKeyCombination *keyDef,
-#endif
     const QString &action)
 {
     QString keylist = MythMainWindow::GetKey("Global", action);
@@ -676,25 +672,5 @@ void MythUIVirtualKeyboard::loadEventKeyDefinitions(
         return;
     }
 
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-    keyDef->keyCode = a[0];
-
-    Qt::KeyboardModifiers modifiers = Qt::NoModifier;
-    QStringList parts = keys[0].split('+');
-    for (int j = 0; j < parts.count(); j++)
-    {
-        if (parts[j].toUpper() == "CTRL")
-            modifiers |= Qt::ControlModifier;
-        if (parts[j].toUpper() == "SHIFT")
-            modifiers |= Qt::ShiftModifier;
-        if (parts[j].toUpper() == "ALT")
-            modifiers |= Qt::AltModifier;
-        if (parts[j].toUpper() == "META")
-            modifiers |= Qt::MetaModifier;
-    }
-
-    keyDef->modifiers = modifiers;
-#else
     *keyDef = a[0];
-#endif
 }

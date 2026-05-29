@@ -1223,12 +1223,7 @@ void MythMainWindow::BindKey(const QString& Context, const QString& Action, cons
     QKeySequence keyseq(Key);
     for (unsigned int i = 0; i < static_cast<uint>(keyseq.count()); i++)
     {
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-        int keynum = keyseq[i];
-#else
         int keynum = keyseq[i].toCombined();
-#endif
-
         QStringList dummyaction("");
         if (keycontext->GetMapping(keynum, dummyaction))
         {
@@ -1384,12 +1379,7 @@ void MythMainWindow::BindJump(const QString& Destination, const QString& Key)
 
     for (unsigned int i = 0; i < static_cast<uint>(keyseq.count()); i++)
     {
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-        int keynum = keyseq[i];
-#else
         int keynum = keyseq[i].toCombined();
-#endif
-
         if (!m_priv->m_jumpMap.contains(keynum))
         {
 #if 0

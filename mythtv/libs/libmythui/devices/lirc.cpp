@@ -379,19 +379,8 @@ void LIRC::Process(const QByteArray &data)
 
         for (int i = 0; i < a.count(); i++)
         {
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-            int keycode = a[i];
-            Qt::KeyboardModifiers mod = Qt::NoModifier;
-            mod |= (Qt::SHIFT & keycode) ? Qt::ShiftModifier : Qt::NoModifier;
-            mod |= (Qt::META  & keycode) ? Qt::MetaModifier  : Qt::NoModifier;
-            mod |= (Qt::CTRL  & keycode) ? Qt::ControlModifier: Qt::NoModifier;
-            mod |= (Qt::ALT   & keycode) ? Qt::AltModifier   : Qt::NoModifier;
-
-            keycode &= ~Qt::MODIFIER_MASK;
-#else
             int keycode = a[i].key();
             Qt::KeyboardModifiers mod = a[i].keyboardModifiers();
-#endif
 
             QString text = "";
             if (!mod && keycode <= 0xFFFF)

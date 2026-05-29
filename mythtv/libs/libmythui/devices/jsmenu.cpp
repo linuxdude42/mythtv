@@ -396,13 +396,8 @@ void JoystickMenuThread::EmitKey(const QString& code)
 
     for (int i = 0; i < a.count(); i++)
     {
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-        key       = a[i] & ~(Qt::MODIFIER_MASK);
-        modifiers = static_cast<Qt::KeyboardModifiers>(a[i] & Qt::MODIFIER_MASK);
-#else
         key       = a[i].key();
         modifiers = a[i].keyboardModifiers();
-#endif
 
         QCoreApplication::postEvent(m_mainWindow, new JoystickKeycodeEvent(code,
                                 key, modifiers, QEvent::KeyPress));

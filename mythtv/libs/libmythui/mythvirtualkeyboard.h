@@ -23,18 +23,6 @@ struct KeyDefinition
     QString up, down, left, right;
 };
 
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-class KeyEventDefinition
-{
-  public:
-    int key() const { return keyCode; };
-    Qt::KeyboardModifiers keyboardModifiers() const { return modifiers; };
-
-    int keyCode {0};
-    Qt::KeyboardModifiers modifiers;
-};
-#endif
-
 /** \class MythUIVirtualKeyboard
  *
  * \brief A popup onscreen keyboard for easy alphanumeric and text entry using
@@ -77,11 +65,7 @@ class MUI_PUBLIC MythUIVirtualKeyboard : public MythScreenType
     static QString decodeChar(QString c);
     QString getKeyText(const KeyDefinition& key) const;
     static void loadEventKeyDefinitions(
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-        KeyEventDefinition *keyDef,
-#else
         QKeyCombination *keyDef,
-#endif
         const QString &action);
 
     MythUITextEdit *m_parentEdit   {nullptr};
@@ -102,19 +86,11 @@ class MUI_PUBLIC MythUIVirtualKeyboard : public MythScreenType
     bool          m_composing      {false};
     QString       m_composeStr;
 
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-    KeyEventDefinition m_upKey;
-    KeyEventDefinition m_downKey;
-    KeyEventDefinition m_leftKey;
-    KeyEventDefinition m_rightKey;
-    KeyEventDefinition m_newlineKey;
-#else
     QKeyCombination m_upKey;
     QKeyCombination m_downKey;
     QKeyCombination m_leftKey;
     QKeyCombination m_rightKey;
     QKeyCombination m_newlineKey;
-#endif
 };
 
 #endif

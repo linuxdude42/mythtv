@@ -528,33 +528,8 @@ QString NetworkControl::processKey(NetworkCommand *nc)
                   (nc->getArg(curToken).contains("+"))))
         {
             QKeySequence a(nc->getArg(curToken));
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-            int keyCode = a[0];
-            Qt::KeyboardModifiers modifiers = Qt::NoModifier;
-
-            if (tokenLen > 1)
-            {
-                QStringList tokenParts = nc->getArg(curToken).split('+');
-
-                int partNum = 0;
-                while (partNum < (tokenParts.size() - 1))
-                {
-                    if (tokenParts[partNum].toUpper() == "CTRL")
-                        modifiers |= Qt::ControlModifier;
-                    if (tokenParts[partNum].toUpper() == "SHIFT")
-                        modifiers |= Qt::ShiftModifier;
-                    if (tokenParts[partNum].toUpper() == "ALT")
-                        modifiers |= Qt::AltModifier;
-                    if (tokenParts[partNum].toUpper() == "META")
-                        modifiers |= Qt::MetaModifier;
-
-                    partNum++;
-                }
-            }
-#else
             int keyCode = a[0].key();
             Qt::KeyboardModifiers modifiers = a[0].keyboardModifiers();
-#endif
             if (tokenLen == 1)
             {
                 if (nc->getArg(curToken) == nc->getArg(curToken).toUpper())

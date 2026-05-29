@@ -863,11 +863,7 @@ bool MythUIButtonList::DistributeButtons(void)
              * Attempt to pick a start_button which will minimize the need
              * for new button allocations.
              */
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-            start_button = std::max(m_buttonList.size() / 2, 0);
-#else
             start_button = std::max(m_buttonList.size() / 2, static_cast<qsizetype>(0));
-#endif
             start_button = (start_button / std::max(m_columns, 1)) * m_columns;
 
             if (start_button < m_itemCount / 2 &&
@@ -2553,25 +2549,8 @@ bool MythUIButtonList::keyPressEvent(QKeyEvent *event)
         if (a.isEmpty())
             continue;
 
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-        int keyCode = a[0];
-        Qt::KeyboardModifiers modifiers = Qt::NoModifier;
-        QStringList parts = key.split('+');
-        for (int j = 0; j < parts.count(); ++j)
-        {
-            if (parts[j].toUpper() == "CTRL")
-                modifiers |= Qt::ControlModifier;
-            if (parts[j].toUpper() == "SHIFT")
-                modifiers |= Qt::ShiftModifier;
-            if (parts[j].toUpper() == "ALT")
-                modifiers |= Qt::AltModifier;
-            if (parts[j].toUpper() == "META")
-                modifiers |= Qt::MetaModifier;
-        }
-#else
         int keyCode = a[0].key();
         Qt::KeyboardModifiers modifiers = a[0].keyboardModifiers();
-#endif
 
         QCoreApplication::postEvent(
             GetMythMainWindow(),

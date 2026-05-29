@@ -3246,14 +3246,8 @@ QList<QKeyEvent*> TV::ConvertScreenPressKeyMap(const QString &KeyList)
         QKeySequence keySequence(str);
         for (i = 0; i < keySequence.count(); i++)
         {
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-            int keynum = keySequence[i];
-            int keyCode = keynum & ~Qt::KeyboardModifierMask;
-            auto modifiers = static_cast<Qt::KeyboardModifiers>(keynum & Qt::KeyboardModifierMask);
-#else
             int keyCode = keySequence[i].key();
             Qt::KeyboardModifiers modifiers = keySequence[i].keyboardModifiers();
-#endif
             auto * keyEvent = new QKeyEvent(QEvent::None, keyCode, modifiers);
             keyPressList.append(keyEvent);
         }
