@@ -6,11 +6,7 @@
 #include <QDir>
 #include <QFile>
 #include <QTextStream>
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-#include <QTextCodec>
-#else
 #include <QStringConverter>
-#endif
 
 // MythTV headers
 #include <libmythbase/compat.h>
@@ -400,11 +396,7 @@ QStringList WeatherSource::getLocationList(const QString &str)
     QStringList locs;
     QByteArray result = ms.ReadAll();
     QTextStream text(result);
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-    text.setCodec("UTF-8");
-#else
     text.setEncoding(QStringConverter::Utf8);
-#endif
     while (!text.atEnd())
     {
         QString tmp = text.readLine().trimmed();

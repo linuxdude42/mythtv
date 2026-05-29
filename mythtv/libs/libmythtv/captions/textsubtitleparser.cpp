@@ -17,11 +17,6 @@
 #include <QFile>
 #include <QDataStream>
 #include <QHash>
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-#include <QTextCodec>
-#elif QT_VERSION < QT_VERSION_CHECK(6,3,0)
-#include <QStringConverter>
-#endif
 #include <QWaitCondition>
 
 // MythTV
@@ -330,16 +325,7 @@ void TextSubtitleParser::LoadSubtitles(bool inBackground)
     bool isUtf8 {false};
     auto qba = QByteArray::fromRawData(sub_data.rbuffer_text,
                                        sub_data.rbuffer_len);
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-    QTextCodec *textCodec = QTextCodec::codecForUtfText(qba, nullptr);
-    isUtf8 = (textCodec != nullptr);
-#elif QT_VERSION < QT_VERSION_CHECK(6,3,0)
-    auto qba_encoding = QStringConverter::encodingForData(qba);
-    isUtf8 = qba_encoding.has_value()
-        && (qba_encoding.value() == QStringConverter::Utf8);
-#else
     isUtf8 = qba.isValidUtf8();
-#endif
 
     // Create a format context and tie it to the file buffer.
     m_fmtCtx = avformat_alloc_context();

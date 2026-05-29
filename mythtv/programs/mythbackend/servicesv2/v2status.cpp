@@ -18,9 +18,6 @@
 
 // Qt headers
 #include <QtGlobal>
-#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
-#include <QStringConverter>
-#endif
 #include <QTextStream>
 
 // MythTV headers
@@ -891,11 +888,7 @@ void V2Status::FillStatusXML( QDomDocument *pDoc )
 
 void V2Status::PrintStatus( QTextStream &os, QDomDocument *pDoc )
 {
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-    os.setCodec("UTF-8");
-#else
     os.setEncoding(QStringConverter::Utf8);
-#endif
 
     QDateTime qdtNow = MythDate::current();
 

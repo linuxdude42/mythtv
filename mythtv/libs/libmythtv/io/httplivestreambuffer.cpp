@@ -29,9 +29,7 @@
 #include <QString>
 #include <QStringList>
 #include <QtAlgorithms>
-#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
 #include <QStringConverter>
-#endif
 #include <QUrl>
 
 // C++
@@ -2189,11 +2187,7 @@ int HLSRingBuffer::ParseM3U8(const QByteArray *buffer, StreamsList *streams)
         streams = &m_streams;
     }
     QTextStream stream(*buffer);
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-    stream.setCodec("UTF-8");
-#else
     stream.setEncoding(QStringConverter::Utf8);
-#endif
 
     QString line = stream.readLine();
     if (line.isNull())

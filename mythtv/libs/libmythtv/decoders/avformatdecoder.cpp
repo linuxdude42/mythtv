@@ -63,11 +63,7 @@ enum V4L2_MPEG_LINE_TYPES : std::uint8_t {
 // comments for each ID from ivtv_myth.h
 
 #include <QFileInfo>
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-#include <QTextCodec>
-#else
 #include <QStringDecoder>
-#endif // Qt 6
 
 #ifdef Q_OS_WINDOWS
 #   undef mkdir
@@ -122,11 +118,7 @@ using namespace std::string_view_literals;
 // active hardware context when it is errored.
 static constexpr int SEQ_PKT_ERR_MAX { 50 };
 
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-static constexpr int16_t kMaxVideoQueueSize = 220;
-#else
 static constexpr ssize_t kMaxVideoQueueSize = 220;
-#endif
 
 static QSize get_video_dim(const AVCodecContext &ctx)
 {
@@ -3834,13 +3826,8 @@ bool AvFormatDecoder::ProcessRawTextPacket(AVPacket* Packet)
     if (!m_parent->GetSubReader(id))
         return false;
 
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-    const auto * codec = QTextCodec::codecForName("utf-8");
-    auto text = codec->toUnicode(reinterpret_cast<const char *>(Packet->data), Packet->size - 1);
-#else
     auto toUtf16 = QStringDecoder(QStringDecoder::Utf8);
     QString text = toUtf16.decode(Packet->data);
-#endif
     auto list = text.split('\n', Qt::SkipEmptyParts);
     m_parent->GetSubReader(id)->AddRawTextSubtitle(list, std::chrono::milliseconds(Packet->duration));
     return true;

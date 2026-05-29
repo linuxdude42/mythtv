@@ -5,9 +5,7 @@
 
 #include <QtGlobal>
 #include <QRegularExpression>
-#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
 #include <QStringConverter>
-#endif
 #include <QUrl>
 
 #include "libmythbase/mythconfig.h"
@@ -78,11 +76,7 @@ bool HLSReader::Open(const QString & m3u, int bitrate_index)
 #endif
 
     QTextStream text(&buffer);
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-    text.setCodec("UTF-8");
-#else
     text.setEncoding(QStringConverter::Utf8);
-#endif
 
     if (!IsValidPlaylist(text))
     {

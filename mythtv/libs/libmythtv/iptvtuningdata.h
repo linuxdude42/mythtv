@@ -7,9 +7,7 @@
 // Qt headers
 #include <QApplication>
 #include <QString>
-#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
 #include <QStringConverter>
-#endif
 #include <QUrl>
 
 // MythTV headers
@@ -244,11 +242,7 @@ class MTV_PUBLIC IPTVTuningData
     static bool IsHLSPlaylist(QByteArray &buffer)
     {
         QTextStream text(&buffer);
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-        text.setCodec("UTF-8");
-#else
         text.setEncoding(QStringConverter::Utf8);
-#endif
         return (HLSReader::IsValidPlaylist(text));
     }
 

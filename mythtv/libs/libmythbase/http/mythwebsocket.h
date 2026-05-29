@@ -5,11 +5,7 @@
 #include <QTimer>
 #include <QObject>
 
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-#include <QTextCodec>
-#else
 #include <QStringDecoder>
-#endif
 #include <QElapsedTimer>
 
 // MythTV
@@ -76,12 +72,7 @@ class MythWebSocket : public QObject
     int64_t     m_messageSize       { 0 };
     DataPayloads m_dataFragments;
     StringPayload m_string          { nullptr };
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-    QTextCodec* m_utf8Codec         { QTextCodec::codecForName("UTF-8") };
-    QTextCodec::ConverterState* m_utf8CodecState { new QTextCodec::ConverterState };
-#else
     QStringDecoder *m_toUtf16       { new QStringDecoder };
-#endif
 
     QByteArray  m_lastPingPayload;
     WSQueue     m_writeQueue;

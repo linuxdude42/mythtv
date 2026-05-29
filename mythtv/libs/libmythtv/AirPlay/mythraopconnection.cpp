@@ -7,9 +7,7 @@
 #include <QTextStream>
 #include <QTimer>
 #include <QtEndian>
-#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
 #include <QStringConverter>
-#endif
 
 #include "libmythbase/mythlogging.h"
 #include "libmythbase/mythcorecontext.h"
@@ -60,11 +58,7 @@ class RaopNetStream
 public:
     explicit RaopNetStream(QIODevice *device) : m_q(new QTextStream(device))
     {
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-        m_q->setCodec("UTF-8");
-#else
         m_q->setEncoding(QStringConverter::Utf8);
-#endif
     };
     ~RaopNetStream()
     {

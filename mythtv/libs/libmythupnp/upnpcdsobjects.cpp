@@ -12,11 +12,7 @@
 #include "upnpcdsobjects.h"
 
 #include <QtGlobal>
-#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
 #include <QStringConverter>
-#else
-#include <QTextCodec>
-#endif
 #include <QTextStream>
 #include <QUrl>
 
@@ -264,13 +260,8 @@ QString CDSObject::toXml( FilterMap &filter,
                           bool ignoreChildren ) const
 {
     QString     sXML;
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-    QTextStream os( &sXML, QIODevice::WriteOnly );
-    os.setCodec(QTextCodec::codecForName("UTF-8"));
-#else
     QTextStream os(&sXML, QIODeviceBase::WriteOnly);
     os.setEncoding(QStringConverter::Utf8);
-#endif
     toXml(os, filter, ignoreChildren);
     os << Qt::flush;
     return( sXML );

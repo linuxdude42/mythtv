@@ -14,11 +14,7 @@
 #include <cmath>
 
 #include <QStringList>
-#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
 #include <QStringConverter>
-#else
-#include <QTextCodec>
-#endif
 #include <QTextStream>
 
 #include "upnp.h"
@@ -364,13 +360,8 @@ void Eventing::NotifySubscriber( SubscriberInfo *pInfo )
         return;
 
     QByteArray   aBody;
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-    QTextStream  tsBody( &aBody, QIODevice::WriteOnly );
-    tsBody.setCodec(QTextCodec::codecForName("UTF-8"));
-#else
     QTextStream tsBody(&aBody, QIODeviceBase::WriteOnly);
     tsBody.setEncoding(QStringConverter::Utf8);
-#endif
 
     // ----------------------------------------------------------------------
     // Build Body... Only send if there are changes
@@ -383,13 +374,8 @@ void Eventing::NotifySubscriber( SubscriberInfo *pInfo )
         // -=>TODO: Need to add support for more than one CallBack URL.
 
         auto *pBuffer = new QByteArray();    // UPnpEventTask will delete this pointer.
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
-        QTextStream  tsMsg( pBuffer, QIODevice::WriteOnly );
-        tsMsg.setCodec(QTextCodec::codecForName("UTF-8"));
-#else
         QTextStream tsMsg(pBuffer, QIODeviceBase::WriteOnly);
         tsMsg.setEncoding(QStringConverter::Utf8);
-#endif
 
         // ----------------------------------------------------------------------
         // Build Message Header 

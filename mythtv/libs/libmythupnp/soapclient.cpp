@@ -12,9 +12,6 @@
 #include "soapclient.h"
 
 #include <QBuffer>
-#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
-#include <QStringConverter>
-#endif
 #include <QUrlQuery>
 
 #include "libmythbase/mythdownloadmanager.h"
