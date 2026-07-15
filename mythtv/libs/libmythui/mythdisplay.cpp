@@ -148,6 +148,7 @@ MythDisplay* MythDisplay::Create([[maybe_unused]] MythMainWindow* MainWindow)
 QStringList MythDisplay::GetDescription()
 {
     QStringList result;
+    result.reserve(7);
     bool spanall = false;
     int screencount = MythDisplay::GetScreenCount();
     if (MythDisplay::SpanAllScreens() && screencount > 1)
@@ -181,6 +182,8 @@ QStringList MythDisplay::GetDescription()
     auto * current = GetCurrentScreen();
     const auto screens = QGuiApplication::screens();
     bool first = true;
+    // This reservation is an approximation.  One screen, four video modes.
+    result.reserve(result.size() + (9 * screens.size()));
     for (auto *screen : std::as_const(screens))
     {
         if (!first)
@@ -1161,6 +1164,7 @@ void MythDisplay::DebugModes() const
         {
             auto rates = videoMode.RefreshRates();
             QStringList rateslist;
+            rateslist.reserve(rates.size());
             for (double rate : std::ranges::reverse_view(rates))
                 rateslist.append(QString("%1").arg(rate, 2, 'f', 2, '0'));
             if (rateslist.empty())

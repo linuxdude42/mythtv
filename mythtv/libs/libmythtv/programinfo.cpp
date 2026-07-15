@@ -2950,6 +2950,7 @@ QStringList ProgramInfo::QueryDVDBookmark(
             }
             else
             {
+                fields.reserve(5);
                 // Legacy bookmark
                 for(int i = 1; i < 5; i++)
                     fields.append(query.value(i).toString());

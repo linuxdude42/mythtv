@@ -260,6 +260,7 @@ void ScreenSetup::loadData()
         si->m_units = ENG_UNITS;
 
         QStringList type_strs;
+        type_strs.reserve(types.size());
         for (const QString& type : std::as_const(types))
         {
             TypeListInfo ti(type);
@@ -847,6 +848,7 @@ LocationDialog::LocationDialog(MythScreenStack *parent, const QString &name,
       m_screenListInfo(new ScreenListInfo(*si)),   m_sourceManager(srcman),
       m_retScreen(retScreen)
 {
+    m_types.reserve(si->m_types.size());
     for (const auto & type : std::as_const(si->m_types))
         m_types << type.m_name;
 }
