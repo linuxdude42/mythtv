@@ -5,6 +5,7 @@
 
 // C++ headers
 #include <algorithm>
+#include <mutex>
 
 // Qt headers
 #include <QMap>
@@ -33,8 +34,6 @@
 #define LOC      QString("ProgramInfo(%1): ").arg(GetBasename())
 
 //#define DEBUG_IN_USE
-
-static int init_tr(void);
 
 int pginfo_init_statics() { return ProgramInfo::InitStatics(); }
 QMutex ProgramInfo::s_staticDataLock;
@@ -5449,14 +5448,13 @@ bool ProgramInfo::QueryTuningInfo(QString &channum, QString &input) const
     return false;
 }
 
-static int init_tr(void)
+namespace {
+    // This prevents the compiler and tools from complaining that all
+    // the strings in the init_tr function are unused.
+    int s_tr_count {0};
+};
+static void init_tr(void)
 {
-    static bool s_done = false;
-    static QMutex s_initTrLock;
-    QMutexLocker locker(&s_initTrLock);
-    if (s_done)
-        return 1;
-
     QString rec_profile_names =
         QObject::tr("Default",        "Recording Profile Default") +
         QObject::tr("High Quality",   "Recording Profile High Quality") +
@@ -5515,13 +5513,12 @@ static int init_tr(void)
     QString play_groups =
         QObject::tr("Default",        "Playback Group Name");
 
-    s_done = true;
-    return (rec_profile_names.length() +
+    s_tr_count = rec_profile_names.length() +
             rec_profile_groups.length() +
             display_rec_groups.length() +
             special_program_groups.length() +
             storage_groups.length() +
-            play_groups.length());
+            play_groups.length();
 }
 
 int ProgramInfo::InitStatics(void)
@@ -5535,7 +5532,9 @@ int ProgramInfo::InitStatics(void)
 /// Translations for play,recording, & storage groups
 QString ProgramInfo::i18n(const QString &msg)
 {
-    init_tr();
+    static std::once_flag init_done;
+    std::call_once(init_done, init_tr);
+
     QByteArray msg_arr = msg.toLatin1();
     // The following translation should only ever be called for
     // strings that were previously initialized by the init_tr
