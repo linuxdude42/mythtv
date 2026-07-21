@@ -468,9 +468,7 @@ MythImage *MythUIThemeCache::CacheImage(const QString& URL, MythImage* Image, bo
         }
     }
 
-    QMap<QString, MythImage *>::iterator it = m_imageCache.find(URL);
-
-    if (it == m_imageCache.end())
+    if (!m_imageCache.contains(URL))
     {
         Image->IncrRef();
         m_imageCache[URL] = Image;
@@ -491,9 +489,8 @@ MythImage *MythUIThemeCache::CacheImage(const QString& URL, MythImage* Image, bo
 void MythUIThemeCache::RemoveFromCacheByURL(const QString& URL)
 {
     QMutexLocker locker(&m_cacheLock);
-    QMap<QString, MythImage *>::iterator it = m_imageCache.find(URL);
 
-    if (it != m_imageCache.end())
+    if (m_imageCache.contains(URL))
     {
         m_imageCache.value(URL)->SetIsInCache(false);
         m_imageCache.value(URL)->DecrRef();
