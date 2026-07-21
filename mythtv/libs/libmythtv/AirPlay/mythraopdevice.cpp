@@ -247,6 +247,7 @@ void MythRAOPDevice::deleteClient(void)
     GetNotificationCenter()->Queue(n);
 
 #if QT_VERSION < QT_VERSION_CHECK(6,1,0)
+    // clazy:exclude-next-line=detaching-member (erases item)
     QList<MythRAOPConnection *>::iterator it = m_clients.begin();
     while (it != m_clients.end())
     {
@@ -276,6 +277,7 @@ void MythRAOPDevice::DeleteAllClients(MythRAOPConnection *keep)
     QMutexLocker locker(m_lock);
 
 #if QT_VERSION < QT_VERSION_CHECK(6,1,0)
+    // clazy:exclude-next-line=detaching-member (erases item)
     QList<MythRAOPConnection*>::iterator it = m_clients.begin();
 
     while (it != m_clients.end())

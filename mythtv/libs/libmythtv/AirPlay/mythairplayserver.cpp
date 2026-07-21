@@ -560,6 +560,7 @@ void MythAirplayServer::deleteConnection(QTcpSocket *socket)
     m_sockets.removeOne(socket);
 
     QByteArray remove;
+    // clazy:exclude-next-line=detaching-member (modifies item)
     for (auto it = m_connections.begin(); it != m_connections.end(); ++it)
     {
         if (it.value().m_reverseSocket == socket)
@@ -1124,6 +1125,7 @@ QString MythAirplayServer::GetMacAddress()
 
 void MythAirplayServer::StopSession(const QByteArray &session)
 {
+    // clazy:exclude-next-line=detaching-member (can't reference temporary)
     AirplayConnection& cnx = m_connections[session];
 
     if (cnx.m_photos)
@@ -1158,7 +1160,9 @@ void MythAirplayServer::StopSession(const QByteArray &session)
 void MythAirplayServer::DisconnectAllClients(const QByteArray &session)
 {
     QMutexLocker locker(m_lock);
+    // clazy:exclude-next-line=detaching-member (erases item)
     QHash<QByteArray,AirplayConnection>::iterator it = m_connections.begin();
+    // clazy:exclude-next-line=detaching-member (erases item)
     AirplayConnection& current_cnx = m_connections[session];
 
     while (it != m_connections.end())
@@ -1341,6 +1345,7 @@ void MythAirplayServer::UnpausePlayback(void)
 void MythAirplayServer::HideAllPhotos(void)
 {
     // playback has started, dismiss any currently displayed photo
+    // clazy:exclude-next-line=detaching-member (modifies item)
     QHash<QByteArray,AirplayConnection>::iterator it = m_connections.begin();
 
     while (it != m_connections.end())
