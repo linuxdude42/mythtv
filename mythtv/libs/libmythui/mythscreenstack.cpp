@@ -303,6 +303,7 @@ void MythScreenStack::CheckDeletes(bool force)
 
     bool changed = false;
 
+    // clazy:exclude-next-line=detaching-member
     QVector<MythScreenType *>::Iterator it = m_toDelete.begin();
     while (it != m_toDelete.end() && !m_toDelete.isEmpty())
     {

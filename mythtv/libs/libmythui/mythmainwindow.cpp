@@ -233,6 +233,7 @@ MythMainWindow::~MythMainWindow()
 
     delete m_themeBase;
 
+    // clazy:exclude-next-line=detaching-member
     for (auto iter = m_priv->m_keyContexts.begin();
          iter != m_priv->m_keyContexts.end();
          iter = m_priv->m_keyContexts.erase(iter))
@@ -1199,6 +1200,7 @@ void MythMainWindow::ClearKey(const QString& Context, const QString& Action)
     if (keycontext == nullptr)
         return;
 
+    // clazy:exclude-next-line=detaching-member
     for (auto it = keycontext->m_actionMap.begin();
          it != keycontext->m_actionMap.end();
          /* no inc */)
@@ -1368,6 +1370,7 @@ void MythMainWindow::ClearJump(const QString& Destination)
        return;
     }
 
+    // clazy:exclude-next-line=detaching-member
     for (auto it = m_priv->m_jumpMap.begin();
          it != m_priv->m_jumpMap.end();
          /* no inc */)

@@ -724,27 +724,28 @@ void MythCCExtractorPlayer::ProcessDVBSubtitles(uint flags)
 {
     // Process (DVB) subtitle streams.
     int subtitleStreamCount = 0;
-    for (auto subit = m_dvbsubInfo.begin(); subit != m_dvbsubInfo.end(); ++subit)
+    for (auto subit = m_dvbsubInfo.constBegin(); subit != m_dvbsubInfo.constEnd(); ++subit)
     {
+        int idx = subit.key();
+        DVBSubStuff stuff = subit.value();
         int langCode = 0;
         auto *avd = dynamic_cast<AvFormatDecoder *>(m_decoder);
-        int idx = subit.key();
         if (avd)
             langCode = avd->GetSubtitleLanguage(subtitleStreamCount, idx);
         subtitleStreamCount++;
 
         QString lang = iso639_key_to_str3(langCode);
         lang = iso639_is_key_undefined(langCode) ? "und" : lang;
-        QString dir_name = m_baseName + QString("-%1.dvb-%2").arg(lang).arg(subit.key());
+        QString dir_name = m_baseName + QString("-%1.dvb-%2").arg(lang).arg(idx);
         if (!m_workingDir.exists(dir_name) && !m_workingDir.mkdir(dir_name))
         {
             LOG(VB_GENERAL, LOG_ERR, QString("Can't create directory '%1'")
                 .arg(dir_name));
-            (*subit).m_subs.clear();
+            stuff.m_subs.clear();
             continue;
         }
 
-        DVBStreamType &subs = (*subit).m_subs;
+        DVBStreamType &subs = stuff.m_subs;
         if (subs.empty())
             continue; // Skip empty subtitle streams.
         if (((kProcessFinalize & flags) == 0) && (subs.size() <= 1))
@@ -761,7 +762,7 @@ void MythCCExtractorPlayer::ProcessDVBSubtitles(uint flags)
             const QString file_name =
                 stream_dir.filePath(
                     QString("%1_%2-to-%3.png")
-                    .arg((*subit).m_subsNum)
+                    .arg(stuff.m_subsNum)
                     .arg(sub.m_startTime.count()).arg(end_time.count()));
 
             if (end_time > sub.m_startTime)
@@ -779,7 +780,7 @@ void MythCCExtractorPlayer::ProcessDVBSubtitles(uint flags)
                             QString("Can't write file '%1'")
                             .arg(file_name));
                     }
-                    (*subit).m_subsNum++;
+                    stuff.m_subsNum++;
                 }
             }
             subs.pop_front();

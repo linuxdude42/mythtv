@@ -581,6 +581,7 @@ void ThreadedFileWriter::TrimEmptyBuffers(void)
     QDateTime cur = MythDate::current();
     QDateTime cur_m_60 = cur.addSecs(-60);
 
+    // clazy:exclude-next-line=detaching-member
     QList<TFWBuffer*>::iterator it = m_emptyBuffers.begin();
     while (it != m_emptyBuffers.end())
     {

@@ -1236,6 +1236,7 @@ QString HTTPRequest::GetResponseHeaders( void )
 {
     QString sHeader = s_szServerHeaders;
 
+#if QT_VERSION < QT_VERSION_CHECK(6,4,0)
     for ( QStringMap::iterator it  = m_mapRespHeaders.begin();
                                it != m_mapRespHeaders.end();
                              ++it )
@@ -1243,7 +1244,10 @@ QString HTTPRequest::GetResponseHeaders( void )
         sHeader += it.key()  + ": ";
         sHeader += *it + "\r\n";
     }
-
+#else
+    for (const auto& [name, value] : std::as_const(m_mapRespHeaders).asKeyValueRange())
+        sHeader += name + ": " + value + "\r\n";
+#endif
     return sHeader;
 }
 
@@ -1371,11 +1375,17 @@ bool HTTPRequest::ParseRequest()
         }
 
         // Dump request header
+#if QT_VERSION < QT_VERSION_CHECK(6,4,0)
         for ( auto it = m_mapHeaders.begin(); it != m_mapHeaders.end(); ++it )
         {
             LOG(VB_HTTP, LOG_INFO, QString("(Request Header) %1: %2")
                                             .arg(it.key(), *it));
         }
+#else
+        for ( const auto& [name, value] : std::as_const(m_mapHeaders).asKeyValueRange())
+            LOG(VB_HTTP, LOG_INFO, QString("(Request Header) %1: %2")
+                                            .arg(name, value));
+#endif
 
         // Parse Cookies
         ParseCookies();

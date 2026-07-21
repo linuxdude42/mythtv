@@ -616,6 +616,7 @@ void MythUIImage::Clear(void)
     QWriteLocker updateLocker(&d->m_updateLock);
     QMutexLocker locker(&m_imagesLock);
 
+    // clazy:exclude-next-line=detaching-member
     for (auto it = m_images.begin();
          it != m_images.end();
          it = m_images.erase(it))

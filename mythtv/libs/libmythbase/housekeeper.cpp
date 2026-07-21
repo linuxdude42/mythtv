@@ -630,6 +630,7 @@ HouseKeeper::~HouseKeeper(void)
     {
         // unload any registered tasks
         QMutexLocker mapLock(&m_mapLock);
+        // clazy:exclude-next-line=detaching-member
         QMap<QString,HouseKeeperTask*>::iterator it = m_taskMap.begin();
         while (it != m_taskMap.end())
         {
@@ -756,6 +757,7 @@ void HouseKeeper::Run(void)
 
     QMutexLocker mapLock(&m_mapLock);
     // Remove any tasks that have finished
+    // clazy:exclude-next-line=detaching-member
     for (auto it = m_taskMap.begin(); it != m_taskMap.end(); )
     {
         if ((*it)->IsFinished())
@@ -772,6 +774,8 @@ void HouseKeeper::Run(void)
     }
 
     // check if any tasks are ready to run, and add to queue
+    // This should eventually use Qt6 QMap::asKeyValueRange()
+    // clazy:exclude-next-line=detaching-member
     for (auto it = m_taskMap.begin(); it != m_taskMap.end(); ++it)
     {
         if ((*it)->CheckRun(now))
@@ -794,6 +798,7 @@ void HouseKeeper::Run(void)
         QMutexLocker threadLock(&m_threadLock);
         int count1 = m_threadList.size();
 
+        // clazy:exclude-next-line=detaching-member
         auto it = m_threadList.begin();
         ++it; // skip the primary thread
         while (it != m_threadList.end())

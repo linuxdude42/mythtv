@@ -287,23 +287,21 @@ QString MythGesture::Translate(bool Timeout)
         if (prev_bin == current_bin)
         {
             bin_count++;
+            continue;
         }
-        else
+
+        /* we are moving to a new bin -- consider adding to the
+           sequence */
+        if ((bin_count > (total_points * m_binPercent)) || first_bin)
         {
-
-            /* we are moving to a new bin -- consider adding to the
-               sequence */
-            if ((bin_count > (total_points * m_binPercent)) || first_bin)
-            {
-                first_bin = false;
-                sequence += QChar{'0' + prev_bin};
-                sequence_count ++;
-            }
-
-            /* restart counting points in the new bin */
-            bin_count = 0;
-            prev_bin = current_bin;
+            first_bin = false;
+            sequence += QChar{'0' + prev_bin};
+            sequence_count ++;
         }
+
+        /* restart counting points in the new bin */
+        bin_count = 0;
+        prev_bin = current_bin;
     }
 
     /* add the last run of points to the sequence */

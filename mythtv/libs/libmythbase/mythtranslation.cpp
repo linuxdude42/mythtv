@@ -75,6 +75,7 @@ void MythTranslation::load_real(const QString &module_name)
 
 void MythTranslation::unload(const QString &module_name)
 {
+    // clazy:exclude-next-line=detaching-member
     TransMap::Iterator it = d.m_translators.find(module_name);
     if (it != d.m_translators.end())
     {

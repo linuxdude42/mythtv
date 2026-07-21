@@ -2018,6 +2018,7 @@ void MythCoreContext::WantingPlayback(QObject *sender)
     // connections for any clients in the same thread as non-blocking connection
     QThread *currentThread = QThread::currentThread();
 
+    // clazy:exclude-next-line=detaching-member
     QMap<QObject *, PlaybackStartCb>::iterator it = d->m_playbackClients.begin();
     for (; it != d->m_playbackClients.end(); ++it)
     {

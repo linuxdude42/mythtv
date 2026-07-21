@@ -73,19 +73,25 @@ void StorageGroup::StaticInit(void)
     m_builtinGroups["Streaming"] = GetConfDir() + "/tmp/hls";
     m_builtinGroups["3rdParty"] = GetConfDir() + "/3rdParty";
 
-    // NOLINTNEXTLINE(modernize-loop-convert)
-    for (auto it = m_builtinGroups.begin(); it != m_builtinGroups.end(); ++it)
+#if QT_VERSION < QT_VERSION_CHECK(6,4,0)
+    for (auto it = m_builtinGroups.constKeyValueBegin();
+         it != m_builtinGroups.constKeyValueEnd(); ++it)
     {
-        QDir qdir(it.value());
+        const auto [name, path] = *it;
+#else
+        for (const auto [name, path] : std::as_const(m_builtinGroups).asKeyValueRange())
+    {
+#endif
+        QDir qdir(path);
         if (!qdir.exists())
-            qdir.mkpath(it.value());
+            qdir.mkpath(path);
 
         if (!qdir.exists())
         {
             LOG(VB_GENERAL, LOG_ERR,
                 QString("SG() Error: Could not create builtin"
                         "Storage Group directory '%1' for '%2'")
-                    .arg(it.value(), it.key()));
+                    .arg(path, name));
         }
     }
 }

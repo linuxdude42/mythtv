@@ -680,10 +680,10 @@ uint32_t MythRAOPConnection::decodeAudioPacket(uint8_t type,
 #if OPENSSL_VERSION_NUMBER < 0x030000000L
         // Debian < 12, Fedora < 36, RHEL < 9, SuSe 15, Ubuntu < 2204
         EVP_DecryptInit_ex(m_cctx, m_cipher, nullptr, m_sessionKey.data(),
-                           reinterpret_cast<const uint8_t *>(m_aesIV.data()))
+                           reinterpret_cast<const uint8_t *>(m_aesIV.constData()))
 #else
         EVP_DecryptInit_ex2(m_cctx, m_cipher, m_sessionKey.data(),
-                            reinterpret_cast<const uint8_t *>(m_aesIV.data()),
+                            reinterpret_cast<const uint8_t *>(m_aesIV.constData()),
                             nullptr)
 #endif
         != 1)

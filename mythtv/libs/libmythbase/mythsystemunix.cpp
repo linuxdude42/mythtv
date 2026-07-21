@@ -129,11 +129,15 @@ void MythSystemLegacyIOHandler::run(void)
             }
             else if( retval > 0 )
             {
-                auto it = m_pMap.keyValueBegin();
-                while (it != m_pMap.keyValueEnd())
+#if QT_VERSION < QT_VERSION_CHECK(6,4,0)
+                for (auto it = m_pMap.constKeyValueBegin();
+                     it != m_pMap.constKeyValueEnd(); it++)
                 {
                     auto [fd, buffer] = *it;
-                    ++it;
+#else
+                for (auto [fd, buffer] : std::as_const(m_pMap).asKeyValueRange())
+                {
+#endif
                     if( FD_ISSET(fd, &fds) )
                     {
                         if( m_read )
@@ -388,11 +392,15 @@ void MythSystemLegacyManager::run(void)
 
         m_mapLock.lock();
         m_jumpLock.lock();
-        auto it = m_pMap.keyValueBegin();
-        while (it != m_pMap.keyValueEnd())
+#if QT_VERSION < QT_VERSION_CHECK(6,4,0)
+        for (auto it = m_pMap.constKeyValueBegin();
+             it != m_pMap.constKeyValueEnd(); i++)
         {
             auto [pid2, ms] = *it;
-            ++it;
+#else
+        for (auto [pid2, ms] : std::as_const(m_pMap).asKeyValueRange())
+        {
+#endif
             if (!ms)
                 continue;
 

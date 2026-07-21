@@ -1823,11 +1823,19 @@ void VBoxDeviceIDList::fillSelections(const QString &cur)
 
     const QString& current = cur;
 
-    for (auto it = m_deviceList->begin(); it != m_deviceList->end(); ++it)
+#if QT_VERSION < QT_VERSION_CHECK(6,4,0)
+    for (auto it = m_deviceList->constBegin(); it != m_deviceList->constEnd(); ++it)
     {
         devs.push_back(it.key());
         in_use[it.key()] = (*it).m_inUse;
     }
+#else
+    for (const auto& [key, device] : std::as_const(m_deviceList)->asKeyValueRange())
+    {
+        devs.push_back(key);
+        in_use[key] = device.m_inUse;
+    }
+#endif
 
     QString man_addr = VBoxDeviceIDList::tr("Manually Enter IP Address");
     QString sel = man_addr;
@@ -4392,8 +4400,9 @@ void SatIPDeviceIDList::fillSelections(const QString &cur)
     const QString& current = cur;
     QString sel;
 
-    SatIPDeviceList::iterator it = m_deviceList->begin();
-    for(; it != m_deviceList->end(); ++it)
+#if QT_VERSION < QT_VERSION_CHECK(6,4,0)
+    for (auto it = m_deviceList->constBegin();
+         it != m_deviceList->constEnd(); ++it)
     {
         QString friendlyIdentifier = QString("%1, %2, Tuner #%3")
             .arg((*it).m_friendlyName, (*it).m_tunerType, (*it).m_tunerNo);
@@ -4402,7 +4411,17 @@ void SatIPDeviceIDList::fillSelections(const QString &cur)
         devs.push_back(it.key());
         in_use[it.key()] = (*it).m_inUse;
     }
+#else
+    for(const auto& [key, device] : std::as_const(m_deviceList)->asKeyValueRange())
+    {
+        QString friendlyIdentifier = QString("%1, %2, Tuner #%3")
+            .arg(device.m_friendlyName, device.m_tunerType, device.m_tunerNo);
+        names.push_back(friendlyIdentifier);
 
+        devs.push_back(key);
+        in_use[key] = device.m_inUse;
+    }
+#endif
     for (const auto& it2s : devs)
     {
         sel = (current == it2s) ? it2s : sel;

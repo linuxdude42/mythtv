@@ -594,6 +594,7 @@ bool DeleteMap::IsInDelete(uint64_t frame) const
 
     int      lasttype  = MARK_UNSET;
     uint64_t lastframe = UINT64_MAX;
+#if QT_VERSION < QT_VERSION_CHECK(6,4,0)
     for (it = m_deleteMap.constBegin() ; it != m_deleteMap.constEnd(); ++it)
     {
         if (it.key() > frame)
@@ -601,6 +602,15 @@ bool DeleteMap::IsInDelete(uint64_t frame) const
         lasttype  = it.value();
         lastframe = it.key();
     }
+#else
+    for (auto [key, value] : std::as_const(m_deleteMap).asKeyValueRange())
+    {
+        if (key > frame)
+            return MARK_CUT_END == value;
+        lasttype  = value;
+        lastframe = key;
+    }
+#endif
 
     return lasttype == MARK_CUT_START && lastframe <= frame;
 }
@@ -689,7 +699,7 @@ void DeleteMap::CleanMap(void)
         int64_t lastframe = -1;
         int64_t tempframe = -1;
         QList<int64_t> deleteList;
-        for (auto it = m_deleteMap.begin(); it != m_deleteMap.end(); ++it)
+        for (auto it = m_deleteMap.constBegin(); it != m_deleteMap.constEnd(); ++it)
         {
             int      thistype  = it.value();
             uint64_t thisframe = it.key();
