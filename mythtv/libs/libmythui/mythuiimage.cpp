@@ -115,7 +115,7 @@ class ImageLoader
 
         // Check to see if the image is being loaded by us in another thread
         if ((m_loadingImages.contains(cacheKey)) &&
-            (m_loadingImages[cacheKey] == uitype))
+            (m_loadingImages.value(cacheKey) == uitype))
         {
             LOG(VB_GUI | VB_FILE, LOG_DEBUG,
                 QString("ImageLoader::PreLoad(%1), this "
@@ -1236,7 +1236,7 @@ void MythUIImage::DrawSelf(MythPainter *p, int xoffset, int yoffset,
 
         int alpha = CalcAlpha(alphaMod);
 
-        MythImage *currentImage = m_images[m_curPos];
+        MythImage *currentImage = m_images.value(m_curPos);
 
         if (currentImage)
             currentImage->IncrRef();
@@ -1615,12 +1615,12 @@ void MythUIImage::customEvent(QEvent *event)
 
             m_imagesLock.lock();
 
-            if (m_images[number])
+            if (m_images.value(number))
             {
                 // If we got to this point, it means this same MythUIImage
                 // was told to reload the same image, so we use the newest
                 // copy of the image.
-                m_images[number]->DecrRef(); // delete the original
+                m_images.value(number)->DecrRef(); // delete the original
             }
 
             m_images[number] = image;

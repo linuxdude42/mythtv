@@ -313,7 +313,7 @@ class APHTTPRequest
         if (m_headers.contains("Content-Length"))
         {
             int remaining = m_data.size() - m_readPos;
-            m_size = m_headers["Content-Length"].toInt();
+            m_size = m_headers.value("Content-Length").toInt();
             if (m_size > 0 && remaining > 0)
             {
                 m_body = m_data.mid(m_readPos, m_size);
@@ -595,7 +595,7 @@ void MythAirplayServer::deleteConnection(QTcpSocket *socket)
 
     if (m_incoming.contains(socket))
     {
-        delete m_incoming[socket];
+        delete m_incoming.value(socket);
         m_incoming.remove(socket);
     }
 }
@@ -619,14 +619,14 @@ void MythAirplayServer::read(void)
     }
     else
     {
-        m_incoming[socket]->Append(buf);
+        m_incoming.value(socket)->Append(buf);
     }
-    if (!m_incoming[socket]->IsComplete())
+    if (!m_incoming.value(socket)->IsComplete())
         return;
-    HandleResponse(m_incoming[socket], socket);
+    HandleResponse(m_incoming.value(socket), socket);
     if (m_incoming.contains(socket))
     {
-        delete m_incoming[socket];
+        delete m_incoming.value(socket);
         m_incoming.remove(socket);
     }
 }
@@ -696,7 +696,7 @@ void MythAirplayServer::HandleResponse(APHTTPRequest *req,
 
     if (req->GetURI() == "/reverse")
     {
-        QTcpSocket *s = m_connections[session].m_reverseSocket;
+        QTcpSocket *s = m_connections.value(session).m_reverseSocket;
         if (s != socket && s != nullptr)
         {
             LOG(VB_GENERAL, LOG_ERR, LOC +
@@ -710,7 +710,7 @@ void MythAirplayServer::HandleResponse(APHTTPRequest *req,
         return;
     }
 
-    QTcpSocket *s = m_connections[session].m_controlSocket;
+    QTcpSocket *s = m_connections.value(session).m_controlSocket;
     if (s != socket && s != nullptr)
     {
         LOG(VB_GENERAL, LOG_ERR, LOC +
@@ -719,9 +719,9 @@ void MythAirplayServer::HandleResponse(APHTTPRequest *req,
     }
     m_connections[session].m_controlSocket = socket;
 
-    if (m_connections[session].m_controlSocket != nullptr &&
-        m_connections[session].m_reverseSocket != nullptr &&
-        !m_connections[session].m_initialized)
+    if (m_connections.value(session).m_controlSocket != nullptr &&
+        m_connections.value(session).m_reverseSocket != nullptr &&
+        !m_connections.value(session).m_initialized)
     {
         // Got a full connection, disconnect any other clients
         DisconnectAllClients(session);
@@ -749,9 +749,9 @@ void MythAirplayServer::HandleResponse(APHTTPRequest *req,
     if (playing && duration > 0.01 && position < 0.01)
     {
         // Assume playback hasn't started yet, get saved position
-        position = m_connections[session].m_position;
+        position = m_connections.value(session).m_position;
     }
-    if (!playing && m_connections[session].m_was_playing)
+    if (!playing && m_connections.value(session).m_was_playing)
     {
         // playback got interrupted, notify client to stop
         if (SendReverseEvent(session, AP_EVENT_STOPPED))
@@ -855,7 +855,7 @@ void MythAirplayServer::HandleResponse(APHTTPRequest *req,
                 .arg(image.width()).arg(image.height()).
                 arg(png ? "jpeg" : "png"));
 
-            if (m_connections[session].m_notificationid < 0)
+            if (m_connections.value(session).m_notificationid < 0)
             {
                 m_connections[session].m_notificationid =
                     GetNotificationCenter()->Register(this);
@@ -1031,9 +1031,9 @@ bool MythAirplayServer::SendReverseEvent(QByteArray &session,
 {
     if (!m_connections.contains(session))
         return false;
-    if (m_connections[session].m_lastEvent == event)
+    if (m_connections.value(session).m_lastEvent == event)
         return false;
-    if (!m_connections[session].m_reverseSocket)
+    if (!m_connections.value(session).m_reverseSocket)
         return false;
 
     QString body;
@@ -1047,7 +1047,7 @@ bool MythAirplayServer::SendReverseEvent(QByteArray &session,
     }
 
     m_connections[session].m_lastEvent = event;
-    QTextStream response(m_connections[session].m_reverseSocket);
+    QTextStream response(m_connections.value(session).m_reverseSocket);
 #if QT_VERSION < QT_VERSION_CHECK(6,0,0)
     response.setCodec("UTF-8");
 #else
@@ -1189,7 +1189,7 @@ void MythAirplayServer::DisconnectAllClients(const QByteArray &session)
             socket->deleteLater();
             if (m_incoming.contains(socket))
             {
-                delete m_incoming[socket];
+                delete m_incoming.value(socket);
                 m_incoming.remove(socket);
             }
         }
@@ -1202,7 +1202,7 @@ void MythAirplayServer::DisconnectAllClients(const QByteArray &session)
             socket->deleteLater();
             if (m_incoming.contains(socket))
             {
-                delete m_incoming[socket];
+                delete m_incoming.value(socket);
                 m_incoming.remove(socket);
             }
         }
