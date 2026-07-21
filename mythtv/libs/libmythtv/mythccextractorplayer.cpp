@@ -790,40 +790,40 @@ void MythCCExtractorPlayer::ProcessDVBSubtitles(uint flags)
 
 CC708Reader *MythCCExtractorPlayer::GetCC708Reader(uint id)
 {
-    if (!m_cc708Info[id].m_reader)
+    if (!m_cc708Info.value(id).m_reader)
     {
         m_cc708Info[id].m_reader = new CC708Reader();
         m_cc708Info[id].m_reader->SetEnabled(true);
         LOG(VB_GENERAL, LOG_INFO, "Created CC708Reader");
     }
-    return m_cc708Info[id].m_reader;
+    return m_cc708Info.value(id).m_reader;
 }
 
 CC608Reader *MythCCExtractorPlayer::GetCC608Reader(uint id)
 {
-    if (!m_cc608Info[id].m_reader)
+    if (!m_cc608Info.value(id).m_reader)
     {
         m_cc608Info[id].m_reader = new CC608Reader(this);
         m_cc608Info[id].m_reader->SetEnabled(true);
     }
-    return m_cc608Info[id].m_reader;
+    return m_cc608Info.value(id).m_reader;
 }
 
 TeletextReader *MythCCExtractorPlayer::GetTeletextReader(uint id)
 {
-    if (!m_ttxInfo[id].m_reader)
+    if (!m_ttxInfo.value(id).m_reader)
         m_ttxInfo[id].m_reader = new TeletextExtractorReader();
-    return m_ttxInfo[id].m_reader;
+    return m_ttxInfo.value(id).m_reader;
 }
 
 SubtitleReader *MythCCExtractorPlayer::GetSubReader(uint id)
 {
-    if (!m_dvbsubInfo[id].m_reader)
+    if (!m_dvbsubInfo.value(id).m_reader)
     {
         m_dvbsubInfo[id].m_reader = new SubtitleReader();
         m_dvbsubInfo[id].m_reader->EnableAVSubtitles(true);
         m_dvbsubInfo[id].m_reader->EnableTextSubtitles(true);
         m_dvbsubInfo[id].m_reader->EnableRawTextSubtitles(true);
     }
-    return m_dvbsubInfo[id].m_reader;
+    return m_dvbsubInfo.value(id).m_reader;
 }

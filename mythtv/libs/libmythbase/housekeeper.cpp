@@ -616,8 +616,8 @@ HouseKeeper::~HouseKeeper(void)
     {
         QMutexLocker threadLock(&m_threadLock);
         // tell primary thread to self-terminate and wake it
-        m_threadList.first()->Discard();
-        m_threadList.first()->Wake();
+        m_threadList.constFirst()->Discard();
+        m_threadList.constFirst()->Wake();
         // wait for any remaining threads to self-terminate and close
         while (!m_threadList.isEmpty())
         {
@@ -718,7 +718,7 @@ void HouseKeeper::Start(void)
             QDateTime lastrun = MythDate::as_utc(query.value(1).toDateTime());
 
             if (m_taskMap.contains(tag))
-                m_taskMap[tag]->SetLastRun(lastrun);
+                m_taskMap.value(tag)->SetLastRun(lastrun);
         }
     }
 
@@ -856,7 +856,7 @@ void HouseKeeper::StartThread(void)
             QString("Current HouseKeepingThread is delayed on task, "
                     "spawning replacement. Current count %1.")
                             .arg(m_threadList.size()));
-        m_threadList.first()->Discard();
+        m_threadList.constFirst()->Discard();
         auto *thread = new HouseKeepingThread(this);
         m_threadList.prepend(thread);
         thread->start();
@@ -866,7 +866,7 @@ void HouseKeeper::StartThread(void)
     {
         // the old thread is idle, so just wake it for processing
         LOG(VB_GENERAL, LOG_DEBUG, "Waking HouseKeepingThread.");
-        m_threadList.first()->Wake();
+        m_threadList.constFirst()->Wake();
     }
 }
 
@@ -893,14 +893,15 @@ void HouseKeeper::customEvent(QEvent *e)
             QMutexLocker mapLock(&m_mapLock);
             if (m_taskMap.contains(tag))
             {
-                if ((m_taskMap[tag]->GetScope() == kHKGlobal) ||
-                        ((m_taskMap[tag]->GetScope() == kHKLocal) &&
+                auto *task = m_taskMap.value(tag);
+                if ((task->GetScope() == kHKGlobal) ||
+                    ((task->GetScope() == kHKLocal) &&
                          (gCoreContext->GetHostName() == hostname)))
                 {
                     // task being run in the same scope as us.
                     // update the run time so we don't attempt to run
                     //      it ourselves
-                    m_taskMap[tag]->SetLastRun(last, successful);
+                    task->SetLastRun(last, successful);
                 }
             }
         }

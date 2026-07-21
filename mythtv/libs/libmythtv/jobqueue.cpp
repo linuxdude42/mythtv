@@ -1873,7 +1873,7 @@ void JobQueue::RemoveRunningJob(int id)
 
     if (m_runningJobs.contains(id))
     {
-        ProgramInfo *pginfo = m_runningJobs[id].pginfo;
+        ProgramInfo *pginfo = m_runningJobs.value(id).pginfo;
         if (pginfo)
         {
             pginfo->MarkAsInUse(false, kJobQueueInUseID);
@@ -1948,7 +1948,7 @@ void JobQueue::DoTranscodeThread(int jobID)
         return;
     }
 
-    ProgramInfo *program_info = m_runningJobs[jobID].pginfo;
+    ProgramInfo *program_info = m_runningJobs.value(jobID).pginfo;
     m_runningJobsLock->unlock();
 
     ChangeJobStatus(jobID, JOB_RUNNING);
@@ -2174,7 +2174,7 @@ void JobQueue::DoMetadataLookupThread(int jobID)
         return;
     }
 
-    ProgramInfo *program_info = m_runningJobs[jobID].pginfo;
+    ProgramInfo *program_info = m_runningJobs.value(jobID).pginfo;
     m_runningJobsLock->unlock();
 
     QString details = QString("%1 recorded from channel %3")
@@ -2226,7 +2226,7 @@ void JobQueue::DoMetadataLookupThread(int jobID)
         ChangeJobStatus(jobID, JOB_ERRORED, comment);
         priority = LOG_WARNING;
     }
-    else if (m_runningJobs[jobID].flag == JOB_STOP)
+    else if (m_runningJobs.value(jobID).flag == JOB_STOP)
     {
         comment = tr("Aborted by user");
         ChangeJobStatus(jobID, JOB_ABORTED, comment);
@@ -2294,7 +2294,7 @@ void JobQueue::DoFlagCommercialsThread(int jobID)
         return;
     }
 
-    ProgramInfo *program_info = m_runningJobs[jobID].pginfo;
+    ProgramInfo *program_info = m_runningJobs.value(jobID).pginfo;
     m_runningJobsLock->unlock();
 
     QString details = QString("%1 recorded from channel %3")
@@ -2358,7 +2358,7 @@ void JobQueue::DoFlagCommercialsThread(int jobID)
         ChangeJobStatus(jobID, JOB_ERRORED, comment);
         priority = LOG_WARNING;
     }
-    else if (m_runningJobs[jobID].flag == JOB_STOP)
+    else if (m_runningJobs.value(jobID).flag == JOB_STOP)
     {
         comment = tr("Aborted by user");
         ChangeJobStatus(jobID, JOB_ABORTED, comment);
@@ -2424,9 +2424,9 @@ void *JobQueue::UserJobThread(void *param)
 void JobQueue::DoUserJobThread(int jobID)
 {
     m_runningJobsLock->lock();
-    ProgramInfo *pginfo = m_runningJobs[jobID].pginfo;
-    QString jobDesc = m_runningJobs[jobID].desc;
-    QString command = m_runningJobs[jobID].command;
+    ProgramInfo *pginfo = m_runningJobs.value(jobID).pginfo;
+    QString jobDesc = m_runningJobs.value(jobID).desc;
+    QString command = m_runningJobs.value(jobID).command;
     m_runningJobsLock->unlock();
 
     ChangeJobStatus(jobID, JOB_RUNNING);

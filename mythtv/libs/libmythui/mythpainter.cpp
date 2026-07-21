@@ -345,7 +345,7 @@ MythImage *MythPainter::GetImageFromString(const QString &msg,
     {
         m_stringExpireList.remove(incoming);
         m_stringExpireList.push_back(incoming);
-        im = m_stringToImageMap[incoming];
+        im = m_stringToImageMap.value(incoming);
         if (im)
             im->IncrRef();
     }
@@ -385,7 +385,7 @@ MythImage *MythPainter::GetImageFromTextLayout(const LayoutVector &layouts,
     {
         m_stringExpireList.remove(incoming);
         m_stringExpireList.push_back(incoming);
-        im = m_stringToImageMap[incoming];
+        im = m_stringToImageMap.value(incoming);
         if (im)
             im->IncrRef();
     }
@@ -502,7 +502,7 @@ MythImage* MythPainter::GetImageFromRect(const QRect area, int radius,
     {
         m_stringExpireList.remove(incoming);
         m_stringExpireList.push_back(incoming);
-        im = m_stringToImageMap[incoming];
+        im = m_stringToImageMap.value(incoming);
         if (im)
             im->IncrRef();
     }

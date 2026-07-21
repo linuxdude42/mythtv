@@ -1242,7 +1242,7 @@ GLfloat* MythRenderOpenGL::GetCachedVertices(GLuint Type, const QRect Area)
     {
         m_vertexExpiry.removeOne(ref);
         m_vertexExpiry.append(ref);
-        return m_cachedVertices[ref];
+        return m_cachedVertices.value(ref);
     }
 
     auto *vertices = new GLfloat[8];
@@ -1269,7 +1269,7 @@ void MythRenderOpenGL::ExpireVertices(int Max)
 {
     while (m_vertexExpiry.size() > Max)
     {
-        uint64_t ref = m_vertexExpiry.first();
+        uint64_t ref = m_vertexExpiry.constFirst();
         m_vertexExpiry.removeFirst();
         GLfloat *vertices = nullptr;
         if (m_cachedVertices.contains(ref))
@@ -1318,7 +1318,7 @@ void MythRenderOpenGL::ExpireVBOS(int Max)
 {
     while (m_vboExpiry.size() > Max)
     {
-        uint64_t ref = m_vboExpiry.first();
+        uint64_t ref = m_vboExpiry.constFirst();
         m_vboExpiry.removeFirst();
         if (m_cachedVBOS.contains(ref))
         {
