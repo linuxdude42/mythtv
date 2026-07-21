@@ -1171,8 +1171,8 @@ bool Spectrogram::processUndisplayed(VisualNode *node)
                 mult = mult + ((1 - mult) *
                     (1 - ((float)(start - k) / (float)(start - i))));
             }
-            m_sigL[k] = mult * m_sigL[i + k];
-            m_sigR[k] = mult * m_sigR[i + k];
+            m_sigL[k] = mult * m_sigL.at(i + k);
+            m_sigR[k] = mult * m_sigR.at(i + k);
         }
         for (int k = 0; k < i; k++) // append current samples
         {
@@ -1189,8 +1189,8 @@ bool Spectrogram::processUndisplayed(VisualNode *node)
                 mult = (float)(m_fftlen - k) / (float)end;
             else
                 mult = 1;
-            m_dftL[k] = m_sigL[k] * mult;
-            m_dftR[k] = m_sigR[k] * mult;
+            m_dftL[k] = m_sigL.at(k) * mult;
+            m_dftR[k] = m_sigR.at(k) * mult;
         }
     }
     // run the real FFT!
@@ -1493,8 +1493,8 @@ bool Spectrum::processUndisplayed(VisualNode *node)
                 mult = mult + ((1 - mult) *
                     (1 - ((float)(start - k) / (float)(start - i))));
             }
-            m_sigL[k] = mult * m_sigL[i + k];
-            m_sigR[k] = mult * m_sigR[i + k];
+            m_sigL[k] = mult * m_sigL.at(i + k);
+            m_sigR[k] = mult * m_sigR.at(i + k);
         }
         for (int k = 0; k < i; k++) // append current samples
         {
@@ -1511,8 +1511,8 @@ bool Spectrum::processUndisplayed(VisualNode *node)
                 mult = static_cast<float>(m_fftlen - k) / end;
             else
                 mult = 1;
-            m_dftL[k] = m_sigL[k] * mult;
-            m_dftR[k] = m_sigR[k] * mult;
+            m_dftL[k] = m_sigL.at(k) * mult;
+            m_dftR[k] = m_sigR.at(k) * mult;
         }
     }
     // run the real FFT!
@@ -1674,7 +1674,7 @@ void Squares::resize (const QSize &newsize) {
     m_actualSize = newsize;
 }
 
-void Squares::drawRect(QPainter *p, QRect *rect, int i, int c, int w, int h)
+void Squares::drawRect(QPainter *p, const QRect *rect, int i, int c, int w, int h)
 {
     double per = NAN;
     int correction = (m_actualSize.width() % m_rectsL.size ());
@@ -1715,10 +1715,10 @@ bool Squares::draw(QPainter *p, const QColor &back)
     int h = w;
     int center = m_actualSize.height() / 2;
 
-    QRect *rectsp = m_rectsL.data();
+    const QRect *rectsp = m_rectsL.constData();
     for (uint i = 0; i < (uint)m_rectsL.size() * 2; i += 2)
         drawRect(p, &(rectsp[i]), i, center, w, h);
-    rectsp = m_rectsR.data();
+    rectsp = m_rectsR.constData();
     for (uint i = 1; i < ((uint)m_rectsR.size() * 2) + 1; i += 2)
         drawRect(p, &(rectsp[i]), i, center, w, h);
 
