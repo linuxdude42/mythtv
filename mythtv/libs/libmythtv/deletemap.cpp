@@ -503,6 +503,7 @@ void DeleteMap::NewCut(uint64_t frame)
             // Clear out any markers between the start and end frames
             otherframe = 0;
 #if QT_VERSION < QT_VERSION_CHECK(6,1,0)
+            // clazy:exclude-next-line=detaching-member (erases item)
             frm_dir_map_t::Iterator it = m_deleteMap.find(startframe);
             for ( ; it != m_deleteMap.end() && otherframe < endframe; ++it)
             {
@@ -833,6 +834,7 @@ void DeleteMap::SaveMap(bool isAutoSave)
     {
         // Remove temporary placeholder marks
 #if QT_VERSION < QT_VERSION_CHECK(6,1,0)
+        // clazy:exclude-next-line=detaching-member (erases item)
         for (auto it = m_deleteMap.begin(); it != m_deleteMap.end(); /*no inc*/)
         {
             if (MARK_PLACEHOLDER == it.value())
