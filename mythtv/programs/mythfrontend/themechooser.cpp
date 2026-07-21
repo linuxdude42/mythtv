@@ -329,7 +329,7 @@ bool ThemeChooser::LoadVersion(const QString &version,
 
             if (themesSeen.contains(dirName))
             {
-                ThemeInfo *localTheme = m_themeNameInfos[dirName];
+                ThemeInfo *localTheme = m_themeNameInfos.value(dirName);
 
                 themeName = remoteTheme.GetName();
 
@@ -402,7 +402,7 @@ void ThemeChooser::Init(void)
         if (!m_themeFileNameInfos.contains(theme.filePath()))
             continue;
 
-        themeinfo = m_themeFileNameInfos[theme.filePath()];
+        themeinfo = m_themeFileNameInfos.value(theme.filePath());
         if (!themeinfo)
             continue;
 
