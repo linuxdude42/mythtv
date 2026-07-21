@@ -714,7 +714,7 @@ Q_SLOT void MythExternRecApp::TuneChannel(const QString & serial,
         return;
     }
 
-    QString channum = m_chaninfo["channum"].toString();
+    QString channum = m_chaninfo.value("channum").toString();
 
     if (m_tunedChannel == channum)
     {
