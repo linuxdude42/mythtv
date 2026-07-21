@@ -62,8 +62,8 @@ DeviceLocation *SSDPCacheEntries::Find(const QString &sUSN)
 {
     QMutexLocker locker(&m_mutex);
 
-    EntryMap::iterator it = m_mapEntries.find(GetNormalizedUSN(sUSN));
-    DeviceLocation *pEntry = (it != m_mapEntries.end()) ? *it : nullptr;
+    const auto it = m_mapEntries.constFind(GetNormalizedUSN(sUSN));
+    DeviceLocation *pEntry = (it != m_mapEntries.constEnd()) ? *it : nullptr;
     if (pEntry)
         pEntry->IncrRef();
 
