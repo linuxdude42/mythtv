@@ -287,9 +287,14 @@ void DeleteMap::ReverseAll(void)
 {
     EDIT_CHECK;
     Push(tr("Reverse Cuts"));
+#if QT_VERSION < QT_VERSION_CHECK(6,4,0)
     for (auto it = m_deleteMap.constBegin(); it != m_deleteMap.constEnd(); ++it)
         Add(it.key(), it.value() == MARK_CUT_END ? MARK_CUT_START :
                                                    MARK_CUT_END);
+#else
+    for (auto [key,value] : std::as_const(m_deleteMap).asKeyValueRange())
+        Add(key, value == MARK_CUT_END ? MARK_CUT_START : MARK_CUT_END);
+#endif
     CleanMap();
 }
 
@@ -413,6 +418,7 @@ void DeleteMap::NewCut(uint64_t frame)
 
     // find any existing temporary marker to determine cut range
     int64_t existing = -1;
+#if QT_VERSION < QT_VERSION_CHECK(6,4,0)
     for (auto it = m_deleteMap.constBegin() ; it != m_deleteMap.constEnd(); ++it)
     {
         if (MARK_PLACEHOLDER == it.value())
@@ -421,6 +427,15 @@ void DeleteMap::NewCut(uint64_t frame)
             break;
         }
     }
+#else
+    for (auto [key, value] : std::as_const(m_deleteMap).asKeyValueRange())
+    {
+        if (MARK_PLACEHOLDER != value)
+            continue;
+        existing = key;
+        break;
+    }
+#endif
 
     if (existing > -1)
     {
@@ -594,6 +609,7 @@ bool DeleteMap::IsInDelete(uint64_t frame) const
 
     int      lasttype  = MARK_UNSET;
     uint64_t lastframe = UINT64_MAX;
+#if QT_VERSION < QT_VERSION_CHECK(6,4,0)
     for (it = m_deleteMap.constBegin() ; it != m_deleteMap.constEnd(); ++it)
     {
         if (it.key() > frame)
@@ -601,6 +617,15 @@ bool DeleteMap::IsInDelete(uint64_t frame) const
         lasttype  = it.value();
         lastframe = it.key();
     }
+#else
+    for (auto [key, value] : std::as_const(m_deleteMap).asKeyValueRange())
+    {
+        if (key > frame)
+            return MARK_CUT_END == value;
+        lasttype  = value;
+        lastframe = key;
+    }
+#endif
 
     return lasttype == MARK_CUT_START && lastframe <= frame;
 }
