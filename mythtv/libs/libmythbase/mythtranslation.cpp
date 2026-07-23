@@ -102,13 +102,7 @@ void MythTranslation::reload()
     // me changing its contents during my iteration.
     if (LanguageChanged())
     {
-        QStringList keys;
-        keys.reserve(d.m_translators.size());
-        for (TransMap::Iterator it = d.m_translators.begin();
-             it != d.m_translators.end();
-             ++it)
-            keys.append(it.key());
-
+        QStringList keys = d.m_translators.keys();
         for (const auto& key : std::as_const(keys))
             load_real(key);
     }
