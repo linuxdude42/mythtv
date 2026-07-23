@@ -86,9 +86,10 @@ Property *CDSObject::AddProperty( Property *pProp )
 //
 /////////////////////////////////////////////////////////////////////////////
 
-QList<Property*> CDSObject::GetProperties( const QString &sName )
+QList<Property*> CDSObject::GetProperties( const QString &sName ) const
 {
     QList<Property*> props;
+#if QT_VERSION < QT_VERSION_CHECK(6,4,0)
     auto it = m_properties.constFind(sName);
     while (it != m_properties.constEnd() && it.key() == sName)
     {
@@ -96,6 +97,15 @@ QList<Property*> CDSObject::GetProperties( const QString &sName )
             props.append(*it);
         ++it;
     }
+#else
+    for (const auto [name,prop] : std::as_const(m_properties).asKeyValueRange())
+    {
+        if (name == sName)
+            continue;
+        if (prop)
+            props.append(prop);
+    }
+#endif
 
     return props;
 }
