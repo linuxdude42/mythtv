@@ -348,13 +348,8 @@ void MythCodecMap::FreeCodecContext(const AVStream* Stream)
 void MythCodecMap::FreeAllContexts()
 {
     QMutexLocker lock(&m_mapLock);
-    QMap<const AVStream*, AVCodecContext*>::iterator i = m_streamMap.begin();
-    while (i != m_streamMap.end())
-    {
-        const AVStream *stream = i.key();
-        ++i;
-        FreeCodecContext(stream);
-    }
+    for (auto i = m_streamMap.keyBegin(); i != m_streamMap.keyEnd(); i++)
+        FreeCodecContext(*i);
 }
 
 MythStreamInfoList::MythStreamInfoList(const QString& filename)
