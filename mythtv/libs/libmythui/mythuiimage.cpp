@@ -616,13 +616,9 @@ void MythUIImage::Clear(void)
     QWriteLocker updateLocker(&d->m_updateLock);
     QMutexLocker locker(&m_imagesLock);
 
-    for (auto it = m_images.begin();
-         it != m_images.end();
-         it = m_images.erase(it))
-    {
-        if (*it)
-            (*it)->DecrRef();
-    }
+    for (auto* image : std::as_const(m_images))
+        image->DecrRef();
+    m_images.clear();
 
     m_delays.clear();
 
