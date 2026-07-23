@@ -368,13 +368,12 @@ SubtitleFormat::GetFont(const QString &family,
 
 SubtitleFormat::~SubtitleFormat(void)
 {
-    // NOLINTNEXTLINE(modernize-loop-convert)
-    for (int i = 0; i < m_cleanup.size(); ++i)
+    for (const auto& cleanup : std::as_const(m_cleanup))
     {
-        m_cleanup.at(i)->DeleteAllChildren();
-        m_cleanup.at(i)->deleteLater();
-        m_cleanup[i] = nullptr; // just to be safe
+        cleanup->DeleteAllChildren();
+        cleanup->deleteLater();
     }
+    m_cleanup.clear();
 }
 
 QString SubtitleFormat::MakePrefix(const QString &family,
