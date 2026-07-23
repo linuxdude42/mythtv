@@ -949,7 +949,9 @@ void MythUIText::FillCutMessage(void)
 
         QTextLine line;
         QTextOption textoption(static_cast<Qt::Alignment>(m_justification));
-        QVector<QTextLayout *>::iterator Ilayout = m_layouts.begin();
+        // This evaluates to different things in Qt5 and Qt6.
+        // NOLINTNEXTLINE(readability-qualified-auto)
+        auto Ilayout = m_layouts.constBegin();
 
         (*Ilayout)->setTextOption(textoption);
         (*Ilayout)->setText("");
@@ -961,7 +963,7 @@ void MythUIText::FillCutMessage(void)
         m_drawRect.setWidth(m_area.width());
         m_drawRect.setHeight(m_lineHeight);
 
-        for (++Ilayout ; Ilayout != m_layouts.end(); ++Ilayout)
+        for (++Ilayout ; Ilayout != m_layouts.constEnd(); ++Ilayout)
             (*Ilayout)->clearLayout();
 
         m_ascent = m_descent = m_leftBearing = m_rightBearing = 0;
