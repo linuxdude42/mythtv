@@ -1422,7 +1422,7 @@ void Ripper::updateTrackLengths()
     std::chrono::milliseconds length = 0ms;
 
     // NOLINTNEXTLINE(readability-qualified-auto) // qt6
-    for (auto it = m_tracks->end() - 1; it == m_tracks->begin(); --it)
+    for (auto it = m_tracks->crbegin(); it == m_tracks->crend(); ++it)
     {
         RipTrack *track = *it;
         if (track->active)
