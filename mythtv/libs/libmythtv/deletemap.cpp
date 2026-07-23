@@ -287,7 +287,7 @@ void DeleteMap::ReverseAll(void)
 {
     EDIT_CHECK;
     Push(tr("Reverse Cuts"));
-    for (auto it = m_deleteMap.begin(); it != m_deleteMap.end(); ++it)
+    for (auto it = m_deleteMap.constBegin(); it != m_deleteMap.constEnd(); ++it)
         Add(it.key(), it.value() == MARK_CUT_END ? MARK_CUT_START :
                                                    MARK_CUT_END);
     CleanMap();
@@ -413,7 +413,7 @@ void DeleteMap::NewCut(uint64_t frame)
 
     // find any existing temporary marker to determine cut range
     int64_t existing = -1;
-    for (auto it = m_deleteMap.begin() ; it != m_deleteMap.end(); ++it)
+    for (auto it = m_deleteMap.constBegin() ; it != m_deleteMap.constEnd(); ++it)
     {
         if (MARK_PLACEHOLDER == it.value())
         {
@@ -594,7 +594,7 @@ bool DeleteMap::IsInDelete(uint64_t frame) const
 
     int      lasttype  = MARK_UNSET;
     uint64_t lastframe = UINT64_MAX;
-    for (it = m_deleteMap.begin() ; it != m_deleteMap.end(); ++it)
+    for (it = m_deleteMap.constBegin() ; it != m_deleteMap.constEnd(); ++it)
     {
         if (it.key() > frame)
             return MARK_CUT_END == it.value();
@@ -689,7 +689,8 @@ void DeleteMap::CleanMap(void)
         int64_t lastframe = -1;
         int64_t tempframe = -1;
         QList<int64_t> deleteList;
-        for (auto it = m_deleteMap.begin(); it != m_deleteMap.end(); ++it)
+        for (auto it = m_deleteMap.constBegin();
+             it != m_deleteMap.constEnd(); ++it)
         {
             int      thistype  = it.value();
             uint64_t thisframe = it.key();
