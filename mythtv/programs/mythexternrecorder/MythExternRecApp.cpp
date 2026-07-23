@@ -159,13 +159,22 @@ void MythExternRecApp::replace_variables(void)
 
     if (!m_chaninfo.isEmpty())
     {
-        for (auto it = m_chaninfo.keyValueBegin();
-             it != m_chaninfo.keyValueEnd(); ++it)
+#if QT_VERSION < QT_VERSION_CHECK(6,4,0)
+        for (auto it = m_chaninfo.constKeyValueBegin();
+             it != m_chaninfo.constKeyValueEnd(); ++it)
         {
             if (it->first == "command")
                 continue;
             m_settingVars[it->first.toUpper()] = it->second.toString();
         }
+#else
+        for (auto [key, value] : std::as_const(m_chaninfo).asKeyValueRange())
+        {
+            if (key == "command")
+                continue;
+            m_settingVars[key.toUpper()] = value.toString();
+        }
+#endif
     }
 
     /* Replace defined VARs in other defined VARs */
