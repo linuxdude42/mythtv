@@ -502,6 +502,7 @@ void DeleteMap::NewCut(uint64_t frame)
             Add(endframe, MARK_CUT_END);
             // Clear out any markers between the start and end frames
             otherframe = 0;
+#if QT_VERSION < QT_VERSION_CHECK(6,1,0)
             frm_dir_map_t::Iterator it = m_deleteMap.find(startframe);
             for ( ; it != m_deleteMap.end() && otherframe < endframe; ++it)
             {
@@ -514,6 +515,17 @@ void DeleteMap::NewCut(uint64_t frame)
                     m_changed = true;
                 }
             }
+#else
+            m_deleteMap.removeIf( [this,startframe,endframe,&otherframe](auto it) {
+                otherframe = it.key();
+                if ((startframe >= otherframe) || (endframe <= otherframe))
+                    return false;
+                LOG(VB_PLAYBACK, LOG_INFO, LOC +
+                    QString("Deleting bounded marker: %1").arg(otherframe));
+                m_changed = true;
+                return true;
+            } );
+#endif
         }
     }
     else
@@ -820,6 +832,7 @@ void DeleteMap::SaveMap(bool isAutoSave)
     if (!isAutoSave)
     {
         // Remove temporary placeholder marks
+#if QT_VERSION < QT_VERSION_CHECK(6,1,0)
         for (auto it = m_deleteMap.begin(); it != m_deleteMap.end(); /*no inc*/)
         {
             if (MARK_PLACEHOLDER == it.value())
@@ -832,6 +845,14 @@ void DeleteMap::SaveMap(bool isAutoSave)
                 ++it;
             }
         }
+#else
+        m_deleteMap.removeIf( [this] (const auto& it) {
+            if (MARK_PLACEHOLDER != it.value())
+                return false;
+            m_changed = true;
+            return true;
+        } );
+#endif
 
         CleanMap();
     }

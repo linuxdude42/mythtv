@@ -182,6 +182,7 @@ void ProgramInfoCache::Refresh(void)
         return;
     }
 
+#if QT_VERSION < QT_VERSION_CHECK(6,1,0)
     for (auto it = m_cache.begin(); it != m_cache.end(); )
     {
         if ((*it)->GetAvailableStatus() == asDeleted)
@@ -194,6 +195,11 @@ void ProgramInfoCache::Refresh(void)
             it++;
         }
     }
+#else
+    m_cache.removeIf(
+        [](auto it){ return (*it)->GetAvailableStatus() == asDeleted; }
+        );
+#endif
 }
 
 /** \brief Updates a ProgramInfo in the cache.

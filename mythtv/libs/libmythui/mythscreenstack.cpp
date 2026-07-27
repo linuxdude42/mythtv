@@ -303,6 +303,7 @@ void MythScreenStack::CheckDeletes(bool force)
 
     bool changed = false;
 
+#if QT_VERSION < QT_VERSION_CHECK(6,1,0)
     QVector<MythScreenType *>::Iterator it = m_toDelete.begin();
     while (it != m_toDelete.end() && !m_toDelete.isEmpty())
     {
@@ -330,6 +331,17 @@ void MythScreenStack::CheckDeletes(bool force)
 
         ++it;
     }
+#else
+    changed = m_toDelete.removeIf( [this,force](const auto* screen) {
+        if (!force && (screen->GetAlpha() > 0) && m_drawOrder.contains(screen))
+            return false;
+        m_children.removeAll(screen);
+        if (screen == m_newTop)
+            m_newTop = nullptr;
+        delete screen;
+        return true;
+    } );
+#endif
 
     if (changed)
     {
