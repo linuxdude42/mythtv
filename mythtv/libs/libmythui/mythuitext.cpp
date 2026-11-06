@@ -759,10 +759,10 @@ bool MythUIText::Layout(QString & paragraph, QTextLayout *layout, bool final,
          */
             QFontMetrics fm(GetFontProperties()->face());
 
-            int bearing = fm.leftBearing(paragraph[last_line]);
+            int bearing = fm.leftBearing(paragraph.at(last_line));
             m_leftBearing = std::min(m_leftBearing, bearing);
             bearing = fm.rightBearing
-                      (paragraph[last_line + line.textLength() - 1]);
+                      (paragraph.at(last_line + line.textLength() - 1));
             m_rightBearing = std::min(m_rightBearing, bearing);
         }
     }
@@ -787,7 +787,7 @@ bool MythUIText::LayoutParagraphs(const QStringList & paragraphs,
     for (Ipara = paragraphs.begin(), idx = 0;
          Ipara != paragraphs.end(); ++Ipara, ++idx)
     {
-        QTextLayout *layout = m_layouts[idx];
+        QTextLayout *layout = m_layouts.at(idx);
         layout->setTextOption(textoption);
         layout->setFont(m_font->face());
 
@@ -939,7 +939,9 @@ void MythUIText::FillCutMessage(void)
 
         QTextLine line;
         QTextOption textoption(static_cast<Qt::Alignment>(m_justification));
-        QVector<QTextLayout *>::iterator Ilayout = m_layouts.begin();
+        // This evaluates to different things in Qt5 and Qt6.
+        // NOLINTNEXTLINE(readability-qualified-auto)
+        auto Ilayout = m_layouts.constBegin();
 
         (*Ilayout)->setTextOption(textoption);
         (*Ilayout)->setText("");
@@ -951,7 +953,7 @@ void MythUIText::FillCutMessage(void)
         m_drawRect.setWidth(m_area.width());
         m_drawRect.setHeight(m_lineHeight);
 
-        for (++Ilayout ; Ilayout != m_layouts.end(); ++Ilayout)
+        for (++Ilayout ; Ilayout != m_layouts.constEnd(); ++Ilayout)
             (*Ilayout)->clearLayout();
 
         m_ascent = m_descent = m_leftBearing = m_rightBearing = 0;
