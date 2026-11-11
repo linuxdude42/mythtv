@@ -1064,9 +1064,7 @@ QString UPnpCDSExtension::CreateIDString(const QString &requestId,
                                          const QString &name,
                                          const QString &value)
 {
-    IDToken currentToken = GetCurrentToken(requestId);
-    QString currentName = currentToken.first;
-    QString currentValue = currentToken.second;
+    auto [currentName, currentValue] = GetCurrentToken(requestId);
 
     // For metadata requests the request ID will be the ID of the result, so
     // we don't need to do anything
