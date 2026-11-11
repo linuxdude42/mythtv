@@ -270,17 +270,17 @@ void MythUIVirtualKeyboard::parseKey(const QDomElement &element)
 
     KeyDefinition key;
     key.name = name;
-    key.type = type;
-    key.left = left;
-    key.right = right;
-    key.up = up;
-    key.down = down;
+    key.type = std::move(type);
+    key.left = std::move(left);
+    key.right = std::move(right);
+    key.up = std::move(up);
+    key.down = std::move(down);
     key.normal = decodeChar(normal);
     key.alt = decodeChar(alt);
     key.shift = decodeChar(shift);
     key.altshift = decodeChar(altshift);
 
-    m_keyMap[name] = key;
+    m_keyMap[name] = std::move(key);
 }
 
 void MythUIVirtualKeyboard::updateKeys(bool connectSignals)
@@ -431,7 +431,7 @@ void MythUIVirtualKeyboard::charClicked(void)
     {
         if (m_composeStr.isEmpty())
         {
-            m_composeStr = c;
+            m_composeStr = std::move(c);
         }
         else
         {

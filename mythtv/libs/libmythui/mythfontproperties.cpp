@@ -558,7 +558,7 @@ bool FontMap::AddFont(const QString &text, MythFontProperties *font)
             oldf.shadowOffset = font->m_shadowOffset;
         }
 
-        globalFontMap[text] = oldf;
+        globalFontMap[text] = std::move(oldf);
     }
 
     return true;

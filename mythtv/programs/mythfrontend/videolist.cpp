@@ -1187,7 +1187,7 @@ class dirhandler : public DirectoryHandler
         {
             QString tmptitle(VideoMetadata::FilenameToMeta(file_string, 1));
             if (!tmptitle.isEmpty())
-                title = tmptitle;
+                title = std::move(tmptitle);
         }
         myData->SetTitle(title);
         myData->SetPrefix(m_prefix);

@@ -347,7 +347,7 @@ void MythUIType::SetChildNeedsRedraw(MythUIType *child)
     m_needsRedraw = true;
 
     if (m_dirtyRegion.isEmpty())
-        m_dirtyRegion = childRegion;
+        m_dirtyRegion = std::move(childRegion);
     else
         m_dirtyRegion = m_dirtyRegion.united(childRegion);
 

@@ -667,7 +667,7 @@ void logStart(const QString& logfile, bool progress, int quiet, int facility,
     {
         QFileInfo finfo(logfile);
         QString path = finfo.path();
-        logPropagateOpts.m_path = path;
+        logPropagateOpts.m_path = std::move(path);
     }
 
     logPropagateCalc();
@@ -835,7 +835,7 @@ void loglevelAdd(int value, QString name, char shortname)
     // LOG_CRIT -> crit
     name.remove(0, 4);
     name = name.toLower();
-    item->name = name;
+    item->name = std::move(name);
     item->shortname = shortname;
 
     loglevelMap.insert(value, item);

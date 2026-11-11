@@ -1811,7 +1811,7 @@ uint V2Dvr::AddRecordSchedule   (
     rule.m_findday = nFindDay;
     rule.m_findtime = tFindTime;
 
-    rule.m_recProfile = sRecProfile;
+    rule.m_recProfile = std::move(sRecProfile);
     rule.m_recGroupID = RecordingInfo::GetRecgroupID(sRecGroup);
     if (rule.m_recGroupID == 0)
     {
@@ -1819,8 +1819,8 @@ uint V2Dvr::AddRecordSchedule   (
         if (rule.m_recGroupID <= 0)
             rule.m_recGroupID = RecordingInfo::kDefaultRecGroup;
     }
-    rule.m_storageGroup = sStorageGroup;
-    rule.m_playGroup = sPlayGroup;
+    rule.m_storageGroup = std::move(sStorageGroup);
+    rule.m_playGroup = std::move(sPlayGroup);
 
     rule.m_parentRecID = nParentId;
     rule.m_isInactive = bInactive;
@@ -1851,7 +1851,7 @@ uint V2Dvr::AddRecordSchedule   (
     rule.m_transcoder = nTranscoder;
     rule.m_autoExtend = autoExtendTypeFromString(AutoExtend);
 
-    rule.m_lastRecorded = lastrects;
+    rule.m_lastRecorded = std::move(lastrects);
 
     QString msg;
     if (!rule.IsValid(msg))
@@ -1987,7 +1987,7 @@ bool V2Dvr::UpdateRecordSchedule ( uint      nRecordId,
     pRule.m_findday = nFindDay;
     pRule.m_findtime = tFindTime;
 
-    pRule.m_recProfile = sRecProfile;
+    pRule.m_recProfile = std::move(sRecProfile);
     pRule.m_recGroupID = RecordingInfo::GetRecgroupID(sRecGroup);
     if (pRule.m_recGroupID == 0)
     {
@@ -1995,8 +1995,8 @@ bool V2Dvr::UpdateRecordSchedule ( uint      nRecordId,
         if (pRule.m_recGroupID <= 0)
             pRule.m_recGroupID = RecordingInfo::kDefaultRecGroup;
     }
-    pRule.m_storageGroup = sStorageGroup;
-    pRule.m_playGroup = sPlayGroup;
+    pRule.m_storageGroup = std::move(sStorageGroup);
+    pRule.m_playGroup = std::move(sPlayGroup);
 
     pRule.m_isInactive = bInactive;
 

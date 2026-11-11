@@ -7952,7 +7952,7 @@ void MainServer::DeleteChain(LiveTVChain *chain)
         if (entry != chain)
             newChains.push_back(entry);
     }
-    m_liveTVChains = newChains;
+    m_liveTVChains = std::move(newChains);
 
     chain->DecrRef();
 }

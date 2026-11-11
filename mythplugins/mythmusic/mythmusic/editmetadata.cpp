@@ -1166,7 +1166,7 @@ void EditAlbumartDialog::customEvent(QEvent *event)
         }
         else if (resultid == "imagelocation")
         {
-            m_imageFilename = resulttext;
+            m_imageFilename = std::move(resulttext);
 
             // save directory location for next time
             QFileInfo fi(m_imageFilename);

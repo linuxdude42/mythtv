@@ -656,7 +656,7 @@ QString StorageGroup::FindFileDir(const QString &filename)
             gCoreContext->GetSetting("RecordFilePrefix") + "/" + filename;
         checkFile.setFile(tmpFile);
         if (checkFile.exists() || checkFile.isSymLink())
-            result = tmpFile;
+            result = std::move(tmpFile);
     }
     else if (m_groupname != "Default")
     {

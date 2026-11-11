@@ -355,7 +355,7 @@ SchemaUpgradeWizard::PromptForUpgrade(const char *name,
     }
     else if (!validDBMS)
     {
-        message = warnOldDBMS;
+        message = std::move(warnOldDBMS);
         returnValue = MYTH_SCHEMA_ERROR;
     }
     else if (m_versionsBehind > 0)

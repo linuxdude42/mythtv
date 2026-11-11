@@ -732,7 +732,7 @@ void ThemeChooser::saveAndReload(MythUIButtonListItem *item)
 #else
         QString localFile = GetConfDir() + "/tmp/" + baseName;
         GetMythDownloadManager()->queueDownload(downloadURL, localFile, this);
-        m_downloadFile = localFile;
+        m_downloadFile = std::move(localFile);
         m_downloadState = dsDownloadingOnFrontend;
 #endif
     }
@@ -873,7 +873,7 @@ void ThemeChooser::customEvent(QEvent *e)
                                 m_downloadFile, localFile, this);
                             OpenBusyPopup(tr("Copying %1 Theme Package")
                                               .arg(m_downloadTheme->GetName()));
-                            m_downloadFile = localFile;
+                            m_downloadFile = std::move(localFile);
                             return;
                         }
                     }

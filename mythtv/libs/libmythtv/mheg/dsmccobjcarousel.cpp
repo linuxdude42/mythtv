@@ -131,7 +131,7 @@ std::vector<uint8_t> DSMCCCacheModuleData::AddModuleData(DsmccDb *ddb,
             return {};
         }
 
-        tmp_data = uncompressed;
+        tmp_data = std::move(uncompressed);
     }
 
     m_completed = true;

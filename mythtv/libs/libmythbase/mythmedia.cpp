@@ -440,7 +440,7 @@ bool MythMediaDevice::findMountPath()
         if (deviceNames.contains(m_devicePath) ||
             deviceNames.contains(m_realDevice)  )
         {
-            m_mountPath = mountPoint;
+            m_mountPath = std::move(mountPoint);
             mountFile.close();
             return true;
         }

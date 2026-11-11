@@ -1053,7 +1053,7 @@ void MHEngine::RequestExternalContent(MHIngredient *pRequester)
         MHLOG(MHLogNotifications, QString("Waiting for %1 <= %2")
             .arg(pRequester->m_ObjectReference.Printable(), csPath.left(128)) );
         auto *pContent = new MHExternContent;
-        pContent->m_FileName = csPath;
+        pContent->m_FileName = std::move(csPath);
         pContent->m_pRequester = pRequester;
         pContent->m_time.start();
         m_externContentTable.append(pContent);

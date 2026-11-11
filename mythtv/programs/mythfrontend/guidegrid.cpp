@@ -1556,7 +1556,7 @@ void GuideGrid::fillTimeInfos()
 
         starttime = starttime.addSecs(kFiveMinutes);
     }
-    m_currentEndTime = starttime;
+    m_currentEndTime = std::move(starttime);
 }
 
 void GuideGrid::fillProgramInfos(bool useExistingData)

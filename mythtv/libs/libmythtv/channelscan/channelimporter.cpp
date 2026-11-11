@@ -127,7 +127,7 @@ void ChannelImporter::Process(const ScanDTVTransportList &_transports,
                 msg = tr("Failed to find any new channels!");
 
             if (m_useWeb)
-                m_pWeb->m_dlgMsg = msg;
+                m_pWeb->m_dlgMsg = std::move(msg);
             else
                 ShowOkPopup(msg);
 
@@ -2407,7 +2407,7 @@ OkCancelType ChannelImporter::QueryUserResolve(
             bool ok = CheckChannelNumber(val, chan);
             if (ok)
             {
-                chan.m_chanNum = val;
+                chan.m_chanNum = std::move(val);
                 break;
             }
         }
@@ -2444,7 +2444,7 @@ OkCancelType ChannelImporter::QueryUserResolve(
             bool ok = CheckChannelNumber(val, chan);
             if (ok)
             {
-                chan.m_chanNum = val;
+                chan.m_chanNum = std::move(val);
                 ret = kOCTOk;
                 break;
             }
@@ -2484,7 +2484,7 @@ OkCancelType ChannelImporter::QueryUserInsert(
             bool ok = CheckChannelNumber(val, chan);
             if (ok)
             {
-                chan.m_chanNum = val;
+                chan.m_chanNum = std::move(val);
                 ret = kOCTOk;
                 break;
             }
@@ -2522,7 +2522,7 @@ OkCancelType ChannelImporter::QueryUserInsert(
             bool ok = CheckChannelNumber(val, chan);
             if (ok)
             {
-                chan.m_chanNum = val;
+                chan.m_chanNum = std::move(val);
                 ret = kOCTOk;
                 break;
             }

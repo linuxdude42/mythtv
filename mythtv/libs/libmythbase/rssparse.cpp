@@ -129,7 +129,7 @@ void ResultItem::toMap(InfoMap &metadataMap)
     else if (m_filesize == 0 && m_downloadable)
         metadataMap["filesize_str"] = QObject::tr("Downloadable");
     else
-        metadataMap["filesize"] = tmpSize;
+        metadataMap["filesize"] = std::move(tmpSize);
 
     metadataMap["player"] = m_player;
     metadataMap["playerargs"] = m_playerargs.join(", ");
@@ -677,20 +677,20 @@ private:
 
         ArbitraryLocatedData result;
         result.m_url = GetURL(element);
-        result.m_rating = rating;
-        result.m_ratingScheme = rscheme;
+        result.m_rating = std::move(rating);
+        result.m_ratingScheme = std::move(rscheme);
         result.m_title = GetTitle(element);
         result.m_description = GetDescription(element);
         result.m_keywords = GetKeywords(element);
-        result.m_copyrightUrl = curl;
-        result.m_copyrightText = ctext;
+        result.m_copyrightUrl = std::move(curl);
+        result.m_copyrightText = std::move(ctext);
         result.m_ratingAverage = raverage;
         result.m_ratingCount = rcount;
         result.m_ratingMin = rmin;
         result.m_ratingMax = rmax;
         result.m_views = views;
         result.m_favs = favs;
-        result.m_tags = tags;
+        result.m_tags = std::move(tags);
         result.m_thumbnails = GetThumbnails(element);
         result.m_credits = GetCredits(element);
         result.m_comments = GetComments(element);

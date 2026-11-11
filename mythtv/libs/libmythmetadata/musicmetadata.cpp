@@ -850,7 +850,7 @@ void MusicMetadata::setArtistAndTrackFormats()
 
     tmp = gCoreContext->GetSetting("MusicFormatCompilationCDTrack");
     if (!tmp.isEmpty())
-        s_formatCompilationCdTrack = tmp;
+        s_formatCompilationCdTrack = std::move(tmp);
 }
 
 
@@ -1152,7 +1152,7 @@ void MusicMetadata::toMap(InfoMap &metadataMap, const QString &prefix)
     QLocale locale = gCoreContext->GetQLocale();
     QString tmpSize = locale.toString(m_fileSize *
                                       (1.0 / (1024.0 * 1024.0)), 'f', 2);
-    metadataMap[prefix + "filesize"] = tmpSize;
+    metadataMap[prefix + "filesize"] = std::move(tmpSize);
 
     metadataMap[prefix + "filename"] = m_filename;
 

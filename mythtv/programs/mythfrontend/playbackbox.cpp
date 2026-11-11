@@ -499,7 +499,7 @@ PlaybackBox::PlaybackBox(MythScreenStack *parent, const QString& name,
         m_player->IncrRef();
         QString tmp = m_player->GetRecordingGroup();
         if (!tmp.isEmpty())
-            m_recGroup = tmp;
+            m_recGroup = std::move(tmp);
     }
 
     // recording group stuff
@@ -776,7 +776,7 @@ void PlaybackBox::updateGroupInfo(const QString &groupname,
         desc = tr("There is no recording in this display group.");
     }
 
-    infoMap["description"] = desc;
+    infoMap["description"] = std::move(desc);
     infoMap["rec_count"] = QString("%1").arg(countInGroup);
 
     ResetMap(m_currentMap);
@@ -4699,7 +4699,7 @@ void PlaybackBox::setGroupFilter(const QString &recGroup)
     else if (newRecGroup == ProgramInfo::i18n("Deleted"))
         newRecGroup = "Deleted";
 
-    m_recGroup = newRecGroup;
+    m_recGroup = std::move(newRecGroup);
 
     m_groupDisplayName = ProgramInfo::i18n(m_recGroup);
 
@@ -5627,7 +5627,7 @@ void PlaybackBox::PbbJobQueue::Update()
         {
             m_jobs.insert(qMakePair(job.chanid, job.recstartts), job);
         }
-        m_lastUpdated = now;
+        m_lastUpdated = std::move(now);
     }
 }
 

@@ -1836,7 +1836,7 @@ QString VideoDialog::GetFirstImage(MythGenericTree *node, const QString& type,
                                      node->GetText(), levels + 1);
                     if (!test_file.isEmpty())
                     {
-                        icon_file = test_file;
+                        icon_file = std::move(test_file);
                         break;
                     }
                 }

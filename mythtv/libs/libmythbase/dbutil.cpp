@@ -742,7 +742,7 @@ bool DBUtil::DoBackup(QString &filename)
 
     LOG(VB_GENERAL, LOG_CRIT, "Database Backup complete.");
 
-    filename = backupPathname;
+    filename = std::move(backupPathname);
     return true;
 }
 
@@ -773,7 +773,7 @@ bool DBUtil::QueryDBMSVersion(void)
             dbmsVersion = query.value(0).toString();
         }
     }
-    m_versionString = dbmsVersion;
+    m_versionString = std::move(dbmsVersion);
 
     return !m_versionString.isEmpty();
 }

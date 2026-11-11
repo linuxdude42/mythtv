@@ -2194,8 +2194,8 @@ void MusicCommon::updatePlaylistStats(void)
         QString playlisttotal = QLocale::system().toString(trackCount);
 
         map["playlistposition"] = tr("%1 of %2").arg(playlistcurrent, playlisttotal);
-        map["playlistcurrent"] = playlistcurrent;
-        map["playlistcount"] = playlisttotal;
+        map["playlistcurrent"] = std::move(playlistcurrent);
+        map["playlistcount"] = std::move(playlisttotal);
         map["playlisttime"] = getTimeString(m_playlistPlayedTime + m_currentTime, m_playlistMaxTime);
         map["playlistplayedtime"] = getTimeString(m_playlistPlayedTime + m_currentTime, 0s);
         map["playlisttotaltime"] = getTimeString(m_playlistMaxTime, 0s);
@@ -2204,7 +2204,7 @@ void MusicCommon::updatePlaylistStats(void)
             playlistName = tr("Default Playlist");
         else if (playlistName ==  "stream_playlist")
             playlistName = tr("Stream Playlist");
-        map["playlistname"] = playlistName;
+        map["playlistname"] = std::move(playlistName);
         map["playedtime"] = getTimeString(m_currentTime, 0s); // v34 - parts
         map["totaltime"] = getTimeString(m_maxTime, 0s);
         map["trackspeed"] = getTimeString(-1s, 0s);

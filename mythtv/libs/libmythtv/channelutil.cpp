@@ -1721,7 +1721,7 @@ void ChannelUtil::UpdateChannelNumberFromDB(ChannelInsertInfo &chan)
 
         if (!channum.isEmpty())
         {
-            chan.m_chanNum = channum;
+            chan.m_chanNum = std::move(channum);
         }
     }
 }
@@ -1756,7 +1756,7 @@ void ChannelUtil::UpdateInsertInfoFromDB(ChannelInsertInfo &chan)
                     "Using EIT and xmltv for the same channel "
                     "is an unsupported configuration.");
             }
-            chan.m_xmltvId = xmltvid;
+            chan.m_xmltvId = std::move(xmltvid);
         }
         chan.m_useOnAirGuide = useeit;
         chan.m_hidden = (visible == kChannelNotVisible ||

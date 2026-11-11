@@ -819,7 +819,7 @@ CommandLineArg* CommandLineArg::SetDeprecated(QString depstr)
 {
     if (depstr.isEmpty())
         depstr = "and will be removed in a future version.";
-    m_deprecated = depstr;
+    m_deprecated = std::move(depstr);
     return this;
 }
 
@@ -829,7 +829,7 @@ CommandLineArg* CommandLineArg::SetRemoved(QString remstr, QString remver)
 {
     if (remstr.isEmpty())
         remstr = "and is no longer available in this version.";
-    m_removed = remstr;
+    m_removed = std::move(remstr);
     m_removedversion = std::move(remver);
     return this;
 }
@@ -1505,7 +1505,7 @@ MythCommandLineParser::Result MythCommandLineParser::getOpt(int argc, const char
     if (m_passthroughActive)
     {
         // pass through has been activated
-        val = tmp;
+        val = std::move(tmp);
         return Result::kArg;
     }
 
@@ -1553,12 +1553,12 @@ MythCommandLineParser::Result MythCommandLineParser::getOpt(int argc, const char
             return Result::kOptOnly;
         }
 
-        val = tmp;
+        val = std::move(tmp);
         return Result::kOptVal;
     }
 
     // input is not an option string, return as arg
-    val = tmp;
+    val = std::move(tmp);
     return Result::kArg;
 }
 

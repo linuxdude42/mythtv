@@ -333,7 +333,7 @@ void ProgFinder::customEvent(QEvent *event)
         }
         else if (resultid == "searchtext")
         {
-            m_searchStr = resulttext;
+            m_searchStr = std::move(resulttext);
             if (m_searchText)
                 m_searchText->SetText(m_searchStr);
             updateShowList();

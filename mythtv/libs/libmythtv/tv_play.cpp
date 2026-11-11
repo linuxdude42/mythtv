@@ -577,9 +577,9 @@ void TV::InitKeys()
         if (selectKeys != "?")
         {
             if (alternate)
-                togBkmKeys = selectKeys;
+                togBkmKeys = std::move(selectKeys);
             else
-                bkmKeys = selectKeys;
+                bkmKeys = std::move(selectKeys);
         }
     }
     REG_KEY("TV Playback", ACTION_SETBOOKMARK, QT_TRANSLATE_NOOP("MythControls",
@@ -6287,7 +6287,7 @@ void TV::ChangeChannel(const ChannelInfoList &Options)
             // hide the channel number, activated by certain signal monitors
             HideOSDWindow(OSD_WIN_INPUT);
             m_queuedInput   = channum;
-            m_queuedChanNum = channum;
+            m_queuedChanNum = std::move(channum);
             m_queuedChanID  = chanid;
             if (!m_queueInputTimerId)
                 m_queueInputTimerId = StartTimer(10ms, __LINE__);
@@ -6323,7 +6323,7 @@ void TV::PopPreviousChannel(bool ImmediateChange)
     if (cur_channum != prev_channum && !prev_channum.isEmpty())
     {
         m_queuedInput   = prev_channum;
-        m_queuedChanNum = prev_channum;
+        m_queuedChanNum = std::move(prev_channum);
         m_queuedChanID  = 0;
         if (!m_queueInputTimerId)
             m_queueInputTimerId = StartTimer(10ms, __LINE__);
@@ -6623,11 +6623,11 @@ void TV::UpdateOSDSignal(const QStringList &List)
               .arg(sigMsg);
 
     if (!err.isEmpty())
-        sigDesc = err;
+        sigDesc = std::move(err);
     else if (!msg.isEmpty())
-        sigDesc = msg;
+        sigDesc = std::move(msg);
 
-    infoMap["description"] = sigDesc;
+    infoMap["description"] = std::move(sigDesc);
     emit ChangeOSDText(OSD_WIN_PROGINFO, infoMap, kOSDTimeout_Med);
 
     m_playerContext.m_lastSignalMsg.clear();
@@ -6752,9 +6752,9 @@ void TV::ShowLCDChannelInfo()
         (subtitle != m_lcdSubtitle))
     {
         lcd->switchToChannel(callsign, title, subtitle);
-        m_lcdCallsign = callsign;
-        m_lcdTitle = title;
-        m_lcdSubtitle = subtitle;
+        m_lcdCallsign = std::move(callsign);
+        m_lcdTitle = std::move(title);
+        m_lcdSubtitle = std::move(subtitle);
     }
 }
 
@@ -6796,9 +6796,9 @@ void TV::ShowLCDDVDInfo()
     if ((dvdName != m_lcdCallsign) || (mainStatus != m_lcdTitle) || (subStatus != m_lcdSubtitle))
     {
         lcd->switchToChannel(dvdName, mainStatus, subStatus);
-        m_lcdCallsign = dvdName;
-        m_lcdTitle    = mainStatus;
-        m_lcdSubtitle = subStatus;
+        m_lcdCallsign = std::move(dvdName);
+        m_lcdTitle    = std::move(mainStatus);
+        m_lcdSubtitle = std::move(subStatus);
     }
 }
 
@@ -9262,7 +9262,7 @@ bool TV::MenuItemDisplayPlayback(const MythTVMenuItemContext& Context,
             QVariant v;
             v.setValue(MythTVMenuNodeTuple(Context.m_menu.m_id,
                                            MythTVMenu::GetPathFromNode(Context.m_node)));
-            m_tvmJumprecBackHack = v;
+            m_tvmJumprecBackHack = std::move(v);
         }
         else if (actionName == "JUMPPREV")
         {

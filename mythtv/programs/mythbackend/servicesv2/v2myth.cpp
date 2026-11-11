@@ -100,7 +100,7 @@ V2ConnectionInfo* V2Myth::GetConnectionInfo( const QString  &sPin )
       && !sServerIP.isEmpty())  // &&
         //(sServerIP         != sPeerIP    ))
     {
-        params.m_dbHostName = sServerIP;
+        params.m_dbHostName = std::move(sServerIP);
     }
 
     // If dbHostName is an IPV6 address with scope,
@@ -170,7 +170,7 @@ bool V2Myth::SetConnectionInfo(const QString &Host, const QString &UserName, con
         throw( QString( "Database test failed. Not saving database connection information." ));
 
     DatabaseParams dbparms;
-    dbparms.m_dbName = db;
+    dbparms.m_dbName = std::move(db);
     dbparms.m_dbUserName = UserName;
     dbparms.m_dbPassword = Password;
     dbparms.m_dbHostName = Host;

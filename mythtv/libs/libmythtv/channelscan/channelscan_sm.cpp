@@ -2530,7 +2530,7 @@ bool ChannelScanSM::ScanTransportsStartingOn(
 
     if (ok)
     {
-        tuning.m_sistandard = si_std;
+        tuning.m_sistandard = std::move(si_std);
         TransportScanItem item(
             sourceid, QObject::tr("Frequency %1").arg(startChan["frequency"]),
             tuning, m_signalTimeout);

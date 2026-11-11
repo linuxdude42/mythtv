@@ -1504,7 +1504,7 @@ bool CC608Decoder::XDSPacketParseChannel(const std::vector<unsigned char> &xds_b
         if (is_better(tmp, m_xdsNetName))
         {
             LOG(VB_VBI, LOG_INFO, QString("XDS: Network Name '%1'").arg(tmp));
-            m_xdsNetName = tmp;
+            m_xdsNetName = std::move(tmp);
         }
     }
     else if ((b2 == 0x02) && (xds_buf.size() >= 6))
@@ -1513,7 +1513,7 @@ bool CC608Decoder::XDSPacketParseChannel(const std::vector<unsigned char> &xds_b
         if (is_better(tmp, m_xdsNetCall) && (tmp.indexOf(" ") < 0))
         {
             LOG(VB_VBI, LOG_INFO, QString("XDS: Network Call '%1'").arg(tmp));
-            m_xdsNetCall = tmp;
+            m_xdsNetCall = std::move(tmp);
         }
     }
     else if ((b2 == 0x04) && (xds_buf.size() >= 6))

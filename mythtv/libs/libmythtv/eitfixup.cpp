@@ -558,7 +558,7 @@ void EITFixUp::SetUKSubtitle(DBEventEIT &event)
 
          if (fDoubleDot)
          {
-             strListEnd = strListColon;
+             strListEnd = std::move(strListColon);
              fColon = true;
          }
          else if (!fSingleDot)
@@ -613,7 +613,7 @@ void EITFixUp::SetUKSubtitle(DBEventEIT &event)
             int nPosition1 = event.m_description.indexOf(".");
             int nPosition2 = event.m_description.indexOf("..");
             if ((nPosition1 < nPosition2) || (nPosition2==-1))
-                strListEnd = strListPeriod;
+                strListEnd = std::move(strListPeriod);
         }
 
         strListQuestion = event.m_description.split("?");
@@ -621,13 +621,13 @@ void EITFixUp::SetUKSubtitle(DBEventEIT &event)
         if ((strListQuestion.size() > 1) &&
             ((uint)strListQuestion.size() <= kMaxQuestionExclamation))
         {
-            strListEnd = strListQuestion;
+            strListEnd = std::move(strListQuestion);
             strEnd = "?";
         }
         else if ((strListExcl.size() > 1) &&
                  ((uint)strListExcl.size() <= kMaxQuestionExclamation))
         {
-            strListEnd = strListExcl;
+            strListEnd = std::move(strListExcl);
             strEnd = "!";
         }
         else
@@ -2204,7 +2204,7 @@ void EITFixUp::FixNL(DBEventEIT &event)
 
     // Put information back in description
 
-    event.m_description = fullinfo;
+    event.m_description = std::move(fullinfo);
 }
 
 void EITFixUp::FixCategory(DBEventEIT &event)

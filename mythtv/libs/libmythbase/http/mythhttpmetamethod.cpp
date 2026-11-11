@@ -218,7 +218,7 @@ void* MythHTTPMetaMethod::CreateParameter(void* Parameter, int Type, const QStri
 #else
             dt.setTimeZone(QTimeZone(QTimeZone::UTC));
 #endif
-            *(static_cast<QDateTime*>(Parameter)) = dt;
+            *(static_cast<QDateTime*>(Parameter)) = std::move(dt);
             break;
         }
         default:

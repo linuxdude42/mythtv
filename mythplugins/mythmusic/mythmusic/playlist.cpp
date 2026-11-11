@@ -764,7 +764,7 @@ int Playlist::fillSonglistFromQuery(const QString& whereClause,
         }
 
         default:
-            new_songlist = orig_songlist;
+            new_songlist = std::move(orig_songlist);
     }
 
     fillSongsFromSonglist(new_songlist);
@@ -834,7 +834,7 @@ int Playlist::fillSonglistFromList(const QList<int> &songList,
         }
 
         default:
-            new_songlist = orig_songlist;
+            new_songlist = std::move(orig_songlist);
     }
 
     fillSongsFromSonglist(new_songlist);

@@ -1750,7 +1750,7 @@ void JobQueue::ProcessJob(const JobQueueEntry& job)
     jInfo.command = GetJobCommand(jobID, job.type, pginfo);
     jInfo.pginfo  = pginfo;
 
-    m_runningJobs[jobID] = jInfo;
+    m_runningJobs[jobID] = std::move(jInfo);
 
     if (pginfo)
         pginfo->MarkAsInUse(true, kJobQueueInUseID);

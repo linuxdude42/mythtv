@@ -574,7 +574,7 @@ void MythNotificationScreen::UpdateMetaData(const DMAP &data)
     tmp = data["asfm"];
     if (!(tmp.isNull() && (m_update & kMetaData)))
     {
-        m_extra = tmp;
+        m_extra = std::move(tmp);
     }
     // We need to re-run init
     m_refresh = true;
@@ -1274,7 +1274,7 @@ void NCPrivate::GetNotificationScreens(QList<MythScreenType*> &_screens)
             list.append(item);
         }
     }
-    _screens = list;
+    _screens = std::move(list);
 }
 
 int NCPrivate::DisplayedNotifications(void) const

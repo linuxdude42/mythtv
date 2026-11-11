@@ -1003,7 +1003,7 @@ void ImportCoverArtDialog::copyPressed()
         AlbumArtImage image;
         image.m_description = "";
         image.m_embedded = false;
-        image.m_filename = filename;
+        image.m_filename = std::move(filename);
         image.m_hostname = m_metadata->Hostname();
         image.m_imageType = (ImageType)m_typeList->GetItemCurrent()->GetData().toInt();
 

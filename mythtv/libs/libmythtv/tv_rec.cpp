@@ -1870,7 +1870,7 @@ bool TVRec::GetDevices(uint inputid,
 
     test = query.value(fireoff + 1).toString();
     if (!test.isEmpty())
-        firewire_opts.m_model = test;
+        firewire_opts.m_model = std::move(test);
 
     firewire_opts.m_connection = query.value(fireoff + 2).toUInt();
 

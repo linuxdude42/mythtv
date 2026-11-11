@@ -291,7 +291,7 @@ void AudioOutputSettings::SetBestSupportedChannels(int channels)
     std::ranges::copy_if(m_channels,
                  std::back_inserter(tmp),
                  [channels](int value){ return channels > value; } );
-    m_channels = tmp;
+    m_channels = std::move(tmp);
     m_channels.push_back(channels);
 }
 

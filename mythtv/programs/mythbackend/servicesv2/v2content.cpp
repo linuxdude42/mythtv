@@ -615,7 +615,7 @@ QFileInfo V2Content::GetPreviewImage(        int        nRecordedId,
 
     if (bDefaultPixmap)
     {
-        sNewFileName = sPreviewFileName;
+        sNewFileName = std::move(sPreviewFileName);
     }
     else
     {

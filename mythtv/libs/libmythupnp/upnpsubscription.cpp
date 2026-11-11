@@ -408,7 +408,7 @@ std::chrono::seconds UPNPSubscription::SendSubscribeRequest(const QString &callb
 
             if (ok && !uuid.isEmpty() && !timeout.isEmpty())
             {
-                uuidout = uuid;
+                uuidout = std::move(uuid);
                 result  = std::chrono::seconds(timeout.toUInt());
             }
             else

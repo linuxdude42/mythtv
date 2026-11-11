@@ -856,7 +856,7 @@ void MythPlayerUI::GetPlaybackData(InfoMap& Map)
         .arg(m_display->GetResolution().width())
         .arg(m_display->GetResolution().height())
         .arg(m_display->GetRefreshRate(), 0, 'f', 2);
-    Map["displayfps"] = displayfps;
+    Map["displayfps"] = std::move(displayfps);
 }
 
 void MythPlayerUI::GetCodecDescription(InfoMap& Map)

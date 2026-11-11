@@ -388,7 +388,7 @@ bool MythDB::SaveSettingOnHost(const QString &key,
         SingleSetting setting;
         setting.m_host = host;
         setting.m_key = key;
-        setting.m_value = newValue;
+        setting.m_value = std::move(newValue);
         d->m_delayedSettings.append(setting);
         return false;
     }
@@ -918,7 +918,7 @@ void MythDB::OverrideSettingForSession(
     d->m_settingsCacheLock.lockForWrite();
     d->m_overriddenSettings[mk] = mv;
     d->m_settingsCache[mk]      = mv;
-    d->m_settingsCache[mk2]     = mv;
+    d->m_settingsCache[mk2]     = std::move(mv);
     d->m_settingsCacheLock.unlock();
 }
 

@@ -569,7 +569,7 @@ void ChannelScannerWeb::HandleEvent(const ScannerEvent *scanEvent)
         if (msg != s_oldMsg)
         {
             LOG(VB_CHANSCAN, LOG_INFO, LOC + msg);
-            s_oldMsg = msg;
+            s_oldMsg = std::move(msg);
         }
     }
     else if (VERBOSE_LEVEL_NONE())

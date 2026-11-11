@@ -629,7 +629,7 @@ void MythOpenGLVideo::PrepareFrame(MythVideoFrame* Frame, FrameScanType Scan)
             std::vector<MythVideoTextureOpenGL*> temp = m_prevTextures;
             m_prevTextures = m_inputTextures;
             m_inputTextures = m_nextTextures;
-            m_nextTextures = temp;
+            m_nextTextures = std::move(temp);
             current = false;
         }
     }

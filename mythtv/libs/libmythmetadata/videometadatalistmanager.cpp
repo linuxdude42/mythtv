@@ -215,7 +215,7 @@ const QString& meta_node::getFQPath()
     {
         QString p = getPath();
         if (p.startsWith("myth://"))
-            m_fqPath = p;
+            m_fqPath = std::move(p);
         else
             m_fqPath = ((!p.isEmpty() && p[0] != '/') ? "/" : "") + p;
     }

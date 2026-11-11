@@ -453,7 +453,7 @@ bool MythDownloadManager::download(const QString &url, QByteArray *data,
                      nullptr, nullptr, nullptr, &redirected))
         return false;
     if (!redirected.isEmpty() && finalUrl != nullptr)
-        *finalUrl = redirected;
+        *finalUrl = std::move(redirected);
     return true;
 }
 

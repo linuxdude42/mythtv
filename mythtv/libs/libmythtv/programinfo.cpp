@@ -1905,8 +1905,8 @@ void ProgramInfo::ToMap(InfoMap &progMap,
             mediaTypeString = QObject::tr("Recording",
                                           "Recorded file, object not action");
     }
-    progMap["mediatype"] = mediaType;
-    progMap["mediatypestring"] = mediaTypeString;
+    progMap["mediatype"] = std::move(mediaType);
+    progMap["mediatypestring"] = std::move(mediaTypeString);
 }
 
 /// \brief Returns length of program/recording in seconds.

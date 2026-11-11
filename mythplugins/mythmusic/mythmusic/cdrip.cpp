@@ -973,7 +973,7 @@ void Ripper::artistChanged()
         updateTrackList();
     }
 
-    m_artistName = newartist;
+    m_artistName = std::move(newartist);
 }
 
 void Ripper::albumChanged()
@@ -990,7 +990,7 @@ void Ripper::albumChanged()
         }
     }
 
-    m_albumName = newalbum;
+    m_albumName = std::move(newalbum);
 }
 
 void Ripper::genreChanged()
@@ -1007,7 +1007,7 @@ void Ripper::genreChanged()
         }
     }
 
-    m_genreName = newgenre;
+    m_genreName = std::move(newgenre);
 }
 
 void Ripper::yearChanged()
@@ -1024,7 +1024,7 @@ void Ripper::yearChanged()
         }
     }
 
-    m_year = newyear;
+    m_year = std::move(newyear);
 }
 
 void Ripper::compilationChanged(bool state)

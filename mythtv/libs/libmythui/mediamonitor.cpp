@@ -661,7 +661,7 @@ void MediaMonitor::RegisterMediaHandler(const QString  &destination,
                  "Registering '" + destination + "' as a media handler for " +
                  msg);
 
-        m_handlerMap[destination] = mhd;
+        m_handlerMap[destination] = std::move(mhd);
 
         if (!extensions.isEmpty())
             MythMediaDevice::RegisterMediaExtensions(mediaType, extensions);

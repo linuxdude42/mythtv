@@ -1427,8 +1427,8 @@ void UPNPScanner::ParseService(QDomElement &element, QUrl &controlURL,
 
     if (iscds)
     {
-        controlURL = control_url;
-        eventURL   = event_url;
+        controlURL = std::move(control_url);
+        eventURL   = std::move(event_url);
     }
 }
 

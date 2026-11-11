@@ -810,7 +810,7 @@ void VideoMetadataImp::SetCategoryID(int id)
             QString cat;
             if (VideoCategory::GetCategory().get(id, cat))
             {
-                m_category = cat;
+                m_category = std::move(cat);
                 m_categoryID = id;
             }
             else
@@ -931,7 +931,7 @@ void VideoMetadataImp::GetImageMap(InfoMap &imageMap) const
     }
 
     imageMap[QStringLiteral(u"bannerfile")] = bannerfile;
-    imageMap[QStringLiteral(u"banner")] = bannerfile;
+    imageMap[QStringLiteral(u"banner")] = std::move(bannerfile);
 
     QString fanartfile;
     if (IsHostSet() && !GetFanart().startsWith('/')
@@ -946,12 +946,12 @@ void VideoMetadataImp::GetImageMap(InfoMap &imageMap) const
     }
 
     imageMap[QStringLiteral(u"fanartfile")] = fanartfile;
-    imageMap[QStringLiteral(u"fanart")] = fanartfile;
+    imageMap[QStringLiteral(u"fanart")] = std::move(fanartfile);
 
     QString smartimage = coverfile;
     if (!screenshotfile.isEmpty () && (GetSeason() > 0 || GetEpisode() > 0))
-        smartimage = screenshotfile;
-    imageMap[QStringLiteral(u"smartimage")] = smartimage;
+        smartimage = std::move(screenshotfile);
+    imageMap[QStringLiteral(u"smartimage")] = std::move(smartimage);
 }
 
 // This should be the equivalent of GetImageMap, only the image names

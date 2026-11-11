@@ -473,7 +473,7 @@ MythImageReader::MythImageReader(QString fileName)
         {
             QString tmpFile = GetMythUI()->GetThemeDir() + '/' + m_fileName;
             if (QFile::exists(tmpFile))
-                m_fileName = tmpFile;
+                m_fileName = std::move(tmpFile);
         }
         setFileName(m_fileName);
     }

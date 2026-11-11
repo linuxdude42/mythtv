@@ -1081,7 +1081,7 @@ bool DVBChannel::ProbeTuningParams(DTVMultiplex &tuning) const
     tuning = dvbparams_to_dtvmultiplex(m_tunerType, params);
 
     tuning.m_mplex       = mplex;
-    tuning.m_sistandard  = sistandard;
+    tuning.m_sistandard  = std::move(sistandard);
 
     return true;
 }

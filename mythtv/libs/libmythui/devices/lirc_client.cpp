@@ -573,7 +573,7 @@ static std::string lirc_getfilename(const struct lirc_state *state,
 		filename = home;
 		if(!home.empty() && filename.back()!='/')
 		{
-			filename += "/";
+			filename += '/';
 		}
 		filename += state->lircrc_user_file;
 	}
@@ -1396,7 +1396,7 @@ int lirc_code2char(const struct lirc_state *state, struct lirc_config *config,
 		
 		command = "CODE ";
 		command += code;
-		command += "\n";
+		command += '\n';
 		
 		int ret = lirc_send_command(state, config->sockfd, command,
 					s_buf.data(), &buf_len, &success);
@@ -1540,7 +1540,7 @@ std::string lirc_setmode(const struct lirc_state *state, struct lirc_config *con
 		cmd = "SETMODE";
 		if (!mode.empty())
 			cmd += " " + mode;
-		cmd += "\n";
+		cmd += '\n';
 
 		int ret = lirc_send_command(state, config->sockfd, cmd,
 					s_buf.data(), &buf_len, &success);
@@ -1802,7 +1802,7 @@ int lirc_identify(const struct lirc_state *state, int sockfd)
 
 	command = "IDENT ";
 	command += state->lirc_prog;
-	command += "\n";
+	command += '\n';
 
 	(void) lirc_send_command(state, sockfd, command, nullptr, nullptr, &success);
 	return success;

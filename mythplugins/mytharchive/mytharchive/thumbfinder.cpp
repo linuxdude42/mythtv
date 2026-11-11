@@ -519,7 +519,7 @@ bool ThumbFinder::getThumbImages()
         QCoreApplication::processEvents();
     }
 
-    m_frameFile = origFrameFile;
+    m_frameFile = std::move(origFrameFile);
     seekToFrame(0);
 
     m_updateFrame = true;

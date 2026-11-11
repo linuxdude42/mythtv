@@ -88,7 +88,7 @@ void* Service::ConvertToParameterPtr( int            nTypeId,
 #else
             dt.setTimeZone( QTimeZone(QTimeZone::UTC) );
 #endif
-            *(( QDateTime      *)pParam) = dt;
+            *(( QDateTime      *)pParam) = std::move(dt);
             break;
         }
         case QMetaType::QTime       : *(( QTime          *)pParam) = QTime::fromString    ( sValue, Qt::ISODate ); break;

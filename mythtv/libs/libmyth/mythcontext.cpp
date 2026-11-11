@@ -1366,7 +1366,7 @@ bool MythContext::Impl::UPnPconnect(const DeviceLocation *backend,
         return false;
 
     LOG(VB_UPNP, LOG_INFO, "Trying default DB credentials at " + URL);
-    dbParams.m_dbHostName = URL;
+    dbParams.m_dbHostName = std::move(URL);
     GetMythDB()->SetDatabaseParams(dbParams);
 
     return true;

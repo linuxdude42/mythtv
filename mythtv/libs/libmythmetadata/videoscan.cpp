@@ -151,7 +151,7 @@ void VideoScannerThread::SetDirs(QStringList dirs)
         }
     }
 
-    m_directories = dirs;
+    m_directories = std::move(dirs);
 }
 
 void VideoScannerThread::run()
