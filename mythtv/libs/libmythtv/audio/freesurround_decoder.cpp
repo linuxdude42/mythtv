@@ -176,8 +176,8 @@ public:
             {0,0},
             {0,std::numbers::pi_v<float>},
             {std::numbers::pi_v<float>,0},
-            {-std::numbers::pi_v<float>/2,std::numbers::pi_v<float>/2}
-        }};
+            {-std::numbers::pi_v<float>/2,std::numbers::pi_v<float>/2},
+        },};
         m_phaseOffsetL = modes[mode][0];
         m_phaseOffsetR = modes[mode][1];
     }
@@ -272,7 +272,7 @@ private:
                     front * center_level * ( (1.0F - std::abs(m_xFs[f])) * (1.0F - center_width) ),      // center
                     front * ((right * center_width) + (std::max(0.0F,  m_xFs[f]) * (1.0F - center_width)) ), // right
                     back * m_surroundLevel * left,                                        // left surround
-                    back * m_surroundLevel * right                                        // right surround
+                    back * m_surroundLevel * right,                                        // right surround
                 };
 
                 // adapt the prior filter
@@ -313,7 +313,7 @@ private:
                     front * center_level * ( (1.0F - std::abs(m_xFs[f])) * (1.0F - center_width) ),   // center
                     front * ((right * center_width) + (std::max(0.0F,  m_xFs[f]) * (1.0F-center_width))), // right
                     back * m_surroundLevel * std::clamp( (1.0F - (m_xFs[f] / m_surroundBalance) ) / 2.0F, 0.0F, 1.0F),// left surround
-                    back * m_surroundLevel * std::clamp( (1.0F + (m_xFs[f] / m_surroundBalance) ) / 2.0F, 0.0F, 1.0F) // right surround
+                    back * m_surroundLevel * std::clamp( (1.0F + (m_xFs[f] / m_surroundBalance) ) / 2.0F, 0.0F, 1.0F), // right surround
                 };
 
                 // adapt the prior filter

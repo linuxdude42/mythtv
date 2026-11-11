@@ -380,7 +380,7 @@ static const std::array<const MythAVRational,16> frameRateMap = {
     MythAVRational(50), MythAVRational(60000, 1001), MythAVRational(60),
     MythAVRational(0),  MythAVRational(0),           MythAVRational(0),
     MythAVRational(0),  MythAVRational(0),           MythAVRational(0),
-    MythAVRational(0)
+    MythAVRational(0),
 };
 
 /** \fn DTVRecorder::FindMPEG2Keyframes(const TSPacket* tspacket)

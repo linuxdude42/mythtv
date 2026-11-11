@@ -1228,7 +1228,7 @@ float AvFormatDecoder::GetVideoFrameRate(AVStream *Stream, AVCodecContext *Conte
         100.0,
         120000.0 / 1001.0,
         119.88,
-        120.0
+        120.0,
     };
 
     // build a list of possible rates, best first
@@ -2975,7 +2975,7 @@ void AvFormatDecoder::HandleGopStart(
 
             PosMapEntry entry = {.index=m_framesRead,
                                  .adjFrame=m_framesRead,
-                                 .pos=startpos};
+                                 .pos=startpos,};
 
             QMutexLocker locker(&m_positionMapLock);
             // Create a dummy positionmap entry for frame 0 so that

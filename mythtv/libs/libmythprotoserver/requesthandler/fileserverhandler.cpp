@@ -441,7 +441,7 @@ bool FileServerHandler::HandleQueryFreeSpaceSummary(SocketHandler *socket)
     FileSystemInfoManager::Consolidate(disks, true, 14000, "FreeSpaceSummary");
 
     socket->WriteStringList({QString::number(disks.back().getTotalSpace()),
-                             QString::number(disks.back().getUsedSpace())});
+                             QString::number(disks.back().getUsedSpace()),});
     return true;
 }
 

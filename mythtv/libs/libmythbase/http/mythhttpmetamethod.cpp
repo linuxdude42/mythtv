@@ -30,7 +30,7 @@ MythHTTPMetaMethod::MythHTTPMetaMethod(int Index, QMetaMethod& Method, int Reque
         QMetaType::UnknownType, QMetaType::VoidStar, QMetaType::QObjectStar,
         QMetaType::QVariantHash, QMetaType::QRect, QMetaType::QRectF,
         QMetaType::QSize, QMetaType::QSizeF, QMetaType::QLine,
-        QMetaType::QLineF, QMetaType::QPoint, QMetaType::QPointF
+        QMetaType::QLineF, QMetaType::QPoint, QMetaType::QPointF,
     };
 
     // Static list of unsupported parameters (all invalid types plus extras)
@@ -40,7 +40,7 @@ MythHTTPMetaMethod::MythHTTPMetaMethod(int Index, QMetaMethod& Method, int Reque
         QMetaType::QVariantHash, QMetaType::QRect, QMetaType::QRectF,
         QMetaType::QSize, QMetaType::QSizeF, QMetaType::QLine,
         QMetaType::QLineF, QMetaType::QPoint, QMetaType::QPointF,
-        QMetaType::QVariantMap, QMetaType::QStringList, QMetaType::QVariantList
+        QMetaType::QVariantMap, QMetaType::QStringList, QMetaType::QVariantList,
     };
 
     int returntype = Method.returnType();

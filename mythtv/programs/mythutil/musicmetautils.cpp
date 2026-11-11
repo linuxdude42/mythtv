@@ -578,7 +578,7 @@ static int FindLyrics(const MythUtilCommandLineParser &cmdline)
                            QString("--artist=%1").arg(artist),
                            QString("--album=%1").arg(album),
                            QString("--title=%1").arg(title),
-                           QString("--filename=%1").arg(filename) };
+                           QString("--filename=%1").arg(filename), };
         p.start(PYTHON_LOCAL_EXE, args);
         p.waitForFinished(-1);
         QString result = p.readAllStandardOutput();

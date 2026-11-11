@@ -940,7 +940,7 @@ const std::vector<QChar> RuProgFinder::kSearchChars
     QChar('M'),   QChar('N'),   QChar('O'),   QChar('P'),
     QChar('Q'),   QChar('R'),   QChar('S'),   QChar('T'),
     QChar('U'),   QChar('V'),   QChar('W'),   QChar('X'),
-    QChar('Y'),   QChar('Z')
+    QChar('Y'),   QChar('Z'),
 };
 
 void RuProgFinder::initAlphabetList()

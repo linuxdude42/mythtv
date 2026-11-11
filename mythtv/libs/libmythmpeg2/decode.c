@@ -195,7 +195,7 @@ mpeg2_state_t mpeg2_parse_header (mpeg2dec_t * mpeg2dec)
 {
     static int (* s_processHeader[]) (mpeg2dec_t * mpeg2dec) = {
 	mpeg2_header_picture, mpeg2_header_extension, mpeg2_header_user_data,
-	mpeg2_header_sequence, NULL, NULL, NULL, NULL, mpeg2_header_gop
+	mpeg2_header_sequence, NULL, NULL, NULL, NULL, mpeg2_header_gop,
     };
 
     mpeg2dec->action = mpeg2_parse_header;

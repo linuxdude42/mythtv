@@ -735,7 +735,7 @@ std::vector<std::pair<QString, QString> > MythVideoProfile::GetUpscalers()
     static std::vector<std::pair<QString,QString>> s_upscalers =
     {
         { tr("Default (Bilinear)"), UPSCALE_DEFAULT },
-        { tr("Bicubic"), UPSCALE_HQ1 }
+        { tr("Bicubic"), UPSCALE_HQ1 },
     };
     return s_upscalers;
 }
@@ -1316,7 +1316,7 @@ const QList<QPair<QString, QString> >& MythVideoProfile::GetDeinterlacers()
         { DEINT_QUALITY_NONE,   tr("None") },
         { DEINT_QUALITY_LOW,    tr("Low quality") },
         { DEINT_QUALITY_MEDIUM, tr("Medium quality") },
-        { DEINT_QUALITY_HIGH,   tr("High quality") }
+        { DEINT_QUALITY_HIGH,   tr("High quality") },
     };
 
     return s_deinterlacerOptions;

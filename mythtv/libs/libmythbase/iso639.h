@@ -46,7 +46,7 @@ static inline QString iso639_key_to_str3(int code)
 {
     std::string str { static_cast<char>((code>>16) & 0xFF),
                       static_cast<char>((code>>8)  & 0xFF),
-                      static_cast<char>(code & 0xFF) };
+                      static_cast<char>(code & 0xFF), };
     return QString::fromStdString(str);
 }
 

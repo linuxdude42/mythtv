@@ -159,7 +159,7 @@ static const std::array<const QString,33> rchEventType
     "EntryFieldFull",
     "EngineEvent",
     "FocusMoved",
-    "SliderValueChanged"
+    "SliderValueChanged",
 };
 
 // Look up the event type. Returns zero if it doesn't match.

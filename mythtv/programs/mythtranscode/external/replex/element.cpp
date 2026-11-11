@@ -39,15 +39,15 @@ std::array<unsigned int,4> slotsPerLayer {12, 144, 0, 0};
 std::array<std::array<unsigned int,16>,3> bitrates {{
  {0,32,64,96,128,160,192,224,256,288,320,352,384,416,448,0},
  {0,32,48,56,64,80,96,112,128,160,192,224,256,320,384,0},
- {0,32,40,48,56,64,80,96,112,128,160,192,224,256,320,0}
-}};
+ {0,32,40,48,56,64,80,96,112,128,160,192,224,256,320,0},
+},};
 
 static const std::array<const uint32_t,4> freq    {441, 480, 320, 0};
 static const std::array<const uint64_t,4> samples {384, 1152, 1152, 1536};
 
 static const std::array<const uint16_t,32> ac3_bitrates
     {32,40,48,56,64,80,96,112,128,160,192,224,256,320,384,448,512,576,640,
-     0,0,0,0,0,0,0,0,0,0,0,0,0};
+     0,0,0,0,0,0,0,0,0,0,0,0,0,};
 static const std::array<const uint8_t,12> ac3half  {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3};
 static const std::array<const uint32_t,4> ac3_freq {480, 441, 320, 0};
 

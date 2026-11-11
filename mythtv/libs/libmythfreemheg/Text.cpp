@@ -152,7 +152,7 @@ static const std::array<const QString,4> rchJustification
     "start", // 1
     "end",
     "centre",
-    "justified" // 4
+    "justified", // 4
 };
 
 // Look up the Justification. Returns zero if it doesn't match.  Used in the text parser only.
@@ -172,7 +172,7 @@ int MHText::GetJustification(const QString& str)
 static const std::array<const QString,2> rchlineOrientation
 {
     "vertical", // 1
-    "horizontal"
+    "horizontal",
 };
 
 int MHText::GetLineOrientation(const QString& str)
@@ -193,7 +193,7 @@ static const std::array<const QString,4> rchStartCorner
     "upper-left", // 1
     "upper-right",
     "lower-left",
-    "lower-right" // 4
+    "lower-right", // 4
 };
 
 int MHText::GetStartCorner(const QString& str)

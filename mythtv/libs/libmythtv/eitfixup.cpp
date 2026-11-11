@@ -2022,7 +2022,7 @@ static const QMap<QString, NLMapResult> categoryTrans = {
     { "Nature/animals/Environment", { .name="Natuur",               .type=ProgramInfo::kCategoryNone   } },
     { "Movie - Adult",              { .name="Erotiek",              .type=ProgramInfo::kCategoryNone   } },
     { "Movie - Soap/melodrama/folkloric",
-                                    { .name="Serie/soap",           .type=ProgramInfo::kCategorySeries } },
+                                    { .name="Serie/soap",           .type=ProgramInfo::kCategorySeries }, },
     { "Arts/Culture",               { .name="Kunst/Cultuur",        .type=ProgramInfo::kCategoryNone   } },
     { "Sports",                     { .name="Sport",                .type=ProgramInfo::kCategorySports } },
     { "Cartoons/Puppets",           { .name="Animatie",             .type=ProgramInfo::kCategoryNone   } },

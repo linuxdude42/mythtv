@@ -382,7 +382,7 @@ bool ExternIniConfig::loadChannels(void)
 
         m_channels.push_back(ChannelEntry {
                 .section = section.toStdString(),
-                .info = *info
+                .info = *info,
             } );
     }
 

@@ -689,7 +689,7 @@ static const std::array<const QString,4> rchOrientation
     "left", // 1
     "right",
     "up",
-    "down" // 4
+    "down", // 4
 };
 
 // Look up the Orientation. Returns zero if it doesn't match.  Used in the text parser only.
@@ -710,7 +710,7 @@ static const std::array<const QString,3> rchStyle
 {
     "normal", // 1
     "thermometer",
-    "proportional" // 3
+    "proportional", // 3
 };
 
 int MHSlider::GetStyle(const QString& str)

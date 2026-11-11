@@ -476,8 +476,8 @@ bool MythVAAPIInteropDRM::TestPrimeInterop()
             .type = VAGenericValueTypeInteger,
             .value = {
                 .i = VA_FOURCC_NV12,
-            }
-        }
+            },
+        },
     };
 
     if (vaCreateSurfaces(m_vaDisplay, VA_RT_FORMAT_YUV420, 1920, 1080,

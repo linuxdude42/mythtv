@@ -25,7 +25,7 @@
 
 enum frameAspects : std::uint8_t {
     COMM_ASPECT_NORMAL = 0,
-    COMM_ASPECT_WIDE
+    COMM_ASPECT_WIDE,
 } FrameAspects;
 
 // letter-box and pillar-box are not mutually exclusive

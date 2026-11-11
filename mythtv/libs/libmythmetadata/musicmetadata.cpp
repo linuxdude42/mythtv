@@ -2181,7 +2181,7 @@ QString AlbumArtImages::getTypeFilename(ImageType type)
         QT_TR_NOOP("back"),         // IT_BACKCOVER
         QT_TR_NOOP("cd"),           // IT_CD
         QT_TR_NOOP("inlay"),        // IT_INLAY
-        QT_TR_NOOP("artist")        // IT_ARTIST
+        QT_TR_NOOP("artist"),        // IT_ARTIST
     };
 
     return QCoreApplication::translate("AlbumArtImages",

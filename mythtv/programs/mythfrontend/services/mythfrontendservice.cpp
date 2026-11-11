@@ -76,7 +76,7 @@ class FrontendActions
                                       ACTION_SETCONTRAST,  ACTION_SETCOLOUR,
                                       ACTION_SETHUE,       ACTION_JUMPCHAPTER,
                                       ACTION_SWITCHTITLE,  ACTION_SWITCHANGLE,
-                                      ACTION_SEEKABSOLUTE };
+                                      ACTION_SEEKABSOLUTE, };
     }
 
   private:

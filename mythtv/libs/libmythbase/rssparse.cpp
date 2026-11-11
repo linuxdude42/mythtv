@@ -451,7 +451,7 @@ private:
                 .URL=thumbNode.attribute("url"),
                 .Width=width,
                 .Height=height,
-                .Time=thumbNode.attribute("time")
+                .Time=thumbNode.attribute("time"),
              };
              result << thumb;
         }
@@ -473,7 +473,7 @@ private:
             MRSSCredit credit =
             {
                 .Role=creditNode.attribute("role"),
-                .Who=creditNode.text()
+                .Who=creditNode.text(),
             };
             result << credit;
         }
@@ -497,7 +497,7 @@ private:
                 MRSSComment comment =
                 {
                     .Type=QObject::tr("Comments"),
-                    .Comment=comments.at(i).toElement().text()
+                    .Comment=comments.at(i).toElement().text(),
                 };
                 result << comment;
             }
@@ -519,7 +519,7 @@ private:
                 MRSSComment comment =
                 {
                     .Type=QObject::tr("Responses"),
-                    .Comment=responses.at(i).toElement().text()
+                    .Comment=responses.at(i).toElement().text(),
                 };
                 result << comment;
             }
@@ -541,7 +541,7 @@ private:
                 MRSSComment comment =
                 {
                     .Type=QObject::tr("Backlinks"),
-                    .Comment=backlinks.at(i).toElement().text()
+                    .Comment=backlinks.at(i).toElement().text(),
                 };
                 result << comment;
             }
@@ -562,7 +562,7 @@ private:
             MRSSPeerLink pl =
             {
                 .Type=linkNode.attribute("type"),
-                .Link=linkNode.attribute("href")
+                .Link=linkNode.attribute("href"),
             };
             result << pl;
         }
@@ -589,7 +589,7 @@ private:
                     .Title=sceneNode.firstChildElement("sceneTitle").text(),
                     .Description=sceneNode.firstChildElement("sceneDescription").text(),
                     .StartTime=sceneNode.firstChildElement("sceneStartTime").text(),
-                    .EndTime=sceneNode.firstChildElement("sceneEndTime").text()
+                    .EndTime=sceneNode.firstChildElement("sceneEndTime").text(),
                 };
                 result << scene;
             }
@@ -720,7 +720,7 @@ const QString Parse::kMythRSS = "http://www.mythtv.org/wiki/MythNetvision_Grabbe
 
 QMap<QString, int> Parse::m_timezoneOffsets {
     { "EDT" , -4 },
-    { "EST" , -5 }
+    { "EST" , -5 },
 };
 
 ResultItem::resultList Parse::parseRSS(const QDomDocument& domDoc)
@@ -1143,7 +1143,7 @@ QList<Enclosure> Parse::GetEnclosures(const QDomElement& entry)
             .URL=link.attribute("url"),
             .Type=link.attribute("type"),
             .Length=link.attribute("length", "-1").toLongLong(),
-            .Lang=link.attribute("hreflang")
+            .Lang=link.attribute("hreflang"),
         };
 
         result << e;

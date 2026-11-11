@@ -32,7 +32,7 @@ const std::array<const std::string, 4> cc_types =
     "NTSC line 21 field 1 closed captions"
     "NTSC line 21 field 2 closed captions"
     "DTVCC Channel Packet Data"
-    "DTVCC Channel Packet Start"
+    "DTVCC Channel Packet Start",
 };
 
 static void parse_cc_packet(CC708Reader *cb_cbs, CaptionPacket *pkt,

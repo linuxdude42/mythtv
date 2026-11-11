@@ -805,7 +805,7 @@ QString MythContext::Impl::TestDBconnection(bool prompt)
         st_dbConnects = 3,
         st_beWOL = 4,
         st_beAwake = 5,
-        st_success = 6
+        st_success = 6,
     } startupState = st_start;
 
     static const std::array<const QString, 7> kGuiStatuses
@@ -1498,7 +1498,7 @@ const std::array<QString, 13> GUISettingsCache::kSettings
 { "Theme", "Language", "Country", "GuiHeight",
   "GuiOffsetX", "GuiOffsetY", "GuiWidth", "RunFrontendInWindow",
   "AlwaysOnTop", "HideMouseCursor", "ThemePainter", "libCECEnabled",
-  "StartupScreenDelay" };
+  "StartupScreenDelay", };
 
 
 bool GUISettingsCache::save()

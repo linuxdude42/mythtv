@@ -165,7 +165,7 @@ bool FirewireDevice::SetChannel(const QString &panel_model,
     std::array<uint,3> digit {
         (channel % 1000) / 100,
         (channel % 100)  / 10,
-        (channel % 10)
+        (channel % 10),
     };
 
     if (m_subunitid >= kAVCSubunitIdExtended)

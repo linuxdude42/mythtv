@@ -19,7 +19,7 @@ QString MasterGuideTable::TableClassString(uint i) const
         QString("EIT + 0x100"),
         QString("Event ETT + 0x200"),
         QString("DCCT + 0x1400"),
-        QString("RTT + 0x300")
+        QString("RTT + 0x300"),
     };
     int tt = TableClass(i) + 1;
     return kTts[tt];

@@ -46,7 +46,7 @@ class MTV_PUBLIC IPTVTuningData
         rtp,
         rtsp,
         http_ts,
-        http_hls
+        http_hls,
     };
 
     IPTVTuningData()

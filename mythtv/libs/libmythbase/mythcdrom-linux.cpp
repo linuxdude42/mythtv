@@ -121,7 +121,7 @@ enum CDROMdiscStatus : std::uint8_t
     MEDIA_IS_EMPTY      = 0x0,
     MEDIA_IS_APPENDABLE = 0x1,
     MEDIA_IS_COMPLETE   = 0x2,
-    MEDIA_IS_OTHER      = 0x3
+    MEDIA_IS_OTHER      = 0x3,
 };
 
 

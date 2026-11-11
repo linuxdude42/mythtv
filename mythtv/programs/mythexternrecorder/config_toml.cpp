@@ -190,7 +190,7 @@ bool ExternTomlConfig::loadIncludes(void)
                              "RECORDER",
                              "TUNER",
                              "TOUCH",
-                             "SCANNER"
+                             "SCANNER",
                          })
                 {
                     // Look up the case-variant name from the included

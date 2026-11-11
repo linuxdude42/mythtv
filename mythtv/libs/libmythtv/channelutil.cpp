@@ -2052,7 +2052,7 @@ IPTVTuningData ChannelUtil::GetIPTVTuningData(uint chanid)
     QString fec_url0;
     QString fec_url1;
     IPTVTuningData::FECType fec_type = IPTVTuningData::kNone;
-    std::array<uint,3> bitrate { 0, 0, 0, };
+    std::array<uint,3> bitrate { 0, 0, 0 };
     while (query.next())
     {
         IPTVTuningData::IPTVType type = (IPTVTuningData::IPTVType)

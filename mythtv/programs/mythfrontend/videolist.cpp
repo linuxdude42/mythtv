@@ -335,7 +335,7 @@ class VideoListImp
                               ltDBYearGroup, ltDBDirectorGroup,
                               ltDBStudioGroup, ltDBCastGroup,
                               ltDBUserRatingGroup, ltDBInsertDateGroup,
-                              ltTVMetadata};
+                              ltTVMetadata,};
     using metadata_list = VideoMetadataListManager::metadata_list;
     using MetadataPtr = VideoMetadataListManager::VideoMetadataPtr;
 

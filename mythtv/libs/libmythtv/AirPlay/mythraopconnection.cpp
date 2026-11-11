@@ -545,7 +545,7 @@ void MythRAOPConnection::SendTimeRequest(void)
         0x80, TIMING_REQUEST | 0x80,
         // this is always 0x00 0x07 according to http://blog.technologeek.org/airtunes-v2
         // no other value works
-        0x00, 0x07
+        0x00, 0x07,
     };
     *(uint32_t *)(&req[24]) = qToBigEndian(ntpSec);
     *(uint32_t *)(&req[28]) = qToBigEndian(ntpTicks);

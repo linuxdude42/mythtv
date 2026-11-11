@@ -181,7 +181,7 @@ bool DecoderBase::PosMapFromDb(void)
     {
         PosMapEntry e = {.index=it.key(),
                          .adjFrame=it.key() * m_keyframeDist,
-                         .pos=*it};
+                         .pos=*it,};
         m_positionMap.push_back(e);
     }
 
@@ -252,7 +252,7 @@ bool DecoderBase::PosMapFromEnc(void)
 
         PosMapEntry e = {.index=it.key(),
                          .adjFrame=it.key() * m_keyframeDist,
-                         .pos=*it};
+                         .pos=*it,};
         m_positionMap.push_back(e);
     }
 

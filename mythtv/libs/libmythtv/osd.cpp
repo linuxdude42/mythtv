@@ -121,7 +121,7 @@ void OSD::LoadWindows()
 {
     static const std::array<const QString,7> s_defaultWindows {
         OSD_WIN_MESSAGE, OSD_WIN_INPUT, OSD_WIN_PROGINFO, OSD_WIN_BROWSE,
-        OSD_WIN_STATUS, OSD_WIN_PROGEDIT, OSD_WIN_DEBUG };
+        OSD_WIN_STATUS, OSD_WIN_PROGEDIT, OSD_WIN_DEBUG, };
 
     for (const auto & window : s_defaultWindows)
     {

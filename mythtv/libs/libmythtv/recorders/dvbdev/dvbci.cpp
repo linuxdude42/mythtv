@@ -849,7 +849,7 @@ int cCiSession::SendData(int Tag, int Length, const uint8_t *Data)
     static_cast<uint8_t>(m_sessionId     & 0xFF),
     static_cast<uint8_t>((Tag >> 16) & 0xFF),
     static_cast<uint8_t>((Tag >>  8) & 0xFF),
-    static_cast<uint8_t>( Tag        & 0xFF)};
+    static_cast<uint8_t>( Tag        & 0xFF),};
   buffer.reserve(2048);
 
   SetLength(buffer, Length);
@@ -902,7 +902,7 @@ bool cCiResourceManager::Process(int Length, const uint8_t *Data)
                 htonl(RI_APPLICATION_INFORMATION),
                 htonl(RI_CONDITIONAL_ACCESS_SUPPORT),
                 htonl(RI_DATE_TIME),
-                htonl(RI_MMI)
+                htonl(RI_MMI),
             };
             dbgprotocol("%d: ==> Profile\n", SessionId());
             SendData(AOT_PROFILE, resources.size() * sizeof(uint32_t),
@@ -1155,7 +1155,7 @@ bool cCiDateTime::SendDateTime(void)
          DEC2BCD(tm_gmt.tm_min),
          DEC2BCD(tm_gmt.tm_sec),
          BYTE0(local_offset),
-         BYTE1(local_offset)
+         BYTE1(local_offset),
      };
 
      dbgprotocol("%d: ==> Date Time\n", SessionId());

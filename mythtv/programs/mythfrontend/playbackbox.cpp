@@ -250,7 +250,7 @@ static bool comp_season_rev_less_than(
 }
 
 static const std::array<const uint,3> s_artDelay
-    { kArtworkFanTimeout, kArtworkBannerTimeout, kArtworkCoverTimeout,};
+    { kArtworkFanTimeout, kArtworkBannerTimeout, kArtworkCoverTimeout};
 
 static PlaybackBox::ViewMask m_viewMaskToggle(PlaybackBox::ViewMask mask,
         PlaybackBox::ViewMask toggle)
@@ -833,7 +833,7 @@ static const std::array<const std::string,9> disp_flags
 {
     "playlist", "watched", "preserve",
     "cutlist", "autoexpire", "editing",
-    "bookmark", "inuse", "transcoded"
+    "bookmark", "inuse", "transcoded",
 };
 
 void PlaybackBox::SetItemIcons(MythUIButtonListItem *item, ProgramInfo* pginfo)
@@ -3667,9 +3667,9 @@ ProgramInfo *PlaybackBox::FindProgramInUILists(uint recordingID,
 {
     // LiveTV ProgramInfo's are not in the aggregated list
     std::array<ProgramList::iterator,2> _it {
-        m_progLists[tr("Live TV").toLower()].begin(), m_progLists[""].begin() };
+        m_progLists[tr("Live TV").toLower()].begin(), m_progLists[""].begin(), };
     std::array<ProgramList::iterator,2> _end {
-        m_progLists[tr("Live TV").toLower()].end(),   m_progLists[""].end()   };
+        m_progLists[tr("Live TV").toLower()].end(),   m_progLists[""].end(),   };
 
     if (recgroup != "LiveTV")
     {

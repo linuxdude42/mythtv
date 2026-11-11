@@ -81,7 +81,7 @@ static const std::array<const SeekAmount,9> kSeekAmounts
     {.name="5 minutes",  .amount=300},
     {.name="10 minutes", .amount=600},
     {.name="Cut Point",  .amount=-2},
-}};
+},};
 
 ThumbFinder::ThumbFinder(MythScreenStack *parent, ArchiveItem *archiveItem,
                          const QString &menuTheme)

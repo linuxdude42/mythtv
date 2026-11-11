@@ -39,7 +39,7 @@ class MythMimeDatabasePriv
             { "application/x-plist",               ".plist", { QByteArrayLiteral("bplist00") }, 50, {}},
             { "application/x-apple-binary-plist",  ".plist", { QByteArrayLiteral("bplist00") }, 50, {}},
             { "text/x-apple-plist+xml",            ".plist", { QStringLiteral("http://www.apple.com/DTDs/PropertyList-1.0.dtd") },
-              50, { "text/plain", "application/xml"}}
+              50, { "text/plain", "application/xml"},},
         };
 
         LOG(VB_GENERAL, LOG_DEBUG, LOC +

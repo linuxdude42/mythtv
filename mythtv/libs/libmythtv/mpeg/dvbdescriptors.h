@@ -1038,7 +1038,7 @@ class TerrestrialDeliverySystemDescriptor : public MPEGDescriptor
     QString CodeRateHPString(void) const
     {
         static const std::array<const QString,8> cr {
-            "1/2", "2/3", "3/4", "5/6", "7/8", "auto", "auto", "auto"
+            "1/2", "2/3", "3/4", "5/6", "7/8", "auto", "auto", "auto",
         };
         return cr[CodeRateHP()];
     }
@@ -1047,7 +1047,7 @@ class TerrestrialDeliverySystemDescriptor : public MPEGDescriptor
     QString CodeRateLPString(void) const
     {
         static const std::array<const QString,8> cr {
-            "1/2", "2/3", "3/4", "5/6", "7/8", "auto", "auto", "auto"
+            "1/2", "2/3", "3/4", "5/6", "7/8", "auto", "auto", "auto",
         };
         return cr[CodeRateLP()];
     }

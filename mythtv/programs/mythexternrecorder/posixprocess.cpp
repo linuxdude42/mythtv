@@ -203,7 +203,7 @@ LaunchResult PosixProcess::launch(const QString& command,
             LOG(VB_GENERAL, LOG_ERR,
                 QString("Failed to split '%1' into args").arg(command));
             return {false,
-                    QString("Failed to split '%1' into args").arg(command)};
+                    QString("Failed to split '%1' into args").arg(command),};
         }
 
         QString execProg = parsedArgs[0];

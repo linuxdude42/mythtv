@@ -35,7 +35,7 @@
 static constexpr const char* SOAP_ENVELOPE_BEGIN
 { "<s:Envelope xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\" " \
   "s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\">"      \
-  "<s:Body>" };
+  "<s:Body>", };
 static constexpr const char* SOAP_ENVELOPE_END { "</s:Body>\r\n</s:Envelope>" };
 
 
@@ -61,7 +61,7 @@ enum HttpRequestType : std::uint16_t
     RequestTypeUnsubscribe  = 0x0400,
     RequestTypeNotify       = 0x0800,
     // Not a request type
-    RequestTypeResponse     = 0x1000
+    RequestTypeResponse     = 0x1000,
 
 };
 
@@ -85,7 +85,7 @@ enum HttpResponseType : std::int8_t
     ResponseTypeSVG      =  6,
     ResponseTypeFile     =  7,
     ResponseTypeOther    =  8,
-    ResponseTypeHeader   =  9
+    ResponseTypeHeader   =  9,
 };
 
 struct MIMETypes

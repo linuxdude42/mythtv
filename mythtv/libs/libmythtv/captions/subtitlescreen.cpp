@@ -414,7 +414,7 @@ void SubtitleFormat::CreateProviderDefault(const QString &family,
             "Droid Sans",      // prop sans
             "Purisa",          // casual
             "TeX Gyre Chorus", // cursive
-            "Droid Serif"      // small caps, QFont::SmallCaps will be applied
+            "Droid Serif",      // small caps, QFont::SmallCaps will be applied
         };
         font->GetFace()->setFamily(QString::fromStdString(s_cc708Fonts[attr.m_fontTag & 0x7]));
     }

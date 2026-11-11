@@ -49,7 +49,7 @@ static constexpr int64_t kLookForwardTime { 1LL * 60 * 60 };
 
 static constexpr std::chrono::minutes kExtensionTime {10};
 static constexpr int kExtensionTimeInSec {
-    duration_cast<std::chrono::seconds>(kExtensionTime).count() };
+    duration_cast<std::chrono::seconds>(kExtensionTime).count(), };
 static const QRegularExpression kVersusPattern {R"(\s(at|@|vs\.?)\s)"};
 static const QRegularExpression kSentencePattern {R"(:|\.+\s)"};
 

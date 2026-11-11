@@ -69,7 +69,7 @@ enum packet_state : std::uint8_t
 	P_DATA,
 	P_N,
 	P_DATA_N,
-	P_END
+	P_END,
 };
 
 /* internal functions */

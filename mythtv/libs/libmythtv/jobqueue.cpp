@@ -1908,7 +1908,7 @@ QString JobQueue::PrettyPrint(off_t bytes)
         { .m_suffix="EB",    .m_max=999,  .m_precision=1 },
         { .m_suffix="ZB",    .m_max=999,  .m_precision=1 },
         { .m_suffix="YB",    .m_max=0,    .m_precision=0 },
-    }};
+    },};
     float fbytes = bytes;
 
     unsigned int ii = 0;

@@ -275,7 +275,7 @@ const V4L2Profiles& MythV4L2M2MContext::GetStandardProfiles()
         { V4L2_PIX_FMT_VC1_ANNEX_G, MythCodecContext::VC1   },
         { V4L2_PIX_FMT_VP8,         MythCodecContext::VP8   },
         { V4L2_PIX_FMT_VP9,         MythCodecContext::VP9   },
-        { V4L2_PIX_FMT_HEVC,        MythCodecContext::HEVC  }
+        { V4L2_PIX_FMT_HEVC,        MythCodecContext::HEVC  },
     }};
 
     static QRecursiveMutex lock;
@@ -296,7 +296,7 @@ V4L2Profiles MythV4L2M2MContext::GetProfiles(const std::vector<V4L2Mapping>& Pro
         V4L2_PIX_FMT_YUV420,  V4L2_PIX_FMT_YVU420, V4L2_PIX_FMT_YUV420M,
         V4L2_PIX_FMT_YVU420M, V4L2_PIX_FMT_NV12,   V4L2_PIX_FMT_NV12M,
         V4L2_PIX_FMT_NV21,    V4L2_PIX_FMT_NV21M,  V4L2_PIX_FMT_NV12_COL128,
-	V4L2_PIX_FMT_NV12_10_COL128
+	V4L2_PIX_FMT_NV12_10_COL128,
     };
 
     V4L2Profiles result;
@@ -478,7 +478,7 @@ const V4L2Profiles& MythV4L2M2MContext::GetRequestProfiles()
         { V4L2_PIX_FMT_H264_SLICE,  MythCodecContext::H264  },
         { V4L2_PIX_FMT_VP8_FRAME,   MythCodecContext::VP8   },
         { V4L2_PIX_FMT_VP9_FRAME,   MythCodecContext::VP9   },
-        { V4L2_PIX_FMT_HEVC_SLICE,  MythCodecContext::HEVC  }
+        { V4L2_PIX_FMT_HEVC_SLICE,  MythCodecContext::HEVC  },
     }};
 
     static QRecursiveMutex lock;

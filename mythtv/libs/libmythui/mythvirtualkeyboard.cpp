@@ -73,8 +73,8 @@ static const std::array<std::array<QString,3>,95> comps {{
         {"u", "`", (QChar)0xf9},    {"u", "'", (QChar)0xfa},
         {"u", "^", (QChar)0xfb},    {"u", "\"", (QChar)0xfc},
         {"y", "'", (QChar)0xfd},    {"t", "h", (QChar)0xfe},
-        {"y", "\"", (QChar)0xff}
-}};
+        {"y", "\"", (QChar)0xff},
+},};
 
 MythUIVirtualKeyboard::MythUIVirtualKeyboard(MythScreenStack *parentStack, MythUITextEdit *parentEdit)
           : MythScreenType(parentStack, "MythUIVirtualKeyboard"),

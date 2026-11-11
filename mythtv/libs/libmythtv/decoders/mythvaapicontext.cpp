@@ -315,13 +315,13 @@ int MythVAAPIContext::InitialiseContext(AVCodecContext* Context)
         std::array<VASurfaceAttrib,3> prefs {{
             { .type=VASurfaceAttribPixelFormat,
               .flags=VA_SURFACE_ATTRIB_SETTABLE,
-              .value={ VAGenericValueTypeInteger, { format } } },
+              .value={ VAGenericValueTypeInteger, { format } }, },
             { .type=VASurfaceAttribUsageHint,
               .flags=VA_SURFACE_ATTRIB_SETTABLE,
-              .value={ VAGenericValueTypeInteger, { VA_SURFACE_ATTRIB_USAGE_HINT_DISPLAY } } },
+              .value={ VAGenericValueTypeInteger, { VA_SURFACE_ATTRIB_USAGE_HINT_DISPLAY } }, },
             { .type=VASurfaceAttribMemoryType,
               .flags=VA_SURFACE_ATTRIB_SETTABLE,
-              .value={ VAGenericValueTypeInteger, { VA_SURFACE_ATTRIB_MEM_TYPE_VA} } } }};
+              .value={ VAGenericValueTypeInteger, { VA_SURFACE_ATTRIB_MEM_TYPE_VA} }, }, },};
         vaapi_frames_ctx->attributes = prefs.data();
         vaapi_frames_ctx->nb_attributes = 3;
     }

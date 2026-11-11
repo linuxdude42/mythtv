@@ -190,8 +190,8 @@ static std::array<const MIMETypes,66> g_MIMETypes
     // Font Mime Types
     { .pszExtension="ttf"  , .pszType="font/ttf"                  },
     { .pszExtension="woff" , .pszType="font/woff"                 },
-    { .pszExtension="woff2", .pszType="font/woff2"                }
-}};
+    { .pszExtension="woff2", .pszType="font/woff2"                },
+},};
 
 // NOTE 1
 // This formerly was video/x-matroska, but got changed due to #8643
