@@ -971,38 +971,40 @@ cCiApplicationInformation::cCiApplicationInformation(int SessionId, cCiTransport
 bool cCiApplicationInformation::Process(int Length, const uint8_t *Data)
 {
   if (Data) {
-     int Tag = GetTag(Length, &Data);
-     switch (Tag) {
-       case AOT_APPLICATION_INFO: {
-            dbgprotocol("%d: <== Application Info\n", SessionId());
-            int l = 0;
-            const uint8_t *d = GetData(Data, l);
-            l -= 1;
-            if (l < 0) break;
-            m_applicationType = *d++;
-            l -= 2;
-            if (l < 0) break;
-            m_applicationManufacturer = ntohs(*(uint16_t *)d);
-            d += 2;
-            l -= 2;
-            if (l < 0) break;
-            m_manufacturerCode = ntohs(*(uint16_t *)d);
-            d += 2;
-            m_menuString = GetString(l, &d);
-            isyslog("CAM: %s, %02X, %04X, %04X", m_menuString.data(), m_applicationType,
-                            m_applicationManufacturer, m_manufacturerCode);
-            }
-            m_state = 2;
-            break;
-       default: esyslog("ERROR: CI application information: unknown tag %06X", Tag);
-                return false;
-       }
-     }
-  else if (m_state == 0) {
-     dbgprotocol("%d: ==> Application Info Enq\n", SessionId());
-     SendData(AOT_APPLICATION_INFO_ENQ);
-     m_state = 1;
-     }
+      int Tag = GetTag(Length, &Data);
+      if (Tag == AOT_APPLICATION_INFO)
+      {
+          dbgprotocol("%d: <== Application Info\n", SessionId());
+          int l = 0;
+          const uint8_t *d = GetData(Data, l);
+          l -= 1;
+          if (l < 0) return true;
+          m_applicationType = *d++;
+          l -= 2;
+          if (l < 0) return true;
+          m_applicationManufacturer = ntohs(*(uint16_t *)d);
+          d += 2;
+          l -= 2;
+          if (l < 0) return true;
+          m_manufacturerCode = ntohs(*(uint16_t *)d);
+          d += 2;
+          m_menuString = GetString(l, &d);
+          isyslog("CAM: %s, %02X, %04X, %04X", m_menuString.data(), m_applicationType,
+                  m_applicationManufacturer, m_manufacturerCode);
+          m_state = 2;
+          return true;
+      }
+
+      esyslog("ERROR: CI application information: unknown tag %06X", Tag);
+      return false;
+  }
+
+  if (m_state == 0)
+  {
+      dbgprotocol("%d: ==> Application Info Enq\n", SessionId());
+      SendData(AOT_APPLICATION_INFO_ENQ);
+      m_state = 1;
+  }
   return true;
 }
 
@@ -1042,40 +1044,40 @@ bool cCiConditionalAccessSupport::Process(int Length, const uint8_t *Data)
 {
   if (Data) {
      int Tag = GetTag(Length, &Data);
-     switch (Tag) {
-       case AOT_CA_INFO: {
-            dbgprotocol("%d: <== Ca Info", SessionId());
-            int l = 0;
-            const uint8_t *d = GetData(Data, l);
-            while (l > 1) {
-                  unsigned short id = ((unsigned short)(*d) << 8) | *(d + 1);
-                  dbgprotocol(" %04X", id);
-                  d += 2;
-                  l -= 2;
+     if (Tag == AOT_CA_INFO) {
+        dbgprotocol("%d: <== Ca Info", SessionId());
+        int l = 0;
+        const uint8_t *d = GetData(Data, l);
+        while (l > 1) {
+              unsigned short id = ((unsigned short)(*d) << 8) | *(d + 1);
+              dbgprotocol(" %04X", id);
+              d += 2;
+              l -= 2;
 
-                  // Make sure the id is not already present
+              // Make sure the id is not already present
 #ifdef __cpp_lib_ranges_contains
-                  if (std::ranges::contains(m_caSystemIds, id))
+              if (std::ranges::contains(m_caSystemIds, id))
 #else
-                  if (std::ranges::find(m_caSystemIds, id)
-                      != m_caSystemIds.end())
+              if (std::ranges::find(m_caSystemIds, id)
+                  != m_caSystemIds.end())
 #endif
-                      continue;
+                  continue;
 
-                  // Insert before the last element.
-                  m_caSystemIds.emplace_back(id);
-            }
+              // Insert before the last element.
+              m_caSystemIds.emplace_back(id);
+        }
 
-            dbgprotocol("\n");
-            }
-            m_state = 2;
-            m_needCaPmt = true;
-            break;
-       default: esyslog("ERROR: CI conditional access support: unknown tag %06X", Tag);
-                return false;
-       }
+        dbgprotocol("\n");
+
+        m_state = 2;
+        m_needCaPmt = true;
+        return true;
+        }
+     esyslog("ERROR: CI conditional access support: unknown tag %06X", Tag);
+     return false;
      }
-  else if (m_state == 0) {
+
+ if (m_state == 0) {
      dbgprotocol("%d: ==> Ca Info Enq\n", SessionId());
      SendData(AOT_CA_INFO_ENQ);
      m_state = 1;
@@ -1168,23 +1170,21 @@ bool cCiDateTime::Process(int Length, const uint8_t *Data)
 {
   if (Data) {
      int Tag = GetTag(Length, &Data);
-     switch (Tag) {
-       case AOT_DATE_TIME_ENQ: {
-            m_interval = 0;
-            int l = 0;
-            const uint8_t *d = GetData(Data, l);
-            if (l > 0)
-               m_interval = *d;
-            dbgprotocol("%d: <== Date Time Enq, interval = %d\n", SessionId(), m_interval);
-            m_lastTime = time(nullptr);
-            return SendDateTime();
-            }
-            break;
-       default: esyslog("ERROR: CI date time: unknown tag %06X", Tag);
-                return false;
-       }
+     if (Tag == AOT_DATE_TIME_ENQ) {
+        m_interval = 0;
+        int l = 0;
+        const uint8_t *d = GetData(Data, l);
+        if (l > 0)
+           m_interval = *d;
+        dbgprotocol("%d: <== Date Time Enq, interval = %d\n", SessionId(), m_interval);
+        m_lastTime = time(nullptr);
+        return SendDateTime();
+        }
+     esyslog("ERROR: CI date time: unknown tag %06X", Tag);
+     return false;
      }
-  else if (m_interval && time(nullptr) - m_lastTime > m_interval) {
+
+  if (m_interval && time(nullptr) - m_lastTime > m_interval) {
      m_lastTime = time(nullptr);
      return SendDateTime();
      }
@@ -1301,20 +1301,20 @@ bool cCiMMI::Process(int Length, const uint8_t *Data)
             int l = 0;
             const uint8_t *d = GetData(Data, l);
             if (l > 0) {
-               switch (*d) {
-                 case DCC_SET_MMI_MODE:
-                      if (l == 2 && *++d == MM_HIGH_LEVEL) {
-                         struct tDisplayReply { uint8_t m_id; uint8_t m_mode; };
-                         tDisplayReply dr {};
-                         dr.m_id = DRI_MMI_MODE_ACK;
-                         dr.m_mode = MM_HIGH_LEVEL;
-                         dbgprotocol("%d: ==> Display Reply\n", SessionId());
-                         SendData(AOT_DISPLAY_REPLY, 2, (uint8_t *)&dr);
-                         }
-                      break;
-                 default: esyslog("CI MMI: unsupported display control command %02X", *d);
-                          return false;
-                 }
+               if (*d == DCC_SET_MMI_MODE) {
+                  if (l == 2 && *++d == MM_HIGH_LEVEL) {
+                     struct tDisplayReply { uint8_t m_id; uint8_t m_mode; };
+                     tDisplayReply dr {};
+                     dr.m_id = DRI_MMI_MODE_ACK;
+                     dr.m_mode = MM_HIGH_LEVEL;
+                     dbgprotocol("%d: ==> Display Reply\n", SessionId());
+                     SendData(AOT_DISPLAY_REPLY, 2, (uint8_t *)&dr);
+                     }
+                  }
+               else {
+                  esyslog("CI MMI: unsupported display control command %02X", *d);
+                  return false;
+                  }
                }
             }
             break;
@@ -1930,8 +1930,7 @@ bool cHlCiHandler::Process(void)
     cMutexLock MutexLock(&m_mutex);
 
     struct ca_msg msg {};
-    switch(m_state) {
-    case 0:
+    if (m_state == 0) {
         // Get CA_system_ids
         /*      Enquire         */
         if (SendData(AOT_CA_INFO_ENQ, &msg) < 0) {
@@ -1962,7 +1961,6 @@ bool cHlCiHandler::Process(void)
                 dbgprotocol("\n");
             }
             m_state = 1;
-            break;
         }
     }
 

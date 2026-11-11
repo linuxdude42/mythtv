@@ -83,15 +83,12 @@ MythVideoTextureVulkan::CreateSoftwareTextures([[maybe_unused]] MythVulkanObject
     {
         QSize size = Size;
         MythVideoTextureVulkan* texture = nullptr;
-        switch (Format)
+        if (Format == FMT_YV12)
         {
-            case FMT_YV12:
-                if (plane > 0)
-                    size = QSize(size.width() >> 1, size.height() >> 1);
-                //texture = CreateTexture(Context, size, Target,
-                //              QOpenGLTexture::UInt8, r8pixelfmtnorm, r8internalfmt);
-                break;
-            default: break;
+            if (plane > 0)
+                size = QSize(size.width() >> 1, size.height() >> 1);
+            //texture = CreateTexture(Context, size, Target,
+            //              QOpenGLTexture::UInt8, r8pixelfmtnorm, r8internalfmt);
         }
 
         if (texture)

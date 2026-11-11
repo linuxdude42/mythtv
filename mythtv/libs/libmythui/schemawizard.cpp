@@ -33,6 +33,7 @@ SchemaUpgradeWizard::SchemaUpgradeWizard(QString DBSchemaSetting,
     // Users and developers can choose to live dangerously,
     // either to silently and automatically upgrade,
     // or an expert option to allow use of existing:
+    // NOLINTNEXTLINE(readability-trivial-switch)
     switch (gCoreContext->GetNumSetting("DBSchemaAutoUpgrade"))
     {
         case  1: m_autoUpgrade = true; break;

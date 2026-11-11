@@ -497,7 +497,7 @@ void NetStream::slotSslErrors(const QList<QSslError> &errors)
         {
             LOG(VB_FILE, LOG_INFO, LOC + QString("(%1) SSL error %2: ")
                 .arg(m_id).arg(e.error()) + e.errorString() );
-            switch (e.error())
+            switch (e.error()) // NOLINT(readability-trivial-switch)
             {
 #if 1 // The BBC use a self certified cert
             case QSslError::SelfSignedCertificateInChain:

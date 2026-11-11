@@ -187,11 +187,8 @@ void MythEDID::Parse()
     for (uint i = 1; i <= available; ++i)
     {
         uint offset = i * 128;
-        switch (data[offset])
-        {
-            case 0x02: m_valid &= ParseCTA861(data, offset); break;
-            default: continue;
-        }
+        if (data[offset] == 0x02)
+            m_valid &= ParseCTA861(data, offset);
     }
 }
 

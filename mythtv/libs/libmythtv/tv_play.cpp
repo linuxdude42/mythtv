@@ -3367,15 +3367,8 @@ bool TV::ProcessKeypressOrGesture(QEvent* Event)
         if (eKeyEvent->key() <= 0)
         {
             int keycode = 0;
-            switch(eKeyEvent->nativeScanCode())
-            {
-                case 209: // XF86AudioPause
-                    keycode = Qt::Key_MediaPause;
-                    break;
-                default:
-                  break;
-            }
-
+            if (eKeyEvent->nativeScanCode() == 209) // XF86AudioPause
+                keycode = Qt::Key_MediaPause;
             if (keycode > 0)
             {
                 auto *key = new QKeyEvent(QEvent::KeyPress, keycode, eKeyEvent->modifiers());
@@ -10627,16 +10620,10 @@ void TV::ReturnPlayerLock() const
 
 void TV::onApplicationStateChange(Qt::ApplicationState State)
 {
-    switch (State)
+    if (State == Qt::ApplicationState::ApplicationSuspended)
     {
-        case Qt::ApplicationState::ApplicationSuspended:
-        {
-            LOG(VB_GENERAL, LOG_NOTICE, "Exiting playback on app suspecnd");
-            StopPlayback();
-            break;
-        }
-        default:
-            break;
+        LOG(VB_GENERAL, LOG_NOTICE, "Exiting playback on app suspecnd");
+        StopPlayback();
     }
 }
 

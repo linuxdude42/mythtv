@@ -784,16 +784,12 @@ void ChannelScanSM::UpdateScanTransports(uint nit_frequency, const NetworkInform
                 }
                 case DescriptorID::extension:
                 {
-                    switch (desc.DescriptorTagExtension())
+                    if (desc.DescriptorTagExtension() ==  DescriptorID::t2_delivery_system)
                     {
-                        case DescriptorID::t2_delivery_system:
-                        {
-                            tt = DTVTunerType::kTunerTypeDVBT2;
-                            continue;                           // T2 descriptor not yet used
-                        }
-                        default:
-                            continue;                           // Next descriptor
+                        tt = DTVTunerType::kTunerTypeDVBT2;
+                        continue;                       // T2 descriptor not yet used
                     }
+                    continue;                           // Next descriptor
                 }
                 case DescriptorID::satellite_delivery_system:
                 {

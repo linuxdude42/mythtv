@@ -971,14 +971,8 @@ void GameHandler::customEvent(QEvent *event)
         else if (resultid == "clearAllPopup")
         {
             int buttonNum = dce->GetResult();
-            switch (buttonNum)
-            {
-                case 1:
-                    clearAllMetadata();
-                    break;
-                default:
-                    break;
-            }
+            if (buttonNum == 1)
+                clearAllMetadata();
         }
     }
 }

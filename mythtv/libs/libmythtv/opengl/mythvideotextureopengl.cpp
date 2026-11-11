@@ -349,11 +349,8 @@ void MythVideoTextureOpenGL::UpdateTextures(MythRenderOpenGL *Context,
             }
             case FMT_NV12:
             {
-                switch (texture->m_frameFormat)
-                {
-                    case FMT_NV12:   NV12ToNV12(Context, Frame, texture, i); break;
-                    default: break;
-                }
+                if (texture->m_frameFormat == FMT_NV12)
+                    NV12ToNV12(Context, Frame, texture, i);
                 break;
             }
             case FMT_P010:
@@ -369,11 +366,8 @@ void MythVideoTextureOpenGL::UpdateTextures(MythRenderOpenGL *Context,
             }
             case FMT_YUV422P:
             {
-                switch (texture->m_frameFormat)
-                {
-                    case FMT_YUV422P: YV12ToYV12(Context, Frame, texture, i); break;
-                    default: break;
-                }
+                if (texture->m_frameFormat == FMT_YUV422P)
+                    YV12ToYV12(Context, Frame, texture, i);
                 break;
             }
             case FMT_YUV422P9:
@@ -395,11 +389,8 @@ void MythVideoTextureOpenGL::UpdateTextures(MythRenderOpenGL *Context,
             }
             case FMT_YUV444P:
             {
-                switch (texture->m_frameFormat)
-                {
-                    case FMT_YUV444P: YV12ToYV12(Context, Frame, texture, i); break;
-                    default: break;
-                }
+                if (texture->m_frameFormat == FMT_YUV444P)
+                    YV12ToYV12(Context, Frame, texture, i);
                 break;
             }
             case FMT_YUV444P9:

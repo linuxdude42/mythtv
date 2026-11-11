@@ -1694,15 +1694,8 @@ bool MythMainWindow::eventFilter(QObject* Watched, QEvent* Event)
             if (event && event->key() <= 0)
             {
                 int keycode = 0;
-                switch (event->nativeScanCode())
-                {
-                    case 209: // XF86AudioPause
-                        keycode = Qt::Key_MediaPause;
-                        break;
-                    default:
-                        break;
-                }
-
+                if (event->nativeScanCode() == 209) // XF86AudioPause
+                    keycode = Qt::Key_MediaPause;
                 if (keycode > 0)
                 {
                     auto * key = new QKeyEvent(QEvent::KeyPress, keycode, event->modifiers());
