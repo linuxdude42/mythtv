@@ -665,14 +665,11 @@ static void parse_cc_packet(CC708Reader* cb_cbs, CaptionPacket* pkt,
         }
         off+=block_size+1;
     }
-    if (off<pkt_size) // must end in null service block, if packet is not full.
+    if (off<pkt_size && (pkt_buf[off] != 0)) // must end in null service block, if packet is not full.
     {
-        if (pkt_buf[off] != 0)
-        {
-            LOG(VB_VBI, LOG_ERR,
-                QString("CEA-708 packet error: pkt_size=%1, pkt_buf[%2]=%3")
-                .arg(pkt_size).arg(off).arg(pkt_buf[off]));
-        }
+        LOG(VB_VBI, LOG_ERR,
+            QString("CEA-708 packet error: pkt_size=%1, pkt_buf[%2]=%3")
+            .arg(pkt_size).arg(off).arg(pkt_buf[off]));
     }
 }
 

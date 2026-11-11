@@ -994,10 +994,10 @@ bool ThemeChooser::removeThemeDir(const QString &dirname)
             if (!QFile::remove(fi.absoluteFilePath()))
                 return false;
         }
-        else if (fi.isDir() && !fi.isSymLink())
+        else if (fi.isDir() && !fi.isSymLink() &&
+                 !removeThemeDir(fi.absoluteFilePath()))
         {
-            if (!removeThemeDir(fi.absoluteFilePath()))
-                return false;
+            return false;
         }
     }
 

@@ -919,16 +919,14 @@ GameState RecExtMlbDataPage::findGameScore(ActiveGame& game)
         return {};
     }
 
-     if (detailedGameState != "Scheduled")
+     if ((detailedGameState != "Scheduled") &&
+         (!getJsonInt(json, "liveData/linescore/currentInning", period) ||
+          !getJsonString(json, "liveData/linescore/currentInningOrdinal", inningOrdinal) ||
+          !getJsonString(json, "liveData/linescore/inningState", inningState)))
      {
-         if (!getJsonInt(   json, "liveData/linescore/currentInning", period) ||
-             !getJsonString(json, "liveData/linescore/currentInningOrdinal", inningOrdinal) ||
-             !getJsonString(json, "liveData/linescore/inningState", inningState))
-         {
-             LOG(VB_GENERAL, LOG_INFO, LOC +
-                 QString("malformed json document (%d)").arg(2));
-             return {};
-         }
+         LOG(VB_GENERAL, LOG_INFO, LOC +
+             QString("malformed json document (%d)").arg(2));
+         return {};
      }
 
     bool gameOver = (abstractGameState == "Final") ||

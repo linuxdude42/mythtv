@@ -2026,18 +2026,15 @@ void MainServer::HandleAnnounce(QStringList &slist, QStringList commands,
         {
             QString dirPath = finfo.absolutePath();
             QDir qdir(dirPath);
-            if (!qdir.exists())
+            if (!qdir.exists() && !qdir.mkpath(dirPath))
             {
-                if (!qdir.mkpath(dirPath))
-                {
-                    LOG(VB_GENERAL, LOG_ERR, LOC +
-                        QString("FileTransfer filename '%1' is in a "
-                                "subdirectory which does not exist, and can "
-                                "not be created.") .arg(filename));
-                    errlist << "filetransfer_unable_to_create_subdirectory";
-                    socket->WriteStringList(errlist);
-                    return;
-                }
+                LOG(VB_GENERAL, LOG_ERR, LOC +
+                    QString("FileTransfer filename '%1' is in a "
+                            "subdirectory which does not exist, and can "
+                            "not be created.") .arg(filename));
+                errlist << "filetransfer_unable_to_create_subdirectory";
+                socket->WriteStringList(errlist);
+                return;
             }
             QWriteLocker lock(&m_sockListLock);
             if (!m_controlSocketList.remove(socket))
@@ -2973,11 +2970,8 @@ void MainServer::DoHandleStopRecording(
                 std::this_thread::sleep_for(100us);
             }
 
-            if (m_ismaster)
-            {
-                if (m_sched)
-                    m_sched->UpdateRecStatus(&recinfo);
-            }
+            if (m_ismaster && m_sched)
+                m_sched->UpdateRecStatus(&recinfo);
 
             break;
         }
@@ -5987,22 +5981,19 @@ void MainServer::HandleMusicTagUpdateMetadata(const QStringList &slist, Playback
     }
 
     MetaIO *tagger = mdata->getTagger();
-    if (tagger)
+    if (tagger && !tagger->write(mdata->getLocalFilename(), mdata))
     {
-        if (!tagger->write(mdata->getLocalFilename(), mdata))
-        {
-            LOG(VB_GENERAL, LOG_ERR, LOC +
-                QString("HandleMusicTagUpdateMetadata: "
-                        "Failed to write to tag for trackid: %1")
-                .arg(songID));
+        LOG(VB_GENERAL, LOG_ERR, LOC +
+            QString("HandleMusicTagUpdateMetadata: "
+                    "Failed to write to tag for trackid: %1")
+            .arg(songID));
 
-            strlist << "ERROR: write to tag failed";
+        strlist << "ERROR: write to tag failed";
 
-            if (pbssock)
-                SendResponse(pbssock, strlist);
+        if (pbssock)
+            SendResponse(pbssock, strlist);
 
-            return;
-        }
+        return;
     }
 
     strlist << "OK";
@@ -6312,21 +6303,19 @@ void MainServer::HandleMusicTagChangeImage(const QStringList &slist, PlaybackSoc
             // change the image type in the tag if it supports it
             MetaIO *tagger = mdata->getTagger();
 
-            if (tagger && tagger->supportsEmbeddedImages())
+            if (tagger && tagger->supportsEmbeddedImages() &&
+                !tagger->changeImageType(mdata->getLocalFilename(), &oldImage, image->m_imageType))
             {
-                if (!tagger->changeImageType(mdata->getLocalFilename(), &oldImage, image->m_imageType))
-                {
-                    LOG(VB_GENERAL, LOG_ERR, "HandleMusicTagChangeImage: failed to change image type");
+                LOG(VB_GENERAL, LOG_ERR, "HandleMusicTagChangeImage: failed to change image type");
 
-                    strlist << "ERROR: failed to change image type";
+                strlist << "ERROR: failed to change image type";
 
-                    if (pbssock)
-                        SendResponse(pbssock, strlist);
+                if (pbssock)
+                    SendResponse(pbssock, strlist);
 
-                    delete mdata;
-                    delete tagger;
-                    return;
-                }
+                delete mdata;
+                delete tagger;
+                return;
             }
 
             delete tagger;
@@ -7714,10 +7703,9 @@ void MainServer::connectionClosed(MythSocket *socket)
                     QString("SLAVE_DISCONNECTED HOSTNAME %1")
                             .arg(pbs->getHostname()));
             }
-            else if (m_ismaster && pbs->IsFrontend())
+            else if (m_ismaster && pbs->IsFrontend() && gBackendContext)
             {
-                if (gBackendContext)
-                    gBackendContext->SetFrontendDisconnected(pbs->getHostname());
+                gBackendContext->SetFrontendDisconnected(pbs->getHostname());
             }
 
             LiveTVChain *chain = GetExistingChain(sock);

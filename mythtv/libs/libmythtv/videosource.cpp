@@ -126,11 +126,8 @@ void VideoSourceSelector::Load(void)
         sel = (query.value(1).toUInt() == m_initialSourceId) ? cnt : sel;
     }
 
-    if (m_initialSourceId)
-    {
-        if (cnt)
-            setValue(sel);
-    }
+    if (m_initialSourceId && cnt)
+        setValue(sel);
 
     TransMythUIComboBoxSetting::Load();
 }

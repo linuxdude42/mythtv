@@ -309,19 +309,16 @@ bool FileServerHandler::HandleAnnounce(MythSocket *socket,
     {
         QString dirPath = finfo.absolutePath();
         QDir qdir(dirPath);
-        if (!qdir.exists())
+        if (!qdir.exists() && !qdir.mkpath(dirPath))
         {
-            if (!qdir.mkpath(dirPath))
-            {
-                LOG(VB_GENERAL, LOG_ERR, QString("FileTransfer "
-                        "filename '%1' is in a subdirectory which does "
-                        "not exist, but can not be created.")
-                        .arg(filename));
+            LOG(VB_GENERAL, LOG_ERR, QString("FileTransfer "
+                                             "filename '%1' is in a subdirectory which does "
+                                             "not exist, but can not be created.")
+                .arg(filename));
 
-                slist << "ERROR" << "filetransfer_unable_to_create_subdirectory";
-                socket->WriteStringList(slist);
-                return true;
-            }
+            slist << "ERROR" << "filetransfer_unable_to_create_subdirectory";
+            socket->WriteStringList(slist);
+            return true;
         }
 
         ft = new FileTransfer(filename, socket, m_parent, writemode);
@@ -364,21 +361,17 @@ bool FileServerHandler::HandleAnnounce(MythSocket *socket,
 void FileServerHandler::connectionAnnounced(MythSocket *socket,
                                 QStringList &commands, QStringList &slist)
 {
-    if (commands[1] == "SlaveBackend")
+    if ((commands[1] == "SlaveBackend") && (slist.size() >= 3))
     {
         // were not going to handle these, but we still want to track them
         // for commands that need access to these sockets
-        if (slist.size() >= 3)
-        {
-            SocketHandler *handler = m_parent->GetConnectionBySocket(socket);
-            if (handler == nullptr)
-                return;
+        SocketHandler *handler = m_parent->GetConnectionBySocket(socket);
+        if (handler == nullptr)
+            return;
 
-            QWriteLocker wlock(&m_fsLock);
-            m_fsMap.insert(commands[2], handler);
-        }
+        QWriteLocker wlock(&m_fsLock);
+        m_fsMap.insert(commands[2], handler);
     }
-
 }
 
 bool FileServerHandler::HandleQuery(SocketHandler *socket, QStringList &commands,
@@ -675,11 +668,11 @@ bool FileServerHandler::HandleQueryFileHash(SocketHandler *socket,
     else
     {
         QReadLocker rlock(&m_fsLock);
-        if (m_fsMap.contains(hostname))
+        if (m_fsMap.contains(hostname) &&
+            m_fsMap.value(hostname)->SendReceiveStringList(slist))
         {
             // looking for file on connected host, query from it
-            if (m_fsMap.value(hostname)->SendReceiveStringList(slist))
-                hash = slist[0];
+            hash = slist[0];
         }
         // I deleted the incorrect SQL select that was supposed to get
         // host name from ip address. Since it cannot work and has

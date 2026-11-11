@@ -628,11 +628,8 @@ void StatusBox::doScheduleStatus()
     int hdflag = 0;
 
     query.prepare("SELECT MAX(sourceid) FROM videosource");
-    if (query.exec())
-    {
-        if (query.next())
-            maxSource = query.value(0).toInt();
-    }
+    if (query.exec() && query.next())
+        maxSource = query.value(0).toInt();
 
     query.prepare("SELECT sourceid,name FROM videosource");
     if (query.exec())
@@ -642,11 +639,8 @@ void StatusBox::doScheduleStatus()
     }
 
     query.prepare("SELECT MAX(cardid) FROM capturecard");
-    if (query.exec())
-    {
-        if (query.next())
-            maxCard = query.value(0).toInt();
-    }
+    if (query.exec() && query.next())
+        maxCard = query.value(0).toInt();
 
     query.prepare("SELECT cardid, inputname, displayname, parentid, "
                   "       schedgroup "

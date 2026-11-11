@@ -506,15 +506,12 @@ bool PreviewGenerator::SaveOutFile(const QByteArray &data, const QDateTime &dt)
             QString("%1/cache/remotecache").arg(GetConfDir());
         QDir remotecachedir(remotecachedirname);
 
-        if (!remotecachedir.exists())
+        if (!remotecachedir.exists() && !remotecachedir.mkdir(remotecachedirname))
         {
-            if (!remotecachedir.mkdir(remotecachedirname))
-            {
-                LOG(VB_GENERAL, LOG_ERR, LOC +
-                    "Remote Preview failed because we could not create a "
-                    "remote cache directory");
-                return false;
-            }
+            LOG(VB_GENERAL, LOG_ERR, LOC +
+                "Remote Preview failed because we could not create a "
+                "remote cache directory");
+            return false;
         }
 
         QString filename = m_programInfo.GetBasename() + ".png";

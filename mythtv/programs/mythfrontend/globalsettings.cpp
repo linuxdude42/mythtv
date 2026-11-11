@@ -4914,23 +4914,20 @@ void ChannelGroupSetting::Save()
     QList<StandardSetting *>::const_iterator i;
     for (i = children->constBegin(); i != children->constEnd(); ++i)
     {
-        if ((*i)->haveChanged())
+        if ((*i)->haveChanged() && ((*i) != m_groupName))
         {
-            if ((*i) != m_groupName)
+            auto *channel = dynamic_cast<ChannelCheckBoxSetting *>(*i);
+            if (channel)
             {
-                auto *channel = dynamic_cast<ChannelCheckBoxSetting *>(*i);
-                if (channel)
+                if (channel->boolValue())
                 {
-                    if (channel->boolValue())
-                    {
-                        ChannelGroup::AddChannel(channel->getChannelId(),
-                                                 m_groupId);
-                    }
-                    else
-                    {
-                        ChannelGroup::DeleteChannel(channel->getChannelId(),
-                                                    m_groupId);
-                    }
+                    ChannelGroup::AddChannel(channel->getChannelId(),
+                                             m_groupId);
+                }
+                else
+                {
+                    ChannelGroup::DeleteChannel(channel->getChannelId(),
+                                                m_groupId);
                 }
             }
         }

@@ -1272,20 +1272,21 @@ bool JobQueue::HasRunningOrPendingJobs(std::chrono::minutes startingWithinMins)
                 return true;
             }
 
-            if (checkForQueuedJobs) {
-                if ((tmpStatus != JOB_UNKNOWN) && (!(tmpStatus & JOB_DONE))) {
-                    if (startingWithinMins <= 0min) {
-                        LOG(VB_JOBQUEUE, LOG_INFO, LOC +
-                            "HasRunningOrPendingJobs: found pending job");
-                        return true;
-                    }
-                    if ((*it).schedruntime <= maxSchedRunTime) {
-                        LOG(VB_JOBQUEUE, LOG_INFO, LOC +
-                            QString("HasRunningOrPendingJobs: found pending "
-                                    "job scheduled to start at: %1")
-                            .arg((*it).schedruntime.toString(Qt::ISODate)));
-                        return true;
-                    }
+            if (checkForQueuedJobs &&
+                (tmpStatus != JOB_UNKNOWN) &&
+                (!(tmpStatus & JOB_DONE)))
+            {
+                if (startingWithinMins <= 0min) {
+                    LOG(VB_JOBQUEUE, LOG_INFO, LOC +
+                        "HasRunningOrPendingJobs: found pending job");
+                    return true;
+                }
+                if ((*it).schedruntime <= maxSchedRunTime) {
+                    LOG(VB_JOBQUEUE, LOG_INFO, LOC +
+                        QString("HasRunningOrPendingJobs: found pending "
+                                "job scheduled to start at: %1")
+                        .arg((*it).schedruntime.toString(Qt::ISODate)));
+                    return true;
                 }
             }
         }

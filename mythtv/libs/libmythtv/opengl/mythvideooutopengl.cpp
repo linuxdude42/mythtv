@@ -278,13 +278,10 @@ void MythVideoOutputOpenGL::RenderFrame(MythVideoFrame* Frame, FrameScanType Sca
 
     // If process frame has not been called (double rate hardware deint), then
     // we need to start the first 2 performance timers here
-    if (m_openGLPerf)
+    if (m_openGLPerf && (!m_openGLPerf->GetTimersRunning()))
     {
-        if (!m_openGLPerf->GetTimersRunning())
-        {
-            m_openGLPerf->RecordSample();
-            m_openGLPerf->RecordSample();
-        }
+        m_openGLPerf->RecordSample();
+        m_openGLPerf->RecordSample();
     }
 
     m_openglRender->BindFramebuffer(nullptr);

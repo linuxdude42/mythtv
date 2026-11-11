@@ -306,14 +306,11 @@ void MythEDID::ParseDisplayDescriptor(const quint8* Data, uint Offset)
     {
         auto vminoffset = 0;
         auto vmaxoffset = 0;
-        if (m_minorVersion > 3)
+        if ((m_minorVersion > 3) && (Data[Offset + 4] & 0x02))
         {
-            if (Data[Offset + 4] & 0x02)
-            {
-                vmaxoffset = 255;
-                if (Data[Offset + 4] & 0x01)
-                    vminoffset = 255;
-            }
+            vmaxoffset = 255;
+            if (Data[Offset + 4] & 0x01)
+                vminoffset = 255;
         }
         m_vrangeMin = Data[Offset + 5] + vminoffset;
         m_vrangeMax = Data[Offset + 6] + vmaxoffset;

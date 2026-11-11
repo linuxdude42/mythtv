@@ -217,11 +217,8 @@ void MythUIVirtualKeyboard::loadKeyDefinitions(const QString &lang)
     while(!n.isNull())
     {
         QDomElement e = n.toElement();
-        if(!e.isNull())
-        {
-            if (e.tagName() == "key")
-                parseKey(e);
-        }
+        if(!e.isNull() && (e.tagName() == "key"))
+            parseKey(e);
         n = n.nextSibling();
     }
 }
@@ -373,13 +370,10 @@ bool MythUIVirtualKeyboard::keyPressEvent(QKeyEvent *e)
 
     bool keyFound = false;
     KeyDefinition key;
-    if (GetFocusWidget())
+    if (GetFocusWidget() && m_keyMap.contains(GetFocusWidget()->objectName()))
     {
-        if (m_keyMap.contains(GetFocusWidget()->objectName()))
-        {
-            key = m_keyMap.value(GetFocusWidget()->objectName());
-            keyFound = true;;
-        }
+        key = m_keyMap.value(GetFocusWidget()->objectName());
+        keyFound = true;;
     }
 
     for (int i = 0; i < actions.size() && !handled; i++)

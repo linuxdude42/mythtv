@@ -487,9 +487,8 @@ inline void MythVideoTextureOpenGL::YV12ToYV12(MythRenderOpenGL *Context, const 
     }
     else
     {
-        if (!Texture->m_data)
-            if (!CreateBuffer(Texture, Texture->m_bufferSize))
-                return;
+        if (!Texture->m_data && !CreateBuffer(Texture, Texture->m_bufferSize))
+            return;
         int pitch = (Frame->m_type == FMT_YV12 || Frame->m_type == FMT_YUV422P || Frame->m_type == FMT_YUV444P) ?
                      Texture->m_size.width() : Texture->m_size.width() << 1;
         MythVideoFrame::CopyPlane(Texture->m_data, pitch, Frame->m_buffer + Frame->m_offsets[Plane],
@@ -504,10 +503,9 @@ inline void MythVideoTextureOpenGL::YV12ToYV12(MythRenderOpenGL *Context, const 
 inline void MythVideoTextureOpenGL::YV12ToYUYV(const MythVideoFrame *Frame, MythVideoTextureOpenGL *Texture)
 {
     // Create a buffer
-    if (!Texture->m_data)
-        if (!CreateBuffer(Texture, Texture->m_bufferSize))
-            return;
-   void* buffer = Texture->m_data;
+    if (!Texture->m_data && !CreateBuffer(Texture, Texture->m_bufferSize))
+        return;
+    void* buffer = Texture->m_data;
 
     // Create a copy context
     if (!Texture->m_copyContext)
@@ -542,9 +540,8 @@ inline void MythVideoTextureOpenGL::NV12ToNV12(MythRenderOpenGL *Context, const 
     }
     else
     {
-        if (!Texture->m_data)
-            if (!CreateBuffer(Texture, Texture->m_bufferSize))
-                return;
+        if (!Texture->m_data && !CreateBuffer(Texture, Texture->m_bufferSize))
+            return;
         MythVideoFrame::CopyPlane(Texture->m_data, Frame->m_pitches[Plane], Frame->m_buffer + Frame->m_offsets[Plane],
                                   Frame->m_pitches[Plane], Frame->m_pitches[Plane], Texture->m_size.height());
         Texture->m_texture->setData(Texture->m_pixelFormat, Texture->m_pixelType,

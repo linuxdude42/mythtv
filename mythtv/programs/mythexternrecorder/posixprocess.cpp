@@ -86,12 +86,12 @@ static bool matchCmdline(const std::vector<std::string>& procArgs,
         const std::string& flag = procArgs[1];
 
         // Check if the binary is a common shell executing a string command
-        if ((baseExec == "sh" || baseExec == "bash" || baseExec == "zsh" ||
+        if (((baseExec == "sh" || baseExec == "bash" || baseExec == "zsh" ||
              baseExec == "dash" || baseExec == "cmd.exe") &&
-            (flag == "-c" || flag == "/c"))
+            (flag == "-c" || flag == "/c")) &&
+            (QString::fromStdString(procArgs[2]).trimmed() == target))
         {
-            if (QString::fromStdString(procArgs[2]).trimmed() == target)
-                return true;
+            return true;
         }
     }
 

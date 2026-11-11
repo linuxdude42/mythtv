@@ -279,11 +279,9 @@ void ThumbFinder::loadCutList()
     // if the last mark is a start mark then add the end mark at the end
     it = m_deleteMap.constEnd();
     --it;
-    if (it != m_deleteMap.constEnd())
-    {
-        if (it.value() == MARK_CUT_START)
-            m_deleteMap.insert(m_archiveItem->duration * m_fps, MARK_CUT_END);
-    }
+    if ((it != m_deleteMap.constEnd()) &&
+        (it.value() == MARK_CUT_START))
+        m_deleteMap.insert(m_archiveItem->duration * m_fps, MARK_CUT_END);
 }
 
 void ThumbFinder::savePressed()
@@ -935,30 +933,28 @@ void ThumbFinder::updatePositionBar(int64_t frame)
 
 int ThumbFinder::calcFinalDuration()
 {
-    if (m_archiveItem->type == "Recording")
+    if ((m_archiveItem->type == "Recording") &&
+        m_archiveItem->useCutlist)
     {
-        if (m_archiveItem->useCutlist)
+        frm_dir_map_t::const_iterator it;
+
+        int cutLen = 0;
+
+        for (it = m_deleteMap.constBegin(); it != m_deleteMap.constEnd(); ++it)
         {
-            frm_dir_map_t::const_iterator it;
+            int start = it.key();
 
-            int cutLen = 0;
-
-            for (it = m_deleteMap.constBegin(); it != m_deleteMap.constEnd(); ++it)
+            ++it;
+            if (it == m_deleteMap.constEnd())
             {
-                int start = it.key();
-
-                ++it;
-                if (it == m_deleteMap.constEnd())
-                {
-                    LOG(VB_GENERAL, LOG_ERR, "ThumbFinder: found a start cut but no cut end");
-                    break;
-                }
-
-                int end = it.key();
-                cutLen += end - start;
+                LOG(VB_GENERAL, LOG_ERR, "ThumbFinder: found a start cut but no cut end");
+                break;
             }
-            return m_archiveItem->duration - (int) (cutLen / m_fps);
+
+            int end = it.key();
+            cutLen += end - start;
         }
+        return m_archiveItem->duration - (int) (cutLen / m_fps);
     }
 
     return m_archiveItem->duration;

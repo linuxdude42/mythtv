@@ -162,13 +162,11 @@ std::chrono::milliseconds MHEngine::RunAll()
             }
         }
 
-        if (! m_externContentTable.isEmpty())
+        if (!m_externContentTable.isEmpty() &&
+            (nNextTime == 0ms || nNextTime > CONTENT_CHECK_TIME))
         {
             // If we have an outstanding request for external content we need to set a timer.
-            if (nNextTime == 0ms || nNextTime > CONTENT_CHECK_TIME)
-            {
-                nNextTime = CONTENT_CHECK_TIME;
-            }
+            nNextTime = CONTENT_CHECK_TIME;
         }
 
         if (! m_eventQueue.isEmpty())

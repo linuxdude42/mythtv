@@ -56,9 +56,8 @@ QString DBUtil::GetDBMSVersion(void)
  */
 int DBUtil::CompareDBMSVersion(int major, int minor, int point)
 {
-    if (m_versionMajor < 0)
-        if (!ParseDBMSVersion())
-           return kUnknownVersionNumber;
+    if ((m_versionMajor < 0) && !ParseDBMSVersion())
+        return kUnknownVersionNumber;
 
     int result = 0;
     std::array<int,3> version {m_versionMajor, m_versionMinor, m_versionPoint};
@@ -574,12 +573,11 @@ bool DBUtil::DoBackup(const QString &backupScript, QString &filename,
                                                    dbSchemaVer, ".sql");
     QString      scriptArgs = gCoreContext->GetSetting("BackupDBScriptArgs");
     QString rotate = "";
-    if (disableRotation)
+    if (disableRotation &&
+        !scriptArgs.contains("rotate", Qt::CaseInsensitive))
     {
-        if (!scriptArgs.contains("rotate", Qt::CaseInsensitive))
-            rotate = "rotate=-1";
+        rotate = "rotate=-1";
     }
-
 
     QString privateinfo =
         QString("DBHostName=%1\nDBPort=%2\n"
@@ -783,9 +781,8 @@ bool DBUtil::QueryDBMSVersion(void)
  */
 bool DBUtil::ParseDBMSVersion()
 {
-    if (m_versionString.isEmpty())
-        if (!QueryDBMSVersion())
-            return false;
+    if (m_versionString.isEmpty() && !QueryDBMSVersion())
+        return false;
 
     static const QRegularExpression parseVersion
         { R"(^(\d+)(?:\.(\d+)(?:\.(\d+))?)?)" };

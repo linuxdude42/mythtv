@@ -1071,12 +1071,10 @@ bool ChannelScanSM::UpdateChannelInfo(bool wait_until_complete)
             item.m_networkID          = dtv_sm->GetNetworkID();
             item.m_transportID        = dtv_sm->GetTransportID();
 
-            if (m_scanDTVTunerType == DTVTunerType::kTunerTypeDVBC)
+            if ((m_scanDTVTunerType == DTVTunerType::kTunerTypeDVBC) &&
+                (item.m_tuning.m_modSys == DTVModulationSystem::kModulationSystem_UNDEFINED))
             {
-                if (item.m_tuning.m_modSys == DTVModulationSystem::kModulationSystem_UNDEFINED)
-                {
-                    item.m_tuning.m_modSys = DTVModulationSystem::kModulationSystem_DVBC_ANNEX_A;
-                }
+                item.m_tuning.m_modSys = DTVModulationSystem::kModulationSystem_DVBC_ANNEX_A;
             }
             if (m_scanDTVTunerType == DTVTunerType::kTunerTypeDVBT)
             {
@@ -1654,16 +1652,11 @@ ChannelScanSM::GetChannelList(transport_scan_items_it_t trans_info,
                             {
                                 uint region_id = ld.RegionID(i,j);
                                 uint lcn = ld.LogicalChannelNumber(i,j);
-                                if (region_id == m_regionId)
+                                if (region_id == m_regionId ||
+                                    (region_id == kRegionUndefined && lcn_sid.value(lcn, 0) == 0))
                                 {
-                                    lcn_sid[lcn] = ((qlonglong)netid<<32) | service_id;
-                                }
-                                else if (region_id == kRegionUndefined)
-                                {
-                                    if (lcn_sid.value(lcn,0) == 0)
-                                        lcn_sid[lcn] = ((qlonglong)netid<<32) | service_id;
-                                }
-                            }
+                                    lcn_sid[lcn] = ((qlonglong)netid << 32) | service_id;
+                                }                            }
                         }
                     }
                 }

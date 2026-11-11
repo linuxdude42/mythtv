@@ -432,16 +432,13 @@ void ZMLivePlayer::setMonitorLayout(int layout, bool restore)
     {
         Monitor *monitor = nullptr;
 
-        if (restore)
+        if (restore && (x <= monList.size()))
         {
-            if (x <= monList.size())
-            {
-                const QString& s = monList.at(x - 1);
-                int monID = s.toInt(); 
+            const QString& s = monList.at(x - 1);
+            int monID = s.toInt();
 
-                // try to find a monitor that matches the monID
-                monitor = ZMClient::get()->getMonitorByID(monID);
-            }
+            // try to find a monitor that matches the monID
+            monitor = ZMClient::get()->getMonitorByID(monID);
         }
 
         if (!monitor)

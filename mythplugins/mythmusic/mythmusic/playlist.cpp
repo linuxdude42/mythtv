@@ -48,11 +48,8 @@ void Playlist::copyTracks(Playlist *to_ptr, bool update_display)
     for (int x = 0; x < m_songs.size(); x++)
     {
         MusicMetadata *mdata = getRawSongAt(x);
-        if (mdata)
-        {
-            if (mdata->isDBTrack())
-                to_ptr->addTrack(mdata->ID(), update_display);
-        }
+        if (mdata && mdata->isDBTrack())
+            to_ptr->addTrack(mdata->ID(), update_display);
     }
 
     enableSaves();

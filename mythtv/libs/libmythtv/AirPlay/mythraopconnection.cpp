@@ -1560,21 +1560,19 @@ void MythRAOPConnection::ProcessRequest(const QStringList &header,
     }
     else if (option == "GET_PARAMETER")
     {
-        if (tags.contains("Content-Type"))
+        if (tags.contains("Content-Type") &&
+            (tags["Content-Type"] == "text/parameters"))
         {
-            if (tags["Content-Type"] == "text/parameters")
+            QStringList lines = splitLines(content);
+            *m_textStream << "Content-Type: text/parameters\r\n";
+            for (const QString& line : std::as_const(lines))
             {
-                QStringList lines = splitLines(content);
-                *m_textStream << "Content-Type: text/parameters\r\n";
-                for (const QString& line : std::as_const(lines))
+                if (line == "volume")
                 {
-                    if (line == "volume")
-                    {
-                        int volume = (m_allowVolumeControl && m_audio) ?
-                            m_audio->GetCurrentVolume() : 0;
-                        responseData += QString("volume: %1\r\n")
-                            .arg((volume * 30.0F / 100.0F) - 30.0F,1,'f',6,'0');
-                    }
+                    int volume = (m_allowVolumeControl && m_audio) ?
+                        m_audio->GetCurrentVolume() : 0;
+                    responseData += QString("volume: %1\r\n")
+                        .arg((volume * 30.0F / 100.0F) - 30.0F,1,'f',6,'0');
                 }
             }
         }

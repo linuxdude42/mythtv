@@ -450,16 +450,13 @@ void DVBStreamHandler::CycleFiltersByPriority(void)
                 }
             }
 
-            if (freed)
+            if (freed &&
+                m_pidInfo.value(*closed)->Open(m_device, m_usingSectionReader))
             {
                 // if we can open a filter, just do it
-                if (m_pidInfo.value(*closed)->Open(
-                        m_device, m_usingSectionReader))
-                {
-                    m_openPidFilters++;
-                    priority_open_cnt[i]++;
-                    continue;
-                }
+                m_openPidFilters++;
+                priority_open_cnt[i]++;
+                continue;
             }
 
             // we have to cycle within our priority level

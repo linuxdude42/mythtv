@@ -909,11 +909,8 @@ QRegion MythUIType::GetDirtyArea(void) const
 
 bool MythUIType::IsVisible(bool recurse) const
 {
-    if (recurse)
-    {
-        if (m_parent && !m_parent->IsVisible(recurse))
-            return false;
-    }
+    if (recurse && m_parent && !m_parent->IsVisible(recurse))
+        return false;
 
     return m_visible;
 }

@@ -260,9 +260,8 @@ MythVAAPIInteropDRM::Acquire(MythRenderOpenGL* Context,
     m_discontinuityCounter = Frame->m_frameCounter;
 
 #if CONFIG_DRM_VIDEO
-    if (!m_drmTriedAndFailed)
-        if (HandleDRMVideo(ColourSpace, id, Frame))
-            return result;
+    if (!m_drmTriedAndFailed && HandleDRMVideo(ColourSpace, id, Frame))
+        return result;
 #endif
 
     // return cached texture if available

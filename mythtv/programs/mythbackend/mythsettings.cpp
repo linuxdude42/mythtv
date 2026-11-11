@@ -94,32 +94,29 @@ static void fill_setting(
             do_option_check = true;
         }
 
-        if (do_option_check)
+        if (do_option_check && !setting->m_data_list.empty() &&
+            !setting->m_data_list.contains(setting->m_data.toLower(),
+                                           Qt::CaseInsensitive))
         {
-            if (!setting->m_data_list.empty() &&
-                !setting->m_data_list.contains(setting->m_data.toLower(),
-                                               Qt::CaseInsensitive))
+            bool ok = false;
+            long long idata = setting->m_data.toLongLong(&ok);
+            if (ok)
             {
-                bool ok = false;
-                long long idata = setting->m_data.toLongLong(&ok);
-                if (ok)
+                uint sel = 0;
+                for (int i = setting->m_data_list.size() - 1; i >= 0; i--)
                 {
-                    uint sel = 0;
-                    for (int i = setting->m_data_list.size() - 1; i >= 0; i--)
-                    {
-                        if (idata < setting->m_data_list[i].toLongLong())
-                            break;
-                        sel = i;
-                    }
-                    setting->m_data = setting->m_data_list[sel];
+                    if (idata < setting->m_data_list[i].toLongLong())
+                        break;
+                    sel = i;
                 }
-                else
-                {
-                    setting->m_data =
-                        setting->m_data_list.contains(
-                            setting->m_default_data, Qt::CaseInsensitive) ?
-                        setting->m_default_data : setting->m_data_list[0];
-                }
+                setting->m_data = setting->m_data_list[sel];
+            }
+            else
+            {
+                setting->m_data =
+                    setting->m_data_list.contains(
+                        setting->m_default_data, Qt::CaseInsensitive) ?
+                    setting->m_default_data : setting->m_data_list[0];
             }
         }
     }

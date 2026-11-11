@@ -101,19 +101,15 @@ HTTPResponse MythHTTPService::HTTPRequest(const HTTPRequest2& Request)
                 authorization = Request->m_queries.value("authorization",{});
         MythSessionManager *sessionManager = gCoreContext->GetSessionManager();
         // methods /Myth/LoginUser and /Myth/GetConnectionInfo do not require authentication
-        if ( ! (Request->m_path == "/Myth/"
-                && (method == "LoginUser" || method == "GetConnectionInfo")) )
+        if (( ! (Request->m_path == "/Myth/"
+                && (method == "LoginUser" || method == "GetConnectionInfo")) ) &&
+            (!authorization.isEmpty() || authReq) &&
+            !sessionManager->IsValidSession(authorization))
         {
-            if (!authorization.isEmpty() || authReq)
-            {
-                if (!sessionManager->IsValidSession(authorization))
-                {
-                    QString error(" Invalid authorization token");
-                    LOG(VB_HTTP, LOG_ERR, LOC + error);
-                    Request->m_status = HTTPUnauthorized;
-                    return MythHTTPResponse::ErrorResponse(Request, error);
-                }
-            }
+            QString error(" Invalid authorization token");
+            LOG(VB_HTTP, LOG_ERR, LOC + error);
+            Request->m_status = HTTPUnauthorized;
+            return MythHTTPResponse::ErrorResponse(Request, error);
         }
     }
     // Sanity check type count (handler should have the return type at least)

@@ -853,13 +853,10 @@ void Ripper::deleteAllExistingTracks(void)
 {
     for (auto* track : std::as_const(*m_tracks))
     {
-        if (track && !track->isNew)
+        if (track && !track->isNew && deleteExistingTrack(track))
         {
-            if (deleteExistingTrack(track))
-            {
-                track->isNew = true;
-                toggleTrackActive(track);
-            }
+            track->isNew = true;
+            toggleTrackActive(track);
         }
     }
 }

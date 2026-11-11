@@ -1137,21 +1137,17 @@ bool Scheduler::FindNextConflict(
             (((p->m_mplexId != 0U) && p->m_mplexId == q->m_mplexId) ||
              ((p->m_mplexId == 0U) && p->GetChanID() == q->GetChanID()));
 
-        if (p->GetRecordingEndTime() == q->GetRecordingStartTime() ||
-            p->GetRecordingStartTime() == q->GetRecordingEndTime())
+        if ((p->GetRecordingEndTime() == q->GetRecordingStartTime() ||
+             p->GetRecordingStartTime() == q->GetRecordingEndTime()) &&
+            ((openEnd == openEndNever) ||
+             (openEnd == openEndDiffChannel && p->GetChanID() == q->GetChanID()) ||
+             (openEnd == openEndAlways && mplexid_ok)))
         {
-            if (openEnd == openEndNever ||
-                (openEnd == openEndDiffChannel &&
-                 p->GetChanID() == q->GetChanID()) ||
-                (openEnd == openEndAlways &&
-                 mplexid_ok))
-            {
-                if (debugConflicts)
-                    msg += "  no-overlap ";
-                if (mplexid_ok)
-                    ++affinity;
-                continue;
-            }
+            if (debugConflicts)
+                msg += "  no-overlap ";
+            if (mplexid_ok)
+                ++affinity;
+            continue;
         }
 
         if (debugConflicts)
@@ -2906,23 +2902,21 @@ bool Scheduler::HandleRecording(
         .arg(ri.GetSourceID());
 
     RecStatus::Type recStatus = RecStatus::Offline;
-    if (m_schedulingEnabled && nexttv->IsConnected())
+    if (m_schedulingEnabled && nexttv->IsConnected() &&
+        (ri.GetRecordingStatus() == RecStatus::WillRecord ||
+         ri.GetRecordingStatus() == RecStatus::Pending))
     {
-        if (ri.GetRecordingStatus() == RecStatus::WillRecord ||
-            ri.GetRecordingStatus() == RecStatus::Pending)
-        {
-            m_schedLock.unlock();
-            recStatus = nexttv->StartRecording(&tempri);
-            m_schedLock.lock();
-            ri.SetRecordingID(tempri.GetRecordingID());
-            ri.SetRecordingStartTime(tempri.GetRecordingStartTime());
+        m_schedLock.unlock();
+        recStatus = nexttv->StartRecording(&tempri);
+        m_schedLock.lock();
+        ri.SetRecordingID(tempri.GetRecordingID());
+        ri.SetRecordingStartTime(tempri.GetRecordingStartTime());
 
-            // activate auto expirer
-            if (m_expirer && recStatus == RecStatus::Tuning)
-                AutoExpire::Update(ri.GetInputID(), fsID, false);
+        // activate auto expirer
+        if (m_expirer && recStatus == RecStatus::Tuning)
+            AutoExpire::Update(ri.GetInputID(), fsID, false);
 
-            RecordingExtender::create(this, ri);
-        }
+        RecordingExtender::create(this, ri);
     }
 
     HandleRecordingStatusChange(ri, recStatus, details);
@@ -4459,16 +4453,13 @@ void Scheduler::AddNewRecords(void)
                                "AND recgroup NOT IN ('LiveTV','Deleted');");
             epicnt.bindValue(":RECID", recid);
 
-            if (epicnt.exec())
+            if (epicnt.exec() && (epicnt.size() >= maxEpisodes - 1))
             {
-                if (epicnt.size() >= maxEpisodes - 1)
+                m_schedAfterStartMap[recid] = true;
+                if (epicnt.size() >= maxEpisodes)
                 {
-                    m_schedAfterStartMap[recid] = true;
-                    if (epicnt.size() >= maxEpisodes)
-                    {
-                        tooManyMap[recid] = true;
-                        checkTooMany = true;
-                    }
+                    tooManyMap[recid] = true;
+                    checkTooMany = true;
                 }
             }
         }
@@ -5148,12 +5139,10 @@ static bool comp_storage_combination(FileSystemInfo *a, FileSystemInfo *b)
             return true;
         }
     }
-    else if (!a->isLocal() && b->isLocal())
+    else if (!a->isLocal() && b->isLocal() &&
+             (a->getWeight() < b->getWeight()))
     {
-        if (a->getWeight() < b->getWeight())
-        {
-            return true;
-        }
+        return true;
     }
 
     return false;
@@ -5189,11 +5178,10 @@ static bool comp_storage_disk_io(FileSystemInfo *a, FileSystemInfo *b)
     {
         return true;
     }
-    if (a->getWeight() == b->getWeight())
-    {
-        if (a->getFreeSpace() > b->getFreeSpace())
-            return true;
-    }
+    if ((a->getWeight() == b->getWeight()) && (a->getFreeSpace() > b->getFreeSpace()))
+    
+        return true;
+    
 
     return false;
 }

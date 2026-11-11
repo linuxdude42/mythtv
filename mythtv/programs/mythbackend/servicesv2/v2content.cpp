@@ -630,11 +630,11 @@ QFileInfo V2Content::GetPreviewImage(        int        nRecordedId,
         // check to see if scaled preview image is already created and isn't
         // out of date
         // ----------------------------------------------------------------------
-        if (QFile::exists( sNewFileName ))
+        if (QFile::exists(sNewFileName) &&
+            (QFileInfo(sPreviewFileName).lastModified() <=
+             QFileInfo(sNewFileName).lastModified()))
         {
-            if (QFileInfo(sPreviewFileName).lastModified() <=
-                QFileInfo(sNewFileName).lastModified())
-                return QFileInfo( sNewFileName );
+            return QFileInfo( sNewFileName );
         }
 
         QImage image = QImage(sPreviewFileName);

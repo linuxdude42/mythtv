@@ -408,10 +408,9 @@ bool DiSEqCDevTree::Exists(int cardid)
     {
         MythDB::DBError("DiSEqCDevTree::Load", query);
     }
-    else if (query.next())
+    else if (query.next() && (query.value(0).toUInt() > 0))
     {
-        if (query.value(0).toUInt() > 0)
-            return true;
+        return true;
     }
 
     return false;

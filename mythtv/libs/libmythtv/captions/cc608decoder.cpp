@@ -656,11 +656,9 @@ bool CC608Decoder::FalseDup(std::chrono::milliseconds tc, size_t field, int data
             if (tc > (m_lastCodeTc[field] + 67ms + dup_ctrl_fudge))
                 return false;
         }
-        else if (b1)
+        else if (b1 && (tc > (m_lastCodeTc[field] + 33ms + dup_text_fudge)))
         {
-            // text, XDS
-            if (tc > (m_lastCodeTc[field] + 33ms + dup_text_fudge))
-                return false;
+            return false; // text, XDS
         }
 
         return true;

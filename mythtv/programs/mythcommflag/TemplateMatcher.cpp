@@ -378,15 +378,12 @@ TemplateMatcher::MythPlayerInited(MythPlayer *_player,
 
     m_match = new unsigned char[nframes];
 
-    if (m_debugMatches)
+    if (m_debugMatches && readMatches(m_debugData, m_matches, nframes))
     {
-        if (readMatches(m_debugData, m_matches, nframes))
-        {
-            LOG(VB_COMMFLAG, LOG_INFO,
-                QString("TemplateMatcher::MythPlayerInited read %1")
-                    .arg(m_debugData));
-            m_matchesDone = true;
-        }
+        LOG(VB_COMMFLAG, LOG_INFO,
+            QString("TemplateMatcher::MythPlayerInited read %1")
+            .arg(m_debugData));
+        m_matchesDone = true;
     }
 
     if (m_matchesDone)
@@ -494,14 +491,12 @@ TemplateMatcher::finished(long long nframes, bool final)
     int       minseglen = 1;
     long long brkb = 0;
 
-    if (!m_matchesDone && m_debugMatches)
+    if (!m_matchesDone && m_debugMatches && final &&
+        writeMatches(m_debugData, m_matches, nframes))
     {
-        if (final && writeMatches(m_debugData, m_matches, nframes))
-        {
-            LOG(VB_COMMFLAG, LOG_INFO,
-                QString("TemplateMatcher::finished wrote %1") .arg(m_debugData));
-            m_matchesDone = true;
-        }
+        LOG(VB_COMMFLAG, LOG_INFO,
+            QString("TemplateMatcher::finished wrote %1") .arg(m_debugData));
+        m_matchesDone = true;
     }
 
     int tmpledges = pgm_set(m_tmpl, m_tmplHeight);
@@ -516,11 +511,9 @@ TemplateMatcher::finished(long long nframes, bool final)
     for (long long ii = 0; ii < nframes; ii++)
         m_match[ii] = m_matches[ii] >= mintmpledges ? 1 : 0;
 
-    if (m_debugLevel >= 2)
-    {
-        if (final && finishedDebug(nframes, m_matches, m_match))
-            return -1;
-    }
+    if ((m_debugLevel >= 2) && final &&
+        finishedDebug(nframes, m_matches, m_match))
+        return -1;
 
     /*
      * Construct breaks; find the first logo break.

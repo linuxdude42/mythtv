@@ -64,9 +64,8 @@ MythCodecID MythV4L2M2MContext::GetSupportedCodec(AVCodecContext **Context,
     if (!Decoder.startsWith("v4l2"))
         return failure;
 
-    if (!decodeonly)
-        if (!FrameTypeIsSupported(*Context, FMT_DRMPRIME))
-            return failure;
+    if (!decodeonly && !FrameTypeIsSupported(*Context, FMT_DRMPRIME))
+        return failure;
 
     // supported by device driver?
     MythCodecContext::CodecProfile mythprofile = MythCodecContext::NoProfile;
@@ -230,9 +229,9 @@ bool MythV4L2M2MContext::GetBuffer(AVCodecContext *Context, MythVideoFrame *Fram
         return false;
 
     // Re-allocate if necessary
-    if ((Frame->m_type != type) || (Frame->m_width != AvFrame->width) || (Frame->m_height != AvFrame->height))
-        if (!VideoBuffers::ReinitBuffer(Frame, type, decoder->GetVideoCodecID(), AvFrame->width, AvFrame->height))
-            return false;
+    if (((Frame->m_type != type) || (Frame->m_width != AvFrame->width) || (Frame->m_height != AvFrame->height)) &&
+        !VideoBuffers::ReinitBuffer(Frame, type, decoder->GetVideoCodecID(), AvFrame->width, AvFrame->height))
+        return false;
 
     // Copy data
     uint count = MythVideoFrame::GetNumPlanes(Frame->m_type);
@@ -496,13 +495,11 @@ AVPixelFormat MythV4L2M2MContext::GetV4L2RequestFormat(AVCodecContext *Context, 
 {
     while (*PixFmt != AV_PIX_FMT_NONE)
     {
-        if (*PixFmt == AV_PIX_FMT_DRM_PRIME)
+        if ((*PixFmt == AV_PIX_FMT_DRM_PRIME) &&
+            (MythCodecContext::InitialiseDecoder2(Context, MythV4L2M2MContext::InitialiseV4L2RequestContext,
+                                                     "V4L2 request context creation") >= 0))
         {
-            if (MythCodecContext::InitialiseDecoder2(Context, MythV4L2M2MContext::InitialiseV4L2RequestContext,
-                                                     "V4L2 request context creation") >= 0)
-            {
-                return AV_PIX_FMT_DRM_PRIME;
-            }
+            return AV_PIX_FMT_DRM_PRIME;
         }
         PixFmt++;
     }

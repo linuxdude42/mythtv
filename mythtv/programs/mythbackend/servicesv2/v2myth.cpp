@@ -397,11 +397,8 @@ bool V2Myth::AddStorageGroupDir( const QString &sGroupName,
         throw( QString( "Database Error executing query." ));
     }
 
-    if (query.next())
-    {
-        if (query.value(0).toInt() > 0)
-            return false;
-    }
+    if (query.next() && (query.value(0).toInt() > 0))
+        return false;
 
     query.prepare("INSERT storagegroup "
                   "( groupname, dirname, hostname ) "

@@ -546,25 +546,24 @@ static constexpr int8_t MAX_CONNECT_RETRIES { 25 };
 
 int cCiTransportConnection::CreateConnection(void)
 {
-  if (m_state == stIDLE) {
-     if (SendTPDU(T_CREATE_TC) == OK) {
-        m_state = stCREATION;
-        if (RecvTPDU() == T_CTC_REPLY) {
-           sConnected=true;
-           return OK;
-        // the following is a workaround for CAMs that don't quite follow the specs...
-        }
+  if ((m_state == stIDLE) && (SendTPDU(T_CREATE_TC) == OK))
+  {
+      m_state = stCREATION;
+      if (RecvTPDU() == T_CTC_REPLY) {
+          sConnected=true;
+          return OK;
+          // the following is a workaround for CAMs that don't quite follow the specs...
+      }
 
-        for (int i = 0; i < MAX_CONNECT_RETRIES; i++) {
-            dsyslog("CAM: retrying to establish connection");
-            if (RecvTPDU() == T_CTC_REPLY) {
-                dsyslog("CAM: connection established");
-                sConnected=true;
-                return OK;
-            }
-        }
-        return ERROR;
-     }
+      for (int i = 0; i < MAX_CONNECT_RETRIES; i++) {
+          dsyslog("CAM: retrying to establish connection");
+          if (RecvTPDU() == T_CTC_REPLY) {
+              dsyslog("CAM: connection established");
+              sConnected=true;
+              return OK;
+          }
+      }
+      return ERROR;
   }
   return ERROR;
 }

@@ -131,9 +131,8 @@ MythCodecID MythVDPAUContext::GetSupportedCodec(AVCodecContext **Context,
     if (!Decoder.startsWith("vdpau") || qEnvironmentVariableIsSet("NO_VDPAU") || IsUnsupportedProfile(*Context))
         return failure;
 
-    if (!decodeonly)
-        if (!FrameTypeIsSupported(*Context, FMT_VDPAU))
-            return failure;
+    if (!decodeonly && !FrameTypeIsSupported(*Context, FMT_VDPAU))
+        return failure;
 
     QString codec   = avcodec_get_name((*Context)->codec_id);
     QString profile = avcodec_profile_name((*Context)->codec_id, (*Context)->profile);
@@ -193,9 +192,10 @@ enum AVPixelFormat MythVDPAUContext::GetFormat(struct AVCodecContext* Context, c
 {
     while (*PixFmt != AV_PIX_FMT_NONE)
     {
-        if (*PixFmt == AV_PIX_FMT_VDPAU)
-            if (MythCodecContext::InitialiseDecoder(Context, MythVDPAUContext::InitialiseContext, "VDPAU context creation") >= 0)
-                return AV_PIX_FMT_VDPAU;
+        if ((*PixFmt == AV_PIX_FMT_VDPAU) &&
+            (MythCodecContext::InitialiseDecoder(Context, MythVDPAUContext::InitialiseContext,
+                                                 "VDPAU context creation") >= 0))
+            return AV_PIX_FMT_VDPAU;
         PixFmt++;
     }
     return AV_PIX_FMT_NONE;

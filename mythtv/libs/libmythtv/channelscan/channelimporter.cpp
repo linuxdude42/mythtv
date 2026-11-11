@@ -1351,12 +1351,10 @@ ScanDTVTransportList ChannelImporter::GetDBTransports(
     {
         ScanDTVTransport db_transport;
         uint mplexid = query.value(0).toUInt();
-        if (db_transport.FillFromDB(tuner_type, mplexid))
+        if (db_transport.FillFromDB(tuner_type, mplexid) &&
+            db_transport.m_channels.empty())
         {
-            if (db_transport.m_channels.empty())
-            {
-                continue;
-            }
+            continue;
         }
 
         bool found_transport = false;

@@ -1051,21 +1051,16 @@ bool MPEGStreamData::ProcessTSPacket(const TSPacket& tspacket)
         }
     }
 
-    if (VERBOSE_LEVEL_CHECK(VB_RECORD, LOG_DEBUG))
+    if (VERBOSE_LEVEL_CHECK(VB_RECORD, LOG_DEBUG) &&
+        (m_pmtSingleProgram && tspacket.PID() ==
+         m_pmtSingleProgram->PCRPID()) && tspacket.HasPCR())
     {
-        if (m_pmtSingleProgram && tspacket.PID() ==
-            m_pmtSingleProgram->PCRPID())
-        {
-            if (tspacket.HasPCR())
-            {
-                LOG(VB_RECORD, LOG_DEBUG, LOC +
-                    QString("PID %1 (0x%2) has PCR %3μs")
-                    .arg(m_pmtSingleProgram->PCRPID())
-                    .arg(m_pmtSingleProgram->PCRPID(), 0, 16)
-                    .arg(duration_cast<std::chrono::microseconds>
-                         (tspacket.GetPCR().time_since_epoch()).count()));
-            }
-        }
+        LOG(VB_RECORD, LOG_DEBUG, LOC +
+            QString("PID %1 (0x%2) has PCR %3μs")
+            .arg(m_pmtSingleProgram->PCRPID())
+            .arg(m_pmtSingleProgram->PCRPID(), 0, 16)
+            .arg(duration_cast<std::chrono::microseconds>
+                 (tspacket.GetPCR().time_since_epoch()).count()));
     }
 
     if (IsVideoPID(tspacket.PID()))

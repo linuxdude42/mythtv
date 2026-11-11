@@ -1627,17 +1627,15 @@ void MusicCommon::customEvent(QEvent *event)
             Playlist *playlist = gMusicData->m_all_playlists->getPlaylist(resulttext);
             gPlayer->playlistChanged(playlist->getID());
         }
-        else if (resultid == "updateplaylist")
+        else if ((resultid == "updateplaylist") &&
+                 gPlayer->getCurrentPlaylist())
         {
-            if (gPlayer->getCurrentPlaylist())
-            {
-                Playlist *playlist = gMusicData->m_all_playlists->getPlaylist(resulttext);
-                QString songList = gPlayer->getCurrentPlaylist()->toRawSonglist();
-                playlist->removeAllTracks();
-                playlist->fillSongsFromSonglist(songList);
-                playlist->changed();
-                gPlayer->playlistChanged(playlist->getID());
-            }
+            Playlist *playlist = gMusicData->m_all_playlists->getPlaylist(resulttext);
+            QString songList = gPlayer->getCurrentPlaylist()->toRawSonglist();
+            playlist->removeAllTracks();
+            playlist->fillSongsFromSonglist(songList);
+            playlist->changed();
+            gPlayer->playlistChanged(playlist->getID());
         }
     }
     else if (event->type() == MusicPlayerEvent::kTrackChangeEvent)
@@ -1722,10 +1720,10 @@ void MusicCommon::customEvent(QEvent *event)
 
         // if we have just removed the playing track from the playlist
         // move to the next track
-        if (gPlayer->getCurrentMetadata())
+        if (gPlayer->getCurrentMetadata() &&
+            (gPlayer->getCurrentMetadata()->ID() == (MusicMetadata::IdType) trackID))
         {
-            if (gPlayer->getCurrentMetadata()->ID() == (MusicMetadata::IdType) trackID)
-                gPlayer->next();
+            gPlayer->next();
         }
 
         if (gPlayer->getCurrentPlaylist())
@@ -1869,22 +1867,20 @@ void MusicCommon::customEvent(QEvent *event)
             {
                 MythUIButtonListItem *item = m_currentPlaylist->GetItemAt(x);
                 auto *mdata = item->GetData().value<MusicMetadata*>();
-                if (mdata && mdata->ID() == trackID)
+                if ((mdata && mdata->ID() == trackID) &&
+                    (!item->GetImageFilename().isEmpty()))
                 {
                     // reload the albumart image if one has already been loaded for this track
-                    if (!item->GetImageFilename().isEmpty())
+                    QString artFile = mdata->getAlbumArtFile();
+                    if (artFile.isEmpty())
                     {
-                        QString artFile = mdata->getAlbumArtFile();
-                        if (artFile.isEmpty())
-                        {
-                            item->SetImage("");
-                            item->SetImage("", "coverart");
-                        }
-                        else
-                        {
-                            item->SetImage(mdata->getAlbumArtFile());
-                            item->SetImage(mdata->getAlbumArtFile(), "coverart");
-                        }
+                        item->SetImage("");
+                        item->SetImage("", "coverart");
+                    }
+                    else
+                    {
+                        item->SetImage(mdata->getAlbumArtFile());
+                        item->SetImage(mdata->getAlbumArtFile(), "coverart");
                     }
                 }
             }
@@ -2886,13 +2882,10 @@ bool TrackInfoDialog::Create(void)
         ratingState->DisplayState(QString("%1").arg(m_metadata->Rating()));
 
     MythUIImage *albumImage = dynamic_cast<MythUIImage *>(GetChild("coverart"));
-    if (albumImage)
+    if (albumImage && !m_metadata->getAlbumArtFile().isEmpty())
     {
-        if (!m_metadata->getAlbumArtFile().isEmpty())
-        {
-            albumImage->SetFilename(m_metadata->getAlbumArtFile());
-            albumImage->Load();
-        }
+        albumImage->SetFilename(m_metadata->getAlbumArtFile());
+        albumImage->Load();
     }
 
     // hide the song ID by default

@@ -209,9 +209,10 @@ AVPixelFormat MythVAAPIContext::GetFormat(AVCodecContext* Context, const AVPixel
 {
     while (*PixFmt != AV_PIX_FMT_NONE)
     {
-        if (*PixFmt == AV_PIX_FMT_VAAPI)
-            if (MythCodecContext::InitialiseDecoder(Context, MythVAAPIContext::InitialiseContext, "VAAPI context creation") >= 0)
-                return AV_PIX_FMT_VAAPI;
+        if ((*PixFmt == AV_PIX_FMT_VAAPI) &&
+            (MythCodecContext::InitialiseDecoder(Context, MythVAAPIContext::InitialiseContext,
+                                                 "VAAPI context creation") >= 0))
+            return AV_PIX_FMT_VAAPI;
         PixFmt++;
     }
     return AV_PIX_FMT_NONE;
@@ -221,9 +222,8 @@ AVPixelFormat MythVAAPIContext::GetFormat2(AVCodecContext* Context, const AVPixe
 {
     while (*PixFmt != AV_PIX_FMT_NONE)
     {
-        if (*PixFmt == AV_PIX_FMT_VAAPI)
-            if (InitialiseContext2(Context) >= 0)
-                return AV_PIX_FMT_VAAPI;
+        if ((*PixFmt == AV_PIX_FMT_VAAPI) && (InitialiseContext2(Context) >= 0))
+            return AV_PIX_FMT_VAAPI;
         PixFmt++;
     }
     return AV_PIX_FMT_NONE;
@@ -301,9 +301,9 @@ int MythVAAPIContext::InitialiseContext(AVCodecContext* Context)
     if (vendor.contains("i965", Qt::CaseInsensitive))
     {
         int format = VA_FOURCC_NV12;
-        if (vendor.contains("ironlake", Qt::CaseInsensitive))
-            if (CODEC_IS_MPEG(Context->codec_id))
-                format = VA_FOURCC_I420;
+        if (vendor.contains("ironlake", Qt::CaseInsensitive) &&
+            CODEC_IS_MPEG(Context->codec_id))
+            format = VA_FOURCC_I420;
 
         if (format != VA_FOURCC_NV12)
         {

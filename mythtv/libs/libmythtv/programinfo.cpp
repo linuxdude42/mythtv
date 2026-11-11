@@ -2228,11 +2228,8 @@ bool ProgramInfo::IsDuplicateProgram(const ProgramInfo& other) const
     if (m_title.compare(other.m_title, Qt::CaseInsensitive) != 0)
         return false;
 
-    if (m_catType == kCategorySeries)
-    {
-        if (m_programId.endsWith("0000"))
-            return false;
-    }
+    if ((m_catType == kCategorySeries) && m_programId.endsWith("0000"))
+        return false;
 
     if (!m_programId.isEmpty() && !other.m_programId.isEmpty())
     {
@@ -2289,11 +2286,8 @@ bool ProgramInfo::IsSameProgram(const ProgramInfo& other) const
 
     if (!m_programId.isEmpty() && !other.m_programId.isEmpty())
     {
-        if (m_catType == kCategorySeries)
-        {
-            if (m_programId.endsWith("0000"))
-                return false;
-        }
+        if ((m_catType == kCategorySeries) && m_programId.endsWith("0000"))
+            return false;
 
         if (s_usingProgIDAuth)
         {

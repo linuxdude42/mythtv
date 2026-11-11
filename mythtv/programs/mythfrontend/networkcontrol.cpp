@@ -558,11 +558,8 @@ QString NetworkControl::processKey(NetworkCommand *nc)
             int keyCode = a[0].key();
             Qt::KeyboardModifiers modifiers = a[0].keyboardModifiers();
 #endif
-            if (tokenLen == 1)
-            {
-                if (nc->getArg(curToken) == nc->getArg(curToken).toUpper())
-                    modifiers |= Qt::ShiftModifier;
-            }
+            if ((tokenLen == 1) && (nc->getArg(curToken) == nc->getArg(curToken).toUpper()))
+                modifiers |= Qt::ShiftModifier;
 
             MythMainWindow::ResetScreensaver();
 

@@ -162,13 +162,11 @@ uint32_t HEVCParser::addBytes(const uint8_t  *bytes,
          * bytes of a NAL that we've been parsing (plus some bytes of
          * start code)
          */
-        if (m_haveUnfinishedNAL)
+        if (m_haveUnfinishedNAL &&
+            !fillRBSP(startP, endP - startP, found_start_code))
         {
-            if (!fillRBSP(startP, endP - startP, found_start_code))
-            {
-                resetRBSP();
-                return endP - bytes;
-            }
+            resetRBSP();
+            return endP - bytes;
         }
         processRBSP(found_start_code); /* Call may set have_uinfinished_NAL
                                         * to false */

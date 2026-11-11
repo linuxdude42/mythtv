@@ -667,13 +667,12 @@ static bool doUpgradeTVDatabaseSchema(void)
                     newdecoder = "mmal-dec";
                     newrender  = "opengl-yv12";
                 }
-                if ((olddecoder == "mediacodec") || (olddecoder == "nvdec") ||
+                if (((olddecoder == "mediacodec") || (olddecoder == "nvdec") ||
                     (olddecoder == "vda") || (olddecoder == "vaapi2") ||
                     (olddecoder == "vaapi" && oldrender == "openglvaapi") ||
-                    (olddecoder == "vdpau" && oldrender == "vdpau"))
+                    (olddecoder == "vdpau" && oldrender == "vdpau")) && (oldrender != "opengl-hw"))
                 {
-                    if (oldrender != "opengl-hw")
-                        newrender = "opengl-hw";
+                    newrender = "opengl-hw";
                 }
                 if (olddecoder == "vda")
                     newdecoder = "vtb";

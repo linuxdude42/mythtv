@@ -74,9 +74,9 @@ MythHTTPMetaMethod::MythHTTPMetaMethod(int Index, QMetaMethod& Method, int Reque
         {
             // If this is a user type, we assume its name should be used, otherwise
             // prefer deduction from methodname
-            if (returntype <= QMetaType::User)
-                if (QString(Method.name()).startsWith(QStringLiteral("Get"), Qt::CaseInsensitive))
-                    m_returnTypeName = Method.name().mid(3);
+            if ((returntype <= QMetaType::User) &&
+                QString(Method.name()).startsWith(QStringLiteral("Get"), Qt::CaseInsensitive))
+                m_returnTypeName = Method.name().mid(3);
             // Default to the type name
             if (m_returnTypeName.isEmpty())
                 m_returnTypeName = Method.typeName();

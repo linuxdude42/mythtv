@@ -90,9 +90,8 @@ void BEFileTransfer::Stop(void)
         m_readsLocked = true;
     }
 
-    if (m_writemode)
-        if (m_rbuffer)
-            m_rbuffer->WriterFlush();
+    if (m_writemode && m_rbuffer)
+        m_rbuffer->WriterFlush();
 
     if (m_pginfo)
         m_pginfo->UpdateInUseMark();

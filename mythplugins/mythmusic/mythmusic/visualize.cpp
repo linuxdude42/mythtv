@@ -2241,31 +2241,28 @@ bool AlbumArt::process(VisualNode */*node*/)
 
 void AlbumArt::handleKeyPress(const QString &action)
 {
-    if (action == "SELECT")
+    if ((action == "SELECT") && gPlayer->getCurrentMetadata())
     {
-        if (gPlayer->getCurrentMetadata())
-        {
-            AlbumArtImages albumArt(gPlayer->getCurrentMetadata());
-            int newType = m_currImageType;
+        AlbumArtImages albumArt(gPlayer->getCurrentMetadata());
+        int newType = m_currImageType;
 
-            if (albumArt.getImageCount() > 0)
+        if (albumArt.getImageCount() > 0)
+        {
+            newType++;
+
+            while (!albumArt.getImage((ImageType) newType))
             {
                 newType++;
-
-                while (!albumArt.getImage((ImageType) newType))
-                {
-                    newType++;
-                    if (newType == IT_LAST)
-                        newType = IT_UNKNOWN;
-                }
+                if (newType == IT_LAST)
+                    newType = IT_UNKNOWN;
             }
+        }
 
-            if (newType != m_currImageType)
-            {
-                m_currImageType = (ImageType) newType;
-                // force an update
-                m_cursize = QSize(0, 0);
-            }
+        if (newType != m_currImageType)
+        {
+            m_currImageType = (ImageType) newType;
+            // force an update
+            m_cursize = QSize(0, 0);
         }
     }
 }
@@ -2284,11 +2281,9 @@ bool AlbumArt::needsUpdate()
     }
 
     // if it's time to cycle to the next image we need to update the image
-    if (m_lastCycle.addSecs(ALBUMARTCYCLETIME) < QDateTime::currentDateTime())
-    {
-        if (cycleImage())
-            return true;
-    }
+    if ((m_lastCycle.addSecs(ALBUMARTCYCLETIME) < QDateTime::currentDateTime()) &&
+        cycleImage())
+        return true;
 
     return false;
 }

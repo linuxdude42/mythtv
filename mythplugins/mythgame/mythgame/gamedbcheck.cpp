@@ -150,12 +150,10 @@ bool UpgradeGameDatabaseSchema(void)
     if (dbver == "1006")
     {
 
-        if (!gCoreContext->GetSetting("GameAllTreeLevels").isEmpty())
-        {
-            if (!query.exec("UPDATE settings SET data = 'system gamename' "
-                            "WHERE value = 'GameAllTreeLevels'; "))
-                MythDB::DBError("update GameAllTreeLevels", query);
-        }
+        if (!gCoreContext->GetSetting("GameAllTreeLevels").isEmpty() &&
+            !query.exec("UPDATE settings SET data = 'system gamename' "
+                        "WHERE value = 'GameAllTreeLevels'; "))
+            MythDB::DBError("update GameAllTreeLevels", query);
 
         DBUpdates updates = {
 "ALTER TABLE gamemetadata ADD COLUMN country varchar(128) NOT NULL default ''; ",

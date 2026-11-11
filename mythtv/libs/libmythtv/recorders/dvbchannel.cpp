@@ -181,11 +181,8 @@ void DVBChannel::Close(DVBChannel *who)
 
 bool DVBChannel::Open(DVBChannel *who)
 {
-    if (!m_inputId)
-    {
-        if (!InitializeInput())
-            return false;
-    }
+    if (!m_inputId && !InitializeInput())
+        return false;
 
     LOG(VB_CHANNEL, LOG_INFO, LOC + "Opening DVB channel");
 
@@ -1407,16 +1404,14 @@ double DVBChannel::GetBitErrorRateDVBv5(bool *ok) const
     if (ok)
         *ok = tmpOk;
     double value = 0;
-    if (tmpOk)
+    if (tmpOk &&
+        (cmd.props[0].u.st.stat[0].scale == FE_SCALE_COUNTER) &&
+        (cmd.props[1].u.st.stat[0].scale == FE_SCALE_COUNTER) &&
+        (cmd.props[1].u.st.stat[0].uvalue != 0))
     {
-        if ((cmd.props[0].u.st.stat[0].scale == FE_SCALE_COUNTER) &&
-            (cmd.props[1].u.st.stat[0].scale == FE_SCALE_COUNTER) &&
-            (cmd.props[1].u.st.stat[0].uvalue != 0))
-        {
-            value = static_cast<double>(
-                    static_cast<long double>(cmd.props[0].u.st.stat[0].uvalue) /
-                    cmd.props[1].u.st.stat[0].uvalue);
-        }
+        value = static_cast<double>(
+            static_cast<long double>(cmd.props[0].u.st.stat[0].uvalue) /
+            cmd.props[1].u.st.stat[0].uvalue);
     }
     return value;
 }
@@ -1481,11 +1476,8 @@ double DVBChannel::GetUncorrectedBlockCountDVBv5(bool *ok) const
     if (ok)
         *ok = tmpOk;
     double value = 0;
-    if (tmpOk)
-    {
-        if (cmd.props->u.st.stat[0].scale == FE_SCALE_COUNTER)
-            value = cmd.props->u.st.stat[0].uvalue;
-    }
+    if (tmpOk && (cmd.props->u.st.stat[0].scale == FE_SCALE_COUNTER))
+        value = cmd.props->u.st.stat[0].uvalue;
     return value;
 }
 

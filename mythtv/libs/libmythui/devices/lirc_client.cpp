@@ -748,13 +748,11 @@ int lirc_readconfig(const struct lirc_state *state,
 		lirc_perror(state);
 		return 0;
 	}
-	if(connect(sockfd, (struct sockaddr *)&addr, sizeof(addr))!=-1)
+	if((connect(sockfd, (struct sockaddr *)&addr, sizeof(addr))!=-1) &&
+	   (lirc_identify(state, sockfd) == LIRC_RET_SUCCESS))
 	{
-		if(lirc_identify(state, sockfd) == LIRC_RET_SUCCESS)
-		{
-			(*config)->sockfd=sockfd;
-			return 0;
-		}
+		(*config)->sockfd=sockfd;
+		return 0;
 	}
 	close(sockfd);
 	lirc_freeconfig(*config);
@@ -1224,13 +1222,12 @@ static void lirc_clearmode(struct lirc_config *config)
 	struct lirc_config_entry *scan=config->first;
 	while(scan!=nullptr)
 	{
-		if(!scan->change_mode.empty())
-		{
-			if(sstrcasecmp(scan->change_mode,config->current_mode)==0)
+		if((!scan->change_mode.empty()) && (sstrcasecmp(scan->change_mode,config->current_mode)==0))
+		
 			{
 				scan->flags&=~ecno;
 			}
-		}
+		
 		scan=scan->next;
 	}
 	config->current_mode.clear();
@@ -1295,33 +1292,31 @@ static int lirc_iscode(struct lirc_config_entry *scan, std::string& remote,
 	}
 	
 	/* remote/button match? */
-	if(scan->next_code->remote==LIRC_ALL || 
-	   sstrcasecmp(scan->next_code->remote,remote)==0)
+	if((scan->next_code->remote==LIRC_ALL ||
+	    sstrcasecmp(scan->next_code->remote,remote)==0) &&
+	   (scan->next_code->button==LIRC_ALL ||
+	    sstrcasecmp(scan->next_code->button,button)==0))
 	{
-		if(scan->next_code->button==LIRC_ALL || 
-		   sstrcasecmp(scan->next_code->button,button)==0)
+		int iscode=0;
+		/* button sequence? */
+		if(scan->code->next==nullptr || rep==0)
 		{
-			int iscode=0;
-			/* button sequence? */
-			if(scan->code->next==nullptr || rep==0)
+			scan->next_code=scan->next_code->next;
+			if(scan->code->next != nullptr)
 			{
-				scan->next_code=scan->next_code->next;
-				if(scan->code->next != nullptr)
-				{
-					iscode=1;
-				}
+				iscode=1;
 			}
-			/* sequence completed? */
-			if(scan->next_code==nullptr)
-			{
-				scan->next_code=scan->code;
-				if(scan->code->next!=nullptr || rep==0 ||
-				   (scan->rep>0 && rep>scan->rep_delay &&
-				    ((rep-scan->rep_delay-1)%scan->rep)==0))
-					iscode=2;
-                        }
-			return iscode;
 		}
+		/* sequence completed? */
+		if(scan->next_code==nullptr)
+		{
+			scan->next_code=scan->code;
+			if(scan->code->next!=nullptr || rep==0 ||
+			   (scan->rep>0 && rep>scan->rep_delay &&
+			    ((rep-scan->rep_delay-1)%scan->rep)==0))
+				iscode=2;
+		}
+		return iscode;
 	}
 	
         if(rep!=0) return 0;
@@ -1362,22 +1357,14 @@ static int lirc_iscode(struct lirc_config_entry *scan, std::string& remote,
                                 flag=0;break;
                         }
                 }
-                if(flag==1)
-                {
-                        if(prev->remote==LIRC_ALL ||
-                           sstrcasecmp(prev->remote,remote)==0)
-                        {
-                                if(prev->button==LIRC_ALL ||
-                                   sstrcasecmp(prev->button,button)==0)
-                                {
-                                        if(rep==0)
-                                        {
-                                                scan->next_code=prev->next;
-                                                return 0;
-                                        }
-                                }
-                        }
-                }
+                if((flag==1) &&
+		   (prev->remote==LIRC_ALL || sstrcasecmp(prev->remote,remote)==0) &&
+		   (prev->button==LIRC_ALL || sstrcasecmp(prev->button,button)==0) &&
+		   (rep==0))
+		{
+			scan->next_code=prev->next;
+			return 0;
+		}
                 codes=codes->next;
 	}
 	scan->next_code=scan->code;

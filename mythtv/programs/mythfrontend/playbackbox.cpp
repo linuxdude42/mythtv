@@ -1255,13 +1255,11 @@ void PlaybackBox::updateIcons(const ProgramInfo *pginfo)
     {
         for (it = iconMap.begin(); it != iconMap.end(); ++it)
         {
-            if (pginfo->GetAudioProperties() & (*it))
+            if ((pginfo->GetAudioProperties() & (*it)) &&
+                iconState->DisplayState(it.key().mid(1)))
             {
-                if (iconState->DisplayState(it.key().mid(1)))
-                {
-                    haveIcon = true;
-                    break;
-                }
+                haveIcon = true;
+                break;
             }
         }
     }
@@ -1293,13 +1291,10 @@ void PlaybackBox::updateIcons(const ProgramInfo *pginfo)
 
         for (it = iconMap.begin(); it != iconMap.end(); ++it)
         {
-            if (props & (*it))
+            if ((props & (*it)) && iconState->DisplayState(it.key()))
             {
-                if (iconState->DisplayState(it.key()))
-                {
-                    haveIcon = true;
-                    break;
-                }
+                haveIcon = true;
+                break;
             }
         }
     }
@@ -1315,13 +1310,11 @@ void PlaybackBox::updateIcons(const ProgramInfo *pginfo)
     {
         for (it = iconMap.begin(); it != iconMap.end(); ++it)
         {
-            if (pginfo->GetVideoProperties() & (*it))
+            if ((pginfo->GetVideoProperties() & (*it)) &&
+                iconState->DisplayState(it.key()))
             {
-                if (iconState->DisplayState(it.key()))
-                {
-                    haveIcon = true;
-                    break;
-                }
+                haveIcon = true;
+                break;
             }
         }
     }
@@ -1340,13 +1333,11 @@ void PlaybackBox::updateIcons(const ProgramInfo *pginfo)
     {
         for (it = iconMap.begin(); it != iconMap.end(); ++it)
         {
-            if (pginfo->GetSubtitleType() & (*it))
+            if ((pginfo->GetSubtitleType() & (*it)) &&
+                iconState->DisplayState(it.key()))
             {
-                if (iconState->DisplayState(it.key()))
-                {
-                    haveIcon = true;
-                    break;
-                }
+                haveIcon = true;
+                break;
             }
         }
     }
@@ -1355,11 +1346,9 @@ void PlaybackBox::updateIcons(const ProgramInfo *pginfo)
         iconState->Reset();
 
     iconState = dynamic_cast<MythUIStateType *>(GetChild("categorytype"));
-    if (iconState)
-    {
-        if (!(pginfo && iconState->DisplayState(pginfo->GetCategoryTypeString())))
-            iconState->Reset();
-    }
+    if (iconState &&
+        (!(pginfo && iconState->DisplayState(pginfo->GetCategoryTypeString()))))
+        iconState->Reset();
 }
 
 bool PlaybackBox::IsUsageUIVisible(void) const
@@ -1766,12 +1755,12 @@ bool PlaybackBox::UpdateUILists(void)
     QStringList itemSelPref;
     QStringList itemTopPref;
     if (!save_position(m_groupList, m_recordingList,
-                       groupSelPref, itemSelPref, itemTopPref))
+                       groupSelPref, itemSelPref, itemTopPref) &&
+        m_watchListStart && (m_viewMask & VIEW_WATCHLIST))
     {
         // If user wants to start in watchlist and watchlist is displayed, then
         // make it the current group
-        if (m_watchListStart && (m_viewMask & VIEW_WATCHLIST))
-            groupSelPref.push_back(m_watchGroupLabel);
+        groupSelPref.push_back(m_watchGroupLabel);
     }
 
     // Cache available status for later restoration
@@ -3845,60 +3834,59 @@ void PlaybackBox::processNetworkControlCommand(const QString &command)
 {
     QStringList tokens = command.simplified().split(" ");
 
-    if (tokens.size() >= 4 && (tokens[1] == "PLAY" || tokens[1] == "RESUME"))
+    if (tokens.size() == 6 &&
+        (tokens[1] == "PLAY" || tokens[1] == "RESUME") &&
+        tokens[2] == "PROGRAM")
     {
-        if (tokens.size() == 6 && tokens[2] == "PROGRAM")
+        int clientID = tokens[5].toInt();
+
+        LOG(VB_GENERAL, LOG_INFO, LOC +
+            QString("NetworkControl: Trying to %1 program '%2' @ '%3'")
+            .arg(tokens[1], tokens[3], tokens[4]));
+
+        if (m_playingSomething)
         {
-            int clientID = tokens[5].toInt();
+            LOG(VB_GENERAL, LOG_ERR, LOC +
+                "NetworkControl: Already playing");
 
-            LOG(VB_GENERAL, LOG_INFO, LOC +
-                QString("NetworkControl: Trying to %1 program '%2' @ '%3'")
-                    .arg(tokens[1], tokens[3], tokens[4]));
+            QString msg = QString(
+                "NETWORK_CONTROL RESPONSE %1 ERROR: Unable to play, "
+                "player is already playing another recording.")
+                .arg(clientID);
 
-            if (m_playingSomething)
-            {
-                LOG(VB_GENERAL, LOG_ERR, LOC +
-                    "NetworkControl: Already playing");
+            MythEvent me(msg);
+            gCoreContext->dispatch(me);
+            return;
+        }
 
-                QString msg = QString(
-                    "NETWORK_CONTROL RESPONSE %1 ERROR: Unable to play, "
-                    "player is already playing another recording.")
-                    .arg(clientID);
+        uint chanid = tokens[3].toUInt();
+        QDateTime recstartts = MythDate::fromString(tokens[4]);
+        ProgramInfo pginfo(chanid, recstartts);
 
-                MythEvent me(msg);
-                gCoreContext->dispatch(me);
-                return;
-            }
+        if (pginfo.GetChanID())
+        {
+            QString msg = QString("NETWORK_CONTROL RESPONSE %1 OK")
+                .arg(clientID);
+            MythEvent me(msg);
+            gCoreContext->dispatch(me);
 
-            uint chanid = tokens[3].toUInt();
-            QDateTime recstartts = MythDate::fromString(tokens[4]);
-            ProgramInfo pginfo(chanid, recstartts);
+            pginfo.SetPathname(pginfo.GetPlaybackURL());
 
-            if (pginfo.GetChanID())
-            {
-                QString msg = QString("NETWORK_CONTROL RESPONSE %1 OK")
-                                      .arg(clientID);
-                MythEvent me(msg);
-                gCoreContext->dispatch(me);
-
-                pginfo.SetPathname(pginfo.GetPlaybackURL());
-
-                const bool ignoreBookmark = (tokens[1] == "PLAY");
-                const bool ignoreProgStart = true;
-                const bool ignoreLastPlayPos = true;
-                const bool underNetworkControl = true;
-                PlayX(pginfo, ignoreBookmark, ignoreProgStart,
-                      ignoreLastPlayPos, underNetworkControl);
-            }
-            else
-            {
-                QString message = QString("NETWORK_CONTROL RESPONSE %1 "
-                                          "ERROR: Could not find recording for "
-                                          "chanid %2 @ %3")
-                    .arg(tokens[5], tokens[3], tokens[4]);
-                MythEvent me(message);
-                gCoreContext->dispatch(me);
-            }
+            const bool ignoreBookmark = (tokens[1] == "PLAY");
+            const bool ignoreProgStart = true;
+            const bool ignoreLastPlayPos = true;
+            const bool underNetworkControl = true;
+            PlayX(pginfo, ignoreBookmark, ignoreProgStart,
+                  ignoreLastPlayPos, underNetworkControl);
+        }
+        else
+        {
+            QString message = QString("NETWORK_CONTROL RESPONSE %1 "
+                                      "ERROR: Could not find recording for "
+                                      "chanid %2 @ %3")
+                .arg(tokens[5], tokens[3], tokens[4]);
+            MythEvent me(message);
+            gCoreContext->dispatch(me);
         }
     }
 }

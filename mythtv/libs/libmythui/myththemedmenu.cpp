@@ -176,11 +176,8 @@ QString MythThemedMenu::getSelection(void)
 void MythThemedMenu::setButtonActive(MythUIButtonListItem* item)
 {
     auto button = item->GetData().value<ThemedButton>();
-    if (m_watermarkState)
-    {
-        if (!m_watermarkState->DisplayState(button.type))
-            m_watermarkState->Reset();
-    }
+    if (m_watermarkState && !m_watermarkState->DisplayState(button.type))
+        m_watermarkState->Reset();
 
     if (m_descriptionText)
         m_descriptionText->SetText(button.description);

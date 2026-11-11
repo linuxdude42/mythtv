@@ -1150,11 +1150,11 @@ bool MythMainWindow::TranslateKeyPress(const QString& Context, QKeyEvent* Event,
     QStringList localActions;
     auto * keycontext = m_priv->m_keyContexts.value(Context);
     if (AllowJumps && m_priv->m_jumpMap.contains(keynum) &&
-        (!m_priv->m_jumpMap[keynum]->m_localAction.isEmpty()) &&
-        keycontext && keycontext->GetMapping(keynum, localActions))
+        !m_priv->m_jumpMap[keynum]->m_localAction.isEmpty() &&
+        keycontext && keycontext->GetMapping(keynum, localActions) &&
+        localActions.contains(m_priv->m_jumpMap.value(keynum)->m_localAction))
     {
-        if (localActions.contains(m_priv->m_jumpMap.value(keynum)->m_localAction))
-            AllowJumps = false;
+        AllowJumps = false;
     }
 
     if (AllowJumps && m_priv->m_jumpMap.contains(keynum) &&

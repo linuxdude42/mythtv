@@ -475,17 +475,14 @@ void Dsmcc::ProcessSection(const unsigned char *data, int length,
         if (found)
             break;
     }
-    if (!found && dataBroadcastId == 0x0106)
+    if ((!found && dataBroadcastId == 0x0106) && AddTap(componentTag, carouselId))
     {
         // We haven't seen this stream before but it has the correct
         // data_broadcast_id. Create a carousel for it.
         // This will only happen at start-up
-        if (AddTap(componentTag, carouselId))
-        {
-            LOG(VB_DSMCC, LOG_INFO, QString("[dsmcc] Initial stream tag %1").arg(componentTag));
-            m_startTag = componentTag;
-            found = true;
-        }
+        LOG(VB_DSMCC, LOG_INFO, QString("[dsmcc] Initial stream tag %1").arg(componentTag));
+        m_startTag = componentTag;
+        found = true;
     }
 
     if (!found)

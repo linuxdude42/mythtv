@@ -960,12 +960,11 @@ TemplateFinder::analyzeFrame(const MythVideoFrame *frame, long long frameno,
                         edges, cropheight))
                 throw 5;
 
-            if (m_debugLevel >= 2)
-            {
-                if (!analyzeFrameDebug(frameno, pgm, pgmheight, &m_cropped, edges,
-                            cropheight, croprow, cropcol, m_debugFrames, m_debugDir))
-                    throw 6;
-            }
+            if ((m_debugLevel >= 2) &&
+                !analyzeFrameDebug(frameno, pgm, pgmheight, &m_cropped, edges,
+                                   cropheight, croprow, cropcol, m_debugFrames,
+                                   m_debugDir))
+                throw 6;
 
             auto end = nowAsDuration<std::chrono::microseconds>();
             m_analyzeTime += (end - start);

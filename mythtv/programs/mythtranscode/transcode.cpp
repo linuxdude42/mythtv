@@ -760,15 +760,12 @@ int Transcode::TranscodeFile(const QString &inputname,
             while ((ab = arb->GetData(lastWrittenTime)) != nullptr)
             {
                 auto *buf = (unsigned char *)ab->data();
-                if (m_avfMode)
+                if (m_avfMode && (did_ff != 1))
                 {
-                    if (did_ff != 1)
-                    {
-                        std::chrono::milliseconds tc = ab->m_time - timecodeOffset;
-                        avfw->WriteAudioFrame(buf, audioFrame, tc);
+                    std::chrono::milliseconds tc = ab->m_time - timecodeOffset;
+                    avfw->WriteAudioFrame(buf, audioFrame, tc);
 
-                        ++audioFrame;
-                    }
+                    ++audioFrame;
                 }
                 delete ab;
             }

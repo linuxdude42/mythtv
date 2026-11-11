@@ -222,14 +222,11 @@ static meta_dir_node *AddMetadataToDir(VideoMetadata *metadata,
     QString host = metadata->GetHost();
     QString prefix = metadata->GetPrefix();
 
-    if (hint)
+    if (hint && metadata->GetFilename().startsWith(hint->getFQPath() + "/"))
     {
-        if (metadata->GetFilename().startsWith(hint->getFQPath() + "/"))
-        {
-            start = hint;
-            insert_chunk =
-                metadata->GetFilename().mid(hint->getFQPath().length());
-        }
+        start = hint;
+        insert_chunk =
+            metadata->GetFilename().mid(hint->getFQPath().length());
     }
 
     if (insert_chunk.startsWith(dir->getFQPath() + "/"))

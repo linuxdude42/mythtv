@@ -1394,9 +1394,8 @@ void UPNPScanner::ParseServiceList(QDomElement &element, QUrl &controlURL,
     while (!list.isNull())
     {
         QDomElement e = list.toElement();
-        if (!e.isNull())
-            if (e.tagName() == "service")
-                ParseService(e, controlURL, eventURL);
+        if (!e.isNull() && (e.tagName() == "service"))
+            ParseService(e, controlURL, eventURL);
         list = list.nextSibling();
     }
 }

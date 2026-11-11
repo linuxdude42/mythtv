@@ -2981,9 +2981,8 @@ void TV::HandlePseudoLiveTVTimerEvent()
     }
     ReturnPlayerLock();
 
-    if (restartTimer)
-        if (!m_pseudoChangeChanTimerId)
-            m_pseudoChangeChanTimerId = StartTimer(25ms, __LINE__);
+    if (restartTimer && !m_pseudoChangeChanTimerId)
+        m_pseudoChangeChanTimerId = StartTimer(25ms, __LINE__);
 }
 
 void TV::SetSpeedChangeTimer(std::chrono::milliseconds When, int Line)
@@ -7499,20 +7498,18 @@ void TV::customEvent(QEvent *Event)
                 ScheduleStateChange();
             }
         }
-        else if (StateIsLiveTV(m_playerContext.GetState()))
+        else if (StateIsLiveTV(m_playerContext.GetState()) &&
+                 m_playerContext.m_recorder && (cardnum == m_playerContext.GetCardID()) &&
+                 m_playerContext.m_tvchain && m_playerContext.m_tvchain->HasNext())
         {
-            if (m_playerContext.m_recorder && cardnum == m_playerContext.GetCardID() &&
-                m_playerContext.m_tvchain && m_playerContext.m_tvchain->HasNext())
+            m_playerContext.LockDeletePlayer(__FILE__, __LINE__);
+            if (m_player)
             {
-                m_playerContext.LockDeletePlayer(__FILE__, __LINE__);
-                if (m_player)
-                {
-                    m_player->SetWatchingRecording(false);
-                    if (seconds > 0s)
-                        m_player->SetLength(seconds);
-                }
-                m_playerContext.UnlockDeletePlayer(__FILE__, __LINE__);
+                m_player->SetWatchingRecording(false);
+                if (seconds > 0s)
+                    m_player->SetLength(seconds);
             }
+            m_playerContext.UnlockDeletePlayer(__FILE__, __LINE__);
         }
         ReturnPlayerLock();
     }
@@ -7613,31 +7610,27 @@ void TV::customEvent(QEvent *Event)
 
         GetPlayerReadLock();
         OSD *osd = GetOSDL();
-        if (osd)
+        if (osd && m_playerContext.m_recorder &&
+            (m_playerContext.GetCardID() == cardnum) && !signalList.empty())
         {
-            if (m_playerContext.m_recorder && (m_playerContext.GetCardID() == cardnum) && !signalList.empty())
-            {
-                UpdateOSDSignal(signalList);
-                UpdateOSDTimeoutMessage();
-            }
+            UpdateOSDSignal(signalList);
+            UpdateOSDTimeoutMessage();
         }
         ReturnOSDLock();
         ReturnPlayerLock();
     }
 
-    if (message.startsWith("NETWORK_CONTROL"))
+    if (message.startsWith("NETWORK_CONTROL") &&
+        ((tokens.size() >= 2) &&
+            (tokens[1] != "ANSWER") && (tokens[1] != "RESPONSE")))
     {
-        if ((tokens.size() >= 2) &&
-            (tokens[1] != "ANSWER") && (tokens[1] != "RESPONSE"))
+        QStringList tokens2 = message.split(" ", Qt::SkipEmptyParts);
+        if ((tokens2.size() >= 2) &&
+            (tokens2[1] != "ANSWER") && (tokens2[1] != "RESPONSE"))
         {
-            QStringList tokens2 = message.split(" ", Qt::SkipEmptyParts);
-            if ((tokens2.size() >= 2) &&
-                (tokens2[1] != "ANSWER") && (tokens2[1] != "RESPONSE"))
-            {
-                m_networkControlCommands.enqueue(message);
-                if (!m_networkControlTimerId)
-                    m_networkControlTimerId = StartTimer(1ms, __LINE__);
-            }
+            m_networkControlCommands.enqueue(message);
+            if (!m_networkControlTimerId)
+                m_networkControlTimerId = StartTimer(1ms, __LINE__);
         }
     }
 
@@ -9358,9 +9351,8 @@ bool TV::MenuItemDisplayPlayback(const MythTVMenuItemContext& Context,
 
 void TV::MenuLazyInit(void *Field)
 {
-    if (Field == &m_tvmFreeRecorderCount)
-        if (m_tvmFreeRecorderCount < 0)
-            m_tvmFreeRecorderCount = RemoteGetFreeRecorderCount();
+    if ((Field == &m_tvmFreeRecorderCount) && (m_tvmFreeRecorderCount < 0))
+        m_tvmFreeRecorderCount = RemoteGetFreeRecorderCount();
 }
 
 void TV::PlaybackMenuInit(const MythTVMenu &Menu)

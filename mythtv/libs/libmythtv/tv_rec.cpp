@@ -3779,10 +3779,9 @@ void TVRec::TuningFrequency(const TuningRequest &request)
             if (atsc)
                 atsc->SetDesiredChannel(request.m_majorChan, request.m_minorChan);
         }
-        else if (request.m_progNum >= 0)
+        else if ((request.m_progNum >= 0) && mpeg)
         {
-            if (mpeg)
-                mpeg->SetDesiredProgram(request.m_progNum);
+            mpeg->SetDesiredProgram(request.m_progNum);
         }
     }
 

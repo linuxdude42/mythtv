@@ -143,11 +143,10 @@ bool MythVideoProfileItem::CheckRange(const QString& Key,
                         }
                     }
                 }
-                if (isOK)
+                if (isOK && (value1 == 0 && value2 == 0 && oper.isEmpty()))
                 {
                     // Invalid string
-                    if (value1 == 0 && value2 == 0 && oper.isEmpty())
-                        isOK=false;
+                    isOK=false;
                 }
                 if (isOK)
                 {

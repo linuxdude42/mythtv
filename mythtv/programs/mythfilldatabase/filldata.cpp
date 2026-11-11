@@ -289,12 +289,9 @@ bool FillData::Run(DataSourceList &sourcelist)
                       "      AND manualid = 0 AND c.xmltvid != '';");
         query.bindValue(":SRCID", (*it).id);
 
-        if (query.exec() && query.next())
-        {
-            if (!query.isNull(0))
-                GuideDataBefore =
+        if (query.exec() && query.next() && !query.isNull(0))
+            GuideDataBefore =
                     MythDate::fromString(query.value(0).toString());
-        }
 
         m_channelUpdateRun = false;
         m_endOfData = false;
@@ -691,11 +688,8 @@ bool FillData::Run(DataSourceList &sourcelist)
                       "AND manualid = 0 AND c.xmltvid != '';");
         query.bindValue(":SRCID", (*it).id);
 
-        if (query.exec() && query.next())
-        {
-            if (!query.isNull(0))
-                GuideDataAfter = MythDate::fromString(query.value(0).toString());
-        }
+        if (query.exec() && query.next() && !query.isNull(0))
+            GuideDataAfter = MythDate::fromString(query.value(0).toString());
 
         if (GuideDataAfter == GuideDataBefore)
         {

@@ -970,13 +970,10 @@ bool RecordingRule::IsValid(QString &msg) const
             return false;
         }
     }
-    else if (isSearch)
+    else if (isSearch && m_description.isEmpty())
     {
-        if (m_description.isEmpty())
-        {
-            msg = QString("Invalid search value.");
-            return false;
-        }
+        msg = QString("Invalid search value.");
+        return false;
     }
 
     if (m_type != kTemplateRecord && !isSearch)

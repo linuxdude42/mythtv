@@ -2026,20 +2026,18 @@ bool MythCommandLineParser::ReconcileLinks(void)
             (*args_it)->m_requiredby.begin(); // clazy:exclude=detaching-member (erases item)
         while (req_it != (*args_it)->m_requiredby.end())
         {
-            if ((*req_it)->m_type == QMetaType::UnknownType)
+            if (((*req_it)->m_type == QMetaType::UnknownType) &&
+                m_namedArgs.contains((*req_it)->m_name))
             {
                 // if its not an invalid, it shouldnt be here anyway
-                if (m_namedArgs.contains((*req_it)->m_name))
+                m_namedArgs.value((*req_it)->m_name)->SetRequires(*args_it);
+                if (m_verbose)
                 {
-                    m_namedArgs.value((*req_it)->m_name)->SetRequires(*args_it);
-                    if (m_verbose)
-                    {
-                        std::cerr << QString("  Setting %1 as blocking %2")
-                                         .arg((*args_it)->m_name,
-                                              (*req_it)->m_name)
-                                         .toLocal8Bit().constData()
-                                  << '\n';
-                    }
+                    std::cerr << QString("  Setting %1 as blocking %2")
+                        .arg((*args_it)->m_name,
+                             (*req_it)->m_name)
+                        .toLocal8Bit().constData()
+                              << '\n';
                 }
             }
 

@@ -262,16 +262,13 @@ void ProgFinder::customEvent(QEvent *event)
 
         const QString& message = me->Message();
 
-        if (message == "SCHEDULE_CHANGE"
-            || message == "GROUPBY_CHANGE")
+        if ((message == "SCHEDULE_CHANGE" || message == "GROUPBY_CHANGE") &&
+            (GetFocusWidget() == m_timesList))
         {
-            if (GetFocusWidget() == m_timesList)
-            {
-                ProgramInfo *curPick = m_showData[m_timesList->GetCurrentPos()];
-                if (curPick)
-                    selectShowData(curPick->GetTitle(),
-                                   m_timesList->GetCurrentPos());
-            }
+            ProgramInfo *curPick = m_showData[m_timesList->GetCurrentPos()];
+            if (curPick)
+                selectShowData(curPick->GetTitle(),
+                               m_timesList->GetCurrentPos());
         }
     }
     else if (event->type() == DialogCompletionEvent::kEventType)

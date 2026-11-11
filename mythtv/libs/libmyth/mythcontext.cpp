@@ -321,16 +321,13 @@ void MythContext::Impl::TempMainWindow()
 
 void MythContext::Impl::EndTempWindow()
 {
-    if (HasMythMainWindow())
+    if (HasMythMainWindow() && m_guiStartup && !m_guiStartup->m_Exit)
     {
-        if (m_guiStartup && !m_guiStartup->m_Exit)
+        MythScreenStack *mainStack = GetMythMainWindow()->GetMainStack();
+        if (mainStack)
         {
-            MythScreenStack *mainStack = GetMythMainWindow()->GetMainStack();
-            if (mainStack)
-            {
-                mainStack->PopScreen(m_guiStartup, false);
-                m_guiStartup = nullptr;
-            }
+            mainStack->PopScreen(m_guiStartup, false);
+            m_guiStartup = nullptr;
         }
     }
     EnableDBerrors();
@@ -503,17 +500,14 @@ bool MythContext::Impl::FindDatabaseChoose(bool loaded, bool manualSelect, bool 
             }
         }
 
-        if (!manualSelect)
+        if (!manualSelect &&
+            (gCoreContext->IsBackend() || !PromptForDatabaseParams(failure)))
         {
             // If this is a backend, No longer prompt for database.
             // Instead allow the web server to start so that the
             // database can be set up there
-            if (gCoreContext->IsBackend()
-                || !PromptForDatabaseParams(failure))
-            {
-                LOG(VB_GENERAL, LOG_DEBUG, "FindDatabase() - failed");
-                return false;
-            }
+            LOG(VB_GENERAL, LOG_DEBUG, "FindDatabase() - failed");
+            return false;
         }
         failure = TestDBconnection();
         haveDbInfo = failure.isEmpty();
@@ -873,14 +867,12 @@ QString MythContext::Impl::TestDBconnection(bool prompt)
             if (attempt == 0)
                 useTimeout=1s;
 
-            if (m_gui && !m_guiStartup)
+            if (m_gui && !m_guiStartup &&
+                (msStartupScreenDelay==0ms || timer.hasExpired(msStartupScreenDelay.count())))
             {
-                if (msStartupScreenDelay==0ms || timer.hasExpired(msStartupScreenDelay.count()))
-                {
-                    ShowGuiStartup();
-                    if (m_guiStartup)
-                        m_guiStartup->setTotal(progressTotal);
-                }
+                ShowGuiStartup();
+                if (m_guiStartup)
+                    m_guiStartup->setTotal(progressTotal);
             }
             if (m_guiStartup && !m_guiStartup->m_Exit)
             {
@@ -1062,21 +1054,18 @@ void MythContext::Impl::ShowGuiStartup()
     TempMainWindow();
     MythMainWindow *mainWindow = GetMythMainWindow();
     MythScreenStack *mainStack = mainWindow->GetMainStack();
-    if (mainStack)
+    if (mainStack && !m_guiStartup)
     {
-        if (!m_guiStartup)
+        m_guiStartup = new GUIStartup(mainStack, m_loop);
+        if (!m_guiStartup->Create())
         {
-            m_guiStartup = new GUIStartup(mainStack, m_loop);
-            if (!m_guiStartup->Create())
-            {
-                delete m_guiStartup;
-                m_guiStartup = nullptr;
-            }
-            if (m_guiStartup)
-            {
-                mainStack->AddScreen(m_guiStartup, false);
-                processEvents();
-            }
+            delete m_guiStartup;
+            m_guiStartup = nullptr;
+        }
+        if (m_guiStartup)
+        {
+            mainStack->AddScreen(m_guiStartup, false);
+            processEvents();
         }
     }
 }

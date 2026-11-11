@@ -471,12 +471,9 @@ bool XMLTVParser::parseFile(
                         {
                             if (!readNextWithErrorCheck(xml))
                                 return false;
-                            if (xml.isStartElement())
+                            if (xml.isStartElement() && (xml.name() == QString("value")))
                             {
-                                if (xml.name() == QString("value"))
-                                {
-                                    stars=xml.readElementText(QXmlStreamReader::SkipChildElements);
-                                }
+                                stars=xml.readElementText(QXmlStreamReader::SkipChildElements);
                             }
                         }
                         if (pginfo->m_stars == 0.0F)
@@ -501,12 +498,9 @@ bool XMLTVParser::parseFile(
                         {
                             if (!readNextWithErrorCheck(xml))
                                 return false;
-                            if (xml.isStartElement())
+                            if (xml.isStartElement() && (xml.name() == QString("value")))
                             {
-                                if (xml.name() == QString("value"))
-                                {
-                                    rat=xml.readElementText(QXmlStreamReader::SkipChildElements);
-                                }
+                                rat=xml.readElementText(QXmlStreamReader::SkipChildElements);
                             }
                         }
 
@@ -577,27 +571,24 @@ bool XMLTVParser::parseFile(
                         {
                             if (!readNextWithErrorCheck(xml))
                                 return false;
-                            if (xml.isStartElement())
+                            if (xml.isStartElement() && (xml.name() == QString("stereo")))
                             {
-                                if (xml.name() == QString("stereo"))
+                                QString text2=xml.readElementText(QXmlStreamReader::SkipChildElements);
+                                if (text2 == "mono")
                                 {
-                                    QString text2=xml.readElementText(QXmlStreamReader::SkipChildElements);
-                                    if (text2 == "mono")
-                                    {
-                                        pginfo->m_audioProps |= AUD_MONO;
-                                    }
-                                    else if (text2 == "stereo")
-                                    {
-                                        pginfo->m_audioProps |= AUD_STEREO;
-                                    }
-                                    else if (text2 == "dolby" || text2 == "dolby digital")
-                                    {
-                                        pginfo->m_audioProps |= AUD_DOLBY;
-                                    }
-                                    else if (text2 == "surround")
-                                    {
-                                        pginfo->m_audioProps |= AUD_SURROUND;
-                                    }
+                                    pginfo->m_audioProps |= AUD_MONO;
+                                }
+                                else if (text2 == "stereo")
+                                {
+                                    pginfo->m_audioProps |= AUD_STEREO;
+                                }
+                                else if (text2 == "dolby" || text2 == "dolby digital")
+                                {
+                                    pginfo->m_audioProps |= AUD_DOLBY;
+                                }
+                                else if (text2 == "surround")
+                                {
+                                    pginfo->m_audioProps |= AUD_SURROUND;
                                 }
                             }
                         }
@@ -615,10 +606,10 @@ bool XMLTVParser::parseFile(
                                     if (xml.readElementText(QXmlStreamReader::SkipChildElements) == "HDTV")
                                         pginfo->m_videoProps |= VID_HDTV;
                                 }
-                                else if (xml.name() == QString("aspect"))
+                                else if ((xml.name() == QString("aspect")) &&
+                                         (xml.readElementText(QXmlStreamReader::SkipChildElements) == "16:9"))
                                 {
-                                    if (xml.readElementText(QXmlStreamReader::SkipChildElements) == "16:9")
-                                        pginfo->m_videoProps |= VID_WIDESCREEN;
+                                    pginfo->m_videoProps |= VID_WIDESCREEN;
                                 }
                             }
                         }

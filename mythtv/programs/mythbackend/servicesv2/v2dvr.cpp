@@ -957,11 +957,12 @@ long V2Dvr::GetSavedBookmark( int RecordedId,
     // if no bookmark return 0
     if (position == 0)
         return 0;
-    if (offsettype.toLower() == "position"){
+    if ((offsettype.toLower() == "position") &&
+        ri.QueryKeyFramePosition(&offset, position, isend))
+    {
         // if bookmark cannot be converted to a keyframe we will
         // just return the actual frame saved as the bookmark
-        if (ri.QueryKeyFramePosition(&offset, position, isend))
-            return offset;
+        return offset;
     }
     if (offsettype.toLower() == "duration"){
         if (ri.QueryKeyFrameDuration(&offset, position, isend))
@@ -1002,11 +1003,12 @@ long V2Dvr::GetLastPlayPos( int RecordedId,
     // if no bookmark return 0
     if (position == 0)
         return 0;
-    if (offsettype.toLower() == "position"){
+    if ((offsettype.toLower() == "position") &&
+        ri.QueryKeyFramePosition(&offset, position, isend))
+    {
         // if bookmark cannot be converted to a keyframe we will
         // just return the actual frame saved as the bookmark
-        if (ri.QueryKeyFramePosition(&offset, position, isend))
-            return offset;
+        return offset;
     }
     if (offsettype.toLower() == "duration"){
         if (ri.QueryKeyFrameDuration(&offset, position, isend))
@@ -2573,10 +2575,10 @@ bool V2Dvr::UpdateRecordedMetadata ( uint             RecordedId,
                 if (!ri.QueryPositionKeyFrame(&position, LastPlayOffset, isend))
                         return false;
             }
-            else if (LastPlayOffsetType.toLower() == "duration")
+            else if ((LastPlayOffsetType.toLower() == "duration") &&
+                     !ri.QueryDurationKeyFrame(&position, LastPlayOffset, isend))
             {
-                if (!ri.QueryDurationKeyFrame(&position, LastPlayOffset, isend))
-                        return false;
+                return false;
             }
         }
 

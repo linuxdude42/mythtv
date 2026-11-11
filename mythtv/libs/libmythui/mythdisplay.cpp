@@ -931,13 +931,10 @@ double MythDisplay::GetAspectRatio(QString &Source, bool IgnoreModeOverride)
                         static_cast<double>(m_physicalSize.width()) / m_physicalSize.height();
 
     // Assume pixel aspect ratio is 1 (square pixels)
-    if (valid(calculated))
+    if (valid(calculated) && ((override < 0.0) || !valid(detected)))
     {
-        if ((override < 0.0) || !valid(detected))
-        {
-            Source = tr("Square pixels");
-            return calculated;
-        }
+        Source = tr("Square pixels");
+        return calculated;
     }
 
     // Based on actual physical size if available

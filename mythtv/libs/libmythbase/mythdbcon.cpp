@@ -122,12 +122,7 @@ MSqlDatabase::~MSqlDatabase()
 
 bool MSqlDatabase::isOpen()
 {
-    if (m_db.isValid())
-    {
-        if (m_db.isOpen())
-            return true;
-    }
-    return false;
+    return m_db.isValid() && m_db.isOpen();
 }
 
 bool MSqlDatabase::OpenDatabase(bool skipdb)
