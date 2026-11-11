@@ -2536,7 +2536,7 @@ uint32_t DiSEqCDevLNB::GetIntermediateFrequency(
     const DiSEqCDevSettings& /*settings*/, const DTVMultiplex &tuning) const
 {
     uint64_t abs_freq = tuning.m_frequency;
-    uint lof = (IsHighBand(tuning)) ? m_lofHi : m_lofLo;
+    uint lof = IsHighBand(tuning) ? m_lofHi : m_lofLo;
 
     return (lof > abs_freq) ? (lof - abs_freq) : (abs_freq - lof);
 }

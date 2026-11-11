@@ -1833,10 +1833,10 @@ ScanDTVTransportList ChannelScanSM::GetChannelList(bool addFullTS) const
             GetChannelList(it.first, it.second);
 
         ScanDTVTransport item((*it.first).m_tuning, tuner_type, cardid);
-        item.m_iptvTuning = (*(it.first)).m_iptvTuning;
-        item.m_signalStrength = (*(it.first)).m_signalStrength;
-        item.m_networkID = (*(it.first)).m_networkID;
-        item.m_transportID = (*(it.first)).m_transportID;
+        item.m_iptvTuning = (*it.first).m_iptvTuning;
+        item.m_signalStrength = (*it.first).m_signalStrength;
+        item.m_networkID = (*it.first).m_networkID;
+        item.m_transportID = (*it.first).m_transportID;
 
         QMap<uint,ChannelInsertInfo>::iterator dbchan_it;
         for (dbchan_it = pnum_to_dbchan.begin();
@@ -2242,7 +2242,7 @@ bool ChannelScanSM::Tune(const transport_scan_items_it_t transport)
 
 void ChannelScanSM::ScanTransport(const transport_scan_items_it_t transport)
 {
-    QString offset_str = (transport.offset()) ?
+    QString offset_str = transport.offset() ?
         QObject::tr(" offset %2").arg(transport.offset()) : "";
     QString cur_chan = QString("%1%2")
         .arg((*m_current).m_friendlyName, offset_str);

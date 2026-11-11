@@ -768,7 +768,7 @@ void GalleryThumbView::UpdateImageItem(MythUIButtonListItem *item)
     }
 
     // Allow theme to distinguish visible/hidden nodes
-    QString hideState = (im->m_isHidden) ? "hidden" : "visible";
+    QString hideState = im->m_isHidden ? "hidden" : "visible";
     item->DisplayState(hideState, "buttonstate");
 
     // Caption

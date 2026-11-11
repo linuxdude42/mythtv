@@ -121,7 +121,7 @@ void MythVideoOutputVulkan::RenderFrame(MythVideoFrame* Frame, FrameScanType Sca
 
 void MythVideoOutputVulkan::RenderEnd()
 {
-    if (!(IsValidVulkan()))
+    if (!IsValidVulkan())
         return;
 
     if (VERBOSE_LEVEL_CHECK(VB_GPU, LOG_INFO))

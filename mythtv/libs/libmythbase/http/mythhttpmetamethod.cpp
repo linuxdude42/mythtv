@@ -230,7 +230,7 @@ void* MythHTTPMetaMethod::CreateParameter(void* Parameter, int Type, const QStri
 
 QVariant MythHTTPMetaMethod::CreateReturnValue(int Type, void* Value)
 {
-    if (!(ValidReturnType(Type)))
+    if (!ValidReturnType(Type))
         return {};
 
     // This assumes any user type will be derived from QObject...

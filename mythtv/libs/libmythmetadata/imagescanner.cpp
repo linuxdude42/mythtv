@@ -430,7 +430,7 @@ void ImageScanThread<DBFS>::PopulateMetadata(
     orientation  = metadata->GetOrientation();
     comment      = metadata->GetComment().simplified();
     QDateTime dt = metadata->GetOriginalDateTime();
-    time         = (dt.isValid()) ? std::chrono::seconds(dt.toSecsSinceEpoch()) : 0s;
+    time         = dt.isValid() ? std::chrono::seconds(dt.toSecsSinceEpoch()) : 0s;
 
     delete metadata;
 }

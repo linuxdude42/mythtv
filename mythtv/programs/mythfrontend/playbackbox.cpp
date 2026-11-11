@@ -74,9 +74,9 @@ static int comp_programid_rev(const ProgramInfo *a, const ProgramInfo *b)
 
 static int comp_originalAirDate(const ProgramInfo *a, const ProgramInfo *b)
 {
-    QDate dt1 = (a->GetOriginalAirDate().isValid()) ?
+    QDate dt1 = a->GetOriginalAirDate().isValid() ?
         a->GetOriginalAirDate() : a->GetScheduledStartTime().date();
-    QDate dt2 = (b->GetOriginalAirDate().isValid()) ?
+    QDate dt2 = b->GetOriginalAirDate().isValid() ?
         b->GetOriginalAirDate() : b->GetScheduledStartTime().date();
 
     if (dt1 == dt2)
@@ -87,9 +87,9 @@ static int comp_originalAirDate(const ProgramInfo *a, const ProgramInfo *b)
 
 static int comp_originalAirDate_rev(const ProgramInfo *a, const ProgramInfo *b)
 {
-    QDate dt1 = (a->GetOriginalAirDate().isValid()) ?
+    QDate dt1 = a->GetOriginalAirDate().isValid() ?
         a->GetOriginalAirDate() : a->GetScheduledStartTime().date();
-    QDate dt2 = (b->GetOriginalAirDate().isValid()) ?
+    QDate dt2 = b->GetOriginalAirDate().isValid() ?
         b->GetOriginalAirDate() : b->GetScheduledStartTime().date();
 
     if (dt1 == dt2)
@@ -3056,9 +3056,9 @@ MythMenu* PlaybackBox::createStorageMenu()
         return nullptr;
 
     QString title = tr("Storage Options") + CreateProgramInfoString(*pginfo);
-    QString autoExpireText = (pginfo->IsAutoExpirable()) ?
+    QString autoExpireText = pginfo->IsAutoExpirable() ?
         tr("Disable Auto Expire") : tr("Enable Auto Expire");
-    QString preserveText = (pginfo->IsPreserved()) ?
+    QString preserveText = pginfo->IsPreserved() ?
         tr("Do not preserve this episode") : tr("Preserve this episode");
 
     auto *menu = new MythMenu(title, this, "slotmenu");
@@ -3535,9 +3535,9 @@ void PlaybackBox::stopPlaylistJobQueueJob(int jobType)
     {
         ProgramInfo *tmpItem = FindProgramInUILists(*it);
         if (tmpItem &&
-            (JobQueue::IsJobQueuedOrRunning(
+            JobQueue::IsJobQueuedOrRunning(
                 jobType,
-                tmpItem->GetChanID(), tmpItem->GetRecordingStartTime())))
+                tmpItem->GetChanID(), tmpItem->GetRecordingStartTime()))
         {
             JobQueue::ChangeJobCmds(
                 jobType, tmpItem->GetChanID(),

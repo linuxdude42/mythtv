@@ -285,7 +285,7 @@ bool PreviewGenerator::Run(void)
             {
                 StorageGroup sgroup;
                 QString tmpFile = sgroup.FindFile(lpath);
-                outname = (tmpFile.isEmpty()) ? outname : tmpFile;
+                outname = tmpFile.isEmpty() ? outname : tmpFile;
             }
 
             QFileInfo fi(outname);
@@ -491,7 +491,7 @@ bool PreviewGenerator::event(QEvent *e)
         data.clear();
     }
 
-    m_pixmapOk = (data.isEmpty()) ? false : SaveOutFile(data, datetime);
+    m_pixmapOk = data.isEmpty() ? false : SaveOutFile(data, datetime);
 
     m_previewWaitCondition.wakeAll();
 
@@ -697,7 +697,7 @@ bool PreviewGenerator::LocalPreviewRun(void)
 
     QString outname = CreateAccessibleFilename(m_pathname, m_outFileName);
 
-    QString format = (m_outFormat.isEmpty()) ? "PNG" : m_outFormat;
+    QString format = m_outFormat.isEmpty() ? "PNG" : m_outFormat;
 
     int dw = (m_outSize.width()  < 0) ? width  : m_outSize.width();
     int dh = (m_outSize.height() < 0) ? height : m_outSize.height();

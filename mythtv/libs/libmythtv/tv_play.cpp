@@ -82,9 +82,9 @@
 
 static int comp_originalAirDate_rev(const ProgramInfo *a, const ProgramInfo *b)
 {
-    QDate dt1 = (a->GetOriginalAirDate().isValid()) ?
+    QDate dt1 = a->GetOriginalAirDate().isValid() ?
         a->GetOriginalAirDate() : a->GetScheduledStartTime().date();
-    QDate dt2 = (b->GetOriginalAirDate().isValid()) ?
+    QDate dt2 = b->GetOriginalAirDate().isValid() ?
         b->GetOriginalAirDate() : b->GetScheduledStartTime().date();
 
     if (dt1 == dt2)
@@ -407,7 +407,7 @@ bool TV::StartTV(ProgramInfo* TVRec, uint Flags, const ChannelInfoList& Selectio
 
         tv->GetPlayerReadLock();
         PlayerContext* context = tv->GetPlayerContext();
-        quitAll = tv->m_wantsToQuit || (context->m_errored);
+        quitAll = tv->m_wantsToQuit || context->m_errored;
         context->LockDeletePlayer(__FILE__, __LINE__);
         if (context->m_player && context->m_player->IsErrored())
             playerError = context->m_player->GetError();
@@ -1583,7 +1583,7 @@ bool TV::RequestNextRecorder(bool ShowDialogs, const ChannelInfoList &Selection)
 
             if (chanid && !channum.isEmpty() && !cards.isEmpty())
             {
-                testrec = RemoteGetExistingRecorder(static_cast<int>(*(cards.begin())));
+                testrec = RemoteGetExistingRecorder(static_cast<int>(*cards.begin()));
                 m_initialChanID = chanid;
                 break;
             }
@@ -1820,10 +1820,10 @@ void TV::ShowOSDAskAllow()
         MythOSDDialogData dialog { .m_dialogName=OSD_DLG_ASKALLOW,
                                    .m_message=message,
                                    .m_timeout=timeuntil };
-        dialog.m_buttons.push_back({ record_watch, "DIALOG_ASKALLOW_WATCH_0", false, !((*it).m_hasRec)} );
+        dialog.m_buttons.push_back({ record_watch, "DIALOG_ASKALLOW_WATCH_0", false, !(*it).m_hasRec} );
         dialog.m_buttons.push_back({ let_record1, "DIALOG_ASKALLOW_EXIT_0" });
-        dialog.m_buttons.push_back({ ((*it).m_hasLater) ? record_later1 : do_not_record1,
-                                     "DIALOG_ASKALLOW_CANCELRECORDING_0", false, ((*it).m_hasRec) });
+        dialog.m_buttons.push_back({ (*it).m_hasLater ? record_later1 : do_not_record1,
+                                     "DIALOG_ASKALLOW_CANCELRECORDING_0", false, (*it).m_hasRec });
         emit ChangeOSDDialog(dialog);
     }
     else
@@ -1975,7 +1975,7 @@ int TV::Playback(const ProgramInfo& ProgInfo)
     if (LCD *lcd = LCD::Get())
     {
         lcd->switchToChannel(ProgInfo.GetChannelSchedulingID(), ProgInfo.GetTitle(), ProgInfo.GetSubtitle());
-        lcd->setFunctionLEDs((ProgInfo.IsRecording())?FUNC_TV:FUNC_MOVIE, true);
+        lcd->setFunctionLEDs(ProgInfo.IsRecording()?FUNC_TV:FUNC_MOVIE, true);
     }
 
     return 1;
@@ -3221,7 +3221,7 @@ bool TV::HandleTrackAction(const QString &Action)
     }
     else if (Action.startsWith("NEXT") || Action.startsWith("PREV"))
     {
-        int dir = (Action.startsWith("NEXT")) ? +1 : -1;
+        int dir = Action.startsWith("NEXT") ? +1 : -1;
         int type = to_track_type(Action.mid(4));
         if (type >= kTrackTypeAudio)
             emit ChangeTrack(static_cast<uint>(type), dir);
@@ -3452,7 +3452,7 @@ bool TV::ProcessKeypressOrGesture(QEvent* Event)
             else
             {
                 emit RefreshEditorState();
-                if ((IsActionable(ACTION_SELECT, actions)) && m_editorState.m_frameInDelete &&
+                if (IsActionable(ACTION_SELECT, actions) && m_editorState.m_frameInDelete &&
                     !m_editorState.m_hasTempMark)
                 {
                     ShowOSDCutpoint("EDIT_CUT_POINTS");
@@ -4519,7 +4519,7 @@ void TV::ProcessNetworkControlCommand(const QString &Command)
         else if ((tokens[2] == "POSITION" ||
                   tokens[2] == "POSITIONWITHCUTLIST") &&
                  (tokens.size() == 4) &&
-                 (tokens[3].contains(kDigitsRE)))
+                 tokens[3].contains(kDigitsRE))
         {
             DoSeekAbsolute(tokens[3].toInt(), tokens[2] == "POSITIONWITHCUTLIST");
         }
@@ -6465,7 +6465,7 @@ void TV::UpdateOSDSeekMessage(const QString &Msg, enum OSDTimeout Timeout)
     osdInfo info;
     if (CalcPlayerSliderPosition(info))
     {
-        int osdtype = (m_doSmartForward) ? kOSDFunctionalType_SmartForward : kOSDFunctionalType_Default;
+        int osdtype = m_doSmartForward ? kOSDFunctionalType_SmartForward : kOSDFunctionalType_Default;
         info.text["title"] = Msg;
         UpdateOSDStatus(info, osdtype, Timeout);
         emit ChangeOSDPositionUpdates(true);
@@ -7663,7 +7663,7 @@ void TV::customEvent(QEvent *Event)
 
         GetPlayerReadLock();
         m_playerContext.LockPlayingInfo(__FILE__, __LINE__);
-        bool doit = ((m_playerContext.m_playingInfo) &&
+        bool doit = (m_playerContext.m_playingInfo &&
                      (m_playerContext.m_playingInfo->GetChanID() == evchanid) &&
                      (m_playerContext.m_playingInfo->GetRecordingStartTime() == evrecstartts));
         m_playerContext.UnlockPlayingInfo(__FILE__, __LINE__);
@@ -7685,7 +7685,7 @@ void TV::customEvent(QEvent *Event)
 
         GetPlayerReadLock();
         m_playerContext.LockPlayingInfo(__FILE__, __LINE__);
-        bool doit = ((m_playerContext.m_playingInfo) &&
+        bool doit = (m_playerContext.m_playingInfo &&
                      (m_playerContext.m_playingInfo->GetChanID() == evchanid) &&
                      (m_playerContext.m_playingInfo->GetRecordingStartTime() == evrecstartts));
         m_playerContext.UnlockPlayingInfo(__FILE__, __LINE__);
@@ -10258,7 +10258,7 @@ void TV::DVDJumpForward()
         std::chrono::seconds chapterLength = dvd->GetChapterLength();
         std::chrono::seconds currentTime = dvd->GetCurrentTime();
         if ((titleLength == chapterLength) && (chapterLength > 5min) &&
-            (currentTime < (chapterLength - (duration_cast<std::chrono::seconds>(m_playerContext.m_jumptime)))))
+            (currentTime < (chapterLength - duration_cast<std::chrono::seconds>(m_playerContext.m_jumptime))))
         {
             DoSeek(m_playerContext.m_jumptime, tr("Jump Ahead"), /*timeIsOffset*/true, /*honorCutlist*/true);
         }

@@ -247,7 +247,7 @@ class MTV_PUBLIC IPTVTuningData
 #else
         text.setEncoding(QStringConverter::Utf8);
 #endif
-        return (HLSReader::IsValidPlaylist(text));
+        return HLSReader::IsValidPlaylist(text);
     }
 
   protected:

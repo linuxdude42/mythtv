@@ -290,7 +290,7 @@ void JobQueue::ProcessQueue(void)
                 {
                     int otherJobID = GetRunningJobID(jobs[x].chanid,
                                                      jobs[x].recstartts);
-                    if (otherJobID && (jobStatus.contains(otherJobID)) &&
+                    if (otherJobID && jobStatus.contains(otherJobID) &&
                         (!(jobStatus[otherJobID] & JOB_DONE)))
                     {
                         message =
@@ -434,7 +434,7 @@ void JobQueue::ProcessQueue(void)
                     continue;
 
                 if (inTimeWindow &&
-                    (hostname.isEmpty()) &&
+                    hostname.isEmpty() &&
                     (!ChangeJobHost(jobID, m_hostname)))
                 {
                     message = QString("Unable to claim '%1' job for %2")
@@ -469,7 +469,7 @@ void JobQueue::ProcessQueue(void)
         {
             if (m_jobsRunning > 0)
             {
-                if (!(gCoreContext->IsBlockingClient()))
+                if (!gCoreContext->IsBlockingClient())
                 {
                     gCoreContext->BlockShutdown();
                     LOG(VB_JOBQUEUE, LOG_INFO, QString("%1 jobs running. "

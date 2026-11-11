@@ -161,7 +161,7 @@ QString MasterGuideTable::toStringXML(uint indent_level) const
         std::vector<const unsigned char*> desc =
             MPEGDescriptor::Parse(
                 TableDescriptors(i), TableDescriptorsLength(i));
-        str += (desc.empty()) ? " />\n" : ">\n";
+        str += desc.empty() ? " />\n" : ">\n";
         for (auto & j : desc)
         {
             str += MPEGDescriptor(j, 300)

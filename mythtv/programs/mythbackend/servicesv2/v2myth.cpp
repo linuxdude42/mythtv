@@ -611,18 +611,18 @@ V2LogMessageList* V2Myth::GetLogs( const QString   &HostName,
 #endif
         query.prepare(sql);
 
-        query.bindValue(":HOSTNAME", (HostName.isEmpty()) ? QString() : HostName);
-        query.bindValue(":APPLICATION", (Application.isEmpty()) ? QString() :
+        query.bindValue(":HOSTNAME", HostName.isEmpty() ? QString() : HostName);
+        query.bindValue(":APPLICATION", Application.isEmpty() ? QString() :
                                                                   Application);
         query.bindValue(":PID", ( PID == 0 ) ? ullNull : (qint64)PID);
         query.bindValue(":TID", ( TID == 0 ) ? ullNull : (qint64)TID);
-        query.bindValue(":THREAD", (Thread.isEmpty()) ? QString() : Thread);
-        query.bindValue(":FILENAME", (Filename.isEmpty()) ? QString() : Filename);
+        query.bindValue(":THREAD", Thread.isEmpty() ? QString() : Thread);
+        query.bindValue(":FILENAME", Filename.isEmpty() ? QString() : Filename);
         query.bindValue(":LINE", ( Line == 0 ) ? ullNull : (qint64)Line);
-        query.bindValue(":FUNCTION", (Function.isEmpty()) ? QString() : Function);
-        query.bindValue(":FROMTIME", (FromTime.isValid()) ? FromTime : QDateTime());
-        query.bindValue(":TOTIME", (ToTime.isValid()) ? ToTime : QDateTime());
-        query.bindValue(":LEVEL", (Level.isEmpty()) ? ullNull :
+        query.bindValue(":FUNCTION", Function.isEmpty() ? QString() : Function);
+        query.bindValue(":FROMTIME", FromTime.isValid() ? FromTime : QDateTime());
+        query.bindValue(":TOTIME", ToTime.isValid() ? ToTime : QDateTime());
+        query.bindValue(":LEVEL", Level.isEmpty() ? ullNull :
                                         (qint64)logLevelGet(Level));
 
         if (!MsgContains.isEmpty())

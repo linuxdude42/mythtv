@@ -90,7 +90,7 @@ void VideoSourceSelector::Load(void)
         "SELECT DISTINCT videosource.name, videosource.sourceid "
         "FROM capturecard, videosource";
 
-    querystr += (m_mustHaveMplexId) ? ", channel " : " ";
+    querystr += m_mustHaveMplexId ? ", channel " : " ";
 
     querystr +=
         "WHERE capturecard.sourceid = videosource.sourceid AND "
@@ -1437,7 +1437,7 @@ void FirewireDesc::SetGUID([[maybe_unused]] const QString &_guid)
     name.replace(", Inc.", "");
     name.replace("Explorer(R)", "");
     name = name.simplified();
-    setValue((name.isEmpty()) ? "" : name);
+    setValue(name.isEmpty() ? "" : name);
 #endif // CONFIG_FIREWIRE
 }
 
@@ -2100,7 +2100,7 @@ void ImportConfigurationGroup::probeCard(const QString &device)
 
     if (fileInfo.exists())
     {
-        if (fileInfo.isReadable() && (fileInfo.isFile()))
+        if (fileInfo.isReadable() && fileInfo.isFile())
         {
             ci = HTTPRequest::TestMimeType(fileInfo.absoluteFilePath());
             cs = tr("%1 MB").arg(fileInfo.size() / 1024 / 1024);
@@ -2456,7 +2456,7 @@ void DemoConfigurationGroup::probeCard(const QString &device)
     QFileInfo fileInfo(device);
     if (fileInfo.exists())
     {
-        if (fileInfo.isReadable() && (fileInfo.isFile()))
+        if (fileInfo.isReadable() && fileInfo.isFile())
         {
             ci = HTTPRequest::TestMimeType(fileInfo.absoluteFilePath());
             cs = tr("%1 MB").arg(fileInfo.size() / 1024 / 1024);

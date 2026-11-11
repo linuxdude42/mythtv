@@ -1418,7 +1418,7 @@ bool ProgramInfo::FromStringList(QStringList::const_iterator &it,
     NEXT_STR(); m_inetRef = ts;                              // 34
 
     NEXT_STR(); m_lastModified = DateTimeFromListItem(ts);   // 35
-    NEXT_STR(); (m_stars) = ts.toFloat();                    // 36
+    NEXT_STR(); m_stars = ts.toFloat();                    // 36
     NEXT_STR(); m_originalAirDate = DateFromListItem(ts);    // 37
     NEXT_STR(); m_playGroup = ts;                            // 38
     NEXT_STR(); m_recPriority2 = ts.toLongLong();            // 39
@@ -2251,12 +2251,12 @@ bool ProgramInfo::IsDuplicateProgram(const ProgramInfo& other) const
     }
 
     if ((m_dupMethod & kDupCheckSub) &&
-        ((m_subtitle.isEmpty()) ||
+        (m_subtitle.isEmpty() ||
          (m_subtitle.compare(other.m_subtitle, Qt::CaseInsensitive) != 0)))
         return false;
 
     if ((m_dupMethod & kDupCheckDesc) &&
-        ((m_description.isEmpty()) ||
+        (m_description.isEmpty() ||
          (m_description.compare(other.m_description, Qt::CaseInsensitive) != 0)))
         return false;
 
@@ -2310,12 +2310,12 @@ bool ProgramInfo::IsSameProgram(const ProgramInfo& other) const
     }
 
     if ((m_dupMethod & kDupCheckSub) &&
-        ((m_subtitle.isEmpty()) ||
+        (m_subtitle.isEmpty() ||
          (m_subtitle.compare(other.m_subtitle, Qt::CaseInsensitive) != 0)))
         return false;
 
     if ((m_dupMethod & kDupCheckDesc) &&
-        ((m_description.isEmpty()) ||
+        (m_description.isEmpty() ||
          (m_description.compare(other.m_description, Qt::CaseInsensitive) != 0)))
         return false;
 
@@ -2658,8 +2658,8 @@ QString ProgramInfo::GetPlaybackURL(
 
     // Check to see if we should stream from the master backend
     if (checkMaster &&
-        (gCoreContext->GetBoolSetting("MasterBackendOverride", false)) &&
-        (RemoteCheckFile(this, false)))
+        gCoreContext->GetBoolSetting("MasterBackendOverride", false) &&
+        RemoteCheckFile(this, false))
     {
         tmpURL = MythCoreContext::GenMythURL(gCoreContext->GetMasterHostName(),
                                              MythCoreContext::GetMasterServerPort(),
@@ -2840,7 +2840,7 @@ uint64_t ProgramInfo::QueryBookmark(void) const
     frm_dir_map_t bookmarkmap;
     QueryMarkupMap(bookmarkmap, MARK_BOOKMARK);
 
-    return (bookmarkmap.isEmpty()) ? 0 : bookmarkmap.begin().key();
+    return bookmarkmap.isEmpty() ? 0 : bookmarkmap.begin().key();
 }
 
 uint64_t ProgramInfo::QueryBookmark(uint chanid, const QDateTime &recstartts)
@@ -2850,7 +2850,7 @@ uint64_t ProgramInfo::QueryBookmark(uint chanid, const QDateTime &recstartts)
         chanid, recstartts,
         bookmarkmap, MARK_BOOKMARK);
 
-    return (bookmarkmap.isEmpty()) ? 0 : bookmarkmap.begin().key();
+    return bookmarkmap.isEmpty() ? 0 : bookmarkmap.begin().key();
 }
 
 /** \brief Gets any lastplaypos position in database,
@@ -2867,7 +2867,7 @@ uint64_t ProgramInfo::QueryLastPlayPos() const
     frm_dir_map_t bookmarkmap;
     QueryMarkupMap(bookmarkmap, MARK_UTIL_LASTPLAYPOS);
 
-    return (bookmarkmap.isEmpty()) ? 0 : bookmarkmap.begin().key();
+    return bookmarkmap.isEmpty() ? 0 : bookmarkmap.begin().key();
 }
 
 /** \brief Gets any progstart position in database,
@@ -2884,7 +2884,7 @@ uint64_t ProgramInfo::QueryProgStart(void) const
     frm_dir_map_t bookmarkmap;
     QueryMarkupMap(bookmarkmap, MARK_UTIL_PROGSTART);
 
-    return (bookmarkmap.isEmpty()) ? 0 : bookmarkmap.begin().key();
+    return bookmarkmap.isEmpty() ? 0 : bookmarkmap.begin().key();
 }
 
 uint64_t ProgramInfo::QueryStartMark(void) const
@@ -3323,7 +3323,7 @@ bool ProgramInfo::QueryIsDeleteCandidate(bool one_playback_allowed) const
             play_cnt += byWho[i].contains(kPlayerInUseID) ? 1 : 0;
             ft_cnt += (byWho[i].contains(kFlaggerInUseID) ||
                        byWho[i].contains(kTranscoderInUseID)) ? 1 : 0;
-            jq_cnt += (byWho[i].contains(kJobQueueInUseID)) ? 1 : 0;
+            jq_cnt += byWho[i].contains(kJobQueueInUseID) ? 1 : 0;
             ok = ok && (byWho[i].contains(kRecorderInUseID)   ||
                         byWho[i].contains(kFlaggerInUseID)    ||
                         byWho[i].contains(kTranscoderInUseID) ||
@@ -4562,7 +4562,7 @@ static uint load_markup_datum(
         return 0;
     }
 
-    return (query.next()) ? query.value(0).toUInt() : 0;
+    return query.next() ? query.value(0).toUInt() : 0;
 }
 
 static uint load_markup_datum(
@@ -4595,7 +4595,7 @@ static uint load_markup_datum(
         return 0;
     }
 
-    return (query.next()) ? query.value(0).toUInt() : 0;
+    return query.next() ? query.value(0).toUInt() : 0;
 }
 
 
@@ -5688,7 +5688,7 @@ QStringList ProgramInfo::LoadFromScheduler(
     }
 
     slist.push_back(
-        (tmptable.isEmpty()) ?
+        tmptable.isEmpty() ?
         QString("QUERY_GETALLPENDING") :
         QString("QUERY_GETALLPENDING %1 %2").arg(tmptable).arg(recordid));
 
@@ -6008,7 +6008,7 @@ ProgramInfo* LoadProgramFromProgram(const uint chanid,
 
     // progList is an Auto-delete deque, the object will be deleted with the
     // list, so we need to make a copy
-    progInfo = new ProgramInfo(*(progList[0]));
+    progInfo = new ProgramInfo(*progList[0]);
 
     return progInfo;
 }

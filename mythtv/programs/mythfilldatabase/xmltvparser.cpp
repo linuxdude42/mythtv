@@ -302,7 +302,7 @@ bool XMLTVParser::parseFile(
                             {
                                 QString base = baseUrl.toString(QUrl::StripTrailingSlash);
                                 chaninfo->m_icon = base +
-                                                   ((path.startsWith("/")) ? path : QString("/") + path);
+                                                   (path.startsWith("/") ? path : QString("/") + path);
                             }
                             else if (!path.isEmpty())
                             {
@@ -522,7 +522,7 @@ bool XMLTVParser::parseFile(
                     {
                         pginfo->m_previouslyshown = true;
                         QString prevdate = xml.attributes().value( "start").toString();
-                        if ((!prevdate.isEmpty()) && (pginfo->m_originalairdate.isNull()))
+                        if ((!prevdate.isEmpty()) && pginfo->m_originalairdate.isNull())
                         {
                             QDateTime date;
                             fromXMLTVDate(prevdate, date);
@@ -695,7 +695,7 @@ bool XMLTVParser::parseFile(
                                 pginfo->m_subtitle = xml.readElementText(QXmlStreamReader::SkipChildElements);
                             }
                         }
-                        else if ((system == "themoviedb.org") &&  (m_movieGrabberPath.endsWith(QString("/tmdb3.py"))))
+                        else if ((system == "themoviedb.org") &&  m_movieGrabberPath.endsWith(QString("/tmdb3.py")))
                         {
                             // text is movie/<inetref>
                             QString inetrefRaw(xml.readElementText(QXmlStreamReader::SkipChildElements));
@@ -705,7 +705,7 @@ bool XMLTVParser::parseFile(
                                 pginfo->m_inetref = inetref;
                             }
                         }
-                        else if ((system == "thetvdb.com") && (m_tvGrabberPath.endsWith(QString("/ttvdb4.py"))))
+                        else if ((system == "thetvdb.com") && m_tvGrabberPath.endsWith(QString("/ttvdb4.py")))
                         {
                             // text is series/<inetref>
                             QString inetrefRaw(xml.readElementText(QXmlStreamReader::SkipChildElements));
@@ -798,7 +798,7 @@ bool XMLTVParser::parseFile(
                     }
                 }
                 pginfo->m_programId = programid;
-                if (!(pginfo->m_starttime.isValid()))
+                if (!pginfo->m_starttime.isValid())
                 {
                     LOG(VB_GENERAL, LOG_WARNING, QString("Invalid programme (%1), " "invalid start time, " "skipping").arg(pginfo->m_title));
                 }

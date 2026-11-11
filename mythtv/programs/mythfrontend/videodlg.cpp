@@ -531,7 +531,7 @@ namespace
             tmp["trailerstate"] = TrailerToState(metadata->GetTrailer());
             tmp["studiostate"] = metadata->GetStudio();
             tmp["userratingstate"] =
-                    QString::number((int)(metadata->GetUserRating()));
+                    QString::number((int)metadata->GetUserRating());
             tmp["watchedstate"] = WatchedToState(metadata->GetWatched());
 
             tmp["videolevel"] = ParentalLevelToState(metadata->GetShowLevel());

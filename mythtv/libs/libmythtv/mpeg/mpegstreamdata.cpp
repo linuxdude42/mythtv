@@ -1039,7 +1039,7 @@ bool MPEGStreamData::ProcessTSPacket(const TSPacket& tspacket)
     if (tspacket.HasAdaptationField())
     {
         size_t afsize = tspacket.AdaptationFieldSize();
-        bool validsize = (tspacket.HasPayload())
+        bool validsize = tspacket.HasPayload()
             ? afsize <= 182
             : afsize == 183;
         if (!validsize)

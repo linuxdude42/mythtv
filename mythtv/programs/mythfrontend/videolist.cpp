@@ -163,7 +163,7 @@ struct metadata_sort
 
     bool operator()(const smart_meta_node &lhs, const smart_meta_node &rhs)
     {
-        return m_vfs.meta_less_than(*(lhs->getData()), *(rhs->getData()));
+        return m_vfs.meta_less_than(*lhs->getData(), *rhs->getData());
     }
 
   private:
@@ -1053,7 +1053,7 @@ static void copy_entries(meta_dir_node &dst, meta_dir_node &src,
 {
     for (auto e = src.entries_begin(); e != src.entries_end(); ++e)
     {
-        if (filter.matches_filter(*((*e)->getData())))
+        if (filter.matches_filter(*(*e)->getData()))
         {
             dst.addEntry(
                 smart_meta_node(new meta_data_node((*e)->getData())));
@@ -1088,7 +1088,7 @@ struct call_tree_flat
 
     void operator()(smart_dir_node &sdn)
     {
-        tree_view_to_flat(*(sdn.get()), m_list);
+        tree_view_to_flat(*sdn.get(), m_list);
     }
 
     VideoListImp::metadata_view_list &m_list;

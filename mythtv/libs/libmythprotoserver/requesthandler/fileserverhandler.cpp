@@ -274,8 +274,8 @@ bool FileServerHandler::HandleAnnounce(MythSocket *socket,
             return true;
         }
 
-        if ((path.contains("/../")) ||
-            (path.startsWith("../")))
+        if (path.contains("/../") ||
+            path.startsWith("../"))
         {
             LOG(VB_GENERAL, LOG_ERR, QString("FileTransfer write "
                     "filename '%1' does not pass sanity checks.")
@@ -571,9 +571,9 @@ bool FileServerHandler::HandleQueryFileExists(SocketHandler *socket,
     }
 
     const QString& filename = slist[1];
-    if ((filename.isEmpty()) || 
-        (filename.contains("/../")) || 
-        (filename.startsWith("../")))
+    if (filename.isEmpty() || 
+        filename.contains("/../") || 
+        filename.startsWith("../"))
     {
         LOG(VB_GENERAL, LOG_ERR, 
             QString("ERROR checking for file, filename '%1' "
@@ -713,9 +713,9 @@ bool FileServerHandler::HandleDeleteFile(SocketHandler *socket,
     StorageGroup sgroup(storagegroup, "", false);
     QStringList res;
 
-    if ((filename.isEmpty()) ||
-        (filename.contains("/../")) ||
-        (filename.startsWith("../")))
+    if (filename.isEmpty() ||
+        filename.contains("/../") ||
+        filename.startsWith("../"))
     {
         LOG(VB_GENERAL, LOG_ERR,
             QString("ERROR deleting file, filename '%1' fails sanity checks")
@@ -1066,8 +1066,8 @@ bool FileServerHandler::HandleDownloadFile(SocketHandler *socket,
         return true;
     }
 
-    if ((filename.contains("/../")) ||
-        (filename.startsWith("../")))
+    if (filename.contains("/../") ||
+        filename.startsWith("../"))
     {
         LOG(VB_GENERAL, LOG_ERR, QString("ERROR: %1 write "
                 "filename '%2' does not pass sanity checks.")

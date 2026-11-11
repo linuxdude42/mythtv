@@ -343,7 +343,7 @@ int MythVAAPIContext::InitialiseContext(AVCodecContext* Context)
     {
         LOG(VB_GENERAL, LOG_ERR, LOC + "Failed to initialise VAAPI frames context");
         av_buffer_unref(&hwdeviceref);
-        av_buffer_unref(&(Context->hw_frames_ctx));
+        av_buffer_unref(&Context->hw_frames_ctx);
         return res;
     }
 
@@ -392,7 +392,7 @@ int MythVAAPIContext::InitialiseContext2(AVCodecContext* Context)
     {
         LOG(VB_GENERAL, LOG_ERR, LOC + "Failed to initialise VAAPI frames context");
         av_buffer_unref(&device);
-        av_buffer_unref(&(Context->hw_frames_ctx));
+        av_buffer_unref(&Context->hw_frames_ctx);
         return -1;
     }
 

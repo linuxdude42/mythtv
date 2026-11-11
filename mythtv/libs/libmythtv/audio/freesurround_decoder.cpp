@@ -331,12 +331,12 @@ private:
         }
 
         // 4. distribute the unfiltered reference signals over the channels
-        apply_filter((m_frontL).data(), m_filter[0].data(),&output[0][0]);  // front left
-        apply_filter((m_avg).data(),    m_filter[1].data(),&output[1][0]);  // front center
-        apply_filter((m_frontR).data(), m_filter[2].data(),&output[2][0]);  // front right
-        apply_filter((m_surL).data(),   m_filter[3].data(),&output[3][0]);  // surround left
-        apply_filter((m_surR).data(),   m_filter[4].data(),&output[4][0]);  // surround right
-        apply_filter((m_trueavg).data(),m_filter[5].data(),&output[5][0]);  // lfe
+        apply_filter(m_frontL.data(), m_filter[0].data(),&output[0][0]);  // front left
+        apply_filter(m_avg.data(),    m_filter[1].data(),&output[1][0]);  // front center
+        apply_filter(m_frontR.data(), m_filter[2].data(),&output[2][0]);  // front right
+        apply_filter(m_surL.data(),   m_filter[3].data(),&output[3][0]);  // surround left
+        apply_filter(m_surR.data(),   m_filter[4].data(),&output[4][0]);  // surround right
+        apply_filter(m_trueavg.data(),m_filter[5].data(),&output[5][0]);  // lfe
     }
 
 #define FASTER_CALC

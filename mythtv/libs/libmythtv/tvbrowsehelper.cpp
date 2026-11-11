@@ -434,7 +434,7 @@ void TVBrowseHelper::run()
                                chanids_extra.end());
             }
             m_browseChanNum   = bi.m_chanNum;
-            m_browseChanId    = (chanids.empty()) ? bi.m_chanId : chanids[0];
+            m_browseChanId    = chanids.empty() ? bi.m_chanId : chanids[0];
             m_browseStartTime = bi.m_startTime;
         }
 

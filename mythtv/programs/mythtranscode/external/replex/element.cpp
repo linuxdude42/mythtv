@@ -211,7 +211,7 @@ int get_video_info(ringbuffer *rbuf, sequence_t *s, int off, int le)
 	if (ring_peek(rbuf, buf, off) < 0) return -2;
 	
 	s->h_size	= ((headr[1] &0xF0) >> 4) | (headr[0] << 4);
-	s->v_size	= ((headr[1] &0x0F) << 8) | (headr[2]);
+	s->v_size	= ((headr[1] &0x0F) << 8) | headr[2];
     
         int sw = ((headr[3]&0xF0) >> 4) ;
 

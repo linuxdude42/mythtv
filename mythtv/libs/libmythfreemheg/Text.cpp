@@ -59,7 +59,7 @@ MHText::MHText(const MHText &ref) // Copy constructor for cloning.
 
 MHText::~MHText()
 {
-    delete(m_pDisplay);
+    delete m_pDisplay;
 }
 
 
@@ -518,7 +518,7 @@ MHTextLine::~MHTextLine()
 {
     for (int i = 0; i < m_items.Size(); i++)
     {
-        delete(m_items.GetAt(i));
+        delete m_items.GetAt(i);
     }
 }
 
@@ -848,7 +848,7 @@ void MHText::Redraw()
     // Clean up.
     for (int k = 0; k < theText.Size(); k++)
     {
-        delete(theText.GetAt(k));
+        delete theText.GetAt(k);
     }
 }
 
@@ -874,7 +874,7 @@ void MHText::Display(MHEngine *engine)
 // Return the area actually obscured.  This is empty unless the background is opaque.
 QRegion MHText::GetOpaqueArea()
 {
-    if (! m_fRunning || (GetColour(m_bgColour)).alpha() != 255)
+    if (! m_fRunning || GetColour(m_bgColour).alpha() != 255)
     {
         return {};
     }

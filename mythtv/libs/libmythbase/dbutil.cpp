@@ -81,7 +81,7 @@ bool DBUtil::IsNewDatabase(void)
     const int size = tables.size();
     // Usually there will be a single table called schemalock, but check for
     // no tables, also, just in case.
-    return (((size == 1) && (tables.at(0).endsWith(".`schemalock`"))) ||
+    return (((size == 1) && tables.at(0).endsWith(".`schemalock`")) ||
             (size == 0));
 }
 
@@ -576,7 +576,7 @@ bool DBUtil::DoBackup(const QString &backupScript, QString &filename,
     QString rotate = "";
     if (disableRotation)
     {
-        if (!(scriptArgs.contains("rotate", Qt::CaseInsensitive)))
+        if (!scriptArgs.contains("rotate", Qt::CaseInsensitive))
             rotate = "rotate=-1";
     }
 

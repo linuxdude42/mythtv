@@ -253,8 +253,8 @@ int Transcode::TranscodeFile(const QString &inputname,
         LOG(VB_GENERAL, LOG_INFO, QString("New Length     : %1 frames")
                 .arg((long)new_frame_count));
 
-        if ((m_proginfo->QueryIsEditing()) ||
-            (JobQueue::IsJobRunning(JOB_COMMFLAG, *m_proginfo)))
+        if (m_proginfo->QueryIsEditing() ||
+            JobQueue::IsJobRunning(JOB_COMMFLAG, *m_proginfo))
         {
             LOG(VB_GENERAL, LOG_INFO, "Transcoding aborted, cutlist changed");
             SetPlayerContext(nullptr);
@@ -827,7 +827,7 @@ int Transcode::TranscodeFile(const QString &inputname,
                 return REENCODE_CUTLIST_CHANGE;
             }
 
-            if ((jobID >= 0) || (VERBOSE_LEVEL_CHECK(VB_GENERAL, LOG_INFO)))
+            if ((jobID >= 0) || VERBOSE_LEVEL_CHECK(VB_GENERAL, LOG_INFO))
             {
                 if (JobQueue::GetJobCmd(jobID) == JOB_STOP)
                 {

@@ -116,8 +116,8 @@ static void fill_setting(
                 else
                 {
                     setting->m_data =
-                        (setting->m_data_list.contains(
-                            setting->m_default_data, Qt::CaseInsensitive)) ?
+                        setting->m_data_list.contains(
+                            setting->m_default_data, Qt::CaseInsensitive) ?
                         setting->m_default_data : setting->m_data_list[0];
                 }
             }
@@ -256,7 +256,7 @@ QString MythSetting::ToHTML(uint level) const
                 QString("<p class=\"setting_paragraph\">"
                         "<input class=\"setting_input\" name=\"%1_input\" id=\"%1\" type=\"checkbox\""
                         " value=\"1\" %2/><label class=\"setting_label_checkbox\" for=\"%1\">%3</label>")
-                .arg(m_value, (m_data.toUInt()) ? "checked" : "", m_label);
+                .arg(m_value, m_data.toUInt() ? "checked" : "", m_label);
             ret += indent(level) +
                 QString("<a class=\"setting_helplink ui-icon ui-icon-help\" href=\"javascript:showSettingHelp('%1'"
                         ")\"></a></p><div class=\"form_error\""
@@ -508,7 +508,7 @@ bool parse_dom(MythSettingList &settings, const QDomElement &element,
             auto *g = new MythSettingGroup(
                 m_human_label, m_unique_label, m_ecma_script);
 
-            if ((e.hasChildNodes()) &&
+            if (e.hasChildNodes() &&
                 (!parse_dom(g->m_settings, e, filename, group, tmpIncludeAllChildren,
                             tmpFoundGroup)))
             {
@@ -574,7 +574,7 @@ bool parse_dom(MythSettingList &settings, const QDomElement &element,
                             "Setting selection item missing data.");
                         return false;
                     }
-                    display = (display.isEmpty()) ? data : display;
+                    display = display.isEmpty() ? data : display;
                     data_list.push_back(data);
                     display_list.push_back(display);
 

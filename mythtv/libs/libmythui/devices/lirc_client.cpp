@@ -1280,7 +1280,7 @@ static int sstrcasecmp(std::string s1, std::string s2)
 		       [](char c){ return std::tolower(c); });
 	std::ranges::transform(s2, s2.begin(),
 		       [](char c){ return std::tolower(c); });
-	return(strcasecmp(s1.data(), s2.data()));
+	return strcasecmp(s1.data(), s2.data());
 }
 
 static int lirc_iscode(struct lirc_config_entry *scan, std::string& remote,
@@ -1636,7 +1636,7 @@ static const char *lirc_read_string(const struct lirc_state *state, int fd)
 	end[0]=0;
 	s_head=strlen(s_buffer.data())+1;
 	(void)cleanup.release();
-	return(s_buffer.data());
+	return s_buffer.data();
 }
 
 int lirc_send_command(const struct lirc_state *lstate, int sockfd, const std::string& command, char *buf, size_t *buf_len, int *ret_status)

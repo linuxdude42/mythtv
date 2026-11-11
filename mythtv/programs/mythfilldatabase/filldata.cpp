@@ -453,7 +453,7 @@ bool FillData::Run(DataSourceList &sourcelist)
             int grabdays = REFRESH_MAX;
 
             grabdays = (m_maxDays > 0)          ? m_maxDays : grabdays;
-            grabdays = (m_onlyUpdateChannels)   ? 1         : grabdays;
+            grabdays = m_onlyUpdateChannels  ? 1         : grabdays;
 
             std::vector<bool> refresh_request;
             refresh_request.resize(grabdays, m_refreshAll);
@@ -477,7 +477,7 @@ bool FillData::Run(DataSourceList &sourcelist)
                 if (MythDate::current().date() != qCurrentDate)
                 {
                     QDate newDate = MythDate::current().date();
-                    i += (newDate.daysTo(qCurrentDate));
+                    i += newDate.daysTo(qCurrentDate);
                     i = std::max(i, 0);
                     qCurrentDate = newDate;
                 }

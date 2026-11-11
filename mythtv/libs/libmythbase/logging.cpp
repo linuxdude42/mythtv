@@ -127,7 +127,7 @@ void resetLogging(void)
 LoggingItem::LoggingItem(const char *_file, const char *_function,
                          int _line, LogLevel_t _level, LoggingType _type) :
         ReferenceCounter("LoggingItem", false),
-        m_threadId((uint64_t)(QThread::currentThreadId())),
+        m_threadId((uint64_t)QThread::currentThreadId()),
         m_line(_line), m_type(_type), m_level(_level),
         m_function(_function)
 {
@@ -755,7 +755,7 @@ int syslogGetFacility([[maybe_unused]] const QString& facility)
     for (name = &facilitynames[0];
          name->c_name && (strcmp(name->c_name, string) != 0); name++);
 
-    return( name->c_val );
+    return name->c_val ;
 #endif
 }
 
@@ -986,7 +986,7 @@ int verboseArgParse(const QString& arg)
             {
                 if (reverseOption)
                 {
-                    verboseMask &= ~(item->mask);
+                    verboseMask &= ~item->mask;
                     verboseString = verboseString.remove(' ' + item->name);
                     verboseString += " no" + item->name;
                 }

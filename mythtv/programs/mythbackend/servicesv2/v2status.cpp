@@ -1906,7 +1906,7 @@ void V2Status::FillChannelInfo( QDomElement &channel,
             channel.setAttribute( "sourceId"   , pInfo->GetSourceID()    );
             channel.setAttribute( "inputId"    , pInfo->GetInputID()     );
             channel.setAttribute( "commFree"   ,
-                                  (pInfo->IsCommercialFree()) ? 1 : 0 );
+                                  pInfo->IsCommercialFree() ? 1 : 0 );
         }
     }
 }

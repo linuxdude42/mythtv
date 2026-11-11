@@ -415,7 +415,7 @@ uint32_t * goom_update (GoomDualData& data, int forceMode) {
                         if (it != kStates.cend())
                             curGState = &(*it);
 
-			if ((curGState->m_drawIfs) && (s_ifsIncr<=0)) {
+			if (curGState->m_drawIfs && (s_ifsIncr<=0)) {
 				s_recayIfs = 5;
 				s_ifsIncr = 11;
 			}
@@ -433,7 +433,7 @@ uint32_t * goom_update (GoomDualData& data, int forceMode) {
 				s_lockVar = 50;
 				uint32_t newvit = STOP_SPEED + 1 - (4.0F * log10f(s_speedVar+1));
 				// retablir le zoom avant..
-				if ((s_zfd.reverse) && (!(cycle % 13)) && rand_bool(5)) {
+				if (s_zfd.reverse && (!(cycle % 13)) && rand_bool(5)) {
 					s_zfd.reverse = false;
 					s_zfd.vitesse = STOP_SPEED - 2;
 					s_lockVar = 75;
@@ -749,7 +749,7 @@ uint32_t * goom_update (GoomDualData& data, int forceMode) {
 
 	if ((cycle % 120 == 0)
 			&& rand_bool(4)
-			&& (curGState->m_drawScope)) {
+			&& curGState->m_drawScope) {
 		if (s_lineMode == 0) {
 			s_lineMode = DRAWLINES;
 		} else if (s_lineMode == DRAWLINES) {

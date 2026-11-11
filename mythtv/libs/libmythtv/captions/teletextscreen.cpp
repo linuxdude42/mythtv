@@ -204,7 +204,7 @@ void TeletextScreen::Pulse()
             while (!ok && m_fontStretch > 50)
             {
                 gTTFont->GetFace()->setStretch(m_fontStretch);
-                QFontMetrics font(*(gTTFont->GetFace()));
+                QFontMetrics font(*gTTFont->GetFace());
                 if (font.averageCharWidth() <= max_width || m_fontStretch < 50)
                     ok = true;
                 else
@@ -236,7 +236,7 @@ void TeletextScreen::Pulse()
     m_teletextReader->SetSubPage(ttpage->subpagenum);
 
     int a = 0;
-    if ((ttpage->subtitle) ||
+    if (ttpage->subtitle ||
         (ttpage->flags & (TP_SUPPRESS_HEADER | TP_NEWSFLASH | TP_SUBTITLE)))
     {
         a = 1; // when showing subtitles we don't want to see the teletext

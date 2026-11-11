@@ -87,7 +87,7 @@ MythCodecID MythNVDECContext::GetSupportedCodec(AVCodecContext **Context,
 
     // N.B. on stream changes format is set to CUDA/NVDEC. This may break if the new
     // stream has an unsupported chroma but the decoder should fail gracefully - just later.
-    if ((FMT_NVDEC == type) || (MythVideoFrame::FormatIs420(type)))
+    if ((FMT_NVDEC == type) || MythVideoFrame::FormatIs420(type))
         cudaformat = cudaVideoChromaFormat_420;
     else if (MythVideoFrame::FormatIs422(type))
         cudaformat = cudaVideoChromaFormat_422;

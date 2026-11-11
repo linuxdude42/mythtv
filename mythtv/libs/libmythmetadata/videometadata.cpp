@@ -1271,7 +1271,7 @@ VideoMetadata &VideoMetadata::operator=(const VideoMetadata &rhs)
 {
     if (this != &rhs)
     {
-        m_imp = new VideoMetadataImp(*(rhs.m_imp));
+        m_imp = new VideoMetadataImp(*rhs.m_imp);
     }
 
     return *this;
@@ -1429,7 +1429,7 @@ void VideoMetadata::GetStateMap(InfoMap &stateMap) const
 {
     stateMap[QStringLiteral(u"trailerstate")] = TrailerToState(GetTrailer());
     stateMap[QStringLiteral(u"userratingstate")] =
-            QString::number((int)(GetUserRating()));
+            QString::number((int)GetUserRating());
     stateMap[QStringLiteral(u"watchedstate")] = WatchedToState(GetWatched());
     stateMap[QStringLiteral(u"videolevel")] = ParentalLevelToState(GetShowLevel());
 }
@@ -1441,7 +1441,7 @@ QString VideoMetadata::GetState(const QString& name) const
     if (name == QStringLiteral(u"trailerstate"))
         return TrailerToState(GetTrailer());
     if (name == QStringLiteral(u"userratingstate"))
-        return QString::number((int)(GetUserRating()));
+        return QString::number((int)GetUserRating());
     if (name == QStringLiteral(u"watchedstate"))
         return WatchedToState(GetWatched());
     if (name == QStringLiteral(u"videolevel"))

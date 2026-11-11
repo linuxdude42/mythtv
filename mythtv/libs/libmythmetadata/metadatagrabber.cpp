@@ -93,7 +93,7 @@ GrabberList MetaGrabberScript::GetList(GrabberType type,
             // directories they are stored in
             for (const auto& grabberType : std::as_const(grabberTypes))
             {
-                QString path = (grabberType.m_path).arg(GetShareDir());
+                QString path = grabberType.m_path.arg(GetShareDir());
                 QDir dir = QDir(path);
                 if (!dir.exists())
                 {

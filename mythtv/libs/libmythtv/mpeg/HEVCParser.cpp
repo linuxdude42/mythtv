@@ -2058,8 +2058,8 @@ uint HEVCParser::pictureWidthCropped(void) const
     const uint8_t crop_unit_x = subwc[m_chromaFormatIdc];
     // uint crop_rect_x = m_frameCropLeftOffset * crop_unit_x;
 
-    return m_picWidth - ((/* m_frameCropLeftOffset + */
-                          m_frameCropRightOffset) * crop_unit_x);
+    return m_picWidth - (/* m_frameCropLeftOffset + */
+                          m_frameCropRightOffset * crop_unit_x);
 }
 
 // Following the lead of AVCParser, ignore the top cropping.
@@ -2069,8 +2069,8 @@ uint HEVCParser::pictureHeightCropped(void) const
     const uint8_t crop_unit_y = subhc[m_chromaFormatIdc];
     // uint crop_rect_y = m_frameCropTopOffset * crop_unit_y;
 
-    return m_picHeight - ((/* m_frameCropTopOffset + */
-                           m_frameCropBottomOffset) * crop_unit_y);
+    return m_picHeight - (/* m_frameCropTopOffset + */
+                           m_frameCropBottomOffset * crop_unit_y);
 }
 
 MythAVRational HEVCParser::getFrameRate() const

@@ -491,7 +491,7 @@ int main(int argc, char *argv[])
         {
             printf("%5i %6i %8i %8s    %20s\n",
                    scan.m_scanid,   scan.m_cardid,
-                   scan.m_sourceid, (scan.m_processed) ? "yes" : "no",
+                   scan.m_sourceid, scan.m_processed ? "yes" : "no",
                    scan.m_scandate.toString(Qt::ISODate)
                    .toLatin1().constData());
         }

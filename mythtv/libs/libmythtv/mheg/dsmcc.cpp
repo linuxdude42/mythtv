@@ -498,7 +498,7 @@ void Dsmcc::ProcessSection(const unsigned char *data, int length,
         return; // Ignore this stream.
     }
 
-    unsigned short section_len = ((data[1] & 0xF) << 8) | (data[2]);
+    unsigned short section_len = ((data[1] & 0xF) << 8) | data[2];
     section_len += 3;/* 3 bytes before length count starts */
     if (section_len > length)
     {

@@ -129,8 +129,8 @@ bool MHIContext::LoadFont(const QString& name)
 MHIContext::~MHIContext()
 {
     StopEngine();
-    delete(m_engine);
-    delete(m_dsmcc);
+    delete m_engine;
+    delete m_dsmcc;
     if (m_faceLoaded) FT_Done_Face(m_face);
 
     ClearDisplay();

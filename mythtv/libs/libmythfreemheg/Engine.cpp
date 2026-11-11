@@ -489,7 +489,7 @@ void MHEngine::TransitionToScene(const MHObjectRef &target)
     // Can now actually delete the old scene.
     if (pApp->m_pCurrentScene)
     {
-        delete(pApp->m_pCurrentScene);
+        delete pApp->m_pCurrentScene;
         pApp->m_pCurrentScene = nullptr;
     }
 
@@ -1217,7 +1217,7 @@ bool MHEngine::LoadStorePersistent(bool fIsLoad, const MHOctetString &fileName, 
             MHUnion *pValue = pEntry->m_Data.GetAt(i);
             MHLOG(MHLogNotifications, QString("Load Persistent(%1) #%2=%3")
                 .arg(csFile).arg(i).arg(pValue->Printable()) );
-            FindObject(*(variables.GetAt(i)))->SetVariableValue(*pValue);
+            FindObject(*variables.GetAt(i))->SetVariableValue(*pValue);
         }
     }
 
@@ -1234,7 +1234,7 @@ bool MHEngine::LoadStorePersistent(bool fIsLoad, const MHOctetString &fileName, 
         {
             auto *pValue = new MHUnion;
             pEntry->m_Data.Append(pValue);
-            FindObject(*(variables.GetAt(i)))->GetVariableValue(*pValue, this);
+            FindObject(*variables.GetAt(i))->GetVariableValue(*pValue, this);
             MHLOG(MHLogNotifications, QString("Store Persistent(%1) %2=>#%3")
                 .arg(csFile, pValue->Printable(), QString::number(i)) );
         }

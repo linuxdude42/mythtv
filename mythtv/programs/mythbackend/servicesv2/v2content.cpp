@@ -213,7 +213,7 @@ QFileInfo V2Content::GetImageFile( const QString &sStorageGroup,
     if (!pImage || pImage->isNull())
         return {};
 
-    float fAspect = (float)(pImage->width()) / pImage->height();
+    float fAspect = (float)pImage->width() / pImage->height();
 
     if ( nWidth == 0 )
         nWidth = (int)std::rint(nHeight * fAspect);
@@ -487,7 +487,7 @@ QFileInfo V2Content::GetAlbumArt( int nTrackId, int nWidth, int nHeight )
     }
     else
     {
-        float fAspect = (float)(img.width()) / img.height();
+        float fAspect = (float)img.width() / img.height();
 
         if ( nWidth == 0 || nWidth > img.width() )
             nWidth = (int)std::rint(nHeight * fAspect);
@@ -834,9 +834,9 @@ QFileInfo V2Content::GetVideo( int nId )
 QString V2Content::GetHash( const QString &sStorageGroup,
                           const QString &sFileName )
 {
-    if ((sFileName.isEmpty()) ||
-        (sFileName.contains("/../")) ||
-        (sFileName.startsWith("../")))
+    if (sFileName.isEmpty() ||
+        sFileName.contains("/../") ||
+        sFileName.startsWith("../"))
     {
         LOG(VB_GENERAL, LOG_ERR,
             QString("ERROR checking for file, filename '%1' "
@@ -880,8 +880,8 @@ bool V2Content::DownloadFile( const QString &sURL, const QString &sStorageGroup 
         return false;
     }
 
-    if ((filename.contains("/../")) ||
-        (filename.startsWith("../")))
+    if (filename.contains("/../") ||
+        filename.startsWith("../"))
     {
         LOG(VB_GENERAL, LOG_ERR,
             QString("ERROR: %1 write filename '%2' does not "

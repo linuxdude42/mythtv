@@ -760,7 +760,7 @@ bool MythDisplay::SwitchToVideo(QSize Size, double Rate)
     }
 
     // No need for change
-    if ((next == current) && (MythDisplayMode::CompareRates(current.RefreshRate(), targetrate)))
+    if ((next == current) && MythDisplayMode::CompareRates(current.RefreshRate(), targetrate))
     {
         LOG(VB_GENERAL, LOG_INFO, LOC + QString("Using current mode %1x%2@%3Hz")
             .arg(m_resolution.width()).arg(m_resolution.height()).arg(m_refreshRate));

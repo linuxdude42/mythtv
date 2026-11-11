@@ -700,7 +700,7 @@ RecStatus::Type TVRec::StartRecording(ProgramInfo *pginfo)
         WaitForEventThreadSleep();
 
         QMutexLocker locker(&m_pendingRecLock);
-        if ((m_curRecording) &&
+        if (m_curRecording &&
             (m_curRecording->GetRecordingStatus() == RecStatus::Failed) &&
             (m_recStatus == RecStatus::Recording ||
              m_recStatus == RecStatus::Tuning ||
@@ -1769,7 +1769,7 @@ void TVRec::HandlePendingRecordings(void)
         if (!(*it).m_ask && !(*it).m_doNotAsk)
             continue;
 
-        auto timeuntil = ((*it).m_doNotAsk) ?
+        auto timeuntil = (*it).m_doNotAsk ?
             -1s: MythDate::secsInFuture((*it).m_recordingStart);
 
         if (has_rec)
@@ -3766,7 +3766,7 @@ void TVRec::TuningFrequency(const TuningRequest &request)
         // Tune with SI table standard (dvb, atsc, mpeg) from database, see issue #452
         m_channel->SetChannelByString(request.m_channel);
 
-        const QString tuningmode = (HasFlags(kFlagEITScannerRunning)) ?
+        const QString tuningmode = HasFlags(kFlagEITScannerRunning) ?
             dtvchan->GetSIStandard() :
             dtvchan->GetSuggestedTuningMode(
                 kState_WatchingLiveTV == m_internalState);

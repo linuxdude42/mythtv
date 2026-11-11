@@ -139,7 +139,7 @@ MythDB::~MythDB()
 
 MDBManager *MythDB::GetDBManager(void)
 {
-    return &(d->m_dbmanager);
+    return &d->m_dbmanager;
 }
 
 QString MythDB::toCommaList(const QMap<QString, QVariant> &bindings,
@@ -166,7 +166,7 @@ QString MythDB::toCommaList(const QMap<QString, QVariant> &bindings,
 #endif
             )
         {
-            val = (it->toString().isNull()) ?
+            val = it->toString().isNull() ?
                 "NULL" : QString("\"%1\"").arg(val);
         }
         const QString curBinding = it.key() + '=' + val + ',';
@@ -365,7 +365,7 @@ bool MythDB::SaveSettingOnHost(const QString &key,
         return false;
     }
 
-    QString newValue = (newValueRaw.isNull()) ? "" : newValueRaw;
+    QString newValue = newValueRaw.isNull() ? "" : newValueRaw;
 
     if (d->m_ignoreDatabase)
     {
@@ -446,7 +446,7 @@ bool MythDB::SaveSettingOnHost(const QString &key,
         if (!query.exec())
         {
             success = false;
-            if (!(GetMythDB()->SuppressDBMessages()))
+            if (!GetMythDB()->SuppressDBMessages())
                 MythDB::DBError(loc + "- query failure: ", query);
         }
     }

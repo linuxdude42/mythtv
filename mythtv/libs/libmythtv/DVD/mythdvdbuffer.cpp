@@ -1441,7 +1441,7 @@ AVSubtitle *MythDVDBuffer::GetMenuSubtitle(uint &Version)
     if ((m_menuBuflength > 4) && m_buttonExists && (NumMenuButtons() > 0))
     {
         Version = m_buttonVersion;
-        return &(m_dvdMenuButton);
+        return &m_dvdMenuButton;
     }
 
     return nullptr;

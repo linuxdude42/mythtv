@@ -2122,7 +2122,7 @@ void EITFixUp::FixNL(DBEventEIT &event)
     int position = event.m_title.indexOf(":");
     if ((position != -1) && ((position + 1) < event.m_title.size()) &&
         (event.m_title[position + 1].toUpper() == event.m_title[position + 1]) &&
-        (event.m_subtitle.isEmpty()))
+        event.m_subtitle.isEmpty())
     {
         event.m_subtitle = event.m_title.mid(position + 1);
         event.m_title = event.m_title.left(position);

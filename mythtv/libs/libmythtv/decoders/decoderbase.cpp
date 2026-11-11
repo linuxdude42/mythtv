@@ -586,7 +586,7 @@ long long DecoderBase::GetKey(const PosMapEntry &e) const
 {
     long long kf = (m_ringBuffer && m_ringBuffer->IsDisc()) ?
         1LL : m_keyframeDist;
-    return (m_hasKeyFrameAdjustTable) ? e.adjFrame :(e.index - m_indexOffset) * kf;
+    return m_hasKeyFrameAdjustTable ? e.adjFrame :(e.index - m_indexOffset) * kf;
 }
 
 bool DecoderBase::DoRewindSeek(long long desiredFrame)

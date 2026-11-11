@@ -1320,7 +1320,7 @@ QString ChannelUtil::GetIcon(uint chanid)
         }
         else
         {
-            s_channelIconMap[chanid] = (query.next()) ?
+            s_channelIconMap[chanid] = query.next() ?
                 query.value(1).toString() : "";
         }
     }
@@ -1502,7 +1502,7 @@ int ChannelUtil::CreateChanID(uint sourceid, const QString &chan_num)
         chanid = (sourceid * 10000) + chan_num.toInt();
     }
 
-    if ((chanid > sourceid * 10000) && (chanid_available(chanid)))
+    if ((chanid > sourceid * 10000) && chanid_available(chanid))
         return chanid;
 
     // try to at least base it on the sourceid for human readability
@@ -1645,11 +1645,11 @@ bool ChannelUtil::UpdateChannel(uint db_mplexid,
         "    visible         = :VISIBLE,   service_type    = :SERVICETYPE "
         "WHERE chanid=:CHANID")
         .arg((!set_channum)       ? "" : "channum  = :CHANNUM,  ",
-             (freqid.isEmpty())   ? "" : "freqid   = :FREQID,   ",
-             (icon.isEmpty())     ? "" : "icon     = :ICON,     ",
-             (tvformat.isEmpty()) ? "" : "tvformat = :TVFORMAT, ",
-             (xmltvid.isEmpty())  ? "" : "xmltvid  = :XMLTVID,  ",
-             (default_authority.isEmpty()) ?
+             freqid.isEmpty()  ? "" : "freqid   = :FREQID,   ",
+             icon.isEmpty()    ? "" : "icon     = :ICON,     ",
+             tvformat.isEmpty() ? "" : "tvformat = :TVFORMAT, ",
+             xmltvid.isEmpty() ? "" : "xmltvid  = :XMLTVID,  ",
+             default_authority.isEmpty() ?
                 "" : "default_authority = :AUTHORITY,",
              (recpriority == INT_MIN) ? "" : "recpriority = :RECPRIORITY, ",
              (tmOffset    == INT_MIN) ? "" : "tmOffset    = :TMOFFSET, ",
@@ -1989,7 +1989,7 @@ bool ChannelUtil::GetChannelData(
         mplexid       = query.value(5).toUInt();
         atsc_major    = query.value(6).toUInt();
         atsc_minor    = query.value(7).toUInt();
-        mpeg_prog_num = (query.value(8).isNull()) ? -1
+        mpeg_prog_num = query.value(8).isNull() ? -1
                         : query.value(8).toInt();
         chanid        = query.value(9).toUInt();
         name          = query.value(10).toString();

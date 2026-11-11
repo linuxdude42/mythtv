@@ -31,7 +31,7 @@
 
 static void setGlobalSetting(const QString &key, const QString &v)
 {
-    QString value = (v.isNull()) ? QString("") : v;
+    QString value = v.isNull() ? QString("") : v;
 
     MSqlQuery query(MSqlQuery::InitCon());
     if (query.isConnected())

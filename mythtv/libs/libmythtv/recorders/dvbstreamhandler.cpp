@@ -216,7 +216,7 @@ void DVBStreamHandler::RunTS(void)
 
         if (drb)
         {
-            len = drb->Read(&(buffer[remainder]), buffer_size - remainder);
+            len = drb->Read(&buffer[remainder], buffer_size - remainder);
 
             // Check for DRB errors
             if (drb->IsErrored())
@@ -242,7 +242,7 @@ void DVBStreamHandler::RunTS(void)
             }
             else
             {
-                len = read(dvr_fd, &(buffer[remainder]),
+                len = read(dvr_fd, &buffer[remainder],
                            buffer_size - remainder);
             }
 
@@ -277,7 +277,7 @@ void DVBStreamHandler::RunTS(void)
         m_listenerLock.unlock();
 
         if (remainder > 0 && (len > remainder)) // leftover bytes
-            memmove(buffer, &(buffer[len - remainder]), remainder);
+            memmove(buffer, &buffer[len - remainder], remainder);
     }
     LOG(VB_RECORD, LOG_DEBUG, LOC + "RunTS(): " + "shutdown");
 

@@ -593,8 +593,8 @@ bool V2Video::AddVideo( const QString &sFileName,
                         "is not supported by the API." ));
 
     if ( sFileName.isEmpty() ||
-        (sFileName.contains("/../")) ||
-        (sFileName.startsWith("../")) )
+        sFileName.contains("/../") ||
+        sFileName.startsWith("../") )
     {
         throw( QString( "Filename not provided, or fails sanity checks!" ));
     }

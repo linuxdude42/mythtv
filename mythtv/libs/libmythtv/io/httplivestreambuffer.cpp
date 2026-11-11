@@ -165,7 +165,7 @@ class HLSSegment
         m_title         = rhs.m_title;
 #if CONFIG_LIBCRYPTO
         m_pszKeyPath    = rhs.m_pszKeyPath;
-        memcpy(&m_aeskey, &(rhs.m_aeskey), sizeof(m_aeskey));
+        memcpy(&m_aeskey, &rhs.m_aeskey, sizeof(m_aeskey));
         m_keyloaded     = rhs.m_keyloaded;
 #endif
         m_downloading   = rhs.m_downloading;
@@ -436,7 +436,7 @@ class HLSSegment
 
     void CopyAESKey(const HLSSegment &segment)
     {
-        memcpy(&m_aeskey, &(segment.m_aeskey), sizeof(m_aeskey));
+        memcpy(&m_aeskey, &segment.m_aeskey, sizeof(m_aeskey));
         m_keyloaded = segment.m_keyloaded;
     }
 private:

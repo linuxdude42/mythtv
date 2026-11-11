@@ -1503,14 +1503,14 @@ ChannelImporterBasicStats ChannelImporter::CollectStats(
             if (chan.m_siStandard == "atsc")
             {
                 ++info.m_atscNumCnt[(chan.m_atscMajorChannel << 16) |
-                                     (chan.m_atscMinorChannel)];
+                                     chan.m_atscMinorChannel];
                 ++info.m_atscMinCnt[chan.m_atscMinorChannel];
                 ++info.m_atscMajCnt[chan.m_atscMajorChannel];
             }
             if (chan.m_siStandard == "ntsc")
             {
                 ++info.m_atscNumCnt[(chan.m_atscMajorChannel << 16) |
-                                     (chan.m_atscMinorChannel)];
+                                     chan.m_atscMinorChannel];
             }
         }
     }
@@ -1537,9 +1537,9 @@ ChannelImporterUniquenessStats ChannelImporter::CollectUniquenessStats(
             {
                 stats.m_uniqueAtscNum +=
                     (info.m_atscNumCnt[(chan.m_atscMajorChannel << 16) |
-                                        (chan.m_atscMinorChannel)] == 1) ? 1 : 0;
+                                        chan.m_atscMinorChannel] == 1) ? 1 : 0;
                 stats.m_uniqueAtscMin +=
-                    (info.m_atscMinCnt[(chan.m_atscMinorChannel)] == 1) ? 1 : 0;
+                    (info.m_atscMinCnt[chan.m_atscMinorChannel] == 1) ? 1 : 0;
                 stats.m_maxAtscMajCnt = std::max(
                     stats.m_maxAtscMajCnt,
                     info.m_atscMajCnt[chan.m_atscMajorChannel]);
@@ -1617,7 +1617,7 @@ QString ChannelImporter::FormatChannel(
                 (QString(":atsc_cnt(tot:%1,minor:%2)")
                  .arg(info->m_atscNumCnt[
                           (chan.m_atscMajorChannel << 16) |
-                          (chan.m_atscMinorChannel)])
+                          chan.m_atscMinorChannel])
                  .arg(info->m_atscMinCnt[chan.m_atscMinorChannel])
                     ).toLatin1().constData();
         }
@@ -1813,12 +1813,12 @@ bool ChannelImporter::IsType(
         case kNTSCNonConflicting:
             return ((chan.m_siStandard == "ntsc") &&
                     (info.m_atscNumCnt[(chan.m_atscMajorChannel << 16) |
-                                        (chan.m_atscMinorChannel)] == 1));
+                                        chan.m_atscMinorChannel] == 1));
 
         case kATSCConflicting:
             return ((chan.m_siStandard == "atsc") &&
                     (info.m_atscNumCnt[(chan.m_atscMajorChannel << 16) |
-                                        (chan.m_atscMinorChannel)] != 1));
+                                        chan.m_atscMinorChannel] != 1));
 
         case kDVBConflicting:
             return ((chan.m_siStandard == "dvb") &&
@@ -1836,7 +1836,7 @@ bool ChannelImporter::IsType(
         case kNTSCConflicting:
             return ((chan.m_siStandard == "ntsc") &&
                     (info.m_atscNumCnt[(chan.m_atscMajorChannel << 16) |
-                                        (chan.m_atscMinorChannel)] != 1));
+                                        chan.m_atscMinorChannel] != 1));
     }
     return false;
 }

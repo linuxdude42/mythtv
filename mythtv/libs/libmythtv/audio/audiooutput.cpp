@@ -297,7 +297,7 @@ AudioOutput::AudioDeviceConfig* AudioOutput::GetAudioDeviceConfig(
     AudioOutput *ao = OpenAudio(name, QString(), willsuspendpa);
     if (ao)
     {
-        aosettings = *(ao->GetOutputSettingsCleaned());
+        aosettings = *ao->GetOutputSettingsCleaned();
         delete ao;
     }
     if (aosettings.IsInvalid())

@@ -1162,7 +1162,7 @@ bool Spectrogram::processUndisplayed(VisualNode *node)
     if (node)     // shift previous samples left, then append new node
     {
         // LOG(VB_PLAYBACK, LOG_DEBUG, QString("SG got %1 samples").arg(node->m_length));
-        int i = std::min((int)(node->m_length), m_fftlen);
+        int i = std::min((int)node->m_length, m_fftlen);
         int start = m_fftlen - i;
         float mult = 0.8F;      // decay older sound by this much
         for (int k = 0; k < start; k++)
@@ -1484,7 +1484,7 @@ bool Spectrum::processUndisplayed(VisualNode *node)
     if (node)     // shift previous samples left, then append new node
     {
         // LOG(VB_PLAYBACK, LOG_DEBUG, QString("SG got %1 samples").arg(node->m_length));
-        int i = std::min((int)(node->m_length), m_fftlen);
+        int i = std::min((int)node->m_length, m_fftlen);
         int start = m_fftlen - i;
         float mult = 0.8F;      // decay older sound by this much
         for (int k = 0; k < start; k++)
@@ -1718,10 +1718,10 @@ bool Squares::draw(QPainter *p, const QColor &back)
 
     const QRect *rectsp = m_rectsL.constData();
     for (uint i = 0; i < (uint)m_rectsL.size() * 2; i += 2)
-        drawRect(p, &(rectsp[i]), i, center, w, h);
+        drawRect(p, &rectsp[i], i, center, w, h);
     rectsp = m_rectsR.constData();
     for (uint i = 1; i < ((uint)m_rectsR.size() * 2) + 1; i += 2)
-        drawRect(p, &(rectsp[i]), i, center, w, h);
+        drawRect(p, &rectsp[i], i, center, w, h);
 
     return true;
 }
@@ -2049,8 +2049,8 @@ bool Piano::draw(QPainter *p, const QColor &back)
     // just uses some Qt methods to draw on a pixmap.
     // MainVisual then bitblts that onto the screen.
 
-    QRect *rectsp = (m_rects).data();
-    double *magnitudep = (m_magnitude).data();
+    QRect *rectsp = m_rects.data();
+    double *magnitudep = m_magnitude.data();
 
     unsigned int n = kPianoNumKeys;
 

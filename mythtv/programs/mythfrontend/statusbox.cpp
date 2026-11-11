@@ -1140,7 +1140,7 @@ void StatusBox::getActualRecordedBPS(const QString& hostnames)
         // Don't user a tr() directly here as the Qt tools will
         // not be able to extract the string for translation.
         m_recordingProfilesBps[rateStr] =
-            (int)(query.value(0).toDouble());
+            (int)query.value(0).toDouble();
     }
 
     querystr =
@@ -1160,7 +1160,7 @@ void StatusBox::getActualRecordedBPS(const QString& hostnames)
         // Don't user a tr() directly here as the Qt tools will
         // not be able to extract the string for translation.
         m_recordingProfilesBps[rateStr] =
-            (int)(query.value(0).toDouble());
+            (int)query.value(0).toDouble();
     }
 }
 

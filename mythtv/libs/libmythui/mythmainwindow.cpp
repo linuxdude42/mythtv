@@ -1047,7 +1047,7 @@ bool MythMainWindow::IsExitingToMain() const
 
 void MythMainWindow::ExitToMainMenu(void)
 {
-    bool jumpdone = !(m_priv->m_popwindows);
+    bool jumpdone = !m_priv->m_popwindows;
 
     m_priv->m_exitingtomain = true;
 
@@ -1149,9 +1149,9 @@ bool MythMainWindow::TranslateKeyPress(const QString& Context, QKeyEvent* Event,
 
     QStringList localActions;
     auto * keycontext = m_priv->m_keyContexts.value(Context);
-    if (AllowJumps && (m_priv->m_jumpMap.contains(keynum)) &&
+    if (AllowJumps && m_priv->m_jumpMap.contains(keynum) &&
         (!m_priv->m_jumpMap[keynum]->m_localAction.isEmpty()) &&
-        keycontext && (keycontext->GetMapping(keynum, localActions)))
+        keycontext && keycontext->GetMapping(keynum, localActions))
     {
         if (localActions.contains(m_priv->m_jumpMap.value(keynum)->m_localAction))
             AllowJumps = false;
@@ -1298,7 +1298,7 @@ void MythMainWindow::RegisterKey(const QString& Context, const QString& Action,
                 query.bindValue(":ACTION",      Action);
                 query.bindValue(":HOSTNAME",    GetMythDB()->GetHostName());
 
-                if (!query.exec() && !(GetMythDB()->SuppressDBMessages()))
+                if (!query.exec() && !GetMythDB()->SuppressDBMessages())
                 {
                     MythDB::DBError("Update Keybinding", query);
                 }
@@ -1318,7 +1318,7 @@ void MythMainWindow::RegisterKey(const QString& Context, const QString& Action,
             query.bindValue(":KEYLIST", inskey);
             query.bindValue(":HOSTNAME", GetMythDB()->GetHostName());
 
-            if (!query.exec() && !(GetMythDB()->SuppressDBMessages()))
+            if (!query.exec() && !GetMythDB()->SuppressDBMessages())
             {
                 MythDB::DBError("Insert Keybinding", query);
             }

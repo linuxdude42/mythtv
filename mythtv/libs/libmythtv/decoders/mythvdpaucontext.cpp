@@ -97,7 +97,7 @@ int MythVDPAUContext::InitialiseContext(AVCodecContext* Context)
     {
         LOG(VB_GENERAL, LOG_ERR, LOC + "Failed to initialise VDPAU frames context");
         av_buffer_unref(&hwdeviceref);
-        av_buffer_unref(&(Context->hw_frames_ctx));
+        av_buffer_unref(&Context->hw_frames_ctx);
         return res;
     }
 
@@ -107,7 +107,7 @@ int MythVDPAUContext::InitialiseContext(AVCodecContext* Context)
     {
         LOG(VB_GENERAL, LOG_ERR, LOC + "Failed to bind VDPAU context");
         av_buffer_unref(&hwdeviceref);
-        av_buffer_unref(&(Context->hw_frames_ctx));
+        av_buffer_unref(&Context->hw_frames_ctx);
         return -1;
     }
 

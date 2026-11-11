@@ -178,7 +178,7 @@ void MythThemedMenu::setButtonActive(MythUIButtonListItem* item)
     auto button = item->GetData().value<ThemedButton>();
     if (m_watermarkState)
     {
-        if (!(m_watermarkState->DisplayState(button.type)))
+        if (!m_watermarkState->DisplayState(button.type))
             m_watermarkState->Reset();
     }
 

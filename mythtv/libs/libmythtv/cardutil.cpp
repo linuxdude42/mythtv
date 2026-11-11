@@ -2061,7 +2061,7 @@ uint CardUtil::CreateInputGroup(const QString &name)
         return 0;
     }
 
-    uint inputgroupid = (query.next()) ? query.value(0).toUInt() + 1 : 1;
+    uint inputgroupid = query.next() ? query.value(0).toUInt() + 1 : 1;
 
     query.prepare(
         "INSERT INTO inputgroup "

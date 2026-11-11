@@ -149,7 +149,7 @@ void MythFontProperties::AdjustStretch(int stretch)
 void MythFontProperties::SetPixelSize(float size)
 {
     QSize baseSize = GetMythUI()->GetBaseSize();
-    m_relativeSize = size / (float)(baseSize.height());
+    m_relativeSize = size / (float)baseSize.height();
     m_face.setPixelSize(GetMythMainWindow()->NormY(lroundf(size)));
 }
 
@@ -528,7 +528,7 @@ MythFontProperties *FontMap::GetFont(const QString &text)
         return nullptr;
 
     if (m_fontMap.contains(text))
-        return &(m_fontMap[text]);
+        return &m_fontMap[text];
     return nullptr;
 }
 

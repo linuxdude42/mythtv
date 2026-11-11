@@ -2642,7 +2642,7 @@ void Scheduler::HandleWakeSlave(RecordingInfo &ri, std::chrono::seconds prerolls
         if (!WakeUpSlave(nexttv->GetHostName()))
             EnqueuePlace("HandleWakeSlave1");
     }
-    else if ((nexttv->IsWaking()) &&
+    else if (nexttv->IsWaking() &&
              ((secsleft - prerollseconds) < 210s) &&
              (nexttv->GetSleepStatusTime().secsTo(curtime) < 300) &&
              (nexttv->GetLastWakeTime().secsTo(curtime) > 10))
@@ -2655,7 +2655,7 @@ void Scheduler::HandleWakeSlave(RecordingInfo &ri, std::chrono::seconds prerolls
         if (!WakeUpSlave(nexttv->GetHostName(), false))
             EnqueuePlace("HandleWakeSlave2");
     }
-    else if ((nexttv->IsWaking()) &&
+    else if (nexttv->IsWaking() &&
              ((secsleft - prerollseconds) < 150s) &&
              (nexttv->GetSleepStatusTime().secsTo(curtime) < 300))
     {
@@ -3608,7 +3608,7 @@ void Scheduler::PutInactiveSlavesToSleep(void)
     for (auto * enc : std::as_const(*m_tvList))
     {
         if ((!enc->IsLocal()) &&
-            (enc->IsAwake()) &&
+            enc->IsAwake() &&
             (!SlavesInUse.contains(enc->GetHostName())) &&
             (!enc->IsFallingAsleep()))
         {
@@ -4703,7 +4703,7 @@ void Scheduler::AddNewRecords(void)
             MythDate::as_utc(result.value(19).toDateTime()),//recendts
 
             result.value(31).toFloat(),//stars
-            (result.value(32).isNull()) ? QDate() :
+            result.value(32).isNull() ? QDate() :
             QDate::fromString(result.value(32).toString(), Qt::ISODate),
             //originalAirDate
 
@@ -5214,7 +5214,7 @@ void Scheduler::GetNextLiveTVDir(uint cardid)
     QString recording_dir;
     int fsID = FillRecordingDir(
         "LiveTV",
-        (tv->IsLocal()) ? gCoreContext->GetHostName() : tv->GetHostName(),
+        tv->IsLocal() ? gCoreContext->GetHostName() : tv->GetHostName(),
         "LiveTV", cur, cur.addSecs(3600), cardid,
         recording_dir, m_recList);
 
@@ -5449,9 +5449,9 @@ int Scheduler::FillRecordingDir(
             (thispg->GetRecordingStatus() != RecStatus::WillRecord &&
              thispg->GetRecordingStatus() != RecStatus::Pending) ||
             (thispg->GetInputID() == 0) ||
-            (recsCounted.contains(QString("%1:%2").arg(thispg->GetChanID())
-                   .arg(thispg->GetRecordingStartTime(MythDate::ISODate)))) ||
-            (thispg->GetPathname().isEmpty()))
+            recsCounted.contains(QString("%1:%2").arg(thispg->GetChanID())
+                   .arg(thispg->GetRecordingStartTime(MythDate::ISODate))) ||
+            thispg->GetPathname().isEmpty())
             continue;
 
         for (const auto* fs : fsInfoList)
@@ -5531,7 +5531,7 @@ int Scheduler::FillRecordingDir(
 
     bool simulateAutoExpire =
        ((gCoreContext->GetSetting("StorageScheduler") == "BalancedFreeSpace") &&
-        (m_expirer) &&
+        m_expirer &&
         (fsInfoList.size() > 1));
 
     // Loop though looking for a directory to put the file in.  The first time
@@ -5668,7 +5668,7 @@ int Scheduler::FillRecordingDir(
                         m_expirer->GetDesiredSpace(fs->getFSysID());
 
                 if ((fs->getHostname() == hostname) &&
-                    (dirlist.contains(fs->getPath())) &&
+                    dirlist.contains(fs->getPath()) &&
                     ((pass > 1) ||
                      (fs->getFreeSpace() > (desiredSpaceKB + maxSizeKB))))
                 {

@@ -152,7 +152,7 @@ void ObjCarousel::AddModuleInfo(DsmccDii *dii, Dsmcc *status,
 {
     for (int i = 0; i < dii->m_numberModules; i++)
     {
-        DsmccModuleInfo *info = &(dii->m_modules[i]);
+        DsmccModuleInfo *info = &dii->m_modules[i];
         bool bFound = false;
         // Do we already know this module?
         // If so and it is the same version we don't need to do anything.

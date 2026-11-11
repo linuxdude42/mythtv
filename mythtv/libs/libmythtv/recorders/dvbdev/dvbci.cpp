@@ -846,7 +846,7 @@ int cCiSession::SendData(int Tag, int Length, const uint8_t *Data)
   std::vector<uint8_t> buffer {
     ST_SESSION_NUMBER, 0x02,
     static_cast<uint8_t>((m_sessionId >> 8) & 0xFF),
-    static_cast<uint8_t>((m_sessionId     ) & 0xFF),
+    static_cast<uint8_t>(m_sessionId     & 0xFF),
     static_cast<uint8_t>((Tag >> 16) & 0xFF),
     static_cast<uint8_t>((Tag >>  8) & 0xFF),
     static_cast<uint8_t>( Tag        & 0xFF)};
@@ -1136,7 +1136,7 @@ bool cCiDateTime::SendDateTime(void)
   if (m_timeOffset < 0)
       t -= (time_t)(-m_timeOffset);
   else
-      t += (time_t)(m_timeOffset);
+      t += (time_t)m_timeOffset;
 
   if (gmtime_r(&t, &tm_gmt) && localtime_r(&t, &tm_loc)) {
      int Y = tm_gmt.tm_year;
@@ -1612,7 +1612,7 @@ cCiHandler *cCiHandler::CreateCiHandler(const char *FileName)
 
 int cLlCiHandler::ResourceIdToInt(const uint8_t *Data)
 {
-  return (ntohl(*(int *)Data));
+  return ntohl(*(int *)Data);
 }
 
 bool cLlCiHandler::Send(uint8_t Tag, int SessionId, int ResourceId, int Status)
@@ -1934,12 +1934,12 @@ bool cHlCiHandler::Process(void)
     case 0:
         // Get CA_system_ids
         /*      Enquire         */
-        if ((SendData(AOT_CA_INFO_ENQ, &msg)) < 0) {
+        if (SendData(AOT_CA_INFO_ENQ, &msg) < 0) {
             esyslog("HLCI communication failed");
         } else {
             dbgprotocol("==> Ca Info Enquiry");
             /*  Receive         */
-            if ((GetData(AOT_CA_INFO, &msg)) < 0) {
+            if (GetData(AOT_CA_INFO, &msg) < 0) {
                 esyslog("HLCI communication failed");
             } else {
                 QString message("Debug: ");
@@ -2009,7 +2009,7 @@ bool cHlCiHandler::SetCaPmt(cCiCaPmt &CaPmt, int /*Slot*/)
 
     memcpy(&msg.msg[4], CaPmt.m_capmt.data(), CaPmt.m_length);
 
-    if ((SendData(AOT_CA_PMT, &msg)) < 0) {
+    if (SendData(AOT_CA_PMT, &msg) < 0) {
         esyslog("HLCI communication failed");
         return false;
     }
@@ -2019,7 +2019,7 @@ bool cHlCiHandler::SetCaPmt(cCiCaPmt &CaPmt, int /*Slot*/)
 
 bool cHlCiHandler::Reset(int /*Slot*/) const
 {
-    if ((ioctl(m_fdCa, CA_RESET)) < 0) {
+    if (ioctl(m_fdCa, CA_RESET) < 0) {
         esyslog("ioctl CA_RESET failed.");
         return false;
     }

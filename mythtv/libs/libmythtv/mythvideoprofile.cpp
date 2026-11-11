@@ -898,14 +898,14 @@ QString MythVideoProfile::GetDefaultProfileName(const QString &HostName)
 {
     auto tmp = gCoreContext->GetSettingOnHost("DefaultVideoPlaybackProfile", HostName);
     QStringList profiles = GetProfiles(HostName);
-    tmp = (profiles.contains(tmp)) ? tmp : QString();
+    tmp = profiles.contains(tmp) ? tmp : QString();
 
     if (tmp.isEmpty())
     {
         if (!profiles.empty())
             tmp = profiles[0];
 
-        tmp = (profiles.contains("Normal")) ? "Normal" : tmp;
+        tmp = profiles.contains("Normal") ? "Normal" : tmp;
         if (!tmp.isEmpty())
             gCoreContext->SaveSettingOnHost("DefaultVideoPlaybackProfile", tmp, HostName);
     }

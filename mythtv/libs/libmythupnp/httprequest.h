@@ -286,7 +286,7 @@ class BufferedSocketDeviceRequest : public HTTPRequest
         quint16  GetHostPort     () override; // HTTPRequest
         QString  GetPeerAddress  () override; // HTTPRequest
         int      getSocketHandle () override // HTTPRequest
-            {return( m_pSocket->socketDescriptor() ); }
+            {return m_pSocket->socketDescriptor() ; }
 
 };
 

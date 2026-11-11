@@ -508,12 +508,12 @@ void UPNPScanner::Update(void)
     for (auto *server : std::as_const(m_servers))
     {
         if ((server->m_connectionAttempts < MAX_ATTEMPTS) &&
-            (server->m_controlURL.isEmpty()))
+            server->m_controlURL.isEmpty())
         {
             bool sent = false;
             QUrl url { server->m_serverURL };
             if (!m_descriptionRequests.contains(url) &&
-                (m_descriptionRequests.empty()) &&
+                m_descriptionRequests.empty() &&
                 url.isValid())
             {
                 QNetworkReply *reply = m_network->get(QNetworkRequest(url));

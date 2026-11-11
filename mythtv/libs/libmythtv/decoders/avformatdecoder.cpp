@@ -1088,7 +1088,7 @@ int AvFormatDecoder::OpenFile(MythMediaBuffer *Buffer, bool novideo,
     // Try to get a position map from the recorder if we don't have one yet.
     if (!m_recordingHasPositionMap && !m_isDbIgnored)
     {
-        if ((m_playbackInfo) || m_livetv || m_watchingRecording)
+        if (m_playbackInfo || m_livetv || m_watchingRecording)
         {
             m_recordingHasPositionMap |= SyncPositionMap();
             if (m_recordingHasPositionMap && !m_livetv && !m_watchingRecording)

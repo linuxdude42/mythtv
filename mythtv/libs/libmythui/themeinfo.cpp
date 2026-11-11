@@ -53,10 +53,10 @@ bool ThemeInfo::parseThemeInfo()
 
     QDomDocument doc;
 
-    if ((m_themeurl.startsWith("http://")) ||
-        (m_themeurl.startsWith("https://")) ||
-        (m_themeurl.startsWith("ftp://")) ||
-        (m_themeurl.startsWith("myth://")))
+    if (m_themeurl.startsWith("http://") ||
+        m_themeurl.startsWith("https://") ||
+        m_themeurl.startsWith("ftp://") ||
+        m_themeurl.startsWith("myth://"))
     {
         QByteArray data;
         bool ok = GetMythDownloadManager()->download(m_themeurl +

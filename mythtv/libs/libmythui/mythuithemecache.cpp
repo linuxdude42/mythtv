@@ -316,9 +316,9 @@ MythImage* MythUIThemeCache::LoadCacheImage(QString File, const QString& Label,
 
         // For internet images this involves querying the headers of the remote
         // image. This is slow even without redownloading the whole image
-        if ((File.startsWith("http://")) ||
-            (File.startsWith("https://")) ||
-            (File.startsWith("ftp://")))
+        if (File.startsWith("http://") ||
+            File.startsWith("https://") ||
+            File.startsWith("ftp://"))
         {
             // If the image is in the memory cache then skip the last modified
             // check, since memory cached images are loaded in the foreground

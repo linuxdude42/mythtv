@@ -119,8 +119,8 @@ DVBChannel::~DVBChannel()
             new_master = dynamic_cast<DVBChannel*>(s_master_map.value(m_key).constFirst());
         if (new_master)
         {
-            QMutexLocker master_locker(&(master->m_hwLock));
-            QMutexLocker new_master_locker(&(new_master->m_hwLock));
+            QMutexLocker master_locker(&master->m_hwLock);
+            QMutexLocker new_master_locker(&new_master->m_hwLock);
             new_master->m_isOpen = master->m_isOpen;
         }
     }
@@ -897,7 +897,7 @@ bool DVBChannel::Tune(const DTVMultiplex &tuning,
             cmdseq_clear.num   = 1;
             cmdseq_clear.props = &p_clear;
 
-            if ((ioctl(m_fdFrontend, FE_SET_PROPERTY, &cmdseq_clear)) < 0)
+            if (ioctl(m_fdFrontend, FE_SET_PROPERTY, &cmdseq_clear) < 0)
             {
                 LOG(VB_GENERAL, LOG_ERR, LOC +
                     "Tune(): Clearing DTV properties cache failed." + ENO);
@@ -1752,8 +1752,8 @@ static struct dtv_properties *dtvmultiplex_to_dtvproperties(uint inputId,
     if (!cmdseq)
         return nullptr;
 
-    cmdseq->props = (struct dtv_property*) calloc(20, sizeof(*(cmdseq->props)));
-    if (!(cmdseq->props))
+    cmdseq->props = (struct dtv_property*) calloc(20, sizeof(*cmdseq->props));
+    if (!cmdseq->props)
     {
         free(cmdseq);
         return nullptr;

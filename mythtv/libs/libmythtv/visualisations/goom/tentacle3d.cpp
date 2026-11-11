@@ -188,7 +188,7 @@ void tentacle_update(int *buf, int *back, int W, int H, GoomDualData& data, floa
 
 		for (auto & tmp : grille) {
 			for (int tmp2=0;tmp2<definitionx;tmp2++) {
-				float val = (float)(ShiftRight(data[0][MythRandomInt(0, 510)],10)) * rapport;
+				float val = (float)ShiftRight(data[0][MythRandomInt(0, 510)],10) * rapport;
 				vals[tmp2] = val;
 			}
 			

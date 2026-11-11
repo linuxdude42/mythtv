@@ -114,7 +114,7 @@ void ChannelScannerCLI::HandleEvent(const ScannerEvent *scanEvent)
         msg = QString("%1% S/N %2 %3 : %4 (%5) %6")
             .arg(m_statusComplete, 3)
             .arg(m_statusSnr, 3, 'f', 1)
-            .arg((m_statusLock) ? "l" : "L",
+            .arg(m_statusLock ? "l" : "L",
                  qPrintable(m_statusText),
                  qPrintable(m_statusLastLog))
             .arg("", 20);

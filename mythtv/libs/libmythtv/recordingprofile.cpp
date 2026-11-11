@@ -188,9 +188,9 @@ class MPEG2audType : public MythUIComboBoxSetting, public CodecParamStorage
             addSelection("Layer III");
 
         uint allowed_cnt = 0;
-        allowed_cnt += ((m_allowLayer1) ? 1 : 0);
-        allowed_cnt += ((m_allowLayer2) ? 1 : 0);
-        allowed_cnt += ((m_allowLayer3) ? 1 : 0);
+        allowed_cnt += (m_allowLayer1 ? 1 : 0);
+        allowed_cnt += (m_allowLayer2 ? 1 : 0);
+        allowed_cnt += (m_allowLayer3 ? 1 : 0);
 
         if (1 == allowed_cnt)
             setEnabled(false);

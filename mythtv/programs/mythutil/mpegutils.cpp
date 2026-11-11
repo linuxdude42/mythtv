@@ -424,7 +424,7 @@ class PrintOutput
     {
         if (!psip)
             return;
-        Output(((m_useXml) ? psip->toStringXML(0) : psip->toString()) + "\n");
+        Output((m_useXml ? psip->toStringXML(0) : psip->toString()) + "\n");
     }
 
   protected:
