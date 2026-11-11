@@ -120,7 +120,7 @@ static HostTextEditSetting *VAAPIDevice()
 
     // update VideoDisplayProfile statics if this changes
     QObject::connect(ge, &HostTextEditSetting::ChangeSaved, ge,
-        []()
+        []
         {
             QString device = gCoreContext->GetSetting("VAAPIDevice");
             LOG(VB_GENERAL, LOG_INFO, QString("New VAAPI device (%1) - resetting profiles").arg(device));

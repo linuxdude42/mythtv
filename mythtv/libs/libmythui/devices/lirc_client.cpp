@@ -1729,7 +1729,7 @@ int lirc_send_command(const struct lirc_state *lstate, int sockfd, const std::st
 				good_packet = true;
 				break;
 			}
-			else if(strcasecmp(string,"DATA")==0)
+			if(strcasecmp(string,"DATA")==0)
 			{
 				state=P_N;
 				break;

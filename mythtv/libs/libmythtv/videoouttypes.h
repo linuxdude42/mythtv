@@ -349,7 +349,7 @@ inline PictureAttributeSupported toMask(PictureAttribute PictureAttribute)
 
 inline PictureAttribute next_picattr(PictureAttributeSupported Supported, PictureAttribute Attribute)
 {
-    int i = static_cast<int>(Attribute + 1) % static_cast<int>(kPictureAttribute_MAX);
+    int i = (Attribute + 1) % kPictureAttribute_MAX;
     for (int j = 0; j < kPictureAttribute_MAX; (i = (i +1 ) % kPictureAttribute_MAX), j++)
         if (toMask(static_cast<PictureAttribute>(i)) & Supported)
             return static_cast<PictureAttribute>(i);

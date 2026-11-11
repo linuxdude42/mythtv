@@ -609,7 +609,8 @@ static int get_non_intra_block (mpeg2_decoder_t * const decoder,
 
 	    continue;
 
-	} else if (bit_buf >= 0x02000000) {
+	}
+	if (bit_buf >= 0x02000000) {
 	    tab = DCT_B14_10 + (UBITS (bit_buf, 10) - 8);
 	    i += tab->run;
 	    if (i < 64)
@@ -848,7 +849,8 @@ static int get_mpeg1_non_intra_block (mpeg2_decoder_t * const decoder)
 
 	    continue;
 
-	} else if (bit_buf >= 0x02000000) {
+	}
+	if (bit_buf >= 0x02000000) {
 	    tab = DCT_B14_10 + (UBITS (bit_buf, 10) - 8);
 	    i += tab->run;
 	    if (i < 64)

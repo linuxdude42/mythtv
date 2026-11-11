@@ -1030,9 +1030,9 @@ TV::TV(MythMainWindow* MainWindow)
         m_mainWindow->PauseIdleTimer(true);
 
     // Setup various state signals
-    connect(this, &TV::ChangeAudioOffset,   this, [&]() { m_audiosyncAdjustment = true; });
-    connect(this, &TV::AdjustSubtitleZoom,  this, [&]() { m_subtitleZoomAdjustment = true; });
-    connect(this, &TV::AdjustSubtitleDelay, this, [&]() { m_subtitleDelayAdjustment = true; });
+    connect(this, &TV::ChangeAudioOffset,   this, [&] { m_audiosyncAdjustment = true; });
+    connect(this, &TV::AdjustSubtitleZoom,  this, [&] { m_subtitleZoomAdjustment = true; });
+    connect(this, &TV::AdjustSubtitleDelay, this, [&] { m_subtitleDelayAdjustment = true; });
 
     LOG(VB_PLAYBACK, LOG_INFO, LOC + "Finished creating TV object");
 }
@@ -2755,7 +2755,7 @@ void TV::ForceNextStateNone()
 
 void TV::ScheduleStateChange()
 {
-    auto StateChange = [&]()
+    auto StateChange = [&]
     {
         GetPlayerReadLock();
         if (!m_playerContext.m_nextState.empty())
@@ -2778,7 +2778,7 @@ void TV::ScheduleStateChange()
 
 void TV::ScheduleInputChange()
 {
-    auto InputChange = [&]()
+    auto InputChange = [&]
     {
         GetPlayerReadLock();
         if (m_switchToInputId)
@@ -9966,7 +9966,7 @@ bool TV::HandleJumpToProgramAction(const QStringList &Actions)
     if (m_dbJumpPreferOsd && (StateIsPlaying(state) || StateIsLiveTV(state)))
     {
         // TODO I'm not sure this really needs to be asyncronous
-        auto Jump = [&]()
+        auto Jump = [&]
         {
             GetPlayerReadLock();
             FillOSDMenuJumpRec();

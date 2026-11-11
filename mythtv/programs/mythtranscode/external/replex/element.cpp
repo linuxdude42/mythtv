@@ -251,7 +251,7 @@ int get_video_info(ringbuffer *rbuf, sequence_t *s, int off, int le)
             LOG(VB_GENERAL, LOG_DEBUG,
                 QString("  size = %1x%2").arg(s->h_size).arg(s->v_size));
 
-        sw = (int)(headr[3]&0x0F);
+        sw = (headr[3]&0x0F);
 
         switch ( sw ) {
 	case 1:
@@ -368,7 +368,8 @@ int find_audio_sync(ringbuffer *rbuf, audio_sync_buf &buf, int off, int type, in
 				if (mring_peek(rbuf, buf.data(), l, c-1) < -1)
 					return -2;
 				return c-1-off;	
-			} else if ( b != b1) {
+			}
+			if ( b != b1) {
 				found = 0;
 			}
 		}
@@ -412,7 +413,8 @@ int find_audio_s(const uint8_t *rbuf, int off, int type, int le)
 		case 1:
 			if ( (b&m2) == b2){
 				return c-1;	
-			} else if ( b != b1) {
+			}
+			if ( b != b1) {
 				found = 0;
 			}
 		}

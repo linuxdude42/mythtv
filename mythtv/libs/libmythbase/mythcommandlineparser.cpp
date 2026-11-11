@@ -191,7 +191,7 @@ QStringList MythCommandLineParser::MythSplitCommandString(const QString &line)
                 state = START;
                 break;
             }
-            else if (c == '\'') {
+            if (c == '\'') {
                 state = INSQUOTE;
             } else if (c == '\"') {
                 state = INDQUOTE;

@@ -46,7 +46,7 @@ struct LogLine {
 void StatusBoxItem::Start(std::chrono::seconds Interval)
 {
     connect(this, &QTimer::timeout,
-            this, [this]() { emit UpdateRequired(this); });
+            this, [this] { emit UpdateRequired(this); });
     start(Interval);
 }
 
@@ -1522,7 +1522,7 @@ void StatusBox::doRenderStatus()
 
         if (opengl && (opengl->GetExtraFeatures() & kGLNVMemory))
         {
-            auto GetGPUMem = []()
+            auto GetGPUMem = []
             {
                 auto * rend = GetMythMainWindow()->GetRenderDevice();
                 if (auto * gl = dynamic_cast<MythRenderOpenGL*>(rend); gl != nullptr)

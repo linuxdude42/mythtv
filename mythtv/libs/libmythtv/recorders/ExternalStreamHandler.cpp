@@ -402,12 +402,12 @@ void ExternIO::Fork(void)
         std::cerr << "dup2(stdin) failed: " << strerror(errno);
         _exit(GENERIC_EXIT_PIPE_FAILURE);
     }
-    else if (dup2(out[1], 1) < 0)
+    if (dup2(out[1], 1) < 0)
     {
         std::cerr << "dup2(stdout) failed: " << strerror(errno);
         _exit(GENERIC_EXIT_PIPE_FAILURE);
     }
-    else if (dup2(err[1], 2) < 0)
+    if (dup2(err[1], 2) < 0)
     {
         std::cerr << "dup2(stderr) failed: " << strerror(errno);
         _exit(GENERIC_EXIT_PIPE_FAILURE);

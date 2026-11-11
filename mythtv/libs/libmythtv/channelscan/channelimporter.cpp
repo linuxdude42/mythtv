@@ -2248,7 +2248,7 @@ OkCancelType ChannelImporter::ShowManualChannelPopup(
                                     text = std::move(result);
                                 });
                 QObject::connect(textEdit, &MythTextInputDialog::Exiting, this,
-                                [this]()
+                                [this]
                                 {
                                     m_eventLoop.quit();
                                 });
@@ -2349,7 +2349,7 @@ OkCancelType ChannelImporter::ShowResolveChannelPopup(
                                     text = std::move(result);
                                 });
                 QObject::connect(textEdit, &MythTextInputDialog::Exiting, this,
-                                [this]()
+                                [this]
                                 {
                                     m_eventLoop.quit();
                                 });

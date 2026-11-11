@@ -81,10 +81,7 @@ void MHLink::Initialise(MHParseNode *p, MHEngine *engine)
         {
             MHParseNode::Failure("Missing :EventSource");
         }
-        else
-        {
-            m_eventSource.Initialise(pEventSource->GetArgN(0), engine);
-        }
+        m_eventSource.Initialise(pEventSource->GetArgN(0), engine);
 
         MHParseNode *pEventType = p->GetNamedArg(P_EVENT_TYPE); // Event type
 
@@ -92,10 +89,7 @@ void MHLink::Initialise(MHParseNode *p, MHEngine *engine)
         {
             MHParseNode::Failure("Missing :EventType");
         }
-        else
-        {
-            m_nEventType = (enum EventType)pEventType->GetArgN(0)->GetEnumValue();
-        }
+        m_nEventType = (enum EventType)pEventType->GetArgN(0)->GetEnumValue();
 
         MHParseNode *pEventData = p->GetNamedArg(P_EVENT_DATA); // Event data - optional
 

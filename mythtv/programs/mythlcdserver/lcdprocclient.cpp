@@ -899,7 +899,7 @@ void LCDProcClient::outputRightText(const QString& theScreen, QString theText, c
                           int row)
 {
     QString aString;
-    unsigned int x = (int)( m_lcdWidth - theText.length()) + 1;
+    unsigned int x = (m_lcdWidth - theText.length()) + 1;
 
     aString = "widget_set ";
     aString += theScreen;

@@ -1432,7 +1432,7 @@ SubtitleScreen::SubtitleScreen(MythPlayer *Player, MythPainter *Painter,
 {
     m_painter = Painter;
 
-    connect(m_player, &MythPlayer::SeekingDone, this, [&]()
+    connect(m_player, &MythPlayer::SeekingDone, this, [&]
     {
         LOG(VB_PLAYBACK, LOG_INFO, LOC + "SeekingDone signal received.");
         m_atEnd = false;

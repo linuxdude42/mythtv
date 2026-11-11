@@ -63,11 +63,8 @@ void MHVisible::Initialise(MHParseNode *p, MHEngine *engine)
     {
         MHParseNode::Failure("OriginalBoxSize missing");
     }
-    else
-    {
-        m_nOriginalBoxWidth = pOriginalBox->GetArgN(0)->GetIntValue();
-        m_nOriginalBoxHeight = pOriginalBox->GetArgN(1)->GetIntValue();
-    }
+    m_nOriginalBoxWidth = pOriginalBox->GetArgN(0)->GetIntValue();
+    m_nOriginalBoxHeight = pOriginalBox->GetArgN(1)->GetIntValue();
 
     // Original position - two integer arguments.  Optional
     MHParseNode *pOriginalPos = p->GetNamedArg(C_ORIGINAL_POSITION);
