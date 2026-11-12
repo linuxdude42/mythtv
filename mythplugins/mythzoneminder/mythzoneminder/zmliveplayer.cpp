@@ -12,6 +12,9 @@
  *
  * ============================================================ */
 
+// c++
+#include <stdexcept>
+
 // qt
 #include <QChar> // Fix Qt6 GCC SFINAE warning
 #include <QDateTime>
@@ -79,7 +82,7 @@ MythUIType* ZMLivePlayer::GetMythUIType(const QString &name, bool optional)
     MythUIType *type = GetChild(name);
 
     if (!optional && !type)
-        throw name;
+        throw std::runtime_error(name.toStdString());
 
     return type;
 }
@@ -128,11 +131,11 @@ bool ZMLivePlayer::hideAll(void)
             }
         }
     }
-    catch (const QString &name)
+    catch (const std::runtime_error& e)
     {
         LOG(VB_GENERAL, LOG_ERR,
             QString("Theme is missing a critical theme element ('%1')")
-                .arg(name));
+                .arg(e.what()));
         return false;
     }
 

@@ -11,6 +11,7 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #include "service.h"
+#include <stdexcept>
 #include <QMetaEnum>
 #include <QJsonDocument>
 #include <QJsonObject>

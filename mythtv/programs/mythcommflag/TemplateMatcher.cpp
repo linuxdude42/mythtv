@@ -1,6 +1,7 @@
 // C++ headers
 #include <algorithm>
 #include <cmath>
+#include <stdexcept>
 #include <cstdlib>
 
 // Qt headers
@@ -443,31 +444,31 @@ TemplateMatcher::analyzeFrame(const MythVideoFrame *frame, long long frameno,
     {
         const AVFrame *pgm = m_pgmConverter->getImage(frame, frameno, &pgmwidth, &pgmheight);
         if (pgm == nullptr)
-            throw 1;
+            throw std::runtime_error("1");
 
         start = nowAsDuration<std::chrono::microseconds>();
 
         if (pgm_crop(&m_cropped, pgm, pgmheight, m_tmplRow, m_tmplCol,
                     m_tmplWidth, m_tmplHeight))
-            throw 2;
+            throw std::runtime_error("2");
 
         edges = m_edgeDetector->detectEdges(&m_cropped, m_tmplHeight, FRAMESGMPCTILE);
         if (edges == nullptr)
-            throw 3;
+            throw std::runtime_error("3");
 
         if (pgm_match(m_tmpl, edges, m_tmplHeight, JITTER_RADIUS, &m_matches[frameno]))
-            throw 4;
+            throw std::runtime_error("4");
 
         end = nowAsDuration<std::chrono::microseconds>();
         m_analyzeTime += (end - start);
 
         return ANALYZE_OK;
     }
-    catch (int e)
+    catch (const std::runtime_error& e)
     {
         LOG(VB_COMMFLAG, LOG_ERR,
             QString("TemplateMatcher::analyzeFrame error at frame %1, step %2")
-            .arg(frameno).arg(e));
+            .arg(frameno).arg(e.what()));
         return ANALYZE_ERROR;
     }
 }
