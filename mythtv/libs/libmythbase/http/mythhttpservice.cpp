@@ -182,6 +182,9 @@ HTTPResponse MythHTTPService::HTTPRequest(const HTTPRequest2& Request)
                 returnvalue = MythHTTPMetaMethod::CreateReturnValue(types[0], param[0]);
             }
         }
+        catch (V2HttpRedirectException &ex) {
+            result = MythHTTPResponse::RedirectionResponse(Request, ex.m_hostName);
+        }
         catch( const std::runtime_error& ex ) {
             QString msg(ex.what());
             LOG(VB_GENERAL, LOG_ERR, "Service Exception: " + msg);
@@ -190,9 +193,6 @@ HTTPResponse MythHTTPService::HTTPRequest(const HTTPRequest2& Request)
             else
                 Request->m_status = HTTPBadRequest;
             result = MythHTTPResponse::ErrorResponse(Request, msg);
-        }
-        catch (V2HttpRedirectException &ex) {
-            result = MythHTTPResponse::RedirectionResponse(Request, ex.m_hostName);
         }
 
         if (!returnvalue.isValid())

@@ -13,6 +13,7 @@
 #ifndef HTTPREQUEST_H_
 #define HTTPREQUEST_H_
 
+#include <stdexcept>
 #include <utility>
 
 // Qt headers
@@ -294,18 +295,17 @@ class BufferedSocketDeviceRequest : public HTTPRequest
 //
 /////////////////////////////////////////////////////////////////////////////
 
-class UPNP_PUBLIC HttpException
+class UPNP_PUBLIC HttpException : public std::runtime_error
 {
     public:
         int     m_code {-1};
-        QString m_msg;
 
-        explicit HttpException( int nCode = -1, QString sMsg = "")
-               : m_code( nCode ), m_msg (std::move( sMsg  ))
+        explicit HttpException( int nCode = -1, const QString& sMsg = "")
+               : runtime_error( sMsg.toStdString() ), m_code( nCode )
         {}
 
         // Needed to force a v-table.
-        virtual ~HttpException() = default;
+        ~HttpException() override = default;
 };
 
 class UPNP_PUBLIC HttpRedirectException : public HttpException

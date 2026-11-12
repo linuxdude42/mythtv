@@ -144,6 +144,11 @@ QVariant MethodInfo::Invoke( Service *pService, const QStringMap &reqParams ) co
             }
         }
     }
+    catch (HttpRedirectException &ex)
+    {
+        bExceptionThrown = true;
+        exception = ex;
+    }
     catch (const std::runtime_error& ex)
     {
         LOG(VB_GENERAL, LOG_ERR,
@@ -157,11 +162,6 @@ QVariant MethodInfo::Invoke( Service *pService, const QStringMap &reqParams ) co
         }
 
         throw;
-    }
-    catch (HttpRedirectException &ex)
-    {
-        bExceptionThrown = true;
-        exception = ex;
     }
     catch (...)
     {
@@ -439,8 +439,9 @@ bool ServiceHost::ProcessRequest( HTTPRequest *pRequest )
     }
     catch (HttpException &ex)
     {
-        LOG(VB_GENERAL, LOG_ERR, ex.m_msg);
-        pRequest->FormatErrorResponse(UPnPResult_ActionFailed, ex.m_msg);
+        QString msg(ex.what());
+        LOG(VB_GENERAL, LOG_ERR, msg);
+        pRequest->FormatErrorResponse(UPnPResult_ActionFailed, msg);
 
         bHandled = true;
 
