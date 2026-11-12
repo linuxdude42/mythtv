@@ -106,7 +106,7 @@ void* Service::ConvertToParameterPtr( int            nTypeId,
             }
             else
             {
-                throw QString("Invalid JSON: %1").arg(sValue);
+                throw std::runtime_error(QString("Invalid JSON: %1").arg(sValue).toStdString());
             }
 
             break;

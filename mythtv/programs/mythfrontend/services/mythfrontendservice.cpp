@@ -369,7 +369,7 @@ QString MythFrontendService::GetSetting(
                             const QString &sDefault )
 {
     if (sKey.isEmpty())
-        throw( QString("Missing or empty Key (settings.value)") );
+        throw std::runtime_error("Missing or empty Key (settings.value)");
     return gCoreContext->GetSetting(sKey, sDefault);
 }
 

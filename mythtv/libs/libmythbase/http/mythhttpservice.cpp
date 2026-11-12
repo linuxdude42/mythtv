@@ -182,7 +182,8 @@ HTTPResponse MythHTTPService::HTTPRequest(const HTTPRequest2& Request)
                 returnvalue = MythHTTPMetaMethod::CreateReturnValue(types[0], param[0]);
             }
         }
-        catch( QString &msg ) {
+        catch( const std::runtime_error& ex ) {
+            QString msg(ex.what());
             LOG(VB_GENERAL, LOG_ERR, "Service Exception: " + msg);
             if (msg.startsWith("Forbidden:"))
                 Request->m_status = HTTPForbidden;

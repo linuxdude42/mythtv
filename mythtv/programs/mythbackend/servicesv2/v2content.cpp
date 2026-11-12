@@ -93,11 +93,11 @@ QFileInfo V2Content::GetFile( const QString &sStorageGroup,
 
     if (sFileName.isEmpty())
     {
-        QString sMsg ( "GetFile - FileName missing." );
+        const char* sMsg ( "GetFile - FileName missing." );
 
         //LOG(VB_UPNP, LOG_ERR, sMsg);
 
-        throw QString(sMsg);
+        throw std::runtime_error(sMsg);
     }
 
     // ------------------------------------------------------------------
@@ -150,11 +150,11 @@ QFileInfo V2Content::GetImageFile( const QString &sStorageGroup,
 
     if (sFileName.isEmpty())
     {
-        QString sMsg ( "GetImageFile - FileName missing." );
+        const char* sMsg ( "GetImageFile - FileName missing." );
 
         //LOG(VB_UPNP, LOG_WARNING, sMsg);
 
-        throw QString(sMsg);
+        throw std::runtime_error(sMsg);
     }
 
     // ------------------------------------------------------------------
@@ -241,10 +241,10 @@ QStringList V2Content::GetDirList( const QString &sStorageGroup )
 
     if (sStorageGroup.isEmpty())
     {
-        QString sMsg( "GetDirList - StorageGroup missing.");
+        const char* sMsg( "GetDirList - StorageGroup missing.");
         LOG(VB_UPNP, LOG_ERR, sMsg);
 
-        throw QString(sMsg);
+        throw std::runtime_error(sMsg);
     }
 
     StorageGroup sgroup(sStorageGroup);
@@ -261,10 +261,10 @@ QStringList V2Content::GetFileList( const QString &sStorageGroup )
 
     if (sStorageGroup.isEmpty())
     {
-        QString sMsg( "GetFileList - StorageGroup missing.");
+        const char* sMsg( "GetFileList - StorageGroup missing.");
         LOG(VB_UPNP, LOG_ERR, sMsg);
 
-        throw QString(sMsg);
+        throw std::runtime_error(sMsg);
     }
 
     StorageGroup sgroup(sStorageGroup);
@@ -328,7 +328,7 @@ V2ArtworkInfoList* V2Content::GetRecordingArtworkList( int        RecordedId,
 {
     if ((RecordedId <= 0) &&
         (chanid <= 0 || !StartTime.isValid()))
-        throw QString("Recorded ID or Channel ID and StartTime appears invalid.");
+        throw std::runtime_error("Recorded ID or Channel ID and StartTime appears invalid.");
 
     // TODO Should use RecordingInfo
     ProgramInfo pginfo;
@@ -522,12 +522,12 @@ QFileInfo V2Content::GetPreviewImage(        int        nRecordedId,
 {
     if ((nRecordedId <= 0) &&
         (nChanId <= 0 || !StartTime.isValid()))
-        throw QString("Recorded ID or Channel ID and StartTime appears invalid.");
+        throw std::runtime_error("Recorded ID or Channel ID and StartTime appears invalid.");
 
     if (!sFormat.isEmpty()
         && !QImageWriter::supportedImageFormats().contains(sFormat.toLower().toLocal8Bit()))
     {
-        throw QString("GetPreviewImage: Specified 'Format' is not supported.");
+        throw std::runtime_error("GetPreviewImage: Specified 'Format' is not supported.");
     }
 
     // ----------------------------------------------------------------------
@@ -695,7 +695,7 @@ QFileInfo V2Content::GetRecording( int              nRecordedId,
 {
     if ((nRecordedId <= 0) &&
         (nChanId <= 0 || !StartTime.isValid()))
-        throw QString("Recorded ID or Channel ID and StartTime appears invalid.");
+        throw std::runtime_error("Recorded ID or Channel ID and StartTime appears invalid.");
 
     // ------------------------------------------------------------------
     // Read Recording From Database

@@ -93,16 +93,16 @@ V2ProgramGuide *V2Guide::GetProgramGuide( const QDateTime &rawStartTime,
                                            bool             bWithInvisible)
 {
     if (!rawStartTime.isValid())
-        throw QString( "StartTime is invalid" );
+        throw std::runtime_error("StartTime is invalid");
 
     if (!rawEndTime.isValid())
-        throw QString( "EndTime is invalid" );
+        throw std::runtime_error("EndTime is invalid");
 
     QDateTime dtStartTime = rawStartTime.toUTC();
     QDateTime dtEndTime = rawEndTime.toUTC();
 
     if (dtEndTime < dtStartTime)
-        throw QString( "EndTime is before StartTime");
+        throw std::runtime_error("EndTime is before StartTime");
 
     nStartIndex = std::max(nStartIndex, 0);
 
@@ -223,16 +223,16 @@ V2ProgramList* V2Guide::GetProgramList(int              nStartIndex,
                                         const QString& sGroupBy)
 {
     if (!rawStartTime.isNull() && !rawStartTime.isValid())
-        throw QString( "StartTime is invalid" );
+        throw std::runtime_error("StartTime is invalid");
 
     if (!rawEndTime.isNull() && !rawEndTime.isValid())
-        throw QString( "EndTime is invalid" );
+        throw std::runtime_error("EndTime is invalid");
 
     QDateTime dtStartTime = rawStartTime;
     const QDateTime& dtEndTime = rawEndTime;
 
     if (!rawEndTime.isNull() && dtEndTime < dtStartTime)
-        throw QString( "EndTime is before StartTime");
+        throw std::runtime_error("EndTime is before StartTime");
 
     ProgGroupBy::Type nGroupBy = ProgGroupBy::ChanNum;
     if (!sGroupBy.isEmpty())
@@ -242,7 +242,7 @@ V2ProgramList* V2Guide::GetProgramList(int              nStartIndex,
         bool ok = false;
         nGroupBy = ProgGroupBy::Type(meta.keyToValue(sGroupBy.toLocal8Bit().constData(), &ok));
         if (!ok)
-            throw QString( "GroupBy is invalid" );
+            throw std::runtime_error("GroupBy is invalid");
     }
 
     MSqlQuery query(MSqlQuery::InitCon());
@@ -425,9 +425,9 @@ V2Program* V2Guide::GetProgramDetails( int              nChanId,
 
 {
     if (!(nChanId > 0))
-        throw QString( "Channel ID is invalid" );
+        throw std::runtime_error("Channel ID is invalid");
     if (!rawStartTime.isValid())
-        throw QString( "StartTime is invalid" );
+        throw std::runtime_error("StartTime is invalid");
 
     QDateTime dtStartTime = rawStartTime.toUTC();
 
@@ -663,7 +663,7 @@ bool V2Guide::AddToChannelGroup   ( int nChannelGroupId,
     bool bResult = false;
 
     if (!(nChanId > 0))
-        throw QString( "Channel ID is invalid" );
+        throw std::runtime_error("Channel ID is invalid");
 
     bResult = ChannelGroup::AddChannel(nChanId, nChannelGroupId);
 
@@ -680,7 +680,7 @@ bool V2Guide::RemoveFromChannelGroup ( int nChannelGroupId,
     bool bResult = false;
 
     if (!(nChanId > 0))
-        throw QString( "Channel ID is invalid" );
+        throw std::runtime_error("Channel ID is invalid");
 
     bResult = ChannelGroup::DeleteChannel(nChanId, nChannelGroupId);
 

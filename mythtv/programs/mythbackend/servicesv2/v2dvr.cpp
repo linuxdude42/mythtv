@@ -272,16 +272,16 @@ V2ProgramList* V2Dvr::GetOldRecordedList( bool             bDescending,
                                            const QString   &sSort)
 {
     if (!sStartTime.isNull() && !sStartTime.isValid())
-        throw QString("StartTime is invalid");
+        throw std::runtime_error("StartTime is invalid");
 
     if (!sEndTime.isNull() && !sEndTime.isValid())
-        throw QString("EndTime is invalid");
+        throw std::runtime_error("EndTime is invalid");
 
     const QDateTime& dtStartTime = sStartTime;
     const QDateTime& dtEndTime   = sEndTime;
 
     if (!sEndTime.isNull() && dtEndTime < dtStartTime)
-        throw QString("EndTime is before StartTime");
+        throw std::runtime_error("EndTime is before StartTime");
 
     // ----------------------------------------------------------------------
     // Build SQL statement for Program Listing
@@ -431,7 +431,7 @@ bool       V2Dvr::RemoveOldRecorded   ( int              ChanId,
                                         bool            Reschedule )
 {
     if (!HAS_PARAMv2("ChanId") || !HAS_PARAMv2("StartTime"))
-        throw QString("Channel ID and StartTime appears invalid.");
+        throw std::runtime_error("Channel ID and StartTime appears invalid.");
     QString sql("DELETE FROM oldrecorded "
         " WHERE chanid = :ChanId AND starttime = :StartTime" );
     MSqlQuery query(MSqlQuery::InitCon());
@@ -458,9 +458,9 @@ bool       V2Dvr::UpdateOldRecorded   ( int              ChanId,
                                         bool            Reschedule )
 {
     if (!HAS_PARAMv2("ChanId") || !HAS_PARAMv2("StartTime"))
-        throw QString("Channel ID and StartTime appears invalid.");
+        throw std::runtime_error("Channel ID and StartTime appears invalid.");
     if (!HAS_PARAMv2("Duplicate"))
-        throw QString("Error: Nothing to change.");
+        throw std::runtime_error("Error: Nothing to change.");
     QString sql("UPDATE oldrecorded "
         " SET Duplicate = :Duplicate "
         " WHERE chanid = :ChanId AND starttime = :StartTime" );
@@ -490,7 +490,7 @@ V2Program* V2Dvr::GetRecorded(int RecordedId,
 {
     if ((RecordedId <= 0) &&
         (chanid <= 0 || !StartTime.isValid()))
-        throw QString("Recorded ID or Channel ID and StartTime appears invalid.");
+        throw std::runtime_error("Recorded ID or Channel ID and StartTime appears invalid.");
 
     // TODO Should use RecordingInfo
     ProgramInfo pi;
@@ -515,20 +515,20 @@ bool V2Dvr::AddRecordedCredits(int RecordedId, const QString & Cast)
     // Verify the corresponding recording exists
     RecordingInfo ri(RecordedId);
     if (!ri.HasPathname())
-        throw QString("AddRecordedCredits: recordedid %1 does "
-                      "not exist.").arg(RecordedId);
+        throw std::runtime_error(QString("AddRecordedCredits: recordedid %1 does "
+                                         "not exist.").arg(RecordedId).toStdString());
 
     DBCredits* credits = V2jsonCastToCredits(jsonDoc.object());
     if (credits == nullptr)
-        throw QString("AddRecordedCredits: Failed to parse cast from json.");
+        throw std::runtime_error("AddRecordedCredits: Failed to parse cast from json.");
 
     MSqlQuery query(MSqlQuery::InitCon());
     for (auto & person : *credits)
     {
         if (!person.InsertDB(query, ri.GetChanID(),
                              ri.GetScheduledStartTime(), true))
-            throw QString("AddRecordedCredits: Failed to add credit "
-                          "%1 to DB").arg(person.toString());
+            throw std::runtime_error(QString("AddRecordedCredits: Failed to add credit "
+                                             "%1 to DB").arg(person.toString()).toStdString());
     }
 
     return true;
@@ -552,8 +552,8 @@ int V2Dvr::AddRecordedProgram(const QString &Program)
     QString   hostname = program["HostName"].toString("");
 
     if (ChannelUtil::GetChanNum(chanid).isEmpty())
-        throw QString("AddRecordedProgram: chanid %1 does "
-                      "not exist.").arg(chanid);
+        throw std::runtime_error(QString("AddRecordedProgram: chanid %1 does "
+                                         "not exist.").arg(chanid).toStdString());
 
     pi->m_title           = program.value("Title").toString("");
     pi->m_subtitle        = program.value("SubTitle").toString("");
@@ -611,8 +611,8 @@ int V2Dvr::AddRecordedProgram(const QString &Program)
     MSqlQuery query(MSqlQuery::InitCon());
     if (!pi->InsertDB(query, chanid, true))
     {
-        throw QString("AddRecordedProgram: "
-                      "Failed to add recordedprogram entry.");
+        throw std::runtime_error("AddRecordedProgram: "
+                                 "Failed to add recordedprogram entry.");
     }
 
     /* Create recorded DB entry */
@@ -675,8 +675,8 @@ int V2Dvr::AddRecordedProgram(const QString &Program)
         ext = filename.right(filename.size() - idx - 1);
     // Inserts this RecordingInfo into the database as an existing recording
     if (!ri.InsertRecording(ext, true))
-        throw QString("Failed to create RecordingInfo database entry. "
-                      "Non unique starttime?");
+        throw std::runtime_error("Failed to create RecordingInfo database "
+                                 "entry. Non unique starttime?");
 
     ri.InsertFile();
 
@@ -713,7 +713,7 @@ bool V2Dvr::DeleteRecording(int RecordedId,
 {
     if ((RecordedId <= 0) &&
         (chanid <= 0 || !StartTime.isValid()))
-        throw QString("Recorded ID or Channel ID and StartTime appears invalid.");
+        throw std::runtime_error("Recorded ID or Channel ID and StartTime appears invalid.");
 
     // TODO Should use RecordingInfo
     ProgramInfo pi;
@@ -747,7 +747,7 @@ bool V2Dvr::UnDeleteRecording(int RecordedId,
 {
     if ((RecordedId <= 0) &&
         (chanid <= 0 || !StartTime.isValid()))
-        throw QString("Recorded ID or Channel ID and StartTime appears invalid.");
+        throw std::runtime_error("Recorded ID or Channel ID and StartTime appears invalid.");
 
     RecordingInfo ri;
     if (RecordedId > 0)
@@ -776,7 +776,7 @@ bool V2Dvr::UnDeleteRecording(int RecordedId,
 bool V2Dvr::StopRecording(int RecordedId)
 {
     if (RecordedId <= 0)
-        throw QString("RecordedId param is invalid.");
+        throw std::runtime_error("RecordedId param is invalid.");
 
     RecordingInfo ri = RecordingInfo(RecordedId);
 
@@ -790,7 +790,7 @@ bool V2Dvr::StopRecording(int RecordedId)
         gCoreContext->dispatch(me);
         return true;
     }
-    throw QString("RecordedId %1 not found").arg(RecordedId);
+    throw std::runtime_error(QString("RecordedId %1 not found").arg(RecordedId).toStdString());
 
     return false;
 }
@@ -839,7 +839,7 @@ bool V2Dvr::ReactivateRecording(int RecordedId,
     }
     else
     {
-        throw QString("Recorded ID or Channel ID and StartTime or RecordId are invalid.");
+        throw std::runtime_error("Recorded ID or Channel ID and StartTime or RecordId are invalid.");
     }
     if (ri.GetChanID() && ri.HasPathname())
     {
@@ -870,31 +870,31 @@ bool V2Dvr::AllowReRecord ( int RecordedId, int ChanId, const QDateTime &StartTi
     if (RecordedId > 0)
     {
         if (ChanId > 0 || StartTime.isValid())
-            throw QString("ERROR RecordedId param cannot be used with ChanId or StartTime.");
+            throw std::runtime_error("ERROR RecordedId param cannot be used with ChanId or StartTime.");
     }
     else if (ChanId > 0)
     {
         if (!StartTime.isValid())
-            throw QString("ERROR ChanId param requires a valid StartTime.");
+            throw std::runtime_error("ERROR ChanId param requires a valid StartTime.");
     }
     else
     {
-        throw QString("ERROR RecordedId or (ChanId and StartTime) required.");
+        throw std::runtime_error("ERROR RecordedId or (ChanId and StartTime) required.");
     }
 
     if (RecordedId > 0)
     {
         RecordingInfo ri = RecordingInfo(RecordedId);
         if (!ri.GetChanID())
-            throw QString("ERROR RecordedId %1 not found").arg(RecordedId);
+            throw std::runtime_error(QString("ERROR RecordedId %1 not found").arg(RecordedId).toStdString());
         ri.ForgetHistory();
     }
     else
     {
         ProgramInfo *progInfo = LoadProgramFromProgram(ChanId, StartTime);
         if (progInfo == nullptr)
-            throw QString("ERROR Guide data for Chanid %1 at StartTime %2 not found")
-                .arg(ChanId).arg(StartTime.toString());
+            throw std::runtime_error(QString("ERROR Guide data for Chanid %1 at StartTime %2 not found")
+                                     .arg(ChanId).arg(StartTime.toString()).toStdString());
         RecordingInfo recInfo(*progInfo);
         recInfo.ForgetHistory();
         delete progInfo;
@@ -915,7 +915,7 @@ bool V2Dvr::UpdateRecordedWatchedStatus ( int RecordedId,
 
     if ((RecordedId <= 0) &&
         (chanid <= 0 || !StartTime.isValid()))
-        throw QString("Recorded ID or Channel ID and StartTime appears invalid.");
+        throw std::runtime_error("Recorded ID or Channel ID and StartTime appears invalid.");
 
     // TODO Should use RecordingInfo
     ProgramInfo pi;
@@ -944,7 +944,7 @@ long V2Dvr::GetSavedBookmark( int RecordedId,
 {
     if ((RecordedId <= 0) &&
         (chanid <= 0 || !StartTime.isValid()))
-        throw QString("Recorded ID or Channel ID and StartTime appears invalid.");
+        throw std::runtime_error("Recorded ID or Channel ID and StartTime appears invalid.");
 
     RecordingInfo ri;
     if (RecordedId > 0)
@@ -990,7 +990,7 @@ long V2Dvr::GetLastPlayPos( int RecordedId,
 
     if ((RecordedId <= 0) &&
         (chanid <= 0 || !StartTime.isValid()))
-        throw QString("Recorded ID or Channel ID and StartTime appears invalid.");
+        throw std::runtime_error("Recorded ID or Channel ID and StartTime appears invalid.");
 
     RecordingInfo ri;
     if (RecordedId > 0)
@@ -1033,10 +1033,10 @@ bool V2Dvr::SetSavedBookmark( int RecordedId,
 
     if ((RecordedId <= 0) &&
         (chanid <= 0 || !StartTime.isValid()))
-        throw QString("Recorded ID or Channel ID and StartTime appears invalid.");
+        throw std::runtime_error("Recorded ID or Channel ID and StartTime appears invalid.");
 
     if (Offset < 0)
-        throw QString("Offset must be >= 0.");
+        throw std::runtime_error("Offset must be >= 0.");
 
     RecordingInfo ri;
     if (RecordedId > 0)
@@ -1077,10 +1077,10 @@ bool V2Dvr::SetLastPlayPos( int RecordedId,
 
     if ((RecordedId <= 0) &&
         (chanid <= 0 || !StartTime.isValid()))
-        throw QString("Recorded ID or Channel ID and StartTime appears invalid.");
+        throw std::runtime_error("Recorded ID or Channel ID and StartTime appears invalid.");
 
     if (Offset < 0)
-        throw QString("Offset must be >= 0.");
+        throw std::runtime_error("Offset must be >= 0.");
 
     RecordingInfo ri;
     if (RecordedId > 0)
@@ -1114,7 +1114,7 @@ V2CutList* V2Dvr::GetRecordedCutList ( int RecordedId,
     int marktype = 0;
     if ((RecordedId <= 0) &&
         (chanid <= 0 || !StartTime.isValid()))
-        throw QString("Recorded ID or Channel ID and StartTime appears invalid.");
+        throw std::runtime_error("Recorded ID or Channel ID and StartTime appears invalid.");
 
     RecordingInfo ri;
     if (RecordedId > 0)
@@ -1148,7 +1148,7 @@ V2CutList* V2Dvr::GetRecordedCommBreak ( int RecordedId,
     int marktype = 0;
     if ((RecordedId <= 0) &&
         (chanid <= 0 || !StartTime.isValid()))
-        throw QString("Recorded ID or Channel ID and StartTime appears invalid.");
+        throw std::runtime_error("Recorded ID or Channel ID and StartTime appears invalid.");
 
     RecordingInfo ri;
     if (RecordedId > 0)
@@ -1178,7 +1178,7 @@ V2CutList* V2Dvr::GetRecordedSeek ( int RecordedId,
 {
     MarkTypes marktype = MARK_UNSET;
     if (RecordedId <= 0)
-        throw QString("Recorded ID appears invalid.");
+        throw std::runtime_error("Recorded ID appears invalid.");
 
     RecordingInfo ri;
     ri = RecordingInfo(RecordedId);
@@ -1195,7 +1195,7 @@ V2CutList* V2Dvr::GetRecordedSeek ( int RecordedId,
     else
     {
         delete pCutList;
-        throw QString("Type must be 'BYTES' or 'DURATION'.");
+        throw std::runtime_error("Type must be 'BYTES' or 'DURATION'.");
     }
 
     V2FillSeek(pCutList, &ri, marktype);
@@ -1213,7 +1213,7 @@ V2MarkupList* V2Dvr::GetRecordedMarkup ( int RecordedId )
     ri = RecordingInfo(RecordedId);
 
     if (!ri.HasPathname())
-        throw QString("Invalid RecordedId %1").arg(RecordedId);
+        throw std::runtime_error(QString("Invalid RecordedId %1").arg(RecordedId).toStdString());
 
     QVector<ProgramInfo::MarkupEntry> mapMark;
     QVector<ProgramInfo::MarkupEntry> mapSeek;
@@ -1258,7 +1258,7 @@ bool V2Dvr::SetRecordedMarkup(int RecordedId, const QString &MarkupList)
     ri = RecordingInfo(RecordedId);
 
     if (!ri.HasPathname())
-        throw QString("Invalid RecordedId %1").arg(RecordedId);
+        throw std::runtime_error(QString("Invalid RecordedId %1").arg(RecordedId).toStdString());
 
     QVector<ProgramInfo::MarkupEntry> mapMark;
     QVector<ProgramInfo::MarkupEntry> mapSeek;
@@ -1432,7 +1432,7 @@ V2PlayGroup* V2Dvr::GetPlayGroup    ( const QString & Name )
         }
         else
         {
-            throw QString("Play Group Not Found.");
+            throw std::runtime_error("Play Group Not Found.");
         }
    }
     return playGroup;
@@ -1442,7 +1442,7 @@ bool V2Dvr::RemovePlayGroup    ( const QString & Name )
 {
 
     if (Name.compare("Default", Qt::CaseInsensitive) == 0)
-        throw QString("ERROR: Cannot delete Default entry");
+        throw std::runtime_error("ERROR: Cannot delete Default entry");
     MSqlQuery query(MSqlQuery::InitCon());
     query.prepare("DELETE FROM playgroup "
         "WHERE name = :NAME");
@@ -1482,7 +1482,7 @@ bool V2Dvr::UpdatePlayGroup ( const QString & Name,
                               int             Jump )
 {
     if (Name.isEmpty())
-        throw QString("ERROR: Name is not specified");
+        throw std::runtime_error("ERROR: Name is not specified");
 
     bool ok = false;
 
@@ -1857,11 +1857,11 @@ uint V2Dvr::AddRecordSchedule   (
 
     QString msg;
     if (!rule.IsValid(msg))
-        throw QString(msg);
+        throw std::runtime_error(QString(msg).toStdString());
 
     bool success = rule.Save();
     if (!success)
-        throw QString("DATABASE ERROR: Check for duplicate recording rule");
+        throw std::runtime_error("DATABASE ERROR: Check for duplicate recording rule");
 
     uint recid = rule.m_recordID;
 
@@ -1913,14 +1913,14 @@ bool V2Dvr::UpdateRecordSchedule ( uint      nRecordId,
                                  const QString&   AutoExtend)
 {
     if (nRecordId == 0 )
-        throw QString("Record ID is invalid.");
+        throw std::runtime_error("Record ID is invalid.");
 
     RecordingRule pRule;
     pRule.m_recordID = nRecordId;
     pRule.Load();
 
     if (!pRule.IsLoaded())
-        throw QString("Record ID does not exist.");
+        throw std::runtime_error("Record ID does not exist.");
 
     QDateTime recstartts = StartTime.toUTC();
     QDateTime recendts = EndTime.toUTC();
@@ -2032,7 +2032,7 @@ bool V2Dvr::UpdateRecordSchedule ( uint      nRecordId,
 
     QString msg;
     if (!pRule.IsValid(msg))
-        throw QString(msg);
+        throw std::runtime_error(QString(msg).toStdString());
 
     bool bResult = pRule.Save();
 
@@ -2044,7 +2044,7 @@ bool V2Dvr::RemoveRecordSchedule ( uint nRecordId )
     bool bResult = false;
 
     if (nRecordId == 0 )
-        throw QString("Record ID does not exist.");
+        throw std::runtime_error("Record ID does not exist.");
 
     RecordingRule pRule;
     pRule.m_recordID = nRecordId;
@@ -2060,12 +2060,12 @@ bool V2Dvr::AddDontRecordSchedule(int nChanId, const QDateTime &dStartTime,
     bool bResult = true;
 
     if (nChanId <= 0 || !dStartTime.isValid())
-        throw QString("Program does not exist.");
+        throw std::runtime_error("Program does not exist.");
 
     ProgramInfo *pi = LoadProgramFromProgram(nChanId, dStartTime.toUTC());
 
     if (!pi)
-        throw QString("Program does not exist.");
+        throw std::runtime_error("Program does not exist.");
 
     // Why RecordingInfo instead of ProgramInfo? Good question ...
     RecordingInfo recInfo = RecordingInfo(*pi);
@@ -2160,19 +2160,19 @@ V2RecRule* V2Dvr::GetRecordSchedule( uint      nRecordId,
     {
         rule.m_recordID = nRecordId;
         if (!rule.Load())
-            throw QString("Record ID does not exist.");
+            throw std::runtime_error("Record ID does not exist.");
     }
     else if (!sTemplate.isEmpty())
     {
         if (!rule.LoadTemplate(sTemplate))
-            throw QString("Template does not exist.");
+            throw std::runtime_error("Template does not exist.");
     }
     else if (nRecordedId > 0) // Loads from the Recorded/Recorded Program Table
     {
         // Despite the use of ProgramInfo, this only applies to Recordings.
         ProgramInfo recInfo(nRecordedId);
         if (!rule.LoadByProgram(&recInfo))
-            throw QString("Recording does not exist");
+            throw std::runtime_error("Recording does not exist");
     }
     else if (nChanId > 0 && dStartTime.isValid()) // Loads from Program Table, should NOT be used with recordings
     {
@@ -2181,7 +2181,7 @@ V2RecRule* V2Dvr::GetRecordSchedule( uint      nRecordId,
         RecordingInfo::LoadStatus status = RecordingInfo::kNoProgram;
         RecordingInfo info(nChanId, dStartTime, false, 0h, &status);
         if (status != RecordingInfo::kFoundProgram)
-            throw QString("Program does not exist.");
+            throw std::runtime_error("Program does not exist.");
         RecordingRule *pRule = info.GetRecordingRule();
         if (bMakeOverride && rule.m_type != kSingleRecord &&
             rule.m_type != kOverrideRecord && rule.m_type != kDontRecord)
@@ -2190,7 +2190,7 @@ V2RecRule* V2Dvr::GetRecordSchedule( uint      nRecordId,
     }
     else
     {
-        throw QString("Invalid request.");
+        throw std::runtime_error("Invalid request.");
     }
 
     auto *pRecRule = new V2RecRule();
@@ -2204,7 +2204,7 @@ bool V2Dvr::EnableRecordSchedule ( uint nRecordId )
     bool bResult = false;
 
     if (nRecordId == 0 )
-        throw QString("Record ID appears invalid.");
+        throw std::runtime_error("Record ID appears invalid.");
 
     RecordingRule pRule;
     pRule.m_recordID = nRecordId;
@@ -2224,7 +2224,7 @@ bool V2Dvr::DisableRecordSchedule( uint nRecordId )
     bool bResult = false;
 
     if (nRecordId == 0 )
-        throw QString("Record ID appears invalid.");
+        throw std::runtime_error("Record ID appears invalid.");
 
     RecordingRule pRule;
     pRule.m_recordID = nRecordId;
@@ -2563,7 +2563,7 @@ bool V2Dvr::UpdateRecordedMetadata ( uint             RecordedId,
     {
 
         if (LastPlayOffset < 0)
-            throw QString("LastPlayOffset must be >= 0.");
+            throw std::runtime_error("LastPlayOffset must be >= 0.");
 
         uint64_t position = LastPlayOffset;
         bool isend=true;
@@ -2651,7 +2651,7 @@ V2PowerPriorityList* V2Dvr::GetPowerPriorityList (const QString &PriorityName )
     }
     else
     {
-        throw (QString("Error accessing powerpriority table"));
+        throw std::runtime_error("Error accessing powerpriority table");
     }
 
     return pList;
@@ -2674,12 +2674,12 @@ bool V2Dvr::AddPowerPriority    ( const QString & PriorityName,
                                   const QString & SelectClause )
 {
     if (PriorityName.isEmpty())
-        throw QString("ERROR: PriorityName is not specified");
+        throw std::runtime_error("ERROR: PriorityName is not specified");
     if (SelectClause.isEmpty())
-        throw QString("ERROR: SelectClause is required");
+        throw std::runtime_error("ERROR: SelectClause is required");
     QString msg = CheckPowerQuery(SelectClause);
     if (! msg.isEmpty() )
-        throw std::move(msg);
+        throw std::runtime_error(msg.toStdString());
     MSqlQuery query(MSqlQuery::InitCon());
     query.prepare("INSERT INTO powerpriority "
                 " (priorityname, recpriority, selectclause) "
@@ -2688,7 +2688,7 @@ bool V2Dvr::AddPowerPriority    ( const QString & PriorityName,
     query.bindValue(":RECPRIORITY", RecPriority);
     query.bindValue(":SELECTCLAUSE", SelectClause);
     if (!query.exec())
-        throw(query.lastError().databaseText());
+        throw std::runtime_error(query.lastError().databaseText().toStdString());
     return true;
 }
 
@@ -2697,15 +2697,15 @@ bool V2Dvr::UpdatePowerPriority ( const QString & PriorityName,
                                   const QString & SelectClause )
 {
     if (PriorityName.isEmpty())
-        throw QString("ERROR: PriorityName is not specified");
+        throw std::runtime_error("ERROR: PriorityName is not specified");
     if (!HAS_PARAMv2("RecPriority") && !HAS_PARAMv2("SelectClause"))
-        throw QString("ERROR: RecPriority or SelectClause is required");
+        throw std::runtime_error("ERROR: RecPriority or SelectClause is required");
 
     if (HAS_PARAMv2("SelectClause"))
     {
         QString msg = CheckPowerQuery(SelectClause);
         if (! msg.isEmpty() )
-            throw std::move(msg);
+            throw std::runtime_error(msg.toStdString());
     }
     MSqlQuery query(MSqlQuery::InitCon());
     bool comma = false;
@@ -2729,7 +2729,7 @@ bool V2Dvr::UpdatePowerPriority ( const QString & PriorityName,
     if ( HAS_PARAMv2("SelectClause") )
         query.bindValue(":SELECTCLAUSE", SelectClause);
     if (!query.exec())
-        throw(query.lastError().databaseText());
+        throw std::runtime_error(query.lastError().databaseText().toStdString());
     return query.numRowsAffected() > 0;
 }
 
