@@ -255,15 +255,11 @@ void MHTokenGroup::Activation(MHEngine *engine)
             {
                 engine->FindObject(m_tokenGrpItems.GetAt(i)->m_Object)->Activation(engine);
             }
-            catch(const std::exception& ex)
-            {
-                MHLOG(MHLogDetail, QString("MHTokenGroup::Activation - threw %1").arg(ex.what()));
-            }
-            catch(char const *e)
+            catch(const std::exception& e)
             {
                 // Ignore null objects
-                if (strcmp(e, "FindObject failed") != 0)
-                    MHLOG(MHLogDetail, QString("MHTokenGroup::Activation - threw '%1'").arg(e));
+                if (strcmp(e.what(), "FindObject failed") != 0)
+                    MHLOG(MHLogDetail, QString("MHTokenGroup::Activation - threw '%1'").arg(e.what()));
             }
             catch(...)
             {
@@ -434,15 +430,11 @@ void MHListGroup::Preparation(MHEngine *engine)
                 m_itemList.append(new MHListItem(pItem));
             }
         }
-        catch(const std::exception& ex)
-        {
-            MHLOG(MHLogDetail, QString("MHListGroup::Preparation - threw %1").arg(ex.what()));
-        }
-        catch(char const *e)
+        catch(const std::exception& e)
         {
             // Ignore null objects
-            if (strcmp(e, "FindObject failed") != 0)
-                MHLOG(MHLogDetail, QString("MHListGroup::Preparation - threw '%1'").arg(e));
+            if (strcmp(e.what(), "FindObject failed") != 0)
+                MHLOG(MHLogDetail, QString("MHListGroup::Preparation - threw '%1'").arg(e.what()));
         }
         catch(...)
         {

@@ -602,7 +602,7 @@ MHRoot *MHEngine::FindObject(const MHObjectRef &oRef, bool failOnNotFound)
         // Another case was a call to CallActionSlot with an object reference variable
         // that had been initialised to zero.
         MHLOG(MHLogWarning, QString("WARN Reference %1 not found").arg(oRef.m_nObjectNo));
-        throw "FindObject failed";
+        throw std::runtime_error("FindObject failed");
     }
 
     return nullptr; // If we don't generate an error.
