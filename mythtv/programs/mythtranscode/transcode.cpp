@@ -578,9 +578,11 @@ int Transcode::TranscodeFile(const QString &inputname,
     bool stopSignalled = false;
     MythVideoFrame *lastDecode = nullptr;
 
-    while ((!stopSignalled) &&
-           (lastDecode = videoBuffer->GetFrame(did_ff, is_key)))
+    while (!stopSignalled)
     {
+        lastDecode = videoBuffer->GetFrame(did_ff, is_key);
+        if (lastDecode == nullptr)
+            break;
         float new_aspect = lastDecode->m_aspect;
 
         if (cutter)

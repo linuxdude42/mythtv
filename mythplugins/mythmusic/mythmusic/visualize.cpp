@@ -1572,7 +1572,8 @@ bool Spectrum::processUndisplayed(VisualNode *node)
 
         prev = index;           // next pixel is FFT bins from here
         index = m_scale[i];     // to the next bin by LOG scale
-        (prev < index) || (prev = index -1);
+        if (prev >= index)
+            prev = index - 1;
     }
 
     return false;
