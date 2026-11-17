@@ -24,7 +24,7 @@
             }
         },
         {
-            "name": "ci-android",
+            "name": "ci-qt5-android",
             "hidden": true,
             "cacheVariables": {
                 "ANDROID_SDK_BUILD_TOOLS_REVISION": "34.0.0",
@@ -69,7 +69,7 @@
 
         {
             "name": "android-v7-qt5",
-            "inherits": [ "ci-base", "ci-sibling-build", "ci-android" ],
+            "inherits": [ "ci-base", "ci-sibling-build", "ci-qt5-android" ],
             "displayName": "Android armeabi-v7a qt5 (separate lib install)",
             "cacheVariables": {
                 "CMAKE_ANDROID_ARCH_ABI": {
@@ -86,7 +86,7 @@
 
         {
             "name": "android-v8-qt5",
-            "inherits": [ "ci-base", "ci-sibling-build", "ci-android" ],
+            "inherits": [ "ci-base", "ci-sibling-build", "ci-qt5-android" ],
             "displayName": "Android arm64-v8a qt5 (separate lib install)",
             "cacheVariables": {
                 "CMAKE_ANDROID_ARCH_ABI": {
@@ -103,7 +103,7 @@
 
         {
             "name": "android-x86-qt5",
-            "inherits": [ "ci-base", "ci-sibling-build", "ci-android" ],
+            "inherits": [ "ci-base", "ci-sibling-build", "ci-qt5-android" ],
             "displayName": "Android x86 qt5 (separate lib install)",
             "cacheVariables": {
                 "CMAKE_ANDROID_ARCH_ABI": {
@@ -120,7 +120,7 @@
 
         {
             "name": "android-x86_64-qt5",
-            "inherits": [ "ci-base", "ci-sibling-build", "ci-android" ],
+            "inherits": [ "ci-base", "ci-sibling-build", "ci-qt5-android" ],
             "displayName": "Android x86_64 qt5 (separate lib install)",
             "cacheVariables": {
                 "CMAKE_ANDROID_ARCH_ABI": {
@@ -144,7 +144,7 @@
                 "androidver": "7.1",
                 "androidapilevel": "25"
             },
-            "name": "fire-stick-4k",
+            "name": "fire-stick-4k-qt5",
             "inherits": [ "android-v7-qt5", "ci-sibling-build" ],
             "displayName": "Fire Stick 4K qt5 (separate lib install)",
             "cacheVariables": {
@@ -170,7 +170,7 @@
                 "androidver": "9",
                 "androidapilevel": "28"
             },
-            "name": "fire-stick-4k-max",
+            "name": "fire-stick-4k-max-qt5",
             "inherits": [ "android-v7-qt5", "ci-sibling-build" ],
             "displayName": "Fire Stick 4K Max qt5 (separate lib install)",
             "cacheVariables": {
@@ -197,7 +197,7 @@
                 "androidver": "11",
                 "androidapilevel": "30"
             },
-            "name": "nvidia-shield",
+            "name": "nvidia-shield-qt5",
             "inherits": [ "android-v8-qt5", "ci-sibling-build" ],
             "displayName": "Nvidia Shield qt5 (separate lib install)",
             "cacheVariables": {
