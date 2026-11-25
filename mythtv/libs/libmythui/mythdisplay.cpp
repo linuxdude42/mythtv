@@ -1185,6 +1185,17 @@ void MythDisplay::ConfigureQtGUI(int SwapInterval, const MythCommandLineParser& 
     bool gsyncchanged = false;
     bool freesyncchanged = false;
 
+    // Qt Wayland marks a window unexposed if no frame callback arrives within
+    // 100ms of a commit, and sub-surfaces inherit the parent's exposure. When
+    // the painter window (opaque wl_subsurface) fully covers the top level,
+    // compositors cull the top level and never send it a frame callback, so
+    // all UI painting stops after the first frame. See QTBUG-137940.
+    if (!qEnvironmentVariableIsSet("QT_WAYLAND_FRAME_CALLBACK_TIMEOUT"))
+    {
+        qputenv("QT_WAYLAND_FRAME_CALLBACK_TIMEOUT", "0");
+        LOG(VB_GENERAL, LOG_INFO, LOC + "Disabled Qt Wayland frame callback timeout");
+    }
+
 #if CONFIG_QTWEBENGINE
     QApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
     QQuickWindow::setSceneGraphBackend("software");
